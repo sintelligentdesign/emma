@@ -2,9 +2,10 @@ wordarray = []
 currentwords = {}
 nextword = {}
 
-with open ("testbrain.brn", "r") as corpus:
+with open ("testbrain.txt", "r") as corpus:
     for line in corpus:
         # todo: remove and take note of punctuation for punctuation model
+        # todo: remove unicode characters and newlines?
         wordarray = wordarray + line.split(' ')
 
 for count in range(0, len(wordarray)):
@@ -32,5 +33,10 @@ for count in range(0, len(wordarray)):
         
         currentwords[CurrentWordsAsString] = nextword  
         
-print currentwords
+print "Parse complete. Dumping to testbrain.brn"
+brainfile = open("testbrain.brn", "w")
+print >>brainfile, currentwords
+brainfile.close()
 # todo: convert currentwords to json
+# todo: let user choose files to read from and write to
+# todo: replace currentwords and nextword with stem and leaf?
