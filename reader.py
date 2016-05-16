@@ -37,6 +37,12 @@ print "Parse complete. Dumping to testbrain.brn"
 brainfile = open("testbrain.brn", "w")
 print >>brainfile, currentwords
 brainfile.close()
+
+import json
+jsonarray = json.dumps(currentwords)
+jsonfile = open("testjson.json", "w")
+print >>jsonfile, jsonarray
+jsonfile.close()
 # todo: convert currentwords to json
 # todo: let user choose files to read from and write to
 # todo: replace currentwords and nextword with stem and leaf?
