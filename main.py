@@ -3,7 +3,7 @@ import ast
 
 # load up the brain from reader. we'll link these later
 brain = ""
-brainfile = open("testbrain.brn", "r")
+brainfile = open("linetestbrain.brn", "r")
 for line in brainfile:
     brain += line
 brain = ast.literal_eval(brain)

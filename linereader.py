@@ -7,7 +7,6 @@ while 1 > 0:
     userinput = raw_input('INPUT >> ')
     # todo: remove and take note of punctuation for punctuation model
     wordarray = userinput.split(' ')
-    print wordarray
 
     for count in range(0, len(wordarray)):
         dupedetected = 0    # bool carrying "duplication detected" message
