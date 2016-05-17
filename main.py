@@ -35,4 +35,6 @@ while speaklength > 0:
 if sentence.rfind('.') < 1:
     sentence += "."
 
+sentence = str.join("", sentence.splitlines())
+
 print "OUTPUT: " + sentence
