@@ -2,7 +2,10 @@ wordarray = []
 stem = {}
 leaf = {}
 
-with open ("testbrain.txt", "r") as corpus:
+readfrom = raw_input('File to read from: ')
+writeto = raw_input('File to write to: ')
+
+with open (readfrom, "r") as corpus:
     for line in corpus:
         # todo: remove and take note of punctuation for punctuation model
         wordarray = wordarray + line.split(' ')
@@ -33,8 +36,6 @@ for count in range(0, len(wordarray)):
         stem[StemAsString] = leaf
         
 print "Parse complete. Dumping to testbrain.brn"
-brainfile = open("testbrain.brn", "w")
+brainfile = open(writeto, "w")
 print >>brainfile, stem
 brainfile.close()
-# todo: convert currentwords to json?
-# todo: let user choose files to read from and write to
