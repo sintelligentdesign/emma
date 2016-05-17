@@ -1,3 +1,4 @@
+# todo: add commands for user to quit command line and delete contents of .brn file?
 wordarray = []
 stem = {}
 leaf = {}
@@ -5,7 +6,7 @@ leaf = {}
 while 1 > 0:
     userinput = raw_input('INPUT >> ')
     # todo: remove and take note of punctuation for punctuation model
-    wordarray = wordarray + userinput.split(' ')
+    wordarray += userinput.split(' ')
 
     for count in range(0, len(wordarray)):
         dupedetected = 0    # bit for carrying duplication detected message
@@ -32,7 +33,7 @@ while 1 > 0:
             
             stem[StemAsString] = leaf
             
-    print "Parse complete. Dumping to testbrain.brn"
+    print "Parse complete. Dumping to linetestbrain.brn"
     brainfile = open("linetestbrain.brn", "w")
     print >>brainfile, stem
     brainfile.close()
