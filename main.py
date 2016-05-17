@@ -9,7 +9,7 @@ for line in brainfile:
 brain = ast.literal_eval(brain)
 
 speaklength = 20
-sentence = "the wheels"
+sentence = "the wheels"         #basic seed
 diesides = int
 
 # create the sentence
@@ -20,21 +20,19 @@ while speaklength > 0:
 #    diesides = word.values()
 #    for count in range(0, len(diesides)):
 
-    lastTwoWords = " ".join(sentence.split()[-2:])
-    for key in brain:
-        if key == lastTwoWords:
+    lastTwoWords = " ".join(sentence.split()[-2:])                              #gets last two words in sentence
+    for key in brain:                                                           #finds last two words
+        if key == lastTwoWords:                                                 #finds following words in brain
             totOccurances = 0
             nextWordsDict = brain[key]
-            for word in nextWordsDict:
+            for word in nextWordsDict:                                          #finds total Occurances for RNG limit
                 totOccurances += nextWordsDict[word]
 
-            selector = random.randrange(totOccurances) +1
-            for word in nextWordsDict:
+            selector = random.randrange(totOccurances) +1                       #RNG
+            for word in nextWordsDict:                                          #loops through decrementing selector
                 selector -= nextWordsDict[word]
-                if selector <= 0:
+                if selector <= 0:                                               #choses following word when selector equals zero
                     sentence += " " + word
-
-#    sentence += " banana"
 
     speaklength -= 1
 
