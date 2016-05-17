@@ -9,17 +9,13 @@ for line in brainfile:
 brain = ast.literal_eval(brain)
 
 speaklength = 20
-sentence = "the wheels"         #basic seed
-diesides = int
+sentence = ""
+
+#choose first two words
+sentence += random.choice(brain.keys())
 
 # create the sentence
 while speaklength > 0:
-#    word = random.choice(brain.keys())
-#    sentence += word
-
-#    diesides = word.values()
-#    for count in range(0, len(diesides)):
-
     lastTwoWords = " ".join(sentence.split()[-2:])                              #gets last two words in sentence
     for key in brain:                                                           #finds last two words
         if key == lastTwoWords:                                                 #finds following words in brain
