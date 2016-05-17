@@ -8,7 +8,7 @@ for line in brainfile:
     brain += line
 brain = ast.literal_eval(brain)
 
-speaklength = randrange(8, 25)
+speaklength = random.randrange(8, 25)
 sentence = ""
 
 #choose first two words
@@ -25,14 +25,14 @@ while speaklength > 0:
                 totOccurances += nextWordsDict[word]
 
             selector = random.randrange(totOccurances) +1                       #RNG
-            for word in nextWordsDict:                                          #loops through decrementing selector
+            for word in nextWordsDict:                                          #loops through next words, decrementing selector
                 selector -= nextWordsDict[word]
                 if selector <= 0:                                               #choses following word when selector equals zero
                     sentence += " " + word
 
     speaklength -= 1
 
-if sentence.rfind('.') > 1:
+if sentence.rfind('.') < 1:
     sentence += "."
 
 print "OUTPUT: " + sentence
