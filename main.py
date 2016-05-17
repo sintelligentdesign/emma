@@ -8,7 +8,7 @@ for line in brainfile:
     brain += line
 brain = ast.literal_eval(brain)
 
-speaklength = 20
+speaklength = randrange(8, 25)
 sentence = "the wheels"         #basic seed
 diesides = int
 
