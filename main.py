@@ -13,9 +13,11 @@ sentence = ""
 
 #choose first two words
 sentence += random.choice(brain.keys())
+#sets lives
+lives = 2
 
 # create the sentence
-while speaklength > 0:
+while speaklength > 0 and lives > 0:
     hasNext = False  #keeps track of dead end status
 
     lastTwoWords = " ".join(sentence.split()[-2:])                              #gets last two words in sentence
@@ -33,9 +35,10 @@ while speaklength > 0:
                 if selector <= 0:                                               #choses following word when selector equals zero
                     sentence += " " + word
 
-    if hasNext == False:            #if dead end, adds new stem
+    if hasNext == False:            #if dead end, adds new stem, decrements lives
         sentence += " " + random.choice(brain.keys())
-
+        lives -= 1
+        
     speaklength -= 1
 
 if sentence.rfind('.') < 1:
