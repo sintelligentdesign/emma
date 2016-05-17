@@ -6,10 +6,11 @@ leaf = {}
 while 1 > 0:
     userinput = raw_input('INPUT >> ')
     # todo: remove and take note of punctuation for punctuation model
-    wordarray += userinput.split(' ')
+    wordarray = userinput.split(' ')
+    print wordarray
 
     for count in range(0, len(wordarray)):
-        dupedetected = 0    # bit for carrying duplication detected message
+        dupedetected = 0    # bool carrying "duplication detected" message
         if count < len(wordarray) - 2:  # so we don't go out of bounds
             StemAsString = wordarray[count] + ' ' + wordarray[count + 1]        # take two words (the "stem")
             LeafAsString = wordarray[count + 2]                                 # also get the word after the two words (the "leaf")
