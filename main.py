@@ -35,5 +35,7 @@ while speaklength > 0:
                     sentence += " " + word
 
     speaklength -= 1
+    
+sentence += "."
 
 print "OUTPUT: " + sentence
