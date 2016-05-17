@@ -1,48 +1,40 @@
 wordarray = []
-currentwords = {}
-nextword = {}
+stem = {}
+leaf = {}
 
 with open ("testbrain.txt", "r") as corpus:
     for line in corpus:
         # todo: remove and take note of punctuation for punctuation model
-        # todo: remove unicode characters and newlines?
         wordarray = wordarray + line.split(' ')
 
 for count in range(0, len(wordarray)):
     dupedetected = 0    # bit for carrying duplication detected message
     if count < len(wordarray) - 2:  # so we don't go out of bounds
-        CurrentWordsAsString = wordarray[count] + ' ' + wordarray[count + 1]    # take two words
-        NextWordAsString = wordarray[count + 2]                                 # also get the word after the two words
+        StemAsString = wordarray[count] + ' ' + wordarray[count + 1]        # take two words (the "stem")
+        LeafAsString = wordarray[count + 2]                                 # also get the word after the two words (the "leaf")
         
         # todo: figure out dups and ranking
-        for count in range(0, len(currentwords)):                               # check through everything we've done so far to see if we have duplicate currentwords values
-            if CurrentWordsAsString == currentwords.keys()[count]:              # check CurrentWordsAsString against each established previous first two word pair
-                print "Duplicate currentwords detected: " + CurrentWordsAsString + ". Merging..."
+        for count in range(0, len(stem)):                                   # check through everything we've done so far to see if we have duplicate stem values
+            if StemAsString == stem.keys()[count]:                          # check StemAsString against each established previous first two word pair
+                print "Duplicate stem detected: (" + StemAsString + "). Merging..."
                 dupedetected = 1
                         
-                nextword = currentwords.values()[count]                         # set value of nextword to CURRENT nextword
+                leaf = stem.values()[count]                                 # set value of leaf to CURRENT leaf
                 
-                for count in range(0, len(nextword)):                           # if we've already set nextword, increment its score
-                    if nextword.keys()[count] == NextWordAsString:
-                        nextword[NextWordAsString] += 1
-                    else:                                                       # otherwise, append new next word to nextword list
-                        nextword[NextWordAsString] = 1                          
+                for count in range(0, len(leaf)):                           # if we've already set this as a leaf, increment its score
+                    if leaf.keys()[count] == LeafAsString:
+                        leaf[LeafAsString] += 1
+                    else:                                                   # otherwise, append new leaf to leaf list
+                        leaf[LeafAsString] = 1                          
                 
         if dupedetected == 0:
-            nextword = {NextWordAsString: 1}                                    # create dict with next word and ranking if currentwords isn't a dupe of another key
+            leaf = {LeafAsString: 1}                                        # create dict with leaf and ranking if current stem isn't a dupe of another stem
         
-        currentwords[CurrentWordsAsString] = nextword  
+        stem[StemAsString] = leaf
         
 print "Parse complete. Dumping to testbrain.brn"
 brainfile = open("testbrain.brn", "w")
-print >>brainfile, currentwords
+print >>brainfile, stem
 brainfile.close()
-
-import json
-jsonarray = json.dumps(currentwords)
-jsonfile = open("testjson.json", "w")
-print >>jsonfile, jsonarray
-jsonfile.close()
-# todo: convert currentwords to json
+# todo: convert currentwords to json?
 # todo: let user choose files to read from and write to
-# todo: replace currentwords and nextword with stem and leaf?
