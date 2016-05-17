@@ -16,9 +16,12 @@ sentence += random.choice(brain.keys())
 
 # create the sentence
 while speaklength > 0:
+    hasNext = False  #keeps track of dead end status
+
     lastTwoWords = " ".join(sentence.split()[-2:])                              #gets last two words in sentence
     for key in brain:                                                           #finds last two words
         if key == lastTwoWords:                                                 #finds following words in brain
+            hasNext = True  #not dead end
             totOccurances = 0
             nextWordsDict = brain[key]
             for word in nextWordsDict:                                          #finds total Occurances for RNG limit
@@ -29,6 +32,9 @@ while speaklength > 0:
                 selector -= nextWordsDict[word]
                 if selector <= 0:                                               #choses following word when selector equals zero
                     sentence += " " + word
+
+    if hasNext == False:            #if dead end, adds new stem
+        sentence += " " + random.choice(brain.keys())
 
     speaklength -= 1
 
