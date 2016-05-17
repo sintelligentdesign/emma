@@ -3,8 +3,8 @@ wordarray = []
 stem = {}
 leaf = {}
 
-while 1 > 0:
-    userinput = raw_input('INPUT >> ')
+def input():
+    userinput = raw_input('YOU: ')
     # todo: remove and take note of punctuation for punctuation model
     wordarray = userinput.split(' ')
     print wordarray
