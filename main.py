@@ -1,5 +1,4 @@
-import random
-import ast
+import random, ast
 
 # load up the brain from reader. we'll link these later
 brain = ""
