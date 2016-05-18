@@ -1,4 +1,5 @@
 # todo: add commands for user to quit command line and delete contents of .brn file?
+# note: linetestbrain.brn contents wiped on each run of linetestreader.py
 wordarray = []
 stem = {}
 leaf = {}
