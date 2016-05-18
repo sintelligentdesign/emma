@@ -1,7 +1,7 @@
 import random, ast
 
 wordarray = []
-stem = ast.literal_eval(open("convo.brn", "r").read())
+stem = ast.literal_eval(open("convo.brn", "r").read())                          #prevents overwrite of .brn file
 leaf = {}
 
 while 1 > 0:
@@ -28,7 +28,7 @@ while 1 > 0:
     brainfile = open("convo.brn", "w")
     print >>brainfile, stem
     brainfile.close()
-    
+
     ##RESPONSE STARTS HERE##
 
     # load up the brain from reader
