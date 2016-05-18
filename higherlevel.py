@@ -10,3 +10,4 @@ def preprocess(document):
     return sentences
     
 input = raw_input('INPUT >> ')
+preprocess(input)
