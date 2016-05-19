@@ -3,14 +3,16 @@ Brain- folder
     Markov model of Parts of Speech
   punctuation model
     Function
-  capitalization model
-    Function-Sentence Initials
-    Model-Proper Nouns, Acronyms
   concept graph
     table
+
+    capitalization model
+      Function-Sentence Initials
+      Model-Proper Nouns, Acronyms
   tense model
     links verb tenses to keywords ex."Then,"
     links verb tenses to parts of sentence templates
+
 Listener
   Capitalization Parse
     looks for proper nouns, Acronyms
@@ -18,6 +20,6 @@ Listener
 
 Speaker
   chooses template and concept
-  uses linked concepts
+  finds linked concepts
   fills template
   applies tenses
