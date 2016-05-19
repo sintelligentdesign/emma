@@ -3,7 +3,6 @@
 # todo: fix that
 import nltk, re, pprint
 
-sentencepos = []
 stem = {}
 leaf = {}
 
@@ -11,17 +10,19 @@ target = "partsofspeech.mdl"    # this isn't hard-coded just in case we want to 
 
 def getPartsOfSpeech(sentence):
     # get the parts of speech from the input
-    sentence = nltk.sent_tokenize(sentence)                         # NLTK default sentence segmenter (todo: this should go in the main logic later)
-    #sentence = [nltk.word_tokenize(sent) for sent in sentences]    # NLTK default word tokenizer (todo: this should go in the main logic later)
-                                                                    # note: do we want to use the multi word expression tokenizer instead (to help with glue words)?
-    sentence = nltk.word_tokenize(str(sentence).strip('[]'))      
-    sentence = nltk.pos_tag(sentence)                               # NLTK default part-of-speech tagger
-    print sentence
+    sentences = nltk.sent_tokenize(document)                        # NLTK default sentence segmenter       todo: this should be in the main program
+    sentences = nltk.word_tokenize(str(sentences).strip('[]\''))    # NLTK default word tokenizer           todo: this should be in the main program
+    sentences = nltk.pos_tag(sentences)                             # NLTK default part-of-speech tagger
+    print sentences
     
-    # extract parts of speech as array from tuple
-    for count in range (0, len(sentence)):
-        sentencepos.append(sentence[count])
-        print sentencepos
+    # make "sentences" of tags from list of tuples
+    tagsentence = []                                # this is clearly a list, but we're calling it a sentence because as far as the markov muncher cares, it is one
+                                                    # we could turn it into a string, but what's the point of doing that if we're gonna unpack it back into a list anyway?
+    for count in range(0, len(sentences)):
+        tup = sentences[count]
+        tansentence.append(tup[1])
+    print "tag sentence: " + tagsentence
+    return tagsentence
 
 def grok(input):
     posarray = getPartsOfSpeech(input)
