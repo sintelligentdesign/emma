@@ -15,14 +15,14 @@ while 1 > 0:
             LeafAsString = wordarray[count + 2]                                 # also get the word after the two words (the "leaf")
 
             # todo: figure out dups and ranking
-            if StemAsString in stem:                                       # check for duplicate stems
+            if StemAsString in stem:                                            # check for duplicate stems
                 print "Duplicate stem detected: (" + StemAsString + "). Merging..."
 
-                leaf = stem[StemAsString]                                 # set value of leaf to CURRENT leaf
+                leaf = stem[StemAsString]                                       # set value of leaf to CURRENT leaf
 
-                if LeafAsString in leaf:                                # if duplicate leaf, increment score
+                if LeafAsString in leaf:                                        # if duplicate leaf, increment score
                     leaf[LeafAsString] += 1
-                else:                                                   # otherwise, append new leaf to leaf list
+                else:                                                           # otherwise, append new leaf to leaf list
                     leaf[LeafAsString] = 1
 
             else:
