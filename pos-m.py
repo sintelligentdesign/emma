@@ -3,9 +3,6 @@
 # todo: fix that: import contents of partsofspeech.mdl and use it while comparing in grok()
 import nltk, re, pprint
 
-stem = {}
-leaf = {}
-
 target = "partsofspeech.mdl"    # this isn't hard-coded just in case we want to reuse this code later
 
 def getPartsOfSpeech(sentence):
@@ -27,6 +24,9 @@ def getPartsOfSpeech(sentence):
 
 def grok(input):
     posarray = getPartsOfSpeech(input)
+    
+    stem = {}
+    leaf = {}
 
     for count in range(0, len(posarray)):
         if count < len(posarray) - 2:  # so we don't go out of bounds
