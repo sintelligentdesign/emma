@@ -3,22 +3,25 @@
 # todo: fix that
 import nltk, re, pprint
 
+sentencepos = []
 stem = {}
 leaf = {}
 
-target = "partsofspeech.mdl"
+target = "partsofspeech.mdl"    # this isn't hard-coded just in case we want to reuse this code later
 
 def getPartsOfSpeech(sentence):
     # get the parts of speech from the input
-    sentence = nltk.sent_tokenize(document)                        # NLTK default sentence segmenter (todo: this should go in the main logic later.)
-    print sentences
-    sentence = [nltk.word_tokenize(sent) for sent in sentences]    # NLTK default word tokenizer
-    print sentences
-    sentence = [nltk.pos_tag(sent) for sent in sentences]          # NLTK default part-of-speech tagger
-    print sentences
+    sentence = nltk.sent_tokenize(sentence)                         # NLTK default sentence segmenter (todo: this should go in the main logic later)
+    #sentence = [nltk.word_tokenize(sent) for sent in sentences]    # NLTK default word tokenizer (todo: this should go in the main logic later)
+                                                                    # note: do we want to use the multi word expression tokenizer instead (to help with glue words)?
+    sentence = nltk.word_tokenize(str(sentence).strip('[]'))      
+    sentence = nltk.pos_tag(sentence)                               # NLTK default part-of-speech tagger
+    print sentence
     
     # extract parts of speech as array from tuple
-    # (TODO)
+    for count in range (0, len(sentence)):
+        sentencepos.append(sentence[count])
+        print sentencepos
 
 def grok(input):
     posarray = getPartsOfSpeech(input)
@@ -42,7 +45,8 @@ def grok(input):
 
             stem[StemAsString] = leaf
 
-    print "Parse complete. Dumping to " target
+    # todo: dump to brain.brn/"target"
+    print "Parse complete. Dumping to" target
     modelfile = open(target, "w")
     print >>modelfile, stem
     modelfile.close()
