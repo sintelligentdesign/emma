@@ -1,11 +1,8 @@
 import ast
 
 #gets brain
-brain = ""
-brainfile = open("testbrain.brn", "r")
-for line in brainfile:
-    brain += line
-brain = ast.literal_eval(brain)
+brainfile = raw_input("File to scan: ")
+brain = ast.literal_eval(open(brainfile, "r").read())
 
 #finds largest freq number
 maxFreq = 0

@@ -1,11 +1,9 @@
 Brain- folder
   sentence templates
     Markov model of Parts of Speech
-  punctuation model
-    Function
+    punctuation model is part of this
   concept graph
     table
-
     capitalization model
       Function-Sentence Initials
       Model-Proper Nouns, Acronyms
@@ -17,6 +15,7 @@ Listener
   Capitalization Parse
     looks for proper nouns, Acronyms
   Parts of Speech Markov generator
+  Concept former
 
 Speaker
   chooses template and concept
