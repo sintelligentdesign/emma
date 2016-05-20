@@ -80,5 +80,7 @@ def conceptreader(inputAsWords, inputAsPartsOfSpeech):
                     association = inputAsWords[count3]
                     proximity = count1 - count3
                     print noun + " " + str(associationType) + " " + association + " " + str(proximity)
+                    
+        conceptgen.addconcept(noun, associationType, association, proximity)
 
 conceptreader(inputAsWords, inputAsPartsOfSpeech)
