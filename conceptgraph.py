@@ -1,5 +1,4 @@
-import sqlite3 as sql
-import sys
+import sqlite3 as sql, sys, numpy as np
 
 connection = sql.connect('conceptgraph.db')     # connect to the concept graph SQLite database
     
@@ -14,7 +13,7 @@ def addconcept(noun, associationType, association, proximity):
                                                                 # todo: do this in pure sql
         print id                                                # todo: remove
         
-        # NOUN
+        # NOUN todo: move this below dupe check
         cursor.execute('SELECT * FROM conceptgraph WHERE noun = \'%s\'' % noun)     # check to see if noun exists in database
         nounInDatabase = cursor.fetchall()
         
@@ -26,9 +25,24 @@ def addconcept(noun, associationType, association, proximity):
         
         
         cursor.execute('SELECT * FROM conceptgraph WHERE noun = \'%s\' AND association = \'%s\'' % (noun, association))     # select the row that we want to work with
-        row = cursor.fetchall()
-        if row != []:   # if the row is a duplicate
-            print row   # todo: do stuff
+        row = cursor.fetchone()
+        
+        if row != []:   # if the row is a duplicate, calculate its new values and add them
+            # TOTAL FREQUENCY
+            totalfrequency = row[5]                                                 # get current total frequency
+            totalfrequency += totalfrequency                                        # add 1 for new total frequency
+            # todo: commit new total frequency
+            
+            # AVERAGE PROXIMITY
+            averageproximity = row[6]                                               # get current average proximity
+            averageproximity = (averageproximity + proximity) + totalfrequency      # calculate new average proximity
+            # todo: commit new average proximity
+            
+            # STRENGTH
+            strength = totalfrequency/(np.log(averageproximity) + 1)                # calculate new association strength
+            print strength
+            # todo: commit new strength
+            
         else:           # if the row IS NOT a duplicate
             print row   # todo: do other stuff
         
