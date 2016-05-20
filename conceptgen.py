@@ -9,7 +9,7 @@ connection = sql.connect('conceptgraph.db')     # connect to the concept graph S
     
 def addconcept(noun, associationType, association, proximity):
     with connection:
-        cursor = connection.cursor()        # get the cursor object
+        cursor = connection.cursor()            # get the cursor object
         
         
         # ASSOCIATION TYPE
@@ -20,6 +20,7 @@ def addconcept(noun, associationType, association, proximity):
         
         cursor.execute('SELECT * FROM conceptgraph WHERE noun = \'%s\' AND association = \'%s\';' % (noun, association))     # check to see if the row that we want to work with is already in the database
         row = cursor.fetchone()
+        print row
         
         if row != []:                                                               # if the row is a duplicate, calculate its new values and add them
             # TOTAL FREQUENCY
@@ -57,3 +58,5 @@ def addconcept(noun, associationType, association, proximity):
         
         
         # STRENGTH
+        
+addconcept("hello", 0, "world", 1)
