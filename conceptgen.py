@@ -39,5 +39,7 @@ def addconcept(noun, associationType, association, proximity):
             strength = calculatstrength(1, proximity)                               # calculate association strength
             print "Creating new concept for association %s, %s" % (noun, association)
             
+            totalFrequency = 1
+            
             # COMMIT
-            cursor.execute('INSERT INTO conceptgraph (noun, association_type, association, total_frequency, avg_proximity, strength) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\');' % noun, associationType, association, 1, proximity, strength)
+            cursor.execute('INSERT INTO conceptgraph (noun, association_type, association, total_frequency, avg_proximity, strength) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\');' % noun, associationType, association, totalFrequency, proximity, strength)
