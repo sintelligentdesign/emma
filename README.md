@@ -6,7 +6,7 @@
 
        ·~-.¸¸,.-~*¯¨*·~-.¸,.-~*¯¨*·~-.¸¸,.-~*¯¨*·~-.¸¸,.
 
-             ENGLISH MODEL of MAPPED ASSOCIATIONS
+             EXPANDING MODEL of MAPPED ASSOCIATIONS
 
 
        Written by Ellie Cochran & Alexander Howard, with
