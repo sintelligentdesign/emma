@@ -4,9 +4,9 @@
     888    .,  888   888   888   888   888   888  d8(  888
     `Y8bod8P' o888o o888o o888o o888o o888o o888o `Y888""8o
 
-    ·~-.¸¸,.-~*¯¨*·~-.¸,.-~*¯¨*·~-.¸¸,.-~*¯¨*·~-.¸¸,.
+       ·~-.¸¸,.-~*¯¨*·~-.¸,.-~*¯¨*·~-.¸¸,.-~*¯¨*·~-.¸¸,.
 
-           ENGLISH MODEL of MAPPED ASSOCIATIONS
+             ENGLISH MODEL of MAPPED ASSOCIATIONS
 
 
      Written by Ellie Cochran & Alexander Howard, with
