@@ -51,4 +51,3 @@ for count in (0, len(inputAsSentences) - 1):
         for code in range(0, len(adjectiveCodes)):
             if inputAsPartsOfSpeech[count] == adjectiveCodes[code]:
                 print "word %s is an adjective!" % inputAsWords[count]
-        
