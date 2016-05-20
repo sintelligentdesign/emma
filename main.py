@@ -13,6 +13,9 @@
 #  
 #     Written by Ellie Cochran & Alexander Howard, with
 #                contributions by Omri Barak.
+#
+#      Uses elements from the Natural Language Toolkit.
+#                 Visit http://www.nltk.org.
 
 import nltk, conceptgen, posmodelgen
 
