@@ -43,9 +43,11 @@ for count in (0, len(inputAsSentences) - 1):
         for code in range(0, len(nounCodes)):
             if inputAsPartsOfSpeech[count] == nounCodes[code]:
                 print "word %s is a noun!" % inputAsWords[count]
+        # check if word is a verb
         for code in range(0, len(verbCodes)):
             if inputAsPartsOfSpeech[count] == verbCodes[code]:
                 print "word %s is a verb!" % inputAsWords[count]
+        # check if word is an adjective
         for code in range(0, len(adjectiveCodes)):
             if inputAsPartsOfSpeech[count] == adjectiveCodes[code]:
                 print "word %s is an adjective!" % inputAsWords[count]
