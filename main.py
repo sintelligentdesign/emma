@@ -37,9 +37,6 @@ for count in (0, len(inputAsSentences) - 1):
     adjectiveCodes = ['JJ', 'JJR', 'JJS']
     inputAsPartsOfSpeech = posmodelgen.getPartsOfSpeech(inputAsWords)
 
-    conceptreader(inputAsWords, inputAsPartsOfSpeech)
-
-
 #find associations of nouns to other words
 def conceptreader(inputAsWords, inputAsPartsOfSpeech):
     noun = ""
@@ -52,7 +49,7 @@ def conceptreader(inputAsWords, inputAsPartsOfSpeech):
         if inputAsPartsOfSpeech[count1] in nounCodes:
             noun = inputAsWords[count1]
 
-            for count2 in range(count1 + 1, len(inputAsWords)):                 # looks for word after
+            for count2 in range(count1 + 1, len(inputAsWords)):                 # looks for important word after noun
                 importantWord = True
                 if inputAsPartsOfSpeech[count2] in nounCodes:
                     associationType = 0
@@ -63,12 +60,12 @@ def conceptreader(inputAsWords, inputAsPartsOfSpeech):
                 else:
                     importantword = False
 
-                if importantWord:
+                if importantWord:                                               # if an important word is found, add it to the concept graph
                     association = inputAsWords[count2]
                     proximity = count2 - count1
-                    print noun + " " + str(associationType) + " " + association + " " + str(proximity)
+                    conceptgen.addconcept(noun, associationType, association, proximity)
 
-            for count3 in range(0, count1):                                     # looks for word before
+            for count3 in range(0, count1):                                     # looks for important word before noun
                 importantWord = True
                 if inputAsPartsOfSpeech[count3] in nounCodes:
                     associationType = 0
@@ -79,8 +76,9 @@ def conceptreader(inputAsWords, inputAsPartsOfSpeech):
                 else:
                     importantWord = False
 
-                if importantWord:
+                if importantWord:                                               # if an important word is found, add it to the concept graph
                     association = inputAsWords[count3]
                     proximity = count1 - count3
-                    print noun + " " + str(associationType) + " " + association + " " + str(proximity)
                     conceptgen.addconcept(noun, associationType, association, proximity)
+                    
+conceptreader(inputAsWords, inputAsPartsOfSpeech)

@@ -8,13 +8,15 @@ def calculatestrength(totalFreq, avgProx):
 connection = sql.connect('conceptgraph.db')     # connect to the concept graph SQLite database
     
 def addconcept(noun, associationType, association, proximity):
+    noun = noun.title()
+    association = association.title()
     with connection:
         cursor = connection.cursor()            # get the cursor object
         
         cursor.execute('SELECT * FROM conceptgraph WHERE noun = \'%s\' AND association = \'%s\';' % (noun, association))     # check to see if the row that we want to work with is already in the database
         row = cursor.fetchone()
         
-        if row != []:                                                               # if the row is a duplicate, calculate its new values and add them
+        if row != None:                                                             # if the row is a duplicate, calculate its new values and add them
             print "Adding new values to existing concept for association %s, %s" % (noun, association)
             
             # GET CONCEPT ID
@@ -36,10 +38,10 @@ def addconcept(noun, associationType, association, proximity):
             cursor.execute('UPDATE conceptgraph SET total_frequency = %s, avg_proximity = %s, strength = %s WHERE id = %s' % (totalFrequency, avgProximity, strength, conceptid))
             
         else:                                                                       # if the row IS NOT a duplicate
-            strength = calculatstrength(1, proximity)                               # calculate association strength
+            strength = calculatestrength(1, proximity)                               # calculate association strength
             print "Creating new concept for association %s, %s" % (noun, association)
             
             totalFrequency = 1
             
             # COMMIT
-            cursor.execute('INSERT INTO conceptgraph (noun, association_type, association, total_frequency, avg_proximity, strength) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\');' % noun, associationType, association, totalFrequency, proximity, strength)
+            cursor.execute('INSERT INTO conceptgraph (noun, association_type, association, total_frequency, avg_proximity, strength) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\');' % (noun, associationType, association, totalFrequency, proximity, strength))

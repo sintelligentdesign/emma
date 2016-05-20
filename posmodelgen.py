@@ -6,7 +6,7 @@ target = "partsofspeech.mdl"
 def getPartsOfSpeech(sentence):
     # get the parts of speech from the input
     sentence = nltk.pos_tag(sentence)                             # NLTK default part-of-speech tagger
-    print "Parts of speech making up this sentence are: %s" % sentence
+    #print "Parts of speech making up this sentence are: %s" % sentence
 
     tagsentence = []    # make "sentences" of tags from list of tuples
                         # the above is clearly a list, but we're calling it a sentence because as far as the markov muncher cares, it is one
@@ -14,7 +14,7 @@ def getPartsOfSpeech(sentence):
     for count in range(0, len(sentence)):
         tup = sentence[count]
         tagsentence.append(tup[1])
-    print "tag sentence: " + ' '.join(tagsentence)
+    #print "tag sentence: " + ' '.join(tagsentence)
     return tagsentence
 
 def grok(input):
@@ -36,7 +36,7 @@ def grok(input):
             LeafAsString = posarray[count + 2]                                  # also get one part of speech after the former two (the "leaf")
 
             if StemAsString in stem:                                            # check for duplicate stems
-                print "Duplicate stem detected: (%s). Merging..." % StemAsString
+                #print "Duplicate stem detected: (%s). Merging..." % StemAsString
 
                 leaf = stem[StemAsString]                                       # set value of leaf to CURRENT leaf
 
@@ -50,7 +50,7 @@ def grok(input):
 
             stem[StemAsString] = leaf
 
-    print "Parts of speech parsing complete. Dumping to %s" % target
+    #print "Parts of speech parsing complete. Dumping to %s" % target
     modelfile = open(target, "w")
     print >>modelfile, stem
     modelfile.close()

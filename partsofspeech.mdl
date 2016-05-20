@@ -1,1 +1,1 @@
-{'JJ NN': {'NN': 1, '.': 1}, 'VBD IN': {'DT': 1}, 'NNP NN': {'.': 4}, 'DT JJ': {'NN': 2}, 'IN DT': {'JJ': 1}, 'NN VBD': {'IN': 1}, 'NN NN': {'VBD': 1}}
+{'JJ NN': {'NN': 13, '.': 13}, 'VBD IN': {'DT': 13}, 'NNP NN': {'.': 16}, 'DT JJ': {'NN': 26}, 'IN DT': {'JJ': 13}, 'NN VBD': {'IN': 13}, 'NN NN': {'VBD': 13}}
