@@ -47,7 +47,7 @@ def grok(input):
 
             stem[StemAsString] = leaf
 
-    print "Parse complete. Dumping to" + target
+    print "Parse complete. Dumping to " + target
     modelfile = open(target, "w")
     print >>modelfile, stem
     modelfile.close()
