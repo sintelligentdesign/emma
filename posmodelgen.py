@@ -9,8 +9,8 @@ def getPartsOfSpeech(sentence):
     print "Parts of speech making up this sentence are: %s" % sentence
 
     tagsentence = []    # make "sentences" of tags from list of tuples
-    # the above is clearly a list, but we're calling it a sentence because as far as the markov muncher cares, it is one
-    # we could turn it into a string, but what's the point of doing that if we're gonna unpack it back into a list anyway?
+                        # the above is clearly a list, but we're calling it a sentence because as far as the markov muncher cares, it is one
+                        # we could turn it into a string, but what's the point of doing that if we're gonna unpack it back into a list anyway?
     for count in range(0, len(sentence)):
         tup = sentence[count]
         tagsentence.append(tup[1])
@@ -22,14 +22,12 @@ def grok(input):
 
     # Overwrite prevention
     modelfile = open(target, "r")
-    if modelfile == "":
-        stem = {}
-    else:
-        stem = {}
+    stem = {}                               # if partsofspeech.mdl is empty, stem is initialized and blank
+    if modelfile != "":
         for line in modelfile:
-            stem = ast.literal_eval(line)
+            stem = ast.literal_eval(line)   # otherwise, stem is populated with the links from partsofspeech.mdl
     modelfile.close()
-    print stem
+    
     leaf = {}
 
     for count in range(0, len(posarray)):
