@@ -1,4 +1,9 @@
+# Concept generator
 import sqlite3 as sql, numpy as np
+
+def calculatestrength(totalFreq, avgProx):
+    strength = totalFreq/(np.log(avgProx) + 1)  # calculate the strength value of a concept based on its input frequency and average proximity
+    return strength
 
 connection = sql.connect('conceptgraph.db')     # connect to the concept graph SQLite database
     
@@ -23,7 +28,7 @@ def addconcept(noun, associationType, association, proximity):
             
             # AVERAGE PROXIMITY
             avgProximity = row[6]                                                   # get current average proximity
-            avgProximity = (avgProximity + proximity) + totalfrequency              # calculate new average proximity
+            avgProximity = (avgProximity + proximity) + totalFrequency              # calculate new average proximity
             
             # STRENGTH
             strength = calculatestrength(totalFrequency, avgProximity)              # calculate new association strength
@@ -34,11 +39,11 @@ def addconcept(noun, associationType, association, proximity):
         else:                                                                       # if the row IS NOT a duplicate
             # ID
             # note: max id should be auto-incremented, since it's a primary key. just in case, we'll keep this around
-            """
-            cursor.execute('SELECT MAX(id) FROM conceptgraph;')                     # get max concept id from table
-            id = cursor.fetchone()
-            id = id[0] + 1                                                          # add 1 to get new concept id
-            """"
+            
+            #cursor.execute('SELECT MAX(id) FROM conceptgraph;')                     # get max concept id from table
+            #id = cursor.fetchone()
+            #id = id[0] + 1                                                          # add 1 to get new concept id
+            
             print id                                                                # todo: remove
             
             # NOUN
@@ -54,7 +59,3 @@ def addconcept(noun, associationType, association, proximity):
         # STRENGTH
     
 addconcept("hello", 0, "friend", 1)
-
-def calculatestrength(totalFreq, avgProx):
-    strength = totalFreq/(np.log(avgProx) + 1)
-    return strength

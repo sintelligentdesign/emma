@@ -50,6 +50,3 @@ def grok(input):
     print >>modelfile, stem
     modelfile.close()
     # todo: convert to json?
-
-while 1>0:
-    grok(raw_input("INPUT: "))
