@@ -19,7 +19,8 @@
 
 import nltk, conceptgen, posmodelgen
 
-inputAsParagraph = raw_input('You >> ')
+inputAsParagraph = raw_input('You >> ')                     # since we're going to be responding to Tumblr asks, we'll assume that all input will be paragraph form.
+                                                            # todo: add alternative ways to input
 
 inputAsSentences = nltk.sent_tokenize(inputAsParagraph)     # NLTK default sentence segmenter
 
@@ -27,7 +28,7 @@ for count in (0, len(inputAsSentences) - 1):
     inputAsWords = inputAsSentences[count]
     inputAsWords = nltk.word_tokenize(inputAsWords)         # NTLK default word tokenizer
 
-    posmodelgen.grok(inputAsWords)                          # Generate sentence model from input sentences
+    posmodelgen.grok(inputAsWords)                          # generate sentence model from input sentences
 
     # Generate concept using words in input sentences
     nounCodes = ['NN', 'NNS', 'NNP', 'NNPS']
