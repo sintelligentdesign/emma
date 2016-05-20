@@ -33,7 +33,7 @@ def grok(input):
             LeafAsString = posarray[count + 2]                                  # also get one part of speech after the former two (the "leaf")
 
             if StemAsString in stem:                                            # check for duplicate stems
-                print "Duplicate stem detected: (" + StemAsString + "). Merging..."
+                print "Duplicate stem detected: (%s). Merging..." % StemAsString
 
                 leaf = stem[StemAsString]                                       # set value of leaf to CURRENT leaf
 
@@ -47,7 +47,7 @@ def grok(input):
 
             stem[StemAsString] = leaf
 
-    print "Parse complete. Dumping to " + target
+    print "Parse complete. Dumping to %s" % target
     modelfile = open(target, "w")
     print >>modelfile, stem
     modelfile.close()

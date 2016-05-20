@@ -70,4 +70,4 @@ while 1 > 0:
 
     sentence = str.join("", sentence.splitlines())
 
-    print "MBOT: " + sentence
+    print "MBOT: %s" % sentence
