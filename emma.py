@@ -29,6 +29,7 @@ for line in bannedWordsTxt:
 bannedWordsTxt.close()
 for count in range(0, len(bannedWords) - 1):
     bannedWords[count] = bannedWords[count].rstrip('\n')
+# todo: fix
 
 inputAsSentences = nltk.sent_tokenize(inputAsParagraph)     # NLTK default sentence segmenter
 inputAsWords = []

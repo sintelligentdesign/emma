@@ -11,6 +11,19 @@ def addconcept(noun, associationType, association, proximity):
     with connection:
         cursor = connection.cursor()            # get the cursor object
         
+        cursor.execute('SELECT DISTINCT noun FROM conceptgraph;')                              #check for new word
+        fullWordList = cursor.fetchall()
+        for count in range(0, len(fullWordList) - 1):
+            listCheck = str(fullWordList[count])
+            print listCheck
+            listCheck = listCheck.rstrip('(u\'')
+            print listCheck
+            # todo: fix
+            if noun in listCheck:
+                print "New word (%s)!" % noun
+                # todo: check tumblr for text posts about word
+                # note: is there a better way to do this? I imagine it doesn't scale well
+        
         cursor.execute('SELECT * FROM conceptgraph WHERE noun = \'%s\' AND association = \'%s\';' % (noun, association))     # check to see if the row that we want to work with is already in the database
         row = cursor.fetchone()
         
