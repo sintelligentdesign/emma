@@ -8,7 +8,7 @@
 # 
 #  ·~-.¸¸,.-~*'¯¨'*·~-.¸,.-~*'¯¨'*·~-.¸¸,.-~*'¯¨'*·~-.¸¸,.
 #  
-#              ENGLISH MODEL of MAPPED ARRAYS
+#           ENGLISH MODEL of MAPPED ASSOCIATIONS
 #  
 #  
 #     Written by Ellie Cochran & Alexander Howard, with
