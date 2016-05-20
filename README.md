@@ -18,6 +18,9 @@
 Emma is a computer program that generates rough concepts of associations by reading input. She uses these associations, in conjunction with learned sentence structure patterns, to generate a reply.
 She is a Summer project by Digital Media student, programmer, & computer artist Ellie Cochran, and Computer Science & Mathematics student Alexander Howard, with some contributions by Omri Barak.
 
+###Progress towards completion
+     [0%]▨▨▨▨▨▨▨▨[25%]▨▨▨▨▨▨▨▨[50%]▢▢▢▢▢▢▢[75%]▢▢▢▢▢▢▢[100%]
+
 ##How Emma Works
 ###Input
 * The User submits input. This can be in the form of text ranging from a few words to infinite paragraphs
@@ -54,7 +57,7 @@ She is a Summer project by Digital Media student, programmer, & computer artist 
     * Obviously, the choice of words is influenced by the strength of their association in Emma's Concept Graph
 * Each sentence Emma generates is collected into a paragraph, and the output is printed
 
-# Talk to Emma
+#Talk to Emma
 Emma isn't online yet, but when she is we'll hook up a conversation interface using Tumblr "asks" as a frontend. You will be able to talk to Emma at [emmacanlearn.tumblr.com](http://emmacanlearn.tumblr.com).
 
 ##To-Do
@@ -69,7 +72,7 @@ The following features are on our list of things to implement once Emma's core f
   * Questions, by their nature, are information holes requesting to be filled
   * We could generate an "answer" sentence type, or a question could prompt Emma to list things she knows about nouns in the question based on the strongest associations (for example, an input of "What are cats?" would prompt a reply of "Cats are furry, soft, gentile, and sweet. They explore, meow, purr, and sleep")
   
-## Contact the Developers
+##Contact the Developers
 Ellie and Alex are on social media! Ask us about Emma!
 Ellie Cochran is [@sharkthemepark](http://sharkthemepark.tumblr.com) on Tumblr and Twitter.
 Alexander Howard is [@ale303sh](http://www.twitter.com/ale303sh) on Twitter.
