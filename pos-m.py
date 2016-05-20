@@ -3,7 +3,7 @@
 # todo: fix that: import contents of partsofspeech.mdl and use it while comparing in grok()
 import nltk, re, pprint, ast
 
-target = raw_input("File to write to: ")
+target = "partsofspeech.mdl"
 
 def getPartsOfSpeech(sentence):
     # get the parts of speech from the input
