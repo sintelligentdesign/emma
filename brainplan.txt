@@ -22,3 +22,9 @@ Speaker
   finds linked concepts
   fills template
   applies tenses
+
+
+Special cases:
+  "and" with two nouns
+  "to be" with noun + adjective
+  negation of "to be" with noun + adjective
