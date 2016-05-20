@@ -1,2 +1,4 @@
 *.pyc
 bannedwords.txt
+
+.DS_Store
