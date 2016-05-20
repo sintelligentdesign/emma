@@ -40,14 +40,14 @@ def addconcept(noun, associationType, association, proximity):
             # ID
             # note: max id should be auto-incremented, since it's a primary key. just in case, we'll keep this around
             
-            #cursor.execute('SELECT MAX(id) FROM conceptgraph;')                     # get max concept id from table
+            #cursor.execute('SELECT MAX(id) FROM conceptgraph;')                    # get max concept id from table
             #id = cursor.fetchone()
-            #id = id[0] + 1                                                          # add 1 to get new concept id
+            #id = id[0] + 1                                                         # add 1 to get new concept id
             
             print id                                                                # todo: remove
             
             # NOUN
-            cursor.execute('SELECT * FROM conceptgraph WHERE noun = \'%s\';' % noun) # check to see if noun exists in database
+            cursor.execute('SELECT * FROM conceptgraph WHERE noun = \'%s\';' % noun)    # check to see if noun exists in database
             nounInDatabase = cursor.fetchall()
         
         # TOTAL FREQUENCY

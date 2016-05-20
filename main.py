@@ -29,5 +29,24 @@ for count in (0, len(inputAsSentences) - 1):
     inputAsWords = nltk.word_tokenize(inputAsWords)         # NTLK default word tokenizer
     print "Input sentence is: %s" % inputAsWords
     
-    # Generate sentence model from input sentences
-    posmodelgen.grok(inputAsWords)
+    posmodelgen.grok(inputAsWords)                          # Generate sentence model from input sentences
+    
+    # Generate concept using words in input sentences
+    nounCodes = ['NN', 'NNS', 'NNP', 'NNPS']
+    verbCodes = ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']
+    adjectiveCodes = ['JJ', 'JJR', 'JJS']
+    inputAsPartsOfSpeech = posmodelgen.getPartsOfSpeech(inputAsWords)
+    
+    # check if the word is one we care about (a noun, verb, or adjective)
+    for count in range(0, len(inputAsPartsOfSpeech)):
+        # check if word is a noun
+        for code in range(0, len(nounCodes)):
+            if inputAsPartsOfSpeech[count] == nounCodes[code]:
+                print "word %s is a noun!" % inputAsWords[count]
+        for code in range(0, len(verbCodes)):
+            if inputAsPartsOfSpeech[count] == verbCodes[code]:
+                print "word %s is a verb!" % inputAsWords[count]
+        for code in range(0, len(adjectiveCodes)):
+            if inputAsPartsOfSpeech[count] == adjectiveCodes[code]:
+                print "word %s is an adjective!" % inputAsWords[count]
+        
