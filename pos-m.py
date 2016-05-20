@@ -1,6 +1,4 @@
 # Parts of Speech Markov model generator
-# note: model contents are wiped on each run
-# todo: fix that: import contents of partsofspeech.mdl and use it while comparing in grok()
 import nltk, re, pprint, ast
 
 target = "partsofspeech.mdl"
