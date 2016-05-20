@@ -26,7 +26,7 @@ def grok(input):
         stem = {}
     else:
         for line in modelfile:
-            stem = stem + line
+            stem = ast.literal_eval(line)
     modelfile.close()
     print stem
     leaf = {}
