@@ -27,7 +27,7 @@ def addconcept(noun, associationType, association, proximity):
             
             # AVERAGE PROXIMITY
             avgProximity = row[6]                                                   # get current average proximity
-            avgProximity = (avgProximity + proximity) + totalFrequency              # calculate new average proximity
+            avgProximity = (avgProximity + proximity) / totalFrequency              # calculate new average proximity
             
             # STRENGTH
             strength = calculatestrength(totalFrequency, avgProximity)              # calculate new association strength
@@ -41,7 +41,3 @@ def addconcept(noun, associationType, association, proximity):
             
             # COMMIT
             cursor.execute('INSERT INTO conceptgraph (noun, association_type, association, total_frequency, avg_proximity, strength) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\');' % noun, associationType, association, 1, proximity, strength)
-            
-            
-        
-addconcept("hello", 0, "world", 1)
