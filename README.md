@@ -20,6 +20,8 @@ She is a Summer project by Digital Media student, programmer, & computer artist 
 
 ###Progress towards completion
      [0%]▨▨▨▨▨▨▨▨[25%]▨▨▨▨▨▨▨▨[50%]▢▢▢▢▢▢▢[75%]▢▢▢▢▢▢▢[100%]
+     - Emma is able to learn and store concepts and sentence structures
+     - The next thing for us to work on is sentence generation and output
 
 ##How Emma Works
 ###Input
