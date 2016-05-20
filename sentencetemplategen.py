@@ -5,12 +5,9 @@ import random, ast
 
 sentenceStructureModel = ast.literal_eval(open("sentencestructure.mdl", "r").read())    # load the generated sentence structure model
 
-genLength = random.randrange(8, 25)
-# todo: look for punctuation instead to tell us when to stop
 sentenceTemplate = ""
 
-sentenceTemplate += random.choice(sentenceStructureModel.keys())                        # choose the first two parts of speech to use as a stem
-                                                                                        # these are chosen randomly
+sentenceTemplate += random.choice(sentenceStructureModel.keys())                        # choose a stem at random from our sentence building block model
 
 # Sentence Generation
 while genLength > 0:
@@ -27,18 +24,16 @@ while genLength > 0:
         for key in nextPOSDict:                             # loops through next parts of speech, decrementing selector
             selector -= nextPOSDict[key]
             if selector <= 0:                               # choses following word when selector equals zero
-                sentenceTemplate += " " + key
+                if key == "." or "?" or "!":
+                    sentenceTemplate += key                 # if the next key is punctuation, end the sentence
+                else:
+                    sentenceTemplate += " " + key           # otherwise, append the part of speech
 
     else:                                                   # if we hit dead end, stick in a '%' so that we know that we hit a dead end and there should be more in the sentence model
         sentenceTemplate += "%"
         print "Sentence generation ended prematurely! (No leaves for stem %s)" % lastTwoPOS
 
-    speaklength -= 1
-
-if sentence.rfind('.') < 1:
-    sentence += "."
-
-sentence = str.join("", sentence.splitlines())
+sentence = str.join("", sentenceTemplate.splitlines())
 # todo: keep this as a list?
 
 print "EMMA >> %s" % sentence
