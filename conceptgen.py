@@ -39,8 +39,7 @@ def addconcept(noun, associationType, association, proximity):
         else:                                                                       # if the row IS NOT a duplicate
             strength = calculatestrength(1, proximity)                              # calculate association strength
             
-            if association != ".":
-                print "Creating new association for %s (%s)" % (noun, association)
+            print "Creating new association for %s (%s)" % (noun, association)
             
             totalFrequency = 1
             
