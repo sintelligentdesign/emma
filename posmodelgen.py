@@ -19,12 +19,13 @@ def getPartsOfSpeech(sentence):
 
 def grok(input):
     posarray = getPartsOfSpeech(input)
-    
+
     # Overwrite prevention
     modelfile = open(target, "r")
     if modelfile == "":
         stem = {}
     else:
+        stem = {}
         for line in modelfile:
             stem = ast.literal_eval(line)
     modelfile.close()
