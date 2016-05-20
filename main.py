@@ -37,6 +37,9 @@ for count in (0, len(inputAsSentences) - 1):
     adjectiveCodes = ['JJ', 'JJR', 'JJS']
     inputAsPartsOfSpeech = posmodelgen.getPartsOfSpeech(inputAsWords)
 
+    conceptreader(inputAsWords, inputAsPartsOfSpeech)
+
+
 #find associations of nouns to other words
 def conceptreader(inputAsWords, inputAsPartsOfSpeech):
     noun = ""
@@ -80,7 +83,5 @@ def conceptreader(inputAsWords, inputAsPartsOfSpeech):
                     association = inputAsWords[count3]
                     proximity = count1 - count3
                     print noun + " " + str(associationType) + " " + association + " " + str(proximity)
-                    
-        conceptgen.addconcept(noun, associationType, association, proximity)
 
-conceptreader(inputAsWords, inputAsPartsOfSpeech)
+        conceptgen.addconcept(noun, associationType, association, proximity)
