@@ -27,9 +27,13 @@ bannedWords = []
 for line in bannedWordsTxt:
     bannedWords.append(line)
 bannedWordsTxt.close()
-for count in range(0, len(bannedWords) - 1):
+
+print bannedWords
+
+for count in range(0, len(bannedWords)):
     bannedWords[count] = bannedWords[count].rstrip('\n')
 # todo: fix
+print bannedWords
 
 inputAsSentences = nltk.sent_tokenize(inputAsParagraph)     # NLTK default sentence segmenter
 inputAsWords = []
@@ -91,4 +95,4 @@ def conceptreader(inputAsWords, inputAsPartsOfSpeech):
                 else:
                     pass                                                            # naughty words get put in the word passer to atone for their sins
 
-conceptreader(inputAsWords, inputAsPartsOfSpeech)
+# conceptreader(inputAsWords, inputAsPartsOfSpeech)
