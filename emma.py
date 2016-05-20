@@ -27,13 +27,8 @@ bannedWords = []
 for line in bannedWordsTxt:
     bannedWords.append(line)
 bannedWordsTxt.close()
-
-print bannedWords
-
 for count in range(0, len(bannedWords)):
     bannedWords[count] = bannedWords[count].rstrip('\n')
-# todo: fix
-print bannedWords
 
 inputAsSentences = nltk.sent_tokenize(inputAsParagraph)     # NLTK default sentence segmenter
 inputAsWords = []
@@ -48,6 +43,16 @@ for sentence in range(0, len(inputAsSentences)):
     verbCodes = ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']
     adjectiveCodes = ['JJ', 'JJR', 'JJS']
     inputAsPartsOfSpeech = posmodelgen.getPartsOfSpeech(inputAsWords)
+
+    # removes banned words from inputAsWords
+    wordstoremove = []
+    for word in inputAsWords:
+        if word.lower() in bannedWords:
+            wordstoremove.append(word)
+    wordstoremove.reverse()
+    for word in wordstoremove:
+        inputAsWords.remove(word)
+        print "removing " + word
 
 # find associations of nouns to other words
 def conceptreader(inputAsWords, inputAsPartsOfSpeech):
