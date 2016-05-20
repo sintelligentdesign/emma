@@ -17,7 +17,8 @@ def addconcept(noun, associationType, association, proximity):
         row = cursor.fetchone()
         
         if row != None:                                                             # if the row is a duplicate, calculate its new values and add them
-            print "Adding new values to existing concept for association %s, %s" % (noun, association)
+            if association != ".":
+                print "Re-evaluating existing association between %s and %s" % (noun, association)
             
             # GET CONCEPT ID
             conceptid = row[0]
@@ -38,8 +39,10 @@ def addconcept(noun, associationType, association, proximity):
             cursor.execute('UPDATE conceptgraph SET total_frequency = %s, avg_proximity = %s, strength = %s WHERE id = %s' % (totalFrequency, avgProximity, strength, conceptid))
             
         else:                                                                       # if the row IS NOT a duplicate
-            strength = calculatestrength(1, proximity)                               # calculate association strength
-            print "Creating new concept for association %s, %s" % (noun, association)
+            strength = calculatestrength(1, proximity)                              # calculate association strength
+            
+            if association != ".":
+                print "Creating new association for %s (%s)" % (noun, association)
             
             totalFrequency = 1
             
