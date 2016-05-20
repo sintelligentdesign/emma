@@ -17,7 +17,7 @@
 #      Uses elements from the Natural Language Toolkit.
 #                 Visit http://www.nltk.org.
 
-import nltk, conceptgen, posmodelgen
+import utilities, nltk, conceptgen, posmodelgen
 
 inputAsParagraph = raw_input('You >> ')                     # since we're going to be responding to Tumblr asks, we'll assume that all input will be paragraph form.
                                                             # todo: add alternative ways to input
@@ -44,7 +44,7 @@ def conceptreader(inputAsWords, inputAsPartsOfSpeech):
     proximity = 0
 
     for count1 in range(0, len(inputAsWords)):                                  # finds a noun
-
+        count1 = utilities.personalpronountargetswap(count1)
         if inputAsPartsOfSpeech[count1] in nounCodes:
             noun = inputAsWords[count1]
 
