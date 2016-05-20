@@ -57,5 +57,3 @@ def addconcept(noun, associationType, association, proximity):
         
         
         # STRENGTH
-    
-addconcept("hello", 0, "friend", 1)
