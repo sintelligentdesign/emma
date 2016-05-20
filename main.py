@@ -19,7 +19,7 @@
 
 import nltk, conceptgen, posmodelgen
 
-inputAsParagraph = "Hello friend. The quick brown fox jumped over the lazy dog."
+inputAsParagraph = "Hello world. The quick brown fox jumped over the lazy dog."
 
 
 inputAsSentences = nltk.sent_tokenize(inputAsParagraph)     # NLTK default sentence segmenter
