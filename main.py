@@ -7,10 +7,10 @@
 #  `Y8bod8P' o888o o888o o888o o888o o888o o888o `Y888""8o
 #
 #  ·~-.¸¸,.-~*'¯¨'*·~-.¸,.-~*'¯¨'*·~-.¸¸,.-~*'¯¨'*·~-.¸¸,.
-#  
+#
 #           ENGLISH MODEL of MAPPED ASSOCIATIONS
-#  
-#  
+#
+#
 #     Written by Ellie Cochran & Alexander Howard, with
 #                contributions by Omri Barak.
 #
@@ -52,7 +52,7 @@ for count in (0, len(inputAsSentences) - 1):
             if inputAsPartsOfSpeech[count] == adjectiveCodes[code]:
                 print "word %s is an adjective!" % inputAsWords[count]
 
-#find associations of nouns
+#find associations of nouns to other words
 def conceptreader(inputAsWords, inputAsPartsOfSpeech):
     noun = ""
     associationType = 0
@@ -60,20 +60,40 @@ def conceptreader(inputAsWords, inputAsPartsOfSpeech):
     proximity = 0
 
     for count1 in range(0, len(inputAsWords)):                                  # finds a noun
+
         if inputAsPartsOfSpeech[count1] in nounCodes:
             noun = inputAsWords[count1]
-            for count2 in range(count1 + 1, len(inputAsWords)):                 # looks for noun after
+
+            for count2 in range(count1 + 1, len(inputAsWords)):                 # looks for word after
+                importantword = True
                 if inputAsPartsOfSpeech[count2] in nounCodes:
+                    associationType = 0
+                elif inputAsPartsOfSpeech[count2] in verbCodes:
+                    associationType = 1
+                elif inputAsPartsOfSpeech[count2] in adjectiveCodes:
+                    associationType = 2
+                else:
+                    importantword = False
+
+                if importantword:
                     association = inputAsWords[count2]
                     proximity = count2 - count1
-
                     print noun + " " + str(associationType) + " " + association + " " + str(proximity)
 
-            for count3 in range(0, count1):                                     # looks for noun before
+            for count3 in range(0, count1):                                     # looks for word before
+                importantword = True
                 if inputAsPartsOfSpeech[count3] in nounCodes:
+                    associationType = 0
+                elif inputAsPartsOfSpeech[count3] in verbCodes:
+                    associationType = 1
+                elif inputAsPartsOfSpeech[count3] in adjectiveCodes:
+                    associationType = 2
+                else:
+                    importantword = False
+
+                if importantword:
                     association = inputAsWords[count3]
                     proximity = count1 - count3
-
                     print noun + " " + str(associationType) + " " + association + " " + str(proximity)
 
 conceptreader(inputAsWords, inputAsPartsOfSpeech)
