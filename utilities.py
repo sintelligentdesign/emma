@@ -34,19 +34,19 @@ while 0 > 1:    # since i'm going to start using this file, i wanted to make sur
         if occurancesOfCount:
             print 'Stems had ' + str(count) + " leafs " + str(occurancesOfCount) + ' time(s).'
 
-def personalpronountargetswap(word)
+def personalpronountargetswap(word):
     # swap the targets of posessive words like you or mine so that Emma doesn't start going around calling other people Emma, etc.
-    if word = "you":
-        word = "me"
-    elif word = "me":
-        word = "you"
+    if word == "you":
+        word == "me"
+    elif word == "me":
+        word == "you"
         
-    elif word = "your":
-        word = "my"
-    elif word = "my":
-        word = "your"
+    elif word == "your":
+        word == "my"
+    elif word == "my":
+        word == "your"
         
-    elif word = "yours":
-        word = "mine"
-    elif word = "mine":
-        word = "yours"
+    elif word == "yours":
+        word == "mine"
+    elif word == "mine":
+        word == "yours"

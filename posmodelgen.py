@@ -44,7 +44,7 @@ def grok(input):
 
             else:
                 leaf = {LeafAsString: 1}                                        # create dict with leaf and ranking if current stem isn't a dupe of another stem
-                print "new sentence structure found (%s)! Adding..." % StemAsString
+                print "New sentence structure building block found (%s)! Adding..." % StemAsString
 
             stem[StemAsString] = leaf
 

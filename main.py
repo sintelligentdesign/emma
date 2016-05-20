@@ -44,11 +44,10 @@ def conceptreader(inputAsWords, inputAsPartsOfSpeech):
     proximity = 0
 
     for count1 in range(0, len(inputAsWords)):                                  # finds a noun
-        count1 = utilities.personalpronountargetswap(count1)
         if inputAsPartsOfSpeech[count1] in nounCodes:
             noun = inputAsWords[count1]
 
-            for count2 in range(count1 + 1, len(inputAsWords)):                 # looks for important word after noun
+            for count2 in range(count1 + 1, len(inputAsWords)):                 # looks for important word after noun   todo: turn this and the next code block into a function
                 importantWord = True
                 if inputAsPartsOfSpeech[count2] in nounCodes:
                     associationType = 0

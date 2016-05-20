@@ -8,8 +8,6 @@ def calculatestrength(totalFreq, avgProx):
 connection = sql.connect('conceptgraph.db')     # connect to the concept graph SQLite database
     
 def addconcept(noun, associationType, association, proximity):
-    noun = noun.title()
-    association = association.title()
     with connection:
         cursor = connection.cursor()            # get the cursor object
         
@@ -36,7 +34,7 @@ def addconcept(noun, associationType, association, proximity):
             strength = calculatestrength(totalFrequency, avgProximity)              # calculate new association strength
             
             # COMMIT
-            cursor.execute('UPDATE conceptgraph SET total_frequency = %s, avg_proximity = %s, strength = %s WHERE id = %s' % (totalFrequency, avgProximity, strength, conceptid))
+            cursor.execute('UPDATE conceptgraph SET total_frequency = %s, average_proximity = %s, strength = %s WHERE id = %s' % (totalFrequency, avgProximity, strength, conceptid))
             
         else:                                                                       # if the row IS NOT a duplicate
             strength = calculatestrength(1, proximity)                              # calculate association strength
@@ -47,4 +45,4 @@ def addconcept(noun, associationType, association, proximity):
             totalFrequency = 1
             
             # COMMIT
-            cursor.execute('INSERT INTO conceptgraph (noun, association_type, association, total_frequency, avg_proximity, strength) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\');' % (noun, associationType, association, totalFrequency, proximity, strength))
+            cursor.execute('INSERT INTO conceptgraph (noun, association_type, association, total_frequency, average_proximity, strength) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\');' % (noun, associationType, association, totalFrequency, proximity, strength))
