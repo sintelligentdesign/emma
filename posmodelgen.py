@@ -5,13 +5,10 @@ target = "partsofspeech.mdl"
 
 def getPartsOfSpeech(sentence):
     # get the parts of speech from the input
-    sentence = nltk.sent_tokenize(sentence)                       # NLTK default sentence segmenter       todo: this should be in the main program
-    sentence = nltk.word_tokenize(str(sentence).strip('[]\''))    # NLTK default word tokenizer           todo: this should be in the main program
     sentence = nltk.pos_tag(sentence)                             # NLTK default part-of-speech tagger
-    print sentence
+    print "Parts of speech making up this sentence are: %s" % sentence
 
-    # make "sentences" of tags from list of tuples
-    tagsentence = []
+    tagsentence = []    # make "sentences" of tags from list of tuples
     # the above is clearly a list, but we're calling it a sentence because as far as the markov muncher cares, it is one
     # we could turn it into a string, but what's the point of doing that if we're gonna unpack it back into a list anyway?
     for count in range(0, len(sentence)):
@@ -22,7 +19,16 @@ def getPartsOfSpeech(sentence):
 
 def grok(input):
     posarray = getPartsOfSpeech(input)
-    stem = ast.literal_eval(open(target, "r").read())                          #prevents overwrite
+    
+    # Overwrite prevention
+    modelfile = open(target, "r")
+    if modelfile == "":
+        stem = {}
+    else:
+        for line in modelfile:
+            stem = stem + line
+    modelfile.close()
+    print stem
     leaf = {}
 
     for count in range(0, len(posarray)):
@@ -45,7 +51,7 @@ def grok(input):
 
             stem[StemAsString] = leaf
 
-    print "Parse complete. Dumping to %s" % target
+    print "Parts of speech parsing complete. Dumping to %s" % target
     modelfile = open(target, "w")
     print >>modelfile, stem
     modelfile.close()

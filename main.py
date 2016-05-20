@@ -21,7 +21,13 @@ import nltk, conceptgen, posmodelgen
 
 inputAsParagraph = "Hello friend. The quick brown fox jumped over the lazy dog."
 
-inputAsSentences = nltk.sent_tokenize(inputAsParagraph)                        # Turn input paragraphs as string into input sentences as list
-inputAsWords = nltk.word_tokenize(str(inputAsSentences).strip('[]\''))         # Turn input sentences as list into group of words as string
 
-print inputAsWords
+inputAsSentences = nltk.sent_tokenize(inputAsParagraph)     # NLTK default sentence segmenter
+
+for count in (0, len(inputAsSentences) - 1):
+    inputAsWords = inputAsSentences[count]
+    inputAsWords = nltk.word_tokenize(inputAsWords)         # NTLK default word tokenizer
+    print "Input sentence is: %s" % inputAsWords
+    
+    # Generate sentence model from input sentences
+    posmodelgen.grok(inputAsWords)
