@@ -44,7 +44,7 @@ for sentence in range(0, len(inputAsSentences)):
     adjectiveCodes = ['JJ', 'JJR', 'JJS']
     inputAsPartsOfSpeech = posmodelgen.getPartsOfSpeech(inputAsWords)
 
-    # removes banned words from inputAsWords
+    # remove banned words from inputAsWords
     wordstoremove = []
     for word in inputAsWords:
         if word.lower() in bannedWords:
