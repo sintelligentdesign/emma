@@ -1,23 +1,47 @@
 # Concept generator
-import sqlite3 as sql, numpy as np
+import sqlite3 as sql
+
+connection = sql.connect('emma.brn/conceptgraph.db')                # connect to the concept graph SQLite database
+cursor = connection.cursor()                                # get the cursor object
+
+def calculateaverages():
+    # Calculates averages of all frequencies and all proximities for strength() to use later.
+    # It is self-contained in an attempt to save processing power, as these only need to be calculated once per input instead of once per word
+    frequencies = []
+    proximities = []
+    
+    cursor.execute('SELECT total_frequency, average_proximity FROM conceptgraph')   # Get frequencies for strength calculation
+    freqAndProx = cursor.fetchall()
+    
+    freqAndProxLength = len(freqAndProx)                                            # Index this to save some cycles later
+    for count in range(0, freqAndProxLength):
+        freqProxStaging = freqAndProx[count]                                        # todo: is there a way we can make this smaller?
+        frequencies.append(freqProxStaging[0])
+        proximities.append(freqProxStaging[1])
+        
+        global avgTotalFrequency
+        global avgAvgProximity
+                                            
+        avgTotalFrequency = sum(frequencies) / freqAndProxLength
+        avgAvgProximity = sum(proximities) / freqAndProxLength
 
 def calculatestrength(totalFreq, avgProx):
-    strength = totalFreq/(np.log(avgProx) + 1)  # calculate the strength value of a concept based on its input frequency and average proximity
-    return strength
-
-connection = sql.connect('emma.brn/conceptgraph.db')     # connect to the concept graph SQLite database
+   strength = ((2 * totalFreq)/(avgTotalFrequency + totalFreq)) * 2 ** 1 - ((avgProx - 1)/(avgAvgProximity - 1)) ** 2
+   return strength
     
 def addconcept(noun, associationType, association, proximity):
-    with connection:
-        cursor = connection.cursor()            # get the cursor object
+    # Start by calculating average total frequencies and average average proximities to calculate score
+    calculateaverages()
         
+    # And then start handling the words themselves
+    with connection:
         cursor.execute('SELECT DISTINCT noun FROM conceptgraph;')   # check to see if Emma has seen this word before
         fullWordList = cursor.fetchall()
         if fullWordList:
             for count in range(0, len(fullWordList)):
                 oldWords = fullWordList[count]
                 if noun in oldWords[0]:
-                    print "Learned new word (%s)!" % noun
+                    print "Learned new word (%s)!" % noun   # todo: this doesn't work and triggers on like every word
                     # todo: search tumblr for new word
         
         cursor.execute('SELECT * FROM conceptgraph WHERE noun = \'%s\' AND association = \'%s\';' % (noun, association))     # check to see if the row that we want to work with is already in the database
