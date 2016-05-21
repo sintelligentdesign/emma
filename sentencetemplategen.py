@@ -8,38 +8,37 @@ sentenceStructureModel = ast.literal_eval(open("sentencestructure.mdl", "r").rea
 
 # Sentence Generation
 def generate():
-    sentenceTemplate = []
+    sentenceTemplate = ""
     sentenceTemplate += random.choice(sentenceStructureModel.keys())    # choose a stem at random from our sentence building block model
+    
     continueSentence = True
     while continueSentence:
-        # todo: rewrite this using lists
         lastTwoPOS = " ".join(sentenceTemplate.split()[-2:])            # retrieves the last two parts of speech we used
-        print lastTwoPOS
-        if lastTwoPOS in sentenceStructureModel:
-            totalOccurances = 0
+        
+        if lastTwoPOS in sentenceStructureModel:                        # if the last two parts of speech constitute a valid stem...
+            totalOccurances = 0                                         # find occurances of leaves to tell RNG how many numbers to choose from
             nextPOSDict = sentenceStructureModel[lastTwoPOS]
-            for value in nextPOSDict.values():                          # finds total occurances for RNG limit
+            for value in nextPOSDict.values():
                 totalOccurances += value
-
-            selector = random.randrange(totalOccurances) +1             # RNG
-            for key in nextPOSDict:                                     # loops through next parts of speech, decrementing selector
-                selector -= nextPOSDict[key]
-                if selector <= 0:                                       # choses following word when selector equals zero
-                    if key == "." or "?" or "!":
-                        sentenceTemplate += key                         # if the next key is punctuation, end the sentence
-                        continueSentence = False
-                    else:
-                        sentenceTemplate += " " + key                   # otherwise, append the part of speech
-                        print sentenceTemplate
-
-        else:                                                           # if we hit dead end, stick in a '%' so that we know that we hit a dead end and there should be more in the sentence model
-            sentenceTemplate += "%"
+        else:                                                           # if the last two parts of speech aren't a valid stem, print an error character at the end of the sentence to let us know that there should be more words
+            sentenceTemplate += " %"
             print "Sentence generation ended prematurely! (No leaves for stem %s)" % lastTwoPOS
             continueSentence = False
-    
-    sentenceTemplate = str.join(" ", sentenceTemplate.splitlines())
-    # todo: keep this as a list?
-
-    print "EMMA >> %s" % sentenceTemplate
+            break
+                
+        selector = random.randrange(totalOccurances) + 1                # RNG
+                                                                        # we have a $40 donation from coolgamer2986, "runners, i'll donate an extra $20 if you high five"
+        for key in nextPOSDict:                                         # loop through leaves, decrementing selector, to choose the next leaf to follow
+            selector -= nextPOSDict[key]
+            if selector <= 0:                                           # if the selector reaches zero, choose the next stem
+                if key in ['.', '!', '?']:                              # if the next leaf is punctuation, end the sentence
+                    sentenceTemplate += key
+                    continueSentence = False
+                else:
+                    sentenceTemplate += " " + key                       # otherwise, append our next part of speech and loop back to line 19
+                    # todo: find a way to handle infinite recursion
+                    
+    print "EMMA >> %s" % sentenceTemplate   # todo: remove debug print
+    return sentenceTemplate
     
 generate()
