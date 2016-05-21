@@ -21,15 +21,10 @@ def calculateaverages():
         freqProxStaging = freqAndProx[count]                                        # todo: is there a way we can make this smaller?
         frequencies.append(freqProxStaging[0])
         proximities.append(freqProxStaging[1])
-<<<<<<< Updated upstream
-                                            
+
         avgTotalFrequency = sum(frequencies) / freqAndProxLength
         avgAvgProximity = sum(proximities) / freqAndProxLength
-=======
 
-        global avgTotalFrequency = sum(frequencies) / freqAndProxLength
-        global avgAvgProximity = sum(proximities) / freqAndProxLength
->>>>>>> Stashed changes
 
 def calculatestrength(totalFreq, avgProx):
    strength = ((2 * totalFreq)/(avgTotalFrequency + totalFreq)) * 2 ** (1 - ((avgProx - 1)/(avgAvgProximity - 1)) ** 2)
