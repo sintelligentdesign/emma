@@ -18,9 +18,6 @@ def calculateaverages():
         freqProxStaging = freqAndProx[count]                                        # todo: is there a way we can make this smaller?
         frequencies.append(freqProxStaging[0])
         proximities.append(freqProxStaging[1])
-        
-        global avgTotalFrequency
-        global avgAvgProximity
                                             
         avgTotalFrequency = sum(frequencies) / freqAndProxLength
         avgAvgProximity = sum(proximities) / freqAndProxLength
@@ -40,6 +37,7 @@ def addconcept(noun, associationType, association, proximity):
         if fullWordList:
             for count in range(0, len(fullWordList)):
                 oldWords = fullWordList[count]
+                print oldWords
                 if noun in oldWords[0]:
                     print "Learned new word (%s)!" % noun   # todo: this doesn't work and triggers on like every word
                     # todo: search tumblr for new word
