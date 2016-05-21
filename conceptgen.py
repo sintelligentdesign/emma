@@ -22,8 +22,8 @@ def calculateaverages():
         frequencies.append(freqProxStaging[0])
         proximities.append(freqProxStaging[1])
 
-        avgTotalFrequency = sum(frequencies) / freqAndProxLength
-        avgAvgProximity = sum(proximities) / freqAndProxLength
+        global avgTotalFrequency = sum(frequencies) / freqAndProxLength
+        global avgAvgProximity = sum(proximities) / freqAndProxLength
 
 
 def calculatestrength(totalFreq, avgProx):
