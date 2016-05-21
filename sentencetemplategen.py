@@ -34,6 +34,7 @@ def generate():
                 if key in ['.', '!', '?']:                              # if the next leaf is punctuation, end the sentence
                     sentenceTemplate += key
                     continueSentence = False
+                    # todo: sometimes this has a weird bug (emma generates XX YY ZZ. YY ZZ). figure out what causes this and fix it
                 else:
                     sentenceTemplate += " " + key                       # otherwise, append our next part of speech and loop back to line 19
                     # todo: find a way to handle infinite recursion
