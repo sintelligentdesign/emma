@@ -1,34 +1,34 @@
 # Concept generator
 import sqlite3 as sql
 
-connection = sql.connect('emma.brn/conceptgraph.db')                # connect to the concept graph SQLite database
+connection = sql.connect('emma.brn/conceptgraph.db')        # connect to the concept graph SQLite database
 cursor = connection.cursor()                                # get the cursor object
-
-avgTotalFrequency = 0
-avgAvgProximity = 0
 
 def calculateaverages():
     # Calculates averages of all frequencies and all proximities for strength() to use later.
     # It is self-contained in an attempt to save processing power, as these only need to be calculated once per input instead of once per word
     frequencies = []
     proximities = []
-
-    cursor.execute('SELECT total_frequency, average_proximity FROM conceptgraph')   # Get frequencies for strength calculation
-    freqAndProx = cursor.fetchall()
-
-    freqAndProxLength = len(freqAndProx)                                            # Index this to save some cycles later
-    for count in range(0, freqAndProxLength):
-        freqProxStaging = freqAndProx[count]                                        # todo: is there a way we can make this smaller?
-        frequencies.append(freqProxStaging[0])
-        proximities.append(freqProxStaging[1])
-
-    global avgTotalFrequency
-    global avgAvgProximity
-    avgTotalFrequency = sum(frequencies) / freqAndProxLength
-    avgAvgProximity = sum(proximities) / freqAndProxLength
+    with connection:
+        cursor.execute('SELECT total_frequency, average_proximity FROM conceptgraph')   # Get frequencies for strength calculation
+        freqAndProx = cursor.fetchall()
+        
+        if freqAndProx:                                                                 # check to see if there are any values in the table. If not, we have a divide by zero error when we calculate score
+            freqAndProxLength = len(freqAndProx)
+            for count in range(0, freqAndProxLength):
+                freqProxStaging = freqAndProx[count]                                    # todo: is there a way we can make this smaller?
+                frequencies.append(freqProxStaging[0])
+                proximities.append(freqProxStaging[1])
+        else:
+            freqAndProxLength = 1                                                       # if freqAndProx is empty, we'll use 1 for each value
+            frequencies = [1]                                                           # next time scores are calculated they'll become more accurate
+            proximities = [1]
+            
+        calculateaverages.avgTotalFrequency = sum(frequencies) / freqAndProxLength
+        calculateaverages.avgAvgProximity = sum(proximities) / freqAndProxLength
 
 def calculatestrength(totalFreq, avgProx):
-   strength = ((2 * totalFreq)/(avgTotalFrequency + totalFreq)) * 2 ** (1 - ((avgProx - 1)/(avgAvgProximity - 1)) ** 2)
+   strength = ((2 * totalFreq)/(calculateaverages.avgTotalFrequency + totalFreq)) * 2 ** 1 - ((avgProx - 1)/(calculateaverages.avgAvgProximity - 1)) ** 2)  # this divides by zero if avgProx and avgAvgProximity are 1     todo: fix
    return strength
 
 def addconcept(noun, associationType, association, proximity):
