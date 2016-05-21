@@ -100,4 +100,4 @@ def conceptreader(inputAsWords, inputAsPartsOfSpeech):
                 else:
                     pass                                                            # naughty words get put in the word passer to atone for their sins
 
-# conceptreader(inputAsWords, inputAsPartsOfSpeech)
+conceptreader(inputAsWords, inputAsPartsOfSpeech)

@@ -5,7 +5,7 @@ def calculatestrength(totalFreq, avgProx):
     strength = totalFreq/(np.log(avgProx) + 1)  # calculate the strength value of a concept based on its input frequency and average proximity
     return strength
 
-connection = sql.connect('conceptgraph.db')     # connect to the concept graph SQLite database
+connection = sql.connect('emma.brn/conceptgraph.db')     # connect to the concept graph SQLite database
     
 def addconcept(noun, associationType, association, proximity):
     with connection:
@@ -13,18 +13,18 @@ def addconcept(noun, associationType, association, proximity):
         
         cursor.execute('SELECT DISTINCT noun FROM conceptgraph;')   # check to see if Emma has seen this word before
         fullWordList = cursor.fetchall()
-        for count in range(0, len(fullWordList)):
-            oldWords = fullWordList[count]
-        if noun not in oldWords[0]:
-            print "Learned new word (%s)!" % noun
-            # todo: search tumblr for new word
+        if fullWordList:
+            for count in range(0, len(fullWordList)):
+                oldWords = fullWordList[count]
+                if noun in oldWords[0]:
+                    print "Learned new word (%s)!" % noun
+                    # todo: search tumblr for new word
         
         cursor.execute('SELECT * FROM conceptgraph WHERE noun = \'%s\' AND association = \'%s\';' % (noun, association))     # check to see if the row that we want to work with is already in the database
         row = cursor.fetchone()
         
         if row != None:                                                             # if the row is a duplicate, calculate its new values and add them
-            if association != ".":
-                print "Re-evaluating existing association between %s and %s" % (noun, association)
+            print "Re-evaluating existing association between %s and %s" % (noun, association)
             
             # GET CONCEPT ID
             conceptid = row[0]

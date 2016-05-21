@@ -1,7 +1,7 @@
 # Parts of Speech Markov model generator
 import nltk, re, pprint, ast
 
-target = "sentencestructure.mdl"
+target = "emma.brn/sentencestructure.mdl"
 
 def getPartsOfSpeech(sentence):
     # get the parts of speech from the input

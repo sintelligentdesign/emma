@@ -3,7 +3,7 @@
 # who'd've thunk it?
 import random, ast
 
-sentenceStructureModel = ast.literal_eval(open("sentencestructure.mdl", "r").read())    # load the generated sentence structure model
+sentenceStructureModel = ast.literal_eval(open("emma.brn/sentencestructure.mdl", "r").read())    # load the generated sentence structure model
 
 
 # Sentence Generation
