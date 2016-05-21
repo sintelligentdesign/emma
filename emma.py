@@ -52,7 +52,7 @@ for sentence in range(0, len(inputAsSentences)):
     wordstoremove.reverse()
     for word in wordstoremove:
         inputAsWords.remove(word)
-        print "removing " + word
+        print "removing naughty word \"%s\"" % word
 
 # find associations of nouns to other words
 def conceptreader(inputAsWords, inputAsPartsOfSpeech):
