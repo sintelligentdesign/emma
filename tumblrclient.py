@@ -11,7 +11,7 @@ client = pytumblr.TumblrRestClient(
 # method for searching for new input when we find a new word
 def searchfortextposts(query):
     resultsList = client.tagged(query)      # note: tumblr returns 20 results by default. should we request more?
-        print resultsList
+    print resultsList
 
 # get asks so that we can learn and generate responses
 def getmessages():
