@@ -28,8 +28,12 @@ def calculateaverages():
         calculateaverages.avgAvgProximity = sum(proximities) / freqAndProxLength
 
 def calculatestrength(totalFreq, avgProx):
-   strength = ((2 * totalFreq)/(calculateaverages.avgTotalFrequency + totalFreq)) * 2 ** 1 - ((avgProx - 1)/(calculateaverages.avgAvgProximity - 1)) ** 2)  # this divides by zero if avgProx and avgAvgProximity are 1     todo: fix
-   return strength
+    # we have a backup strength equation in case avgAvgProximity = 1, because that creates a divide by zero
+    if calculateaverages.avgAvgProximity != 1:
+        strength = ((2 * totalFreq)/(calculateaverages.avgTotalFrequency + totalFreq)) * 2 ** 1 - ((avgProx - 1)/(calculateaverages.avgAvgProximity - 1)) ** 2
+    else:
+        strength = (2 * totalFreq)/(calculateaverages.avgTotalFrequency + totalFreq)
+    return strength
 
 def addconcept(noun, associationType, association, proximity):
     # Start by calculating average total frequencies and average average proximities to calculate score
@@ -38,14 +42,17 @@ def addconcept(noun, associationType, association, proximity):
     # And then start handling the words themselves
     with connection:
         cursor.execute('SELECT DISTINCT noun FROM conceptgraph;')   # check to see if Emma has seen this word before
-        fullWordList = cursor.fetchall()
-        if fullWordList:
-            for count in range(0, len(fullWordList)):
-                oldWords = fullWordList[count]
-                print oldWords
-                if noun in oldWords[0]:
-                    print "Learned new word (%s)!" % noun   # todo: this doesn't work and triggers on like every word
-                    # todo: search tumblr for new word
+        bundledWordList = cursor.fetchall()
+        
+        if bundledWordList:                                         # if the concept graph isn't empty
+            cutWord = []
+            wordList = []
+            for count in range(0, len(bundledWordList)):            # take each word we know and stick it in a list
+                cutWord = (bundledWordList[count])
+                wordList.append(cutWord[0])
+            if noun not in wordList:                                # if our noun isn't in that list, it's new
+                print "Learned new word (%s)!" % noun
+                # todo: search tumblr for new word
 
         cursor.execute('SELECT * FROM conceptgraph WHERE noun = \'%s\' AND association = \'%s\';' % (noun, association))     # check to see if the row that we want to work with is already in the database
         row = cursor.fetchone()
