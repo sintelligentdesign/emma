@@ -56,7 +56,7 @@ def addconcept(noun, associationType, association, proximity):
                 wordList.append(cutWord[0])
             if noun not in wordList:                                # if our noun isn't in that list, it's new
                 print "Learned new word (%s)!" % noun
-                # todo: search tumblr for new word
+                # todo: add word to list of words we don't know
 
         cursor.execute('SELECT * FROM conceptgraph WHERE noun = \'%s\' AND association = \'%s\';' % (noun, association))     # check to see if the row that we want to work with is already in the database
         row = cursor.fetchone()
