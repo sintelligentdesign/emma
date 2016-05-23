@@ -11,11 +11,11 @@ sentenceStructureModel = ast.literal_eval(open("emma.brn/sentencestructure.mdl",
 def generate():
     sentenceTemplate = ""
     sentenceTemplate += random.choice(sentenceStructureModel.keys())    # choose a stem at random from our sentence building block model
-    
+
     continueSentence = True
     while continueSentence:
         lastTwoPOS = " ".join(sentenceTemplate.split()[-2:])            # retrieves the last two parts of speech we used
-        
+
         if lastTwoPOS in sentenceStructureModel:                        # if the last two parts of speech constitute a valid stem...
             totalOccurances = 0                                         # find occurances of leaves to tell RNG how many numbers to choose from
             nextPOSDict = sentenceStructureModel[lastTwoPOS]
@@ -26,18 +26,15 @@ def generate():
             print "Sentence generation ended prematurely! (No leaves for stem %s)" % lastTwoPOS
             continueSentence = False
             break
-                
+
         selector = random.randrange(totalOccurances) + 1                # RNG
-                                                                        # we have a $40 donation from coolgamer2986, "runners, i'll donate an extra $20 if you high five"
         for key in nextPOSDict:                                         # loop through leaves, decrementing selector, to choose the next leaf to follow
             selector -= nextPOSDict[key]
-            if selector < 0:                                            # if the selector reaches zero, choose the next stem
+            if selector <= 0:                                            # if the selector reaches zero, choose the next stem
                 if key in ['.', '!', '?']:                              # if the next leaf is punctuation, end the sentence
                     sentenceTemplate += key
                     selector = 0
                     continueSentence = False
                 else:
                     sentenceTemplate += " " + key                       # otherwise, append our next part of speech and loop back to line 19
-                    
     return sentenceTemplate
-# todo: generate() sometimes hangs and I can't figure out what it's hanging on. Figure out and fix
