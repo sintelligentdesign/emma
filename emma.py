@@ -22,7 +22,7 @@ import utilities, nltk, conceptgen, posmodelgen
 inputAsParagraph = raw_input('You >> ')                     # since we're going to be responding to Tumblr asks, we'll assume that all input will be paragraph form.
                                                             # todo: add alternative ways to input
 
-bannedWordsTxt = open("emma.brn/bannedwords.txt", "r")               # load naughty words into a list so that we can screen for them
+bannedWordsTxt = open("emma.brn/bannedwords.txt", "r")      # load naughty words into a list so that we can screen for them
 bannedWords = []
 for line in bannedWordsTxt:
     bannedWords.append(line)
@@ -30,7 +30,7 @@ bannedWordsTxt.close()
 for count in range(0, len(bannedWords)):
     bannedWords[count] = bannedWords[count].rstrip('\n')
 
-inputAsSentences = nltk.sent_tokenize(inputAsParagraph)     # NLTK default sentence segmenter
+inputAsSentences = nltk.sent_tokenize(inputAsParagraph)                     # NLTK default sentence segmenter
 inputAsWords = []
 for sentence in range(0, len(inputAsSentences)):
     # tokenize input sentence
