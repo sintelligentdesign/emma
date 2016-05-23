@@ -12,7 +12,7 @@ def calculateaverages():
     with connection:
         cursor.execute('SELECT total_frequency, average_proximity FROM conceptgraph')   # Get frequencies for strength calculation
         freqAndProx = cursor.fetchall()
-        
+
         if freqAndProx:                                                                 # check to see if there are any values in the table. If not, we have a divide by zero error when we calculate score
             freqAndProxLength = len(freqAndProx)
             for count in range(0, freqAndProxLength):
@@ -23,16 +23,16 @@ def calculateaverages():
             freqAndProxLength = 1                                                       # if freqAndProx is empty, we'll use 1 for each value
             frequencies = [1]                                                           # next time scores are calculated they'll become more accurate
             proximities = [1]
-            
+
         calculateaverages.avgTotalFrequency = sum(frequencies) / freqAndProxLength
         calculateaverages.avgAvgProximity = sum(proximities) / freqAndProxLength
 
 def calculatestrength(totalFreq, avgProx):
     # we have a backup strength equation in case avgAvgProximity = 1, because that creates a divide by zero
     if calculateaverages.avgAvgProximity != 1:
-        strength = ((2 * totalFreq)/(calculateaverages.avgTotalFrequency + totalFreq)) * 2 ** 1 - ((avgProx - 1)/(calculateaverages.avgAvgProximity - 1)) ** 2
+        strength = ((2 * float(totalFreq))/(calculateaverages.avgTotalFrequency + totalFreq)) * 2 ** (1 - ((avgProx - 1)/(calculateaverages.avgAvgProximity - 1)) ** 2)
     else:
-        strength = (2 * totalFreq)/(calculateaverages.avgTotalFrequency + totalFreq)
+        strength = (2 * float(totalFreq))/(calculateaverages.avgTotalFrequency + totalFreq)
     return strength
 
 def addconcept(noun, associationType, association, proximity):
@@ -43,7 +43,7 @@ def addconcept(noun, associationType, association, proximity):
     with connection:
         cursor.execute('SELECT DISTINCT noun FROM conceptgraph;')   # check to see if Emma has seen this word before
         bundledWordList = cursor.fetchall()
-        
+
         if bundledWordList:                                         # if the concept graph isn't empty
             cutWord = []
             wordList = []
