@@ -1,3 +1,4 @@
 *.pyc
+apikeys.py
 bannedwords.txt
 *.DS_Store
