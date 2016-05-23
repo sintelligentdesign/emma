@@ -65,20 +65,15 @@ def addconcept(noun, associationType, association, proximity):
 
         if row != None:                                                             # if the row is a duplicate, calculate its new values and add them
             print "Re-evaluating existing association between %s and %s" % (noun, association)
-
-            # GET CONCEPT ID
             conceptid = row[0]
 
-            # TOTAL FREQUENCY
             totalFrequency = row[5]                                                 # get current total frequency
             totalFrequency += totalFrequency                                        # add 1 for new total frequency
                                                                                     # todo: this can be full SQL
 
-            # AVERAGE PROXIMITY
             avgProximity = row[6]                                                   # get current average proximity
             avgProximity = (avgProximity + proximity) / totalFrequency              # calculate new average proximity
 
-            # STRENGTH
             strength = calculatestrength(totalFrequency, avgProximity)              # calculate new association strength
 
             # COMMIT
