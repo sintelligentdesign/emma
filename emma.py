@@ -22,7 +22,7 @@ import utilities, nltk, conceptgen, posmodelgen
 inputAsParagraph = raw_input('You >> ')                     # since we're going to be responding to Tumblr asks, we'll assume that all input will be paragraph form.
                                                             # todo: add alternative ways to input
 
-bannedWordsTxt = open("bannedwords.txt", "r")               # load naughty words into a list so that we can screen for them
+bannedWordsTxt = open("emma.brn/bannedwords.txt", "r")               # load naughty words into a list so that we can screen for them
 bannedWords = []
 for line in bannedWordsTxt:
     bannedWords.append(line)
