@@ -5,7 +5,6 @@ import random, ast
 
 sentenceStructureModel = ast.literal_eval(open("emma.brn/sentencestructure.mdl", "r").read())    # load the generated sentence structure model
 
-
 # Sentence Generation
 def generate():
     sentenceTemplate = ""
@@ -30,12 +29,15 @@ def generate():
                                                                         # we have a $40 donation from coolgamer2986, "runners, i'll donate an extra $20 if you high five"
         for key in nextPOSDict:                                         # loop through leaves, decrementing selector, to choose the next leaf to follow
             selector -= nextPOSDict[key]
-            if selector <= 0:                                           # if the selector reaches zero, choose the next stem
+            if selector < 0:                                            # if the selector reaches zero, choose the next stem
                 if key in ['.', '!', '?']:                              # if the next leaf is punctuation, end the sentence
                     sentenceTemplate += key
+                    selector = 0
                     continueSentence = False
-                    # todo: sometimes this has a weird bug (emma generates XX YY ZZ. YY ZZ). figure out what causes this and fix it
                 else:
                     sentenceTemplate += " " + key                       # otherwise, append our next part of speech and loop back to line 19
                     
+    print sentenceTemplate
     return sentenceTemplate
+    
+generate()
