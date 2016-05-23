@@ -37,7 +37,5 @@ def generate():
                 else:
                     sentenceTemplate += " " + key                       # otherwise, append our next part of speech and loop back to line 19
                     
-    print sentenceTemplate
     return sentenceTemplate
-    
-generate()
+# todo: generate() sometimes hangs and I can't figure out what it's hanging on. Figure out and fix
