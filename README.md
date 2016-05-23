@@ -47,7 +47,7 @@ Emma is a computer program that generates rough concepts of associations by read
     * **(TODO)** The noun's case is determined according to its type of speech and added to its "case score," which helps Emma decide if she should use lowercase, uppercase, or title case when writing that word
       * **(TODO)** Nouns that are tagged as proper nouns by Emma's part of speech tagger are automatically set to title-case
       * **(TODO)** Nouns at the beginning of sentences do not have an effect on the case score unless they are tagged as proper nouns by Emma's part of speech tagger
-    * The noun associations also include what kind of association they are (noun-noun, noun-verb, or noun-adjective), the number of times those words appear together, their average proximity to eachother, and the strength of the association (which is determined by dividing the frequency of the association by the natural log of its average proximity plus one)
+    * The noun associations also include what kind of association they are (noun-noun, noun-verb, or noun-adjective), the number of times those words appear together, their average proximity to eachother, and the strength of the association
   * **(TODO)** If the noun has never been encountered before, Emma will search for it on Tumblr and use the resulting text posts to train her associations
 * **(TODO)** Add tone parsing & "feelings"
 
