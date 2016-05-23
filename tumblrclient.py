@@ -18,17 +18,20 @@ def searchfortextposts(query):
             print "Body of result %s" % count
             print result['body']
             # todo: strip html and get just strings
+            # todo: fail elegantly if we find no text results
 
 # get asks so that we can learn and generate responses
 def getmessages():
     asks = client.submission('emmacanlearn.tumblr.com') # query tumblr API for messages
     asks = asks.values()                                # unwrap JSON
     asks = asks[0]
-    asks = asks[0]
-    asker = asks['asking_name']                         # suck out the stuff we care about
-    question = asks['question']
-    
-    print "Asker: %s" % asker
-    print "Question: %s" % question
+    print asks
+    for count in range(0, len(asks)):                   # suck out the stuff we care about
+        currentAsk = asks[count]
+        asker = currentAsk['asking_name']
+        question = currentAsk['question']
+        
+        print "Ask %s" % count
+        print "Asker: %s" % asker
+        print "Question: %s" % question
     # todo: pack this into a tuple and return it
-    # todo: see how this breaks for multiple asks
