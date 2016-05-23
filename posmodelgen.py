@@ -11,31 +11,31 @@ def getPartsOfSpeech(sentence):
     # get the parts of speech from the input
     sentence = nltk.pos_tag(sentence)                             # NLTK default part-of-speech tagger
 
-    tagsentence = []    # make "sentences" of tags from list of tuples
+    tagSentence = []    # make "sentences" of tags from list of tuples
                         # the above is clearly a list, but we're calling it a sentence because as far as the markov muncher cares, it is one
                         # we could turn it into a string, but what's the point of doing that if we're gonna unpack it back into a list anyway?
     for count in range(0, len(sentence)):
         tup = sentence[count]
-        tagsentence.append(tup[1])
-    return tagsentence
+        tagSentence.append(tup[1])
+    return tagSentence
 
 def grok(input):
-    posarray = getPartsOfSpeech(input)
+    POSArray = getPartsOfSpeech(input)
 
     # Overwrite prevention
-    modelfile = open(target, "r")
+    modelFile = open(target, "r")
     stem = {}                               # if partsofspeech.mdl is empty, stem is initialized and blank
-    if modelfile != "":
-        for line in modelfile:
+    if modelFile != "":
+        for line in modelFile:
             stem = ast.literal_eval(line)   # otherwise, stem is populated with the links from partsofspeech.mdl
-    modelfile.close()
+    modelFile.close()
     
     leaf = {}
 
-    for count in range(0, len(posarray)):
-        if count < len(posarray) - 2:  # so we don't go out of bounds
-            StemAsString = posarray[count] + ' ' + posarray[count + 1]          # take two parts of speech (the "stem")
-            LeafAsString = posarray[count + 2]                                  # also get one part of speech after the former two (the "leaf")
+    for count in range(0, len(POSArray)):
+        if count < len(POSArray) - 2:  # so we don't go out of bounds
+            StemAsString = POSArray[count] + ' ' + POSArray[count + 1]          # take two parts of speech (the "stem")
+            LeafAsString = POSArray[count + 2]                                  # also get one part of speech after the former two (the "leaf")
 
             if StemAsString in stem:                                            # check for duplicate stems
 
@@ -52,7 +52,6 @@ def grok(input):
 
             stem[StemAsString] = leaf
 
-    modelfile = open(target, "w")
-    print >>modelfile, stem
-    modelfile.close()
-    # todo: convert to json?
+    modelFile = open(target, "w")
+    print >>modelFile, stem
+    modelFile.close()
