@@ -1,3 +1,8 @@
+# Name:             Misc. Utilities
+# Section:          INPUT
+# Writes/reads:
+# Dependencies:
+# Dependency of:
 while 0 > 1:    # since i'm going to start using this file, i wanted to make sure nothing was executed
     #finds largest freq number
     maxFreq = 0

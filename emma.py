@@ -17,7 +17,7 @@
 #      Uses elements from the Natural Language Toolkit.
 #                 Visit http://www.nltk.org.
 
-import utilities, nltk, conceptgen, posmodelgen
+import nltk, conceptgen, posmodelgen
 
 inputAsParagraph = raw_input('You >> ')                     # since we're going to be responding to Tumblr asks, we'll assume that all input will be paragraph form.
                                                             # todo: add alternative ways to input

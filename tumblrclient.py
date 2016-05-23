@@ -1,3 +1,8 @@
+# Name:             Tumblr client
+# Section:          INPUT, REPLY
+# Writes/reads:
+# Dependencies:     apikeys, pytumblr
+# Dependency of:
 import apikeys, pytumblr
 
 # authenticate with tumblr api

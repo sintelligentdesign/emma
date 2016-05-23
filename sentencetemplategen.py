@@ -1,6 +1,8 @@
-# Sentence Template Generator.
-# it generates sentence templates based on our parts of speech corpus.
-# who'd've thunk it?
+# Name:             Sentence template generator
+# Section:          REPLY
+# Writes/reads:     emma.brn/sentencestructure.mdl
+# Dependencies:     random, ast
+# Dependency of:    emma
 import random, ast
 
 sentenceStructureModel = ast.literal_eval(open("emma.brn/sentencestructure.mdl", "r").read())    # load the generated sentence structure model

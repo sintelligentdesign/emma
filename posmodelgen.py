@@ -1,4 +1,8 @@
-# Parts of Speech Markov model generator
+# Name:             Parts of Speech Markov model generator
+# Section:          LEARNING
+# Writes/reads:     emma.brn/sentencestructure.mdl
+# Dependencies:     nltk, re, pprint, ast
+# Dependency of:    emma
 import nltk, re, pprint, ast
 
 target = "emma.brn/sentencestructure.mdl"

@@ -1,4 +1,8 @@
-# Concept generator
+# Name:             Concept Generator
+# Section:          LEARNING
+# Writes/reads:     emma.brn/conceptgraph.db
+# Dependencies:     sqlite3
+# Dependency of:    emma
 import sqlite3 as sql
 
 connection = sql.connect('emma.brn/conceptgraph.db')        # connect to the concept graph SQLite database
