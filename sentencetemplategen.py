@@ -1,4 +1,5 @@
 # Name:             Sentence template generator
+# Description:      Generates sentence templates from our Markov model of parts of speech
 # Section:          REPLY
 # Writes/reads:     emma.brn/sentencestructure.mdl
 # Dependencies:     random, ast

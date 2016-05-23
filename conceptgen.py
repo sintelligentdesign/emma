@@ -1,4 +1,5 @@
 # Name:             Concept Generator
+# Description:      Takes word inputs, links and stores them as an association in the concept graph
 # Section:          LEARNING
 # Writes/reads:     emma.brn/conceptgraph.db
 # Dependencies:     sqlite3

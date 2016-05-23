@@ -1,4 +1,5 @@
-# Name:             Misc. Utilities
+# Name:             Utilities
+# Description       Miscellaneous functions that didn't fit anywhere else
 # Section:          INPUT
 # Writes/reads:
 # Dependencies:

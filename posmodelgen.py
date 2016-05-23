@@ -1,4 +1,5 @@
 # Name:             Parts of Speech Markov model generator
+# Description:      Takes input as parts of speech and adds them to a Markov model
 # Section:          LEARNING
 # Writes/reads:     emma.brn/sentencestructure.mdl
 # Dependencies:     nltk, re, pprint, ast

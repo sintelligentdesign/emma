@@ -1,4 +1,5 @@
 # Name:             Tumblr client
+# Description:      Communicates with Tumblr and executes related functions
 # Section:          INPUT, REPLY
 # Writes/reads:
 # Dependencies:     apikeys, pytumblr
