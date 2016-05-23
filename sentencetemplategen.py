@@ -37,4 +37,6 @@ def generate():
                     continueSentence = False
                 else:
                     sentenceTemplate += " " + key                       # otherwise, append our next part of speech and loop back to line 19
+                break
+
     return sentenceTemplate
