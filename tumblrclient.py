@@ -25,13 +25,12 @@ def getmessages():
     asks = client.submission('emmacanlearn.tumblr.com') # query tumblr API for messages
     asks = asks.values()                                # unwrap JSON
     asks = asks[0]
-    print asks
+    
+    messageList = {}                                    # initialize return variable
     for count in range(0, len(asks)):                   # suck out the stuff we care about
         currentAsk = asks[count]
         asker = currentAsk['asking_name']
         question = currentAsk['question']
-        
-        print "Ask %s" % count
-        print "Asker: %s" % asker
-        print "Question: %s" % question
-    # todo: pack this into a tuple and return it
+        messageList[question] = asker                   # add message to message list dictionary
+                                                        # messages are stored with the user as the value so that multiple messages from one user don't overwrite that user's old messages
+    return messageList
