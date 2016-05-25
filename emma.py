@@ -20,6 +20,7 @@
 import nltk                         # Natural Language Toolkit
 import conceptgen, posmodelgen      # Learning packages
 import sentencetemplategen, broca   # Reply packages
+import cfg                          # Misc.
 
 ### Load list of banned words into a dictionary so that we can remove them later
 bannedWordsFile = open('emma.brn/bannedwords.txt', 'r') # todo: make .brn file choosable
@@ -28,11 +29,6 @@ for line in bannedWordsFile:                            # pump banned words into
     bannedWord = bannedWordsFile[line].rstrip('\n')     # remove newline characters as we add banned words to the list
     bannedWords.append(bannedWord)
 bannedWordsFile.close()
-
-### Define what parts of speech signify nouns, verbs, and adjectives
-nounCodes = ['NN', 'NNS', 'NNP', 'NNPS']
-verbCodes = ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']
-adjectiveCodes = ['JJ', 'JJR', 'JJS']
     
 def main():
     ### every loop, Emma decides what she wants to do.
