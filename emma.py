@@ -96,9 +96,9 @@ def reply():
         relatedVerbs.append(broca.findrelatedverbs(nounList[count]))
         #relatedAdjectives.append(broca.findrelatedwords(nounList[count], 2))
         
-    print "Related nouns: " + str(relatedNouns)
+    #print "Related nouns: " + str(relatedNouns)
     print "Related verbs: " + str(relatedVerbs)
-    print "Related adjectives: " + str(relatedAdjectives)
+    #print "Related adjectives: " + str(relatedAdjectives)
     
     broca.insertverbs(replyTemplate, nounList, relatedVerbs)
     print replyTemplate

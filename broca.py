@@ -49,25 +49,25 @@ def findrelatedadjectives(GeneratedNounList):
 def insertverbs(sentenceTemplate, convonouns, relatedVerbs):
     verbList = []
     verbPosition = []
-    for count in range(0, len(sentenceTemplate)):                  # Get list of verbs and their indexes
+    for count in range(0, len(sentenceTemplate)):       # Get list of verbs and their indexes
         pos = sentenceTemplate[count]
         if pos in cfg.verbCodes():
             verbList.append(pos)
             verbPosition.append(count)
 
-    for count in range(0, len(verbList)):                          # goes thru verb POS's
-        possiblewords = []
-        dietotal = 0.0
-        for verbtupe in relatedVerbs:                             # matches related verbs by POS
+    for count in range(0, len(verbList)):               # goes thru verb POS's
+        possibleWords = []
+        dieTotal = 0.0
+        for verbtupe in relatedVerbs:                   # matches related verbs by POS
             if verbtupe[2] == verbList[count]:
-                possiblewords.append(verbtupe)
-        for verbtupe in possiblewords:                            # rolls die weighted by strength of related matching verbs
-            dietotal += verbtupe[1]
-        dieroll = random.uniform(0, dietotal)
-        for verbtupe in possiblewords:
-            dieroll -= verbtupe[1]
-            if dieroll < 0:
-                sentenceTemplate[verbPosition[count]] = verbtupe[0]             # adds verb based on die to template
+                possibleWords.append(verbtupe)
+        for verbtupe in possibleWords:                  # rolls die weighted by strength of related matching verbs
+            dieTotal += verbtupe[1]
+        dieRoll = random.uniform(0, dieTotal)
+        for verbtupe in possibleWords:
+            dieRoll -= verbtupe[1]
+            if dieRoll < 0:
+                sentenceTemplate[verbPosition[count]] = verbtupe[0] # adds verb based on die to template
                 break
 
     print sentenceTemplate
