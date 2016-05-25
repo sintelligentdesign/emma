@@ -115,4 +115,4 @@ def dream()
         # feed input to learning function with flags set to take direct input and not generate a response
 
 while 1 > 0:
-    learnwords()
+    main()
