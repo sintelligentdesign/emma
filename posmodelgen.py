@@ -8,22 +8,16 @@ import nltk, re, pprint, ast
 
 target = "emma.brn/sentencestructure.mdl"
 
-def getPartsOfSpeech(sentence):
+def grok(input):
     # get the parts of speech from the input
-    sentence = nltk.pos_tag(sentence)   # NLTK default part-of-speech tagger
+    sentence = nltk.pos_tag(input)   # NLTK default part-of-speech tagger
 
-    tagSentence = []    # make "sentences" of tags from list of tuples
-                        # the above is clearly a list, but we're calling it a sentence because as far as the markov muncher cares, it is one
-                        # we could turn it into a string, but what's the point of doing that if we're gonna unpack it back into a list anyway?
+    POSArray = []       # make a "sentence" of tags from the list of tuples
     for count in range(0, len(sentence)):
         tup = sentence[count]
-        tagSentence.append(tup[1])
-    return tagSentence
+        POSArray.append(tup[1])
 
-def grok(input):
-    POSArray = getPartsOfSpeech(input)
-
-    # Overwrite prevention
+    # overwrite prevention
     modelFile = open(target, "r")
     stem = {}                               # if partsofspeech.mdl is empty, stem is initialized and blank
     if modelFile != "":
