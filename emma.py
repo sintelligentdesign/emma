@@ -21,6 +21,7 @@ import nltk, conceptgen, posmodelgen, sentencetemplategen
 
 inputAsParagraph = raw_input('You >> ')                     # since we're going to be responding to Tumblr asks, we'll assume that all input will be paragraph form.
                                                             # todo: add alternative ways to input
+nounList = []
 
 bannedWordsTxt = open("emma.brn/bannedwords.txt", "r")      # load naughty words into a list so that we can screen for them
 bannedWords = []
@@ -30,41 +31,18 @@ bannedWordsTxt.close()
 for count in range(0, len(bannedWords)):
     bannedWords[count] = bannedWords[count].rstrip('\n')
 
-inputAsSentences = nltk.sent_tokenize(inputAsParagraph)                     # NLTK default sentence segmenter
-inputAsWords = []
-for sentence in range(0, len(inputAsSentences)):
-    # tokenize input sentence
-    inputAsWords.append(inputAsSentences[sentence])
-    inputAsWords = nltk.word_tokenize(inputAsSentences[sentence])           # NTLK default word tokenizer
-    posmodelgen.grok(inputAsWords)                                          # generate sentence model from input sentences
-
-    # generate concept using words in input sentences
-    nounCodes = ['NN', 'NNS', 'NNP', 'NNPS']
-    verbCodes = ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']
-    adjectiveCodes = ['JJ', 'JJR', 'JJS']
-    inputAsPartsOfSpeech = posmodelgen.getPartsOfSpeech(inputAsWords)
-
-    # remove banned words from inputAsWords
-    wordstoremove = []
-    for word in inputAsWords:
-        if word.lower() in bannedWords:
-            wordstoremove.append(word)
-    wordstoremove.reverse()
-    for word in wordstoremove:
-        inputAsWords.remove(word)
-        print "removing naughty word \"%s\"" % word
-
 # find associations of nouns to other words
 def conceptreader(inputAsWords, inputAsPartsOfSpeech):
     noun = ""
-    associationType = 0
     association = ""
+    associationType = 0
     proximity = 0
 
     for count1 in range(0, len(inputAsWords)):                                      # finds a noun
         if inputAsPartsOfSpeech[count1] in nounCodes:
             if inputAsPartsOfSpeech[count1] not in bannedWords:
                 noun = inputAsWords[count1]
+                nounList.append(noun)
 
                 for count2 in range(count1 + 1, len(inputAsWords)):                 # looks for important word after noun   todo: turn this and the next code block into a function
                     importantWord = True
@@ -100,8 +78,32 @@ def conceptreader(inputAsWords, inputAsPartsOfSpeech):
                 else:
                     pass                                                            # naughty words get put in the word passer to atone for their sins
 
-for count in range(0, len(inputAsSentences)):
-        conceptreader(inputAsWords, inputAsPartsOfSpeech)
+inputAsSentences = nltk.sent_tokenize(inputAsParagraph)                     # NLTK default sentence segmenter
+inputAsWords = []
+for sentence in range(0, len(inputAsSentences)):
+    # tokenize input sentence
+    inputAsWords.append(inputAsSentences[sentence])
+    inputAsWords = nltk.word_tokenize(inputAsSentences[sentence])           # NTLK default word tokenizer
+    posmodelgen.grok(inputAsWords)                                          # generate sentence model from input sentences
+
+    # generate concept using words in input sentences
+    nounCodes = ['NN', 'NNS', 'NNP', 'NNPS']
+    verbCodes = ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']
+    adjectiveCodes = ['JJ', 'JJR', 'JJS']
+    inputAsPartsOfSpeech = posmodelgen.getPartsOfSpeech(inputAsWords)
+
+    # remove banned words from inputAsWords
+    wordstoremove = []
+    for word in inputAsWords:
+        if word.lower() in bannedWords:
+            wordstoremove.append(word)
+    wordstoremove.reverse()
+    for word in wordstoremove:
+        inputAsWords.remove(word)
+        print "removing naughty word \"%s\"" % word
+        
+    conceptreader(inputAsWords, inputAsPartsOfSpeech)                       # Search sentence for associations to generate
 
 reply = sentencetemplategen.generate()
 print "Emma >> %s" % reply
+print "Important Nouns: %s" % nounList
