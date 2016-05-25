@@ -17,119 +17,61 @@
 #      Uses elements from the Natural Language Toolkit.
 #                 Visit http://www.nltk.org.
 
-import nltk, conceptgen, posmodelgen, sentencetemplategen, broca
+import nltk                         # Natural Language Toolkit
+import conceptgen, posmodelgen      # Learning packages
+import sentencetemplategen, broca   # Reply packages
 
-inputAsParagraph = raw_input('You >> ')                     # since we're going to be responding to Tumblr asks, we'll assume that all input will be paragraph form.
-                                                            # todo: add alternative ways to input
-nounList = []
-
-bannedWordsTxt = open("emma.brn/bannedwords.txt", "r")      # load naughty words into a list so that we can screen for them
+### Load list of banned words into a dictionary so that we can remove them later
+bannedWordsFile = open('emma.brn/bannedwords.txt', 'r') # todo: make .brn file choosable
 bannedWords = []
-for line in bannedWordsTxt:
-    bannedWords.append(line)
-bannedWordsTxt.close()
-for count in range(0, len(bannedWords)):
-    bannedWords[count] = bannedWords[count].rstrip('\n')
+for line in bannedWordsFile:                            # pump banned words into a list, word by word
+    bannedWord = bannedWordsFile[line].rstrip('\n')     # remove newline characters as we add banned words to the list
+    bannedWords.append(bannedWord)
+bannedWordsFile.close()
 
-# find associations of nouns to other words
-def conceptreader(inputAsWords, inputAsPartsOfSpeech):
-    noun = ""
-    association = ""
-    associationType = 0
-    proximity = 0
+def main():
+    ### every loop, Emma decides what she wants to do.
+    # todo: add logic to decisions: try to keep new word list smallish, have a timer limit sleeping, default to "usually" answering questions
+    decision = 0
+    if decision == 0:       # Answer Tumblr questions
+        conversate()
+    elif decision == 1:     # Study new words
+        pass    # todo: link this up
+    elif decision == 2:     # Sleep for 15 or so loops
+        pass    # todo: link this up
 
-    for count1 in range(0, len(inputAsWords)):                                      # finds a noun
-        if inputAsPartsOfSpeech[count1] in nounCodes:
-            if inputAsPartsOfSpeech[count1] not in bannedWords:
-                noun = inputAsWords[count1]
-                nounList.append(noun)   
-                # todo: check for duplicates in nounList
-                # todo: make associationPOS stuff much smaller
-
-                for count2 in range(count1 + 1, len(inputAsWords)):                 # looks for important word after noun   todo: turn this and the next code block into a function
-                    importantWord = True
-                    if inputAsPartsOfSpeech[count2] in nounCodes:
-                        associationType = 0
-                    elif inputAsPartsOfSpeech[count2] in verbCodes:
-                        associationType = 1
-                    elif inputAsPartsOfSpeech[count2] in adjectiveCodes:
-                        associationType = 2
-                    else:
-                        importantword = False
-
-                    if importantWord:                                               # if an important word is found, add it to the concept graph
-                        association = inputAsWords[count2]
-                        associationPOS = nltk.word_tokenize(association)
-                        associationPOS = posmodelgen.getPartsOfSpeech(associationPOS)
-                        associationPOS = associationPOS[0]
-                        proximity = count2 - count1
-                        conceptgen.addconcept(noun, associationType, association, associationPOS, proximity)
-
-                for count3 in range(0, count1):                                     # looks for important word before noun
-                    importantWord = True
-                    if inputAsPartsOfSpeech[count3] in nounCodes:
-                        associationType = 0
-                    elif inputAsPartsOfSpeech[count3] in verbCodes:
-                        associationType = 1
-                    elif inputAsPartsOfSpeech[count3] in adjectiveCodes:
-                        associationType = 2
-                    else:
-                        importantWord = False
-
-                    if importantWord:                                               # if an important word is found, add it to the concept graph
-                        association = inputAsWords[count3]
-                        associationPOS = nltk.tokenize(association)
-                        associationPOS = posmodelgen.getPartsOfSpeech(associationPOS)
-                        associationPOS = associationPOS[0]
-                        proximity = count1 - count3
-                        conceptgen.addconcept(noun, associationType, association, associationPOS, proximity)
-                else:
-                    pass                                                            # naughty words get put in the word passer to atone for their sins
-
-inputAsSentences = nltk.sent_tokenize(inputAsParagraph)                     # NLTK default sentence segmenter
-inputAsWords = []
-for sentence in range(0, len(inputAsSentences)):
-    # tokenize input sentence
-    inputAsWords.append(inputAsSentences[sentence])
-    inputAsWords = nltk.word_tokenize(inputAsSentences[sentence])           # NTLK default word tokenizer
-    posmodelgen.grok(inputAsWords)                                          # generate sentence model from input sentences
-
-    # generate concept using words in input sentences
-    nounCodes = ['NN', 'NNS', 'NNP', 'NNPS']
-    verbCodes = ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']
-    adjectiveCodes = ['JJ', 'JJR', 'JJS']
-    inputAsPartsOfSpeech = posmodelgen.getPartsOfSpeech(inputAsWords)
-
-    # remove banned words from inputAsWords
-    wordstoremove = []
-    for word in inputAsWords:
-        if word.lower() in bannedWords:
-            wordstoremove.append(word)
-    wordstoremove.reverse()
-    for word in wordstoremove:
-        inputAsWords.remove(word)
-        #print "removing naughty word \"%s\"" % word
-        
-    conceptreader(inputAsWords, inputAsPartsOfSpeech)                       # Search sentence for associations to generate
-
-replyTemplate = sentencetemplategen.generate()
-print "Emma >> %s" % replyTemplate
-print "Important Nouns: %s" % nounList
-
-relatedNouns = []
-relatedVerbs = []
-relatedAdjectives = []
-
-for count in range(0, len(nounList)):
-    relatedNouns.append(broca.findrelatedwords(nounList[count], 0))
-    relatedVerbs.append(broca.findrelatedwords(nounList[count], 1))
-    relatedAdjectives.append(broca.findrelatedwords(nounList[count], 2))
+def conversate():
+    ### Emma reads input, learns from it, and generates a response
+    # todo: link this with ask reader in tumblrclient.py
+    # todo: add commandline-based communication as a commandline flag when starting
+    inputAsParagraph = raw_input('You >> ')                     # todo: link this to tumblr, maybe have choice of input and output part of main()
+    inputAsSentences = nltk.sent_tokenize(inputAsParagraph)     # segment the paragraph into a list of sentences
+    inputAsWords = []                                           # segment each sentence into a list of words
     
-print "Related nouns: " + str(relatedNouns)
-print "Related verbs: " + str(relatedVerbs)
-print "Related adjectives: " + str(relatedAdjectives)
-# todo: check for duplicates in relatedWords
-
-for count in range(0, len(replyTemplate)):
-    if replyTemplate[count] in verbCodes:
-        broca.insertverbs(replyTemplate, nounList, relatedVerbs, replyTemplate[count])
+    for sentence in range(0, len(inputAsSentences)):
+        ### for each sentence, run learning functions
+        inputAsWords = nltk.word_tokenize(inputAsSentences[sentence])   # tokenize words in each sentence
+        
+        posmodelgen.grok(inputAsWords)                                  # learn sentence structure from the sentence's parts of speech pattern
+        
+        ## remove banned words before we form association, since we don't want to form any associations for those.
+        # todo: move banned word file > list outside of for loop
+        bannedWordsFile = open('emma.brn/bannedwords.txt', 'r')         # todo: make .brn file choosable
+        bannedWords = []
+        for line in bannedWordsFile:                                    # pump banned words into a list, word by word
+            bannedWord = bannedWordsFile[line].rstrip('\n')             # remove newline characters as we add banned words to the list
+            bannedWords.append(bannedWord)
+        bannedWordsFile.close()
+        # now that the list of banned words is ready, remove any bad words
+        wordsToRemove = []
+        for word in inputAsWords:
+            if word.lower() in bannedWords:
+                wordsToRemove.append(word)
+        wordsToRemove.reverse()
+        for word in wordsToRemove:
+            inputAsWords.remove(word)
+            #print 'removing bad word "%s"' % word
+        
+        
+while 1 > 0:
+    main()
