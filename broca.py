@@ -43,26 +43,25 @@ def findrelatednouns(nounList, verbList):
         # todo: compare the two and merge
 
 def findrelatedadjectives(GeneratedNounList):
+    print "I'm empty"
     # note: this nounList is the list of nouns from our OUTPUT sentence
 
 def insertverbs(sentenceTemplate, convonouns, relatedVerbs):
-    # Get list of verbs and their indexs
     verbList = []
     verbPosition = []
-    for count in range(0, len(sentenceTemplate)):
+    for count in range(0, len(sentenceTemplate)):                  # Get list of verbs and their indexes
         pos = sentenceTemplate[count]
         if pos in cfg.verbCodes():
             verbList.append(pos)
             verbPosition.append(count)
 
-
-    for count in range(0, len(verbList)):                                       # goes thru verb POS's
+    for count in range(0, len(verbList)):                          # goes thru verb POS's
         possiblewords = []
         dietotal = 0.0
-        for verbtupe in relatedVerbs:                                           # matches related verbs by POS
+        for verbtupe in relatedVerbs:                             # matches related verbs by POS
             if verbtupe[2] == verbList[count]:
                 possiblewords.append(verbtupe)
-        for verbtupe in possiblewords:                                          # rolls die weighted by strength of related matching verbs
+        for verbtupe in possiblewords:                            # rolls die weighted by strength of related matching verbs
             dietotal += verbtupe[1]
         dieroll = random.uniform(0, dietotal)
         for verbtupe in possiblewords:
@@ -76,3 +75,4 @@ insertverbs(['VBP', 'JJ', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), 
 insertverbs(['VBP', 'VB', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
 insertverbs(['VBP', 'VBP', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
 insertverbs(['VBP', 'NN', 'VB', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
+insertverbs(['VBN', 'NN', 'VB', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')]) #note this case has a verb cod in the template but no verb matching that code is related in the brain
