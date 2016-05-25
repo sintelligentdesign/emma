@@ -15,14 +15,17 @@ adjectiveCodes = cfg.adjectiveCodes()
 
 def findrelatedverbs(nounList):
     with connection:
+        foundWords = []
         for count in range(0, len(nounList)):
             cursor.execute('SELECT * FROM conceptgraph WHERE noun = "%s" AND association_type = 1;' % nounList[count])
             # note: is this output buffered?
             # if not,
             # todo: add a buffer or find an alternative way of doing this
-        SQLReturn = cursor.fetchall()
+            SQLReturn = cursor.fetchall()
+            foundWords.append(SQLReturn)
+            print foundWords
 
-        foundWords = {}
+        
         for count in range(0, len(SQLReturn)):  # add all found associations to a dictionary, paired with their association strength
             rowData = SQLReturn[count]
             strength = rowData[7]
@@ -46,7 +49,7 @@ def findrelatedadjectives(GeneratedNounList):
     print "I'm empty"
     # note: this nounList is the list of nouns from our OUTPUT sentence
 
-def insertverbs(sentenceTemplate, convonouns, relatedVerbs):
+def insertverbs(sentenceTemplate, convoNouns, relatedVerbs):
     verbList = []
     verbPosition = []
     for count in range(0, len(sentenceTemplate)):       # Get list of verbs and their indexes

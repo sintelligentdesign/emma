@@ -17,10 +17,10 @@
 #      Uses elements from the Natural Language Toolkit.
 #                 Visit http://www.nltk.org.
 
-import nltk                         # Natural Language Toolkit
-import conceptgen, posmodelgen      # Learning packages
-import sentencetemplategen, broca   # Reply packages
-import cfg, tumblrclient            # Misc.
+import nltk                             # Natural Language Toolkit
+import conceptgen, posmodelgen          # Learning packages
+import sentencetemplategen, broca       # Reply packages
+import cfg, tumblrclient, utilities     # Misc.
 
 # declare parts of speech umbrellas for generating replies
 nounCodes = cfg.nounCodes()
@@ -75,6 +75,7 @@ def read(inputText, REPLY_BOOL):
             for count in range(0, len(inputAsWords)):                       # create nounList
                 if inputAsPOS[count] in nounCodes:
                     nounList.append(inputAsWords[count])
+            nounList = utilities.consolidateduplicates(nounList)
             reply()
     
 def reply():
@@ -101,9 +102,8 @@ def reply():
     #print "Related adjectives: " + str(relatedAdjectives)
     
     broca.insertverbs(replyTemplate, nounList, relatedVerbs)
-    print replyTemplate
-    print nounList
-    print relatedVerbs
+    print "Reply Template: %s" % str(replyTemplate)
+    print "Noun List: %s" % str(nounList)
 
 def learnwords():
     with open('emma.brn/newwords.txt') as newWordList:

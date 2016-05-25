@@ -25,10 +25,12 @@ def personalpronountargetswap(word):
 # list object duplicate finder and remover function
 def consolidateduplicates(dupeList):
     toRemove = []
+    print "Before consolidation: %s" % str(dupeList)
     for count in range(0, len(dupeList)):
         elem = dupeList[count]
         if elem in dupeList[count + 1:]:
             toRemove.append(elem)
     for dupe in toRemove:
         dupeList.remove(dupe)
+    print "After consolidation: %s" % str(dupeList)
     return dupeList
