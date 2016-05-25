@@ -3,7 +3,7 @@
 # Section:          
 # Writes/reads:     
 # Dependencies:     
-# Dependency of:    emma
+# Dependency of:    emma, conceptgen
 
 ### Define what parts of speech signify nouns, verbs, and adjectives
 cfg.nounCodes = ['NN', 'NNS', 'NNP', 'NNPS']

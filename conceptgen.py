@@ -4,13 +4,55 @@
 # Writes/reads:     emma.brn/conceptgraph.db
 # Dependencies:     sqlite3
 # Dependency of:    emma
-import sqlite3 as sql
+import sqlite3 as sql, cfg
 
 connection = sql.connect('emma.brn/conceptgraph.db')        # connect to the concept graph SQLite database
 cursor = connection.cursor()                                # get the cursor object
 
-def findassociations(sentenceWordPOSList):
+def findassociations(inputAsWords, inputAsPOS):
+    ### given a sentence, find important words and create associations between them
+    ## get POS sentence from POS Tuple
+    # todo: add nounList (see emma.old.py:45)
+    inputAsPOS = []
+    for count in range(0, len(sentencePOSTuple)):
+        inputPOSTuple = sentencePOSTuple[count]
+        inputAsPOS.append(inputPOSTuple[1])
     
+    for count1 in range(0, len(inputAsWords)):   
+        ## iterate through each word in the sentence              
+        if inputAsPOS[count1] in cfg.nounCodes:                 # if the word isn't a noun, we aren't interested in it
+            noun = inputAsWords[count1]
+            
+            # look for important words after noun
+            for count2 in range(count1 + 1, len(inputAsWords)):
+                if inputAsPOS[count2] in cfg.nounCodes:
+                    associationType = 0
+                elif inputAsPOS in cfg.verbCodes:
+                    associationType = 1
+                elif inputAsPOS in cfg.adjectiveCodes:
+                    associationType = 2
+                else:
+                    break
+                
+            # look for important words before noun
+            for count2 in range(0, count1):
+                if inputAsPOS[count2] in cfg.nounCodes:
+                    associationType = 0
+                elif inputAsPOS in cfg.verbCodes:
+                    associationType = 1
+                elif inputAsPOS in cfg.adjectiveCodes:
+                    associationType = 2
+                else:
+                    break
+                    
+            # if an important word is found (and by extension an associationType is set), add the association to the Concept Graph
+            if associationType:
+                association = inputAsWords[count2]
+                associationPOS = inputasPOS[count2]
+                proximity = count2 - count1
+                addconcept(noun, associationType, association, associationPOS, proximity)
+        else:
+            pass
 def calculateaverages():
     # Calculates averages of all frequencies and all proximities for strength() to use later.
     # It is self-contained in an attempt to save processing power, as these only need to be calculated once per input instead of once per word

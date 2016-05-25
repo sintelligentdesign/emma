@@ -73,11 +73,17 @@ def conversate():
             inputAsWords.remove(word)
             #print 'removing bad word "%s"' % word
         
-        # get the parts of speech for our sentence and unzip it so that we can get the parts of speech (we already have a word list)
-        inputPOSList = nltk.pos_tag(input)
+        # get the parts of speech for our sentence
+        inputPOSList = nltk.pos_tag(inputAsWords)
         
         # look for associations to send to Emma's Concept Graph
-        conceptgen.findassociations(inputPOSList)
+        conceptgen.findassociations(inputAsWords, inputPOSList)
+        
+        # find nouns in our sentence and add them to a noun list
+        nounList = []
+        for count in range(0, len(inputAsWords)):
+            if inputAsPOS[count] in cfg.nounCodes
+                nounList.append(inputAsWords[count])
 
 while 1 > 0:
     main()
