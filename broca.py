@@ -38,3 +38,4 @@ def insertverbs(sentenceTemplate, importantWords, relatedVerbs, verbType):
     for count in range(0, len(relatedVerbs)):
         if verbType in relatedVerbs:
             # todo: put the word in
+            pass

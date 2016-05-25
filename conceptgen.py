@@ -14,50 +14,56 @@ nounCodes = cfg.nounCodes()
 verbCodes = cfg.verbCodes()
 adjectiveCodes = cfg.adjectiveCodes()
 
-def findassociations(inputAsWords, inputAsPOS):
+def findassociations(inputAsWords, inputAsPOSTuple):
     ### given a sentence, find important words and create associations between them
     ## get POS sentence from POS Tuple
     # todo: add nounList (see emma.old.py:45)
     inputAsPOS = []
-    for count in range(0, len(sentencePOSTuple)):
-        inputPOSTuple = sentencePOSTuple[count]
+    for count in range(0, len(inputAsPOSTuple)):
+        inputPOSTuple = inputAsPOSTuple[count]
         inputAsPOS.append(inputPOSTuple[1])
+    print inputAsWords
+    print inputAsPOS
     
     for count1 in range(0, len(inputAsWords)):   
         ## iterate through each word in the sentence              
         if inputAsPOS[count1] in nounCodes:                 # if the word isn't a noun, we aren't interested in it
             noun = inputAsWords[count1]
-            
+            # todo: make these one function somehow
             # look for important words after noun
             for count2 in range(count1 + 1, len(inputAsWords)):
+                importantWord = True
                 if inputAsPOS[count2] in nounCodes:
                     associationType = 0
-                elif inputAsPOS in verbCodes:
+                elif inputAsPOS[count2] in verbCodes:
                     associationType = 1
-                elif inputAsPOS in adjectiveCodes:
+                elif inputAsPOS[count2] in adjectiveCodes:
                     associationType = 2
                 else:
-                    break
+                    importantWord = False
+                if importantWord:                           # if an important word is found, add an association to the Concept Graph
+                    association = inputAsWords[count2]
+                    associationPOS = inputAsPOS[count2]
+                    proximity = count2 - count1
+                    addconcept(noun, associationType, association, associationPOS, proximity)
                 
             # look for important words before noun
-            for count2 in range(0, count1):
-                if inputAsPOS[count2] in nounCodes:
+            for count3 in range(0, count1):
+                importantWord = True
+                if inputAsPOS[count3] in nounCodes:
                     associationType = 0
-                elif inputAsPOS in verbCodes:
+                elif inputAsPOS[count3] in verbCodes:
                     associationType = 1
-                elif inputAsPOS in adjectiveCodes:
+                elif inputAsPOS[count3] in adjectiveCodes:
                     associationType = 2
                 else:
-                    break
-                    
-            # if an important word is found (and by extension an associationType is set), add the association to the Concept Graph
-            if associationType:
-                association = inputAsWords[count2]
-                associationPOS = inputasPOS[count2]
-                proximity = count2 - count1
-                addconcept(noun, associationType, association, associationPOS, proximity)
-        else:
-            pass
+                    importantWord = False
+                if importantWord:                           # if an important word is found, add an association to the Concept Graph
+                    association = inputAsWords[count3]
+                    associationPOS = inputAsPOS[count3]
+                    proximity = count1 - count3
+                    addconcept(noun, associationType, association, associationPOS, proximity)
+            
 def calculateaverages():
     # Calculates averages of all frequencies and all proximities for strength() to use later.
     # It is self-contained in an attempt to save processing power, as these only need to be calculated once per input instead of once per word

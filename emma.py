@@ -26,8 +26,8 @@ import cfg                          # Misc.
 bannedWordsFile = open('emma.brn/bannedwords.txt', 'r') # todo: make .brn file choosable
 bannedWords = []
 for line in bannedWordsFile:                            # pump banned words into a list, word by word
-    bannedWord = bannedWordsFile[line].rstrip('\n')     # remove newline characters as we add banned words to the list
-    bannedWords.append(bannedWord)
+    bannedWord = line
+    bannedWords.append(bannedWord.rstrip('\n'))         # remove newline characters as we add banned words to the list
 bannedWordsFile.close()
     
 def main():
@@ -57,14 +57,6 @@ def conversate():
         posmodelgen.grok(inputAsWords)                                  # learn sentence structure from the sentence's parts of speech pattern
         
         ## remove banned words before we form association, since we don't want to form any associations for those.
-        # todo: move banned word file > list outside of for loop
-        bannedWordsFile = open('emma.brn/bannedwords.txt', 'r')         # todo: make .brn file choosable
-        bannedWords = []
-        for line in bannedWordsFile:                                    # pump banned words into a list, word by word
-            bannedWord = bannedWordsFile[line].rstrip('\n')             # remove newline characters as we add banned words to the list
-            bannedWords.append(bannedWord)
-        bannedWordsFile.close()
-        # now that the list of banned words is ready, remove any bad words
         wordsToRemove = []
         for word in inputAsWords:
             if word.lower() in bannedWords:
@@ -74,27 +66,34 @@ def conversate():
             inputAsWords.remove(word)
             #print 'removing bad word "%s"' % word
         
-        # get the parts of speech for our sentence
-        inputPOSList = nltk.pos_tag(inputAsWords)
-        
-        # look for associations and sent them to Emma's Concept Graph
-        conceptgen.findassociations(inputAsWords, inputPOSList)
+        ## generate associations from the sentence
+        inputPOSList = nltk.pos_tag(inputAsWords)                       # get the parts of speech for our sentence
+        conceptgen.findassociations(inputAsWords, inputPOSList)         # look for associations and sent them to Emma's Concept Graph
         
         ## find nouns in our input and add them to a noun list to help Emma choose what words to use when she responds
         # todo: check for and remove duplicates
         nounList = []
         nounCodes = cfg.nounCodes()
-        for count in range(0, len(inputAsWords)):
-            if inputAsPOS[count] in nounCodes
+        inputAsPOS = []                                                 # define inputAsPOS
+        for count in range(0, len(inputPOSList)):
+            inputPOSTuple = inputPOSList[count]
+            inputAsPOS.append(inputPOSTuple[1])
+
+        for count in range(0, len(inputAsWords)):                       # create nounList
+            if inputAsPOS[count] in nounCodes:
                 nounList.append(inputAsWords[count])
         
     ### now Emma generates a response
     # todo: have this loop n number of times to create multiple sentences
     ## generate a new sentence template from our template model
-    replyTemplate = sententencetemplategen.generate()
+    replyTemplate = sentencetemplategen.generate()
             
     ## check for existing associations with nouns in our list
     # todo: check for and remove duplicates
+    relatedNouns = []
+    relatedVerbs = []
+    relatedAdjectives = []
+    
     for count in range(0, len(nounList)):
         relatedNouns.append(broca.findrelatedwords(nounList[count], 0))
         relatedVerbs.append(broca.findrelatedwords(nounList[count], 1))
