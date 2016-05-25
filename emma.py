@@ -37,7 +37,7 @@ def main():
     elif decision == 1:     # Study new words
         learnwords()
     elif decision == 2:     # Sleep for 15 or so loops
-        pass    # todo: link this up
+        dream()
 
 def conversate():
     ### Emma reads input, learns from it, and generates a response
