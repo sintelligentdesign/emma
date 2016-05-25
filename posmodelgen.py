@@ -3,7 +3,7 @@
 # Section:          LEARNING
 # Writes/reads:     emma.brn/sentencestructure.mdl
 # Dependencies:     nltk, re, pprint, ast
-# Dependency of:    emma
+# Dependency of:    emma, broca
 import nltk, re, pprint, ast
 
 target = "emma.brn/sentencestructure.mdl"

@@ -17,7 +17,7 @@
 #      Uses elements from the Natural Language Toolkit.
 #                 Visit http://www.nltk.org.
 
-import nltk, conceptgen, posmodelgen, sentencetemplategen
+import nltk, conceptgen, posmodelgen, sentencetemplategen, broca
 
 inputAsParagraph = raw_input('You >> ')                     # since we're going to be responding to Tumblr asks, we'll assume that all input will be paragraph form.
                                                             # todo: add alternative ways to input
@@ -107,3 +107,6 @@ for sentence in range(0, len(inputAsSentences)):
 reply = sentencetemplategen.generate()
 print "Emma >> %s" % reply
 print "Important Nouns: %s" % nounList
+# todo: check for duplicates in nounList
+for count in range(0, len(nounList)):
+    broca.findrelatedwords(nounList[count], 0)
