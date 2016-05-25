@@ -41,5 +41,5 @@ def insertverbs(sentenceTemplate, convonouns, relatedVerbs):
     for count in verbList[]
 
     print sentenceTemplate
-insertverbs(['VBP', 'JJ', 'NN', '.'], ['god', 'ponies'], [('take', 2.0), ('taken', 1.3)])
-insertverbs(['VBP', 'VB', 'NN', '.'], ['god', 'ponies'], [('take', 2.0), ('taken', 1.3)])
+insertverbs(['VBP', 'JJ', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB')])
+insertverbs(['VBP', 'VB', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB')])
