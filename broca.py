@@ -30,7 +30,14 @@ def findrelatedverbs(nounList):
 
 def findrelatednouns(nounList, verbList):
     with connection:
-        cursor.execute('SELECT * FROM conceptgraph WHERE')
+        for count in range(0, len(nounList)):
+            cursor.execute('SELECT * FROM conceptgraph WHERE noun = "%s" AND association_type = 0;' % nounList[count])
+        SQLReturnNoun = cursor.fetchall()
+        
+        for count in range(0, len(verbList)):
+            cursor.execute('SELECT * FROM conceptgraph WHERE association = "%s" AND association_type = 1;' % verbList[count])
+        SQLReturnVerb = cursor.fetchall()
+        # todo: compare the two and merge
 
 def insertverbs(sentenceTemplate, convonouns, relatedVerbs):
     # Get list of verbs and their indexs
