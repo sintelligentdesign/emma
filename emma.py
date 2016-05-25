@@ -84,9 +84,9 @@ def conversate():
     relatedAdjectives = []
     
     for count in range(0, len(nounList)):
-        relatedNouns.append(broca.findrelatedwords(nounList[count], 0))
-        relatedVerbs.append(broca.findrelatedwords(nounList[count], 1))
-        relatedAdjectives.append(broca.findrelatedwords(nounList[count], 2))
+        #relatedNouns.append(broca.findrelatedwords(nounList[count], 0))
+        relatedVerbs.append(broca.findrelatedverbs(nounList[count], 1))
+        #relatedAdjectives.append(broca.findrelatedwords(nounList[count], 2))
         
     print "Related nouns: " + str(relatedNouns)
     print "Related verbs: " + str(relatedVerbs)

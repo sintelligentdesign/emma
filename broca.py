@@ -13,17 +13,9 @@ nounCodes = cfg.nounCodes()
 verbCodes = cfg.verbCodes()
 adjectiveCodes = cfg.adjectiveCodes()
 
-def findrelatedwords(noun, associationType):
+def findrelatedverbs(nounList):
     with connection:
-        SQLRequest = 'SELECT * FROM conceptgraph WHERE noun = "%s" AND association_type = ' % noun
-        if associationType == 0:    # noun-noun association
-            SQLRequest += "0;"
-        elif associationType == 1:  # noun-verb association
-            SQLRequest += "1;"
-        elif associationType == 2:  # noun-adjective association
-            SQLRequest += "2;"
-
-        cursor.execute(SQLRequest)
+        cursor.execute('SELECT * FROM conceptgraph WHERE noun = "%s" AND association_type = 1;')
         SQLReturn = cursor.fetchall()
 
         foundWords = {}
