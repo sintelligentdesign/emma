@@ -3,7 +3,7 @@
 # Section:          INPUT
 # Writes/reads:
 # Dependencies:
-# Dependency of:
+# Dependency of:    broca, conceptgen, emma
 
 def personalpronountargetswap(word):
     # swap the targets of posessive words like you or mine so that Emma doesn't start going around calling other people Emma, etc.
@@ -23,12 +23,12 @@ def personalpronountargetswap(word):
         word == "yours"
 
 # list object duplicate finder and remover function
-def listdupeconsolidate(dupelist):
-    toremove = []
-    for count in range(0, len(dupelist)):
-        elem = dupelist[count]
-        if elem in dupelist[count + 1:]:
-            toremove.append(elem)
-    for dupe in toremove:
-        dupelist.remove(dupe)
-    return dupelist
+def consolidateduplicates(dupeList):
+    toRemove = []
+    for count in range(0, len(dupeList)):
+        elem = dupeList[count]
+        if elem in dupeList[count + 1:]:
+            toRemove.append(elem)
+    for dupe in toRemove:
+        dupeList.remove(dupe)
+    return dupeList

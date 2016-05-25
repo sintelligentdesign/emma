@@ -3,7 +3,7 @@
 # Section:          
 # Writes/reads:     
 # Dependencies:     
-# Dependency of:    emma, conceptgen
+# Dependency of:    emma, conceptgen, broca
 
 ### Define what parts of speech signify nouns, verbs, and adjectives
 def nounCodes(): return ['NN', 'NNS', 'NNP', 'NNPS']
