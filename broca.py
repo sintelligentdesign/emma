@@ -35,30 +35,19 @@ def findrelatedwords(noun, associationType):
             foundWords[association] = strength
     return foundWords
 
-def insertverbs(sentenceTemplate, convonouns, relatedVerbs, verbDictionary):
-    # Unzip verbDictionary
+def insertverbs(sentenceTemplate, convonouns, relatedVerbs):
+    # Get list of verbs and their indexs
     verbList = []
     verbPosition = []
-#    for key in verbDictionary:
-#        verbList.append(key)
-#        verbPosition.append(verbDictionary[key])
-
     for count in range(0, len(sentenceTemplate)):
         pos = sentenceTemplate[count]
         if pos in cfg.verbCodes():
             verbList.append(pos)
             verbPosition.append(count)
-            print pos
-            print verbList
-            print verbPosition
 
-    # todo: make this work past just demo levels
-    for count1 in range(0, len(verbList)):
-        for count2 in range(0, len(sentenceTemplate)):
-            if verbPosition[count1] == count2:
-                verbToInsert = relatedVerbs[0]
-                verbToInsert = verbToInsert[0]
-                sentenceTemplate[count2] = verbToInsert
+    # todo: make this work past just demo levelsf
+    for count in verbList[]
+
     print sentenceTemplate
-insertverbs(['VBP', 'JJ', 'NN', '.'], ['god', 'ponies'], [('jump', 2.0), ('gnaw', 1.3)], {'VBP': 0})
-insertverbs(['VBP', 'VB', 'NN', '.'], ['god', 'ponies'], [('jump', 2.0), ('gnaw', 1.3)], {'VBP': 0})
+insertverbs(['VBP', 'JJ', 'NN', '.'], ['god', 'ponies'], [('take', 2.0), ('taken', 1.3)])
+insertverbs(['VBP', 'VB', 'NN', '.'], ['god', 'ponies'], [('take', 2.0), ('taken', 1.3)])
