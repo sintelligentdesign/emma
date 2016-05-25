@@ -15,12 +15,11 @@ verbCodes = cfg.verbCodes()
 adjectiveCodes = cfg.adjectiveCodes()
 
 # load list of banned words into a dictionary so that we can stop them from being added into associations
-bannedWordsFile = open('emma.brn/bannedwords.txt', 'r') # todo: make .brn file choosable
-bannedWords = []
-for line in bannedWordsFile:                            # pump banned words into a list, word by word
-    bannedWord = line
-    bannedWords.append(bannedWord.rstrip('\n'))         # remove newline characters as we add banned words to the list
-bannedWordsFile.close()
+with open('emma.brn/bannedwords.txt') as bannedWordsFile:
+    bannedWords = []
+    for line in bannedWordsFile:                            # pump banned words into a list, word by word
+        bannedWord = line
+        bannedWords.append(bannedWord.rstrip('\n'))         # remove newline characters as we add banned words to the list
 
 def findassociations(inputAsWords, inputAsPOSTuple):
     ### given a sentence, find important words and create associations between them
