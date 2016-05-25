@@ -30,8 +30,6 @@ def findassociations(inputAsWords, inputAsPOSTuple):
     for count in range(0, len(inputAsPOSTuple)):
         inputPOSTuple = inputAsPOSTuple[count]
         inputAsPOS.append(inputPOSTuple[1])
-    print inputAsWords
-    print inputAsPOS
     
     for count1 in range(0, len(inputAsWords)):   
         ## iterate through each word in the sentence              
