@@ -17,7 +17,7 @@
 #      Uses elements from the Natural Language Toolkit.
 #                 Visit http://www.nltk.org.
 
-import nltk, conceptgen, posmodelgen
+import nltk, conceptgen, posmodelgen, sentencetemplategen
 
 inputAsParagraph = raw_input('You >> ')                     # since we're going to be responding to Tumblr asks, we'll assume that all input will be paragraph form.
                                                             # todo: add alternative ways to input
@@ -100,4 +100,8 @@ def conceptreader(inputAsWords, inputAsPartsOfSpeech):
                 else:
                     pass                                                            # naughty words get put in the word passer to atone for their sins
 
-conceptreader(inputAsWords, inputAsPartsOfSpeech)
+for count in range(0, len(inputAsSentences)):
+        conceptreader(inputAsWords, inputAsPartsOfSpeech)
+
+reply = sentencetemplategen.generate()
+print "Emma >> %s" % reply
