@@ -40,7 +40,7 @@ def calculatestrength(totalFreq, avgProx):
         strength = (2 * float(totalFreq))/(calculateaverages.avgTotalFrequency + totalFreq)
     return strength
 
-def addconcept(noun, associationType, association, proximity):
+def addconcept(noun, associationType, association, associationPOS, proximity):
     # Start by calculating average total frequencies and average average proximities to calculate score
     calculateaverages()
 
@@ -84,8 +84,7 @@ def addconcept(noun, associationType, association, proximity):
             strength = calculatestrength(1, proximity)                              # calculate association strength
 
             print "Creating new association for %s (%s)" % (noun, association)
-
             totalFrequency = 1
-
+            
             # COMMIT
-            cursor.execute('INSERT INTO conceptgraph (noun, association_type, association, total_frequency, average_proximity, strength) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\');' % (noun, associationType, association, totalFrequency, proximity, strength))
+            cursor.execute('INSERT INTO conceptgraph (noun, association_type, association, association_pos, total_frequency, average_proximity, strength) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\');' % (noun, associationType, association, associationPOS, totalFrequency, proximity, strength))

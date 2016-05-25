@@ -44,6 +44,7 @@ def conceptreader(inputAsWords, inputAsPartsOfSpeech):
                 noun = inputAsWords[count1]
                 nounList.append(noun)   
                 # todo: check for duplicates in nounList
+                # todo: make associationPOS stuff much smaller
 
                 for count2 in range(count1 + 1, len(inputAsWords)):                 # looks for important word after noun   todo: turn this and the next code block into a function
                     importantWord = True
@@ -58,8 +59,11 @@ def conceptreader(inputAsWords, inputAsPartsOfSpeech):
 
                     if importantWord:                                               # if an important word is found, add it to the concept graph
                         association = inputAsWords[count2]
+                        associationPOS = nltk.word_tokenize(association)
+                        associationPOS = posmodelgen.getPartsOfSpeech(associationPOS)
+                        associationPOS = associationPOS[0]
                         proximity = count2 - count1
-                        conceptgen.addconcept(noun, associationType, association, proximity)
+                        conceptgen.addconcept(noun, associationType, association, associationPOS, proximity)
 
                 for count3 in range(0, count1):                                     # looks for important word before noun
                     importantWord = True
@@ -74,8 +78,11 @@ def conceptreader(inputAsWords, inputAsPartsOfSpeech):
 
                     if importantWord:                                               # if an important word is found, add it to the concept graph
                         association = inputAsWords[count3]
+                        associationPOS = nltk.tokenize(association)
+                        associationPOS = posmodelgen.getPartsOfSpeech(associationPOS)
+                        associationPOS = associationPOS[0]
                         proximity = count1 - count3
-                        conceptgen.addconcept(noun, associationType, association, proximity)
+                        conceptgen.addconcept(noun, associationType, association, associationPOS, proximity)
                 else:
                     pass                                                            # naughty words get put in the word passer to atone for their sins
 
@@ -101,7 +108,7 @@ for sentence in range(0, len(inputAsSentences)):
     wordstoremove.reverse()
     for word in wordstoremove:
         inputAsWords.remove(word)
-        print "removing naughty word \"%s\"" % word
+        #print "removing naughty word \"%s\"" % word
         
     conceptreader(inputAsWords, inputAsPartsOfSpeech)                       # Search sentence for associations to generate
 

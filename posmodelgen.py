@@ -10,7 +10,7 @@ target = "emma.brn/sentencestructure.mdl"
 
 def getPartsOfSpeech(sentence):
     # get the parts of speech from the input
-    sentence = nltk.pos_tag(sentence)                             # NLTK default part-of-speech tagger
+    sentence = nltk.pos_tag(sentence)   # NLTK default part-of-speech tagger
 
     tagSentence = []    # make "sentences" of tags from list of tuples
                         # the above is clearly a list, but we're calling it a sentence because as far as the markov muncher cares, it is one
