@@ -83,12 +83,14 @@ def conversate():
         ## find nouns in our input and add them to a noun list to help Emma choose what words to use when she responds
         # todo: check for and remove duplicates
         nounList = []
+        nounCodes = cfg.nounCodes()
         for count in range(0, len(inputAsWords)):
-            if inputAsPOS[count] in cfg.nounCodes
+            if inputAsPOS[count] in nounCodes
                 nounList.append(inputAsWords[count])
         
     ### now Emma generates a response
-    
+    # todo: have this loop n number of times to create multiple sentences
+    ## generate a new sentence template from our template model
     replyTemplate = sententencetemplategen.generate()
             
     ## check for existing associations with nouns in our list

@@ -9,6 +9,11 @@ import sqlite3 as sql, cfg
 connection = sql.connect('emma.brn/conceptgraph.db')        # connect to the concept graph SQLite database
 cursor = connection.cursor()                                # get the cursor object
 
+# declare parts of speech umbrellas for findassociations()
+nounCodes = cfg.nounCodes()
+verbCodes = cfg.verbCodes()
+adjectiveCodes = cfg.adjectiveCodes()
+
 def findassociations(inputAsWords, inputAsPOS):
     ### given a sentence, find important words and create associations between them
     ## get POS sentence from POS Tuple
@@ -20,27 +25,27 @@ def findassociations(inputAsWords, inputAsPOS):
     
     for count1 in range(0, len(inputAsWords)):   
         ## iterate through each word in the sentence              
-        if inputAsPOS[count1] in cfg.nounCodes:                 # if the word isn't a noun, we aren't interested in it
+        if inputAsPOS[count1] in nounCodes:                 # if the word isn't a noun, we aren't interested in it
             noun = inputAsWords[count1]
             
             # look for important words after noun
             for count2 in range(count1 + 1, len(inputAsWords)):
-                if inputAsPOS[count2] in cfg.nounCodes:
+                if inputAsPOS[count2] in nounCodes:
                     associationType = 0
-                elif inputAsPOS in cfg.verbCodes:
+                elif inputAsPOS in verbCodes:
                     associationType = 1
-                elif inputAsPOS in cfg.adjectiveCodes:
+                elif inputAsPOS in adjectiveCodes:
                     associationType = 2
                 else:
                     break
                 
             # look for important words before noun
             for count2 in range(0, count1):
-                if inputAsPOS[count2] in cfg.nounCodes:
+                if inputAsPOS[count2] in nounCodes:
                     associationType = 0
-                elif inputAsPOS in cfg.verbCodes:
+                elif inputAsPOS in verbCodes:
                     associationType = 1
-                elif inputAsPOS in cfg.adjectiveCodes:
+                elif inputAsPOS in adjectiveCodes:
                     associationType = 2
                 else:
                     break
