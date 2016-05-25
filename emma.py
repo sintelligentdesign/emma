@@ -112,8 +112,8 @@ for sentence in range(0, len(inputAsSentences)):
         
     conceptreader(inputAsWords, inputAsPartsOfSpeech)                       # Search sentence for associations to generate
 
-reply = sentencetemplategen.generate()
-print "Emma >> %s" % reply
+replyTemplate = sentencetemplategen.generate()
+print "Emma >> %s" % replyTemplate
 print "Important Nouns: %s" % nounList
 
 relatedNouns = []
@@ -129,3 +129,7 @@ print "Related nouns: " + str(relatedNouns)
 print "Related verbs: " + str(relatedVerbs)
 print "Related adjectives: " + str(relatedAdjectives)
 # todo: check for duplicates in relatedWords
+
+for count in range(0, len(replyTemplate)):
+    if replyTemplate[count] in verbCodes:
+        broca.insertverbs(replyTemplate, nounList, relatedVerbs, replyTemplate[count])

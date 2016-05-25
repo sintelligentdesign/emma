@@ -9,6 +9,10 @@ import sqlite3 as sql, posmodelgen
 connection = sql.connect('emma.brn/conceptgraph.db')        # connect to the concept graph SQLite database
 cursor = connection.cursor()                                # get the cursor object
 
+nounCodes = ['NN', 'NNS', 'NNP', 'NNPS']
+verbCodes = ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']
+adjectiveCodes = ['JJ', 'JJR', 'JJS']
+
 def findrelatedwords(noun, associationType):
     with connection:
         SQLRequest = 'SELECT * FROM conceptgraph WHERE noun = "%s" AND association_type = ' % noun
@@ -29,3 +33,8 @@ def findrelatedwords(noun, associationType):
             association = association[3]
             foundWords[association] = strength
     return foundWords
+    
+def insertverbs(sentenceTemplate, importantWords, relatedVerbs, verbType):
+    for count in range(0, len(relatedVerbs)):
+        if verbType in relatedVerbs:
+            # todo: put the word in
