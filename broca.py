@@ -17,6 +17,9 @@ def findrelatedverbs(nounList):
     with connection:
         for count in range(0, len(nounList)):
             cursor.execute('SELECT * FROM conceptgraph WHERE noun = "%s" AND association_type = 1;' % nounList[count])
+            # note: is this output buffered?
+            # if not,
+            # todo: add a buffer or find an alternative way of doing this
         SQLReturn = cursor.fetchall()
 
         foundWords = {}
@@ -38,6 +41,9 @@ def findrelatednouns(nounList, verbList):
             cursor.execute('SELECT * FROM conceptgraph WHERE association = "%s" AND association_type = 1;' % verbList[count])
         SQLReturnVerb = cursor.fetchall()
         # todo: compare the two and merge
+        
+def findrelatedadjectives(GeneratedNounList):
+    # note: this nounList is the list of nouns from our OUTPUT sentence
 
 def insertverbs(sentenceTemplate, convonouns, relatedVerbs):
     # Get list of verbs and their indexs
