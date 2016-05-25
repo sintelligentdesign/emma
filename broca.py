@@ -22,10 +22,10 @@ def findrelatedwords(noun, associationType):
             SQLRequest += "1;"
         elif associationType == 2:  # noun-adjective association
             SQLRequest += "2;"
-            
+
         cursor.execute(SQLRequest)
         SQLReturn = cursor.fetchall()
-        
+
         foundWords = {}
         for count in range(0, len(SQLReturn)):  # add all found associations to a dictionary, paired with their association strength
             association = SQLReturn[count]
@@ -33,15 +33,24 @@ def findrelatedwords(noun, associationType):
             association = association[3]
             foundWords[association] = strength
     return foundWords
-    
-def insertverbs(sentenceTemplate, importantWords, relatedVerbs, verbDictionary):
+
+def insertverbs(sentenceTemplate, convonouns, relatedVerbs, verbDictionary):
     # Unzip verbDictionary
     verbList = []
     verbPosition = []
-    for key in verbDictionary:
-        verbList.append(key)
-        verbPosition.append(verbDictionary[key])
-        
+#    for key in verbDictionary:
+#        verbList.append(key)
+#        verbPosition.append(verbDictionary[key])
+
+    for count in range(0, len(sentenceTemplate)):
+        pos = sentenceTemplate[count]
+        if pos in cfg.verbCodes():
+            verbList.append(pos)
+            verbPosition.append(count)
+            print pos
+            print verbList
+            print verbPosition
+
     # todo: make this work past just demo levels
     for count1 in range(0, len(verbList)):
         for count2 in range(0, len(sentenceTemplate)):
@@ -51,3 +60,4 @@ def insertverbs(sentenceTemplate, importantWords, relatedVerbs, verbDictionary):
                 sentenceTemplate[count2] = verbToInsert
     print sentenceTemplate
 insertverbs(['VBP', 'JJ', 'NN', '.'], ['god', 'ponies'], [('jump', 2.0), ('gnaw', 1.3)], {'VBP': 0})
+insertverbs(['VBP', 'VB', 'NN', '.'], ['god', 'ponies'], [('jump', 2.0), ('gnaw', 1.3)], {'VBP': 0})
