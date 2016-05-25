@@ -46,6 +46,5 @@ def grok(input):
 
             stem[StemAsString] = leaf
 
-    modelFile = open(target, "w")
-    print >>modelFile, stem
-    modelFile.close()
+    with open(target, 'w') as modelFile:
+        print >>modelFile, stem
