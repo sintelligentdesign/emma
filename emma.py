@@ -20,7 +20,7 @@
 import nltk                         # Natural Language Toolkit
 import conceptgen, posmodelgen      # Learning packages
 import sentencetemplategen, broca   # Reply packages
-import cfg                          # Misc.
+import cfg, tumblrclient            # Misc.
 
 # declare parts of speech umbrellas for generating replies
 nounCodes = cfg.nounCodes()
@@ -35,7 +35,7 @@ def main():
     if decision == 0:       # Answer Tumblr questions
         conversate()
     elif decision == 1:     # Study new words
-        pass    # todo: link this up
+        learnwords()
     elif decision == 2:     # Sleep for 15 or so loops
         pass    # todo: link this up
 
@@ -104,6 +104,17 @@ def conversate():
         print nounList
         print relatedVerbs
         print verbList
+        
+def learnwords():
+    with open('emma.brn/newwords.txt') as newWordList:
+        for line in newWordList:
+            tumblrclient.searchfortextposts(line)
+            # Send this to the learning function with flags set to take direct input and not generate a response
+            
+def dream()
+    # loop
+        # generate output
+        # feed input to learning function with flags set to take direct input and not generate a response
 
 while 1 > 0:
-    main()
+    learnwords()
