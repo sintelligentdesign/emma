@@ -11,15 +11,24 @@ def personalpronountargetswap(word):
         word == "me"
     elif word == "me":
         word == "you"
-        
+
     elif word == "your":
         word == "my"
     elif word == "my":
         word == "your"
-        
+
     elif word == "yours":
         word == "mine"
     elif word == "mine":
         word == "yours"
-        
-# todo: list object duplicate finder and remover function
+
+# list object duplicate finder and remover function
+def listdupeconsolidate(dupelist):
+    toremove = []
+    for count in range(0, len(dupelist)):
+        elem = dupelist[count]
+        if elem in dupelist[count + 1:]:
+            toremove.append(elem)
+    for dupe in toremove:
+        dupelist.remove(dupe)
+    return dupelist
