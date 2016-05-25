@@ -99,7 +99,7 @@ def conversate():
             verbList[replyTemplate[count]] = count      # if we find any verbs, we package them nicely for broca.insertverbs()
     print verbList
     if verbList:                                        # if verbList is populated, try to put the verbs in our sentence
-        broca.insertverbs(replyTemplate, nounList, relatedVerbs, verbList, inputPOSList)
+        broca.insertverbs(replyTemplate, nounList, relatedVerbs, verbList)
         print replyTemplate
         print nounList
         print relatedVerbs

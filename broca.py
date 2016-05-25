@@ -2,9 +2,9 @@
 # Description:      Broca's Area ... is a region in the frontal lobe of the dominant hemisphere ... with functions linked to speech production.
 # Section:          REPLY
 # Writes/reads:     emma.brn/conceptgraph.db
-# Dependencies:     sqlite3
+# Dependencies:     sqlite3, operator
 # Dependency of:    emma
-import sqlite3 as sql, posmodelgen
+import sqlite3 as sql, operator
 
 connection = sql.connect('emma.brn/conceptgraph.db')        # connect to the concept graph SQLite database
 cursor = connection.cursor()                                # get the cursor object
@@ -34,5 +34,20 @@ def findrelatedwords(noun, associationType):
             foundWords[association] = strength
     return foundWords
     
-def insertverbs(sentenceTemplate, importantWords, relatedVerbs, verbDictionary, inputSentenceList):
-    pass
+def insertverbs(sentenceTemplate, importantWords, relatedVerbs, verbDictionary):
+    # Unzip verbDictionary
+    verbList = []
+    verbPosition = []
+    for key in verbDictionary:
+        verbList.append(key)
+        verbPosition.append(verbDictionary[key])
+        
+    # todo: make this work past just demo levels
+    for count1 in range(0, len(verbList)):
+        for count2 in range(0, len(sentenceTemplate)):
+            if verbPosition[count1] == count2:
+                verbToInsert = relatedVerbs[0]
+                verbToInsert = verbToInsert[0]
+                sentenceTemplate[count2] = verbToInsert
+    print sentenceTemplate
+insertverbs(['VBP', 'JJ', 'NN', '.'], ['god', 'ponies'], [('jump', 2.0), ('gnaw', 1.3)], {'VBP': 0})
