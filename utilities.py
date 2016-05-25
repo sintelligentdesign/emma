@@ -21,3 +21,5 @@ def personalpronountargetswap(word):
         word == "mine"
     elif word == "mine":
         word == "yours"
+        
+# todo: list object duplicate finder and remover function

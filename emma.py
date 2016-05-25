@@ -32,6 +32,7 @@ bannedWordsFile.close()
     
 def main():
     ### every loop, Emma decides what she wants to do.
+    # todo: add choice cooldown
     # todo: add logic to decisions: try to keep new word list smallish, have a timer limit sleeping, default to "usually" answering questions
     decision = 0
     if decision == 0:       # Answer Tumblr questions
@@ -76,14 +77,30 @@ def conversate():
         # get the parts of speech for our sentence
         inputPOSList = nltk.pos_tag(inputAsWords)
         
-        # look for associations to send to Emma's Concept Graph
+        # look for associations and sent them to Emma's Concept Graph
         conceptgen.findassociations(inputAsWords, inputPOSList)
         
-        # find nouns in our sentence and add them to a noun list
+        ## find nouns in our input and add them to a noun list to help Emma choose what words to use when she responds
+        # todo: check for and remove duplicates
         nounList = []
         for count in range(0, len(inputAsWords)):
             if inputAsPOS[count] in cfg.nounCodes
                 nounList.append(inputAsWords[count])
+        
+    ### now Emma generates a response
+    
+    replyTemplate = sententencetemplategen.generate()
+            
+    ## check for existing associations with nouns in our list
+    # todo: check for and remove duplicates
+    for count in range(0, len(nounList)):
+        relatedNouns.append(broca.findrelatedwords(nounList[count], 0))
+        relatedVerbs.append(broca.findrelatedwords(nounList[count], 1))
+        relatedAdjectives.append(broca.findrelatedwords(nounList[count], 2))
+        
+    print "Related nouns: " + str(relatedNouns)
+    print "Related verbs: " + str(relatedVerbs)
+    print "Related adjectives: " + str(relatedAdjectives)
 
 while 1 > 0:
     main()
