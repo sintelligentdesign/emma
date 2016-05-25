@@ -27,6 +27,9 @@ nounCodes = cfg.nounCodes()
 verbCodes = cfg.verbCodes()
 adjectiveCodes = cfg.adjectiveCodes()
 
+# both the read() and reply() functions use this, so it's declared here
+nounList = []
+
 def main():
     ### every loop, Emma decides what she wants to do.
     # todo: add choice cooldown
@@ -41,9 +44,12 @@ def main():
 
 def conversate():
     ### Emma reads input, learns from it, and generates a response
-    # todo: link this with ask reader in tumblrclient.py
-    # todo: add commandline-based communication as a commandline flag when starting
-    inputAsParagraph = raw_input('You >> ')                     # todo: link this to tumblr, maybe have choice of input and output part of main()
+    #   This will be replaced with Tumblr stuff later
+    inputText = raw_input("You >> ")
+    read(inputText, True)
+        
+def read(inputText, REPLY_BOOL):
+    inputAsParagraph = inputText                                # todo: link this to tumblr, maybe have choice of input and output part of main()
     inputAsSentences = nltk.sent_tokenize(inputAsParagraph)     # segment the paragraph into a list of sentences
     inputAsWords = []                                           # segment each sentence into a list of words
     
@@ -57,19 +63,21 @@ def conversate():
         inputPOSList = nltk.pos_tag(inputAsWords)                       # get the parts of speech for our sentence
         conceptgen.findassociations(inputAsWords, inputPOSList)         # look for associations and sent them to Emma's Concept Graph
         
-        ## find nouns in our input and add them to a noun list to help Emma choose what words to use when she responds
-        # todo: check for and remove duplicates
-        nounList = []
-        nounCodes = cfg.nounCodes()
-        inputAsPOS = []                                                 # define inputAsPOS
-        for count in range(0, len(inputPOSList)):
-            inputPOSTuple = inputPOSList[count]
-            inputAsPOS.append(inputPOSTuple[1])
+        if REPLY_BOOL:
+            ## find nouns in our input and add them to a noun list to help Emma choose what words to use when she responds
+            # todo: check for and remove duplicates
+            nounCodes = cfg.nounCodes()
+            inputAsPOS = []                                                 # define inputAsPOS
+            for count in range(0, len(inputPOSList)):
+                inputPOSTuple = inputPOSList[count]
+                inputAsPOS.append(inputPOSTuple[1])
 
-        for count in range(0, len(inputAsWords)):                       # create nounList
-            if inputAsPOS[count] in nounCodes:
-                nounList.append(inputAsWords[count])
-        
+            for count in range(0, len(inputAsWords)):                       # create nounList
+                if inputAsPOS[count] in nounCodes:
+                    nounList.append(inputAsWords[count])
+            reply()
+    
+def reply():
     ### now Emma generates a response
     # todo: have this loop n number of times to create multiple sentences
     ## generate a new sentence template from our template model
@@ -96,12 +104,6 @@ def conversate():
     print replyTemplate
     print nounList
     print relatedVerbs
-        
-def read(input, RESPOND_BOOL):
-    pass
-    
-def reply():
-    pass
 
 def learnwords():
     with open('emma.brn/newwords.txt') as newWordList:
@@ -109,7 +111,8 @@ def learnwords():
             tumblrclient.searchfortextposts(line)
             # Send this to the learning function with flags set to take direct input and not generate a response
             
-def dream()
+def dream():
+    pass
     # loop
         # generate output
         # feed input to learning function with flags set to take direct input and not generate a response
