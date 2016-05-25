@@ -92,19 +92,17 @@ def conversate():
     print "Related verbs: " + str(relatedVerbs)
     print "Related adjectives: " + str(relatedAdjectives)
     
-    # scan replyTemplate for verbs
-    verbList = {}
-    for count in range(0, len(replyTemplate)):
-        if replyTemplate[count] in verbCodes:
-            verbList[replyTemplate[count]] = count      # if we find any verbs, we package them nicely for broca.insertverbs()
-    print verbList
-    if verbList:                                        # if verbList is populated, try to put the verbs in our sentence
-        broca.insertverbs(replyTemplate, nounList, relatedVerbs, verbList)
-        print replyTemplate
-        print nounList
-        print relatedVerbs
-        print verbList
+    broca.insertverbs(replyTemplate, nounList, relatedVerbs)
+    print replyTemplate
+    print nounList
+    print relatedVerbs
         
+def read(input, RESPOND_BOOL):
+    pass
+    
+def reply():
+    pass
+
 def learnwords():
     with open('emma.brn/newwords.txt') as newWordList:
         for line in newWordList:
