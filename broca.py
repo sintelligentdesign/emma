@@ -16,23 +16,24 @@ adjectiveCodes = cfg.adjectiveCodes()
 def findrelatedverbs(nounList):
     with connection:
         foundWords = []
+        foundAssocs = []
         for count in range(0, len(nounList)):
+            # this only seems to find the first association
             cursor.execute('SELECT * FROM conceptgraph WHERE noun = "%s" AND association_type = 1;' % nounList[count])
             # note: is this output buffered?
             # if not,
             # todo: add a buffer or find an alternative way of doing this
             SQLReturn = cursor.fetchall()
-            foundWords.append(SQLReturn)
-            print foundWords
-
-        
-        for count in range(0, len(SQLReturn)):  # add all found associations to a dictionary, paired with their association strength
-            rowData = SQLReturn[count]
+            # add all found associations to a dictionary, paired with their association strength
+            rowData = SQLReturn[0]
+            print rowData
+            association = rowData[3]                        # todo: strip u from database info
             strength = rowData[7]
-            association = rowData[3]
-            partOfSpeech = rowData[4]
-            foundWords[association] = strength
-    return foundWords
+            partOfSpeech = rowData[4]                       # todo: strip u from database info
+            verbtupe = (association, strength, partOfSpeech)
+            foundAssocs.append(verbtupe)
+
+    return foundAssocs
 
 def findrelatednouns(nounList, verbList):
     with connection:
@@ -74,8 +75,10 @@ def insertverbs(sentenceTemplate, convoNouns, relatedVerbs):
                 break
 
     print sentenceTemplate
-insertverbs(['VBP', 'JJ', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
-insertverbs(['VBP', 'VB', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
-insertverbs(['VBP', 'VBP', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
-insertverbs(['VBP', 'NN', 'VB', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
-insertverbs(['VBN', 'NN', 'VB', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')]) #note this case has a verb cod in the template but no verb matching that code is related in the brain
+# insertverbs(['VBP', 'JJ', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
+# insertverbs(['VBP', 'VB', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
+# insertverbs(['VBP', 'VBP', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
+# insertverbs(['VBP', 'NN', 'VB', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
+# insertverbs(['VBN', 'NN', 'VB', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')]) #note this case has a verb cod in the template but no verb matching that code is related in the brain
+print findrelatedverbs(['fox', 'moon'])
+# insertverbs(['VBZ'], ['fox'], findrelatedverbs(['fox']))
