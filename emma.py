@@ -22,14 +22,6 @@ import conceptgen, posmodelgen      # Learning packages
 import sentencetemplategen, broca   # Reply packages
 import cfg                          # Misc.
 
-### Load list of banned words into a dictionary so that we can remove them later
-bannedWordsFile = open('emma.brn/bannedwords.txt', 'r') # todo: make .brn file choosable
-bannedWords = []
-for line in bannedWordsFile:                            # pump banned words into a list, word by word
-    bannedWord = line
-    bannedWords.append(bannedWord.rstrip('\n'))         # remove newline characters as we add banned words to the list
-bannedWordsFile.close()
-    
 def main():
     ### every loop, Emma decides what she wants to do.
     # todo: add choice cooldown
@@ -55,16 +47,6 @@ def conversate():
         inputAsWords = nltk.word_tokenize(inputAsSentences[sentence])   # tokenize words in each sentence
         
         posmodelgen.grok(inputAsWords)                                  # learn sentence structure from the sentence's parts of speech pattern
-        
-        ## remove banned words before we form association, since we don't want to form any associations for those.
-        wordsToRemove = []
-        for word in inputAsWords:
-            if word.lower() in bannedWords:
-                wordsToRemove.append(word)
-        wordsToRemove.reverse()
-        for word in wordsToRemove:
-            inputAsWords.remove(word)
-            #print 'removing bad word "%s"' % word
         
         ## generate associations from the sentence
         inputPOSList = nltk.pos_tag(inputAsWords)                       # get the parts of speech for our sentence
