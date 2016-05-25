@@ -2,7 +2,7 @@
 # Description:      Broca's Area ... is a region in the frontal lobe of the dominant hemisphere ... with functions linked to speech production.
 # Section:          REPLY
 # Writes/reads:     emma.brn/conceptgraph.db
-# Dependencies:     sqlite3, cfg
+# Dependencies:     sqlite3, cfg, random
 # Dependency of:    emma
 import sqlite3 as sql, cfg, random
 

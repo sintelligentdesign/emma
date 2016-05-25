@@ -93,7 +93,7 @@ def reply():
     
     for count in range(0, len(nounList)):
         #relatedNouns.append(broca.findrelatedwords(nounList[count], 0))
-        relatedVerbs.append(broca.findrelatedverbs(nounList[count], 1))
+        relatedVerbs.append(broca.findrelatedverbs(nounList[count]))
         #relatedAdjectives.append(broca.findrelatedwords(nounList[count], 2))
         
     print "Related nouns: " + str(relatedNouns)
