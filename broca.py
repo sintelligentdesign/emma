@@ -28,4 +28,4 @@ def findrelatedwords(noun, associationType):
             strength = association[6]
             association = association[3]
             foundWords[association] = strength
-        print foundWords
+    return foundWords
