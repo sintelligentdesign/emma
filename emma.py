@@ -22,6 +22,11 @@ import conceptgen, posmodelgen      # Learning packages
 import sentencetemplategen, broca   # Reply packages
 import cfg                          # Misc.
 
+# declare parts of speech umbrellas for generating replies
+nounCodes = cfg.nounCodes()
+verbCodes = cfg.verbCodes()
+adjectiveCodes = cfg.adjectiveCodes()
+
 def main():
     ### every loop, Emma decides what she wants to do.
     # todo: add choice cooldown
@@ -69,7 +74,9 @@ def conversate():
     # todo: have this loop n number of times to create multiple sentences
     ## generate a new sentence template from our template model
     replyTemplate = sentencetemplategen.generate()
-            
+    replyTemplate = nltk.word_tokenize(replyTemplate)
+    print replyTemplate
+    
     ## check for existing associations with nouns in our list
     # todo: check for and remove duplicates
     relatedNouns = []
@@ -84,6 +91,19 @@ def conversate():
     print "Related nouns: " + str(relatedNouns)
     print "Related verbs: " + str(relatedVerbs)
     print "Related adjectives: " + str(relatedAdjectives)
+    
+    # scan replyTemplate for verbs
+    verbList = {}
+    for count in range(0, len(replyTemplate)):
+        if replyTemplate[count] in verbCodes:
+            verbList[replyTemplate[count]] = count      # if we find any verbs, we package them nicely for broca.insertverbs()
+    print verbList
+    if verbList:                                        # if verbList is populated, try to put the verbs in our sentence
+        broca.insertverbs(replyTemplate, nounList, relatedVerbs, verbList, inputPOSList)
+        print replyTemplate
+        print nounList
+        print relatedVerbs
+        print verbList
 
 while 1 > 0:
     main()

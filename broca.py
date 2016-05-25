@@ -34,8 +34,5 @@ def findrelatedwords(noun, associationType):
             foundWords[association] = strength
     return foundWords
     
-def insertverbs(sentenceTemplate, importantWords, relatedVerbs, verbType):
-    for count in range(0, len(relatedVerbs)):
-        if verbType in relatedVerbs:
-            # todo: put the word in
-            pass
+def insertverbs(sentenceTemplate, importantWords, relatedVerbs, verbDictionary, inputSentenceList):
+    pass
