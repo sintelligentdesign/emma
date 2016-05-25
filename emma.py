@@ -29,6 +29,11 @@ for line in bannedWordsFile:                            # pump banned words into
     bannedWords.append(bannedWord)
 bannedWordsFile.close()
 
+### Define what parts of speech signify nouns, verbs, and adjectives
+nounCodes = ['NN', 'NNS', 'NNP', 'NNPS']
+verbCodes = ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']
+adjectiveCodes = ['JJ', 'JJR', 'JJS']
+    
 def main():
     ### every loop, Emma decides what she wants to do.
     # todo: add logic to decisions: try to keep new word list smallish, have a timer limit sleeping, default to "usually" answering questions
@@ -72,6 +77,11 @@ def conversate():
             inputAsWords.remove(word)
             #print 'removing bad word "%s"' % word
         
+        # get the parts of speech for our sentence and unzip it so that we can get the parts of speech (we already have a word list)
+        inputPOSList = nltk.pos_tag(input)
         
+        # look for associations to send to Emma's Concept Graph
+        conceptgen.findassociations(inputPOSList)
+
 while 1 > 0:
     main()

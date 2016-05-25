@@ -9,6 +9,8 @@ import sqlite3 as sql
 connection = sql.connect('emma.brn/conceptgraph.db')        # connect to the concept graph SQLite database
 cursor = connection.cursor()                                # get the cursor object
 
+def findassociations(sentenceWordPOSList):
+    
 def calculateaverages():
     # Calculates averages of all frequencies and all proximities for strength() to use later.
     # It is self-contained in an attempt to save processing power, as these only need to be calculated once per input instead of once per word
