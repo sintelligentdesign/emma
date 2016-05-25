@@ -18,12 +18,11 @@ def grok(input):
         POSArray.append(tup[1])
 
     # overwrite prevention
-    modelFile = open(target, "r")
-    stem = {}                               # if partsofspeech.mdl is empty, stem is initialized and blank
-    if modelFile != "":
-        for line in modelFile:
-            stem = ast.literal_eval(line)   # otherwise, stem is populated with the links from partsofspeech.mdl
-    modelFile.close()
+    with open(target) as modelFile:
+        stem = {}                               # if partsofspeech.mdl is empty, stem is initialized and blank
+        if modelFile != "":
+            for line in modelFile:
+                stem = ast.literal_eval(line)   # otherwise, stem is populated with the links from partsofspeech.mdl
     
     leaf = {}
 
