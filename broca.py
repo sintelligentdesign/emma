@@ -15,7 +15,8 @@ adjectiveCodes = cfg.adjectiveCodes()
 
 def findrelatedverbs(nounList):
     with connection:
-        cursor.execute('SELECT * FROM conceptgraph WHERE noun = "%s" AND association_type = 1;')
+        for count in range(0, len(nounList)):
+            cursor.execute('SELECT * FROM conceptgraph WHERE noun = "%s" AND association_type = 1;' % nounList[count])
         SQLReturn = cursor.fetchall()
 
         foundWords = {}
@@ -26,6 +27,10 @@ def findrelatedverbs(nounList):
             partOfSpeech = rowData[4]
             foundWords[association] = strength
     return foundWords
+
+def findrelatednouns(nounList, verbList):
+    with connection:
+        cursor.execute('SELECT * FROM conceptgraph WHERE')
 
 def insertverbs(sentenceTemplate, convonouns, relatedVerbs):
     # Get list of verbs and their indexs
