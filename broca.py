@@ -28,9 +28,10 @@ def findrelatedwords(noun, associationType):
 
         foundWords = {}
         for count in range(0, len(SQLReturn)):  # add all found associations to a dictionary, paired with their association strength
-            association = SQLReturn[count]
-            strength = association[7]
-            association = association[3]
+            rowData = SQLReturn[count]
+            strength = rowData[7]
+            association = rowData[3]
+            partOfSpeech = rowData[4]
             foundWords[association] = strength
     return foundWords
 
