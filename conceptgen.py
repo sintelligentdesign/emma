@@ -65,7 +65,7 @@ def addconcept(noun, associationType, association, proximity):
         row = cursor.fetchone()
 
         if row != None:                                                             # if the row is a duplicate, calculate its new values and add them
-            print "Re-evaluating existing association between %s and %s" % (noun, association)
+            #print "Re-evaluating existing association between %s and %s" % (noun, association)
             conceptid = row[0]
 
             totalFrequency = row[5]                                                 # get current total frequency

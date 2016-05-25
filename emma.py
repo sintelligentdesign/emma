@@ -42,7 +42,8 @@ def conceptreader(inputAsWords, inputAsPartsOfSpeech):
         if inputAsPartsOfSpeech[count1] in nounCodes:
             if inputAsPartsOfSpeech[count1] not in bannedWords:
                 noun = inputAsWords[count1]
-                nounList.append(noun)
+                nounList.append(noun)   
+                # todo: check for duplicates in nounList
 
                 for count2 in range(count1 + 1, len(inputAsWords)):                 # looks for important word after noun   todo: turn this and the next code block into a function
                     importantWord = True
@@ -107,6 +108,17 @@ for sentence in range(0, len(inputAsSentences)):
 reply = sentencetemplategen.generate()
 print "Emma >> %s" % reply
 print "Important Nouns: %s" % nounList
-# todo: check for duplicates in nounList
+
+relatedNouns = []
+relatedVerbs = []
+relatedAdjectives = []
+
 for count in range(0, len(nounList)):
-    broca.findrelatedwords(nounList[count], 0)
+    relatedNouns.append(broca.findrelatedwords(nounList[count], 0))
+    relatedVerbs.append(broca.findrelatedwords(nounList[count], 1))
+    relatedAdjectives.append(broca.findrelatedwords(nounList[count], 2))
+    
+print "Related nouns: " + str(relatedNouns)
+print "Related verbs: " + str(relatedVerbs)
+print "Related adjectives: " + str(relatedAdjectives)
+# todo: check for duplicates in relatedWords
