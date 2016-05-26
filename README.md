@@ -20,7 +20,8 @@ Emma is a computer program that generates rough concepts of associations by read
 ###Progress towards completion
      [0%]▨▨▨▨▨▨▨▨[25%]▨▨▨▨▨▨▨▨[50%]▨▨▨▨▨▢▢▢[75%]▢▢▢▢▢▢▢[100%]
      - Emma is able to learn and store concepts and sentence structures
-     - The next thing for us to work on is sentence generation and output
+     - She can generate sentence templates and begin putting words into them
+     - The next thing for us to work on is finishing sentence generation and i/o, as well as implementing features outside of the core scope
 
 ##How Emma Works
 ###Input
@@ -48,7 +49,7 @@ Emma is a computer program that generates rough concepts of associations by read
       * **(TODO)** Nouns that are tagged as proper nouns by Emma's part of speech tagger are automatically set to title-case
       * **(TODO)** Nouns at the beginning of sentences do not have an effect on the case score unless they are tagged as proper nouns by Emma's part of speech tagger
     * The noun associations also include what kind of association they are (noun-noun, noun-verb, or noun-adjective), the number of times those words appear together, their average proximity to eachother, and the strength of the association
-  * **(TODO)** If the noun has never been encountered before, Emma will search for it on Tumblr and use the resulting text posts to train her associations
+  * If the noun has never been encountered before, Emma will search for it on Tumblr and use the resulting text posts to train her associations
 * **(TODO)** Add tone parsing & "feelings"
 
 ###Reply Generation
