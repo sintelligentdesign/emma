@@ -57,6 +57,8 @@ def read(inputText, REPLY_BOOL):
         ### for each sentence, run learning functions
         inputAsWords = nltk.word_tokenize(inputAsSentences[sentence])   # tokenize words in each sentence
         inputAsWords = utilities.personalpronountargetswap(inputAsWords)# swap the target of personal pronouns so that Emma understands references to herself vs other people (and doesn't get them confused)
+        if inputAsWords[-1] != '.':
+            inputAsWords.append('.')
         
         posmodelgen.grok(inputAsWords)                                  # learn sentence structure from the sentence's parts of speech pattern
         

@@ -35,7 +35,7 @@ def getmessages():
     asks = client.submission('emmacanlearn.tumblr.com') # query tumblr API for messages
     asks = asks.values()                                # unwrap JSON
     asks = asks[0]
-    
+    print asks
     messageList = []                                    # initialize return variable
     for ask in asks:                                    # suck out the stuff we care about
         asker = ask['asking_name']
@@ -50,4 +50,6 @@ def postReply(ask, reply):
     client.create_text("emmacanlearn", state="published", body=postBody)
     
 def postDream(thought):
-    client.create_text("emmacanlearn", state="published", body=thought tags=['dreams'])
+    client.create_text("emmacanlearn", state="published", body=thought, tags=["dreams"])
+    
+print getmessages()
