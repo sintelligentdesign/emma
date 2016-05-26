@@ -106,9 +106,9 @@ def dream():
         print "Dreaming about %s" % str(nounList)
         
         sentence = generatesentence(nounList)
-        if "?" not in sentence && "%" not in sentence:      # we're only interested in fully-formed sentences
+        if "?" not in sentence and "%" not in sentence:      # we're only interested in fully-formed sentences
             read(sentence, False)
-            if random.randint(0, 2) == 0                    # there is a 1/3 chance that we post a dream on Tumblr
+            if random.randint(0, 2) == 0:                    # there is a 1/3 chance that we post a dream on Tumblr
                 tumblrclient.postdream(sentence)
         else:
             print "Dream contents invalid. Retrying..."
