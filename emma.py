@@ -27,9 +27,6 @@ nounCodes = cfg.nounCodes()
 verbCodes = cfg.verbCodes()
 adjectiveCodes = cfg.adjectiveCodes()
 
-# both the read() and reply() functions use this, so it's declared here
-nounList = []
-
 def main():
     ### every loop, Emma decides what she wants to do.
     # todo: add choice cooldown
@@ -55,6 +52,7 @@ def read(inputText, REPLY_BOOL):
     
     for sentence in range(0, len(inputAsSentences)):
         ### for each sentence, run learning functions
+        read.nounList = []
         inputAsWords = nltk.word_tokenize(inputAsSentences[sentence])   # tokenize words in each sentence
         
         posmodelgen.grok(inputAsWords)                                  # learn sentence structure from the sentence's parts of speech pattern
@@ -74,8 +72,8 @@ def read(inputText, REPLY_BOOL):
 
             for count in range(0, len(inputAsWords)):                       # create nounList
                 if inputAsPOS[count] in nounCodes:
-                    nounList.append(inputAsWords[count])
-            nounList = utilities.consolidateduplicates(nounList)
+                    read.nounList.append(inputAsWords[count])
+            read.nounList = utilities.consolidateduplicates(read.nounList)
             reply()
     
 def reply():
@@ -92,18 +90,18 @@ def reply():
     relatedVerbs = []
     relatedAdjectives = []
     
-    for count in range(0, len(nounList)):
-        #relatedNouns.append(broca.findrelatedwords(nounList[count], 0))
-        relatedVerbs.append(broca.findrelatedverbs(nounList[count]))
-        #relatedAdjectives.append(broca.findrelatedwords(nounList[count], 2))
+    for count in range(0, len(read.nounList)):
+        #relatedNouns.append(broca.findrelatedwords(read.nounList[count], 0))
+        relatedVerbs.append(broca.findrelatedverbs(read.nounList[count]))
+        #relatedAdjectives.append(broca.findrelatedwords(read.nounList[count], 2))
         
     #print "Related nouns: " + str(relatedNouns)
     print "Related verbs: " + str(relatedVerbs)
     #print "Related adjectives: " + str(relatedAdjectives)
     
-    broca.insertverbs(replyTemplate, nounList, relatedVerbs)
+    broca.insertverbs(replyTemplate, read.nounList, relatedVerbs)
     print "Reply Template: %s" % str(replyTemplate)
-    print "Noun List: %s" % str(nounList)
+    print "Noun List: %s" % str(read.nounList)
 
 def learnwords():
     with open('emma.brn/newwords.txt') as newWordList:
