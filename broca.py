@@ -17,18 +17,18 @@ def findrelatedverbs(noun):
     # given a noun, find verbs that are associated with it
     foundWords = []
     foundAssociations = []
+    SQLReturn = None
     with connection:
         cursor.execute('SELECT * FROM conceptgraph WHERE noun = "%s" AND association_type = 1;' % noun)
         SQLReturn = cursor.fetchall()
         # add all found associations to a dictionary, paired with their association strength
-        rowData = SQLReturn[0]
-        print rowData
-        association = rowData[3]
-        strength = rowData[7]
-        partOfSpeech = rowData[4]
-        verbtupe = (association, strength, partOfSpeech)
-        foundAssociations.append(verbtupe)
-
+        if SQLReturn:
+            for item in SQLReturn:
+                association = item[3]
+                strength = item[7]
+                partOfSpeech = item[4]
+                verbTupe = (association, strength, partOfSpeech)
+                foundAssociations.append(verbTupe)
     return foundAssociations
 
 def findrelatednouns(nounList, verbList):
@@ -58,16 +58,16 @@ def insertverbs(sentenceTemplate, convoNouns, relatedVerbs):
     for count in range(0, len(verbList)):               # goes thru verb POS's
         possibleWords = []
         dieTotal = 0.0
-        for verbtupe in relatedVerbs:                   # matches related verbs by POS
-            if verbtupe[2] == verbList[count]:
+        for verbTupe in relatedVerbs:                   # matches related verbs by POS
+            if verbTupe[2] == verbList[count]:
                 possibleWords.append(verbtupe)
-        for verbtupe in possibleWords:                  # rolls die weighted by strength of related matching verbs
+        for verbTupe in possibleWords:                  # rolls die weighted by strength of related matching verbs
             dieTotal += verbtupe[1]
         dieRoll = random.uniform(0, dieTotal)
-        for verbtupe in possibleWords:
-            dieRoll -= verbtupe[1]
+        for verbTupe in possibleWords:
+            dieRoll -= verbTupe[1]
             if dieRoll < 0:
-                sentenceTemplate[verbPosition[count]] = verbtupe[0] # adds verb based on die to template
+                sentenceTemplate[verbPosition[count]] = verbTupe[0] # adds verb based on die to template
                 break
 
     print sentenceTemplate
@@ -76,5 +76,10 @@ def insertverbs(sentenceTemplate, convoNouns, relatedVerbs):
 # insertverbs(['VBP', 'VBP', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
 # insertverbs(['VBP', 'NN', 'VB', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
 # insertverbs(['VBN', 'NN', 'VB', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')]) #note this case has a verb cod in the template but no verb matching that code is related in the brain
-#print findrelatedverbs(['fox', 'moon'])
+print "Dogs"
+print findrelatedverbs('Dogs')
+print "fox"
+print findrelatedverbs('fox')
+print "moon"
+print findrelatedverbs('moon')
 # insertverbs(['VBZ'], ['fox'], findrelatedverbs(['fox']))
