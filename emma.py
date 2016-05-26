@@ -17,10 +17,11 @@
 #      Uses elements from the Natural Language Toolkit.
 #                 Visit http://www.nltk.org.
 
-import nltk                                             # Natural Language Toolkit
-import conceptgen, posmodelgen                          # Learning packages
-import sentencetemplategen, broca                       # Reply packages
-import cfg, tumblrclient, utilities, sqlite3 as sql     # Misc.
+import nltk                             # Natural Language Toolkit
+import conceptgen, posmodelgen          # Learning packages
+import sentencetemplategen, broca       # Reply packages
+import cfg, tumblrclient, utilities     # Misc. Emma packages
+import random, sqlite3 as sql           # Misc. Python packages
 
 # declare parts of speech umbrellas for generating replies
 nounCodes = cfg.nounCodes()
@@ -65,12 +66,12 @@ def read(inputText, REPLY_BOOL):
         
         if REPLY_BOOL:
             ## find nouns in our input and add them to a noun list to help Emma choose what words to use when she responds
-            inputAsPOS = []                                                 # define inputAsPOS
+            inputAsPOS = []                                             # define inputAsPOS
             for count in range(0, len(inputPOSList)):
                 inputPOSTuple = inputPOSList[count]
                 inputAsPOS.append(inputPOSTuple[1])
 
-            for count in range(0, len(inputAsWords)):                       # create nounList
+            for count in range(0, len(inputAsWords)):                   # create nounList
                 if inputAsPOS[count] in nounCodes:
                     nounList.append(inputAsWords[count])
             nounList = utilities.consolidateduplicates(nounList)
@@ -94,18 +95,21 @@ def learnwords():
 def dream():
     connection = sql.connect('emma.brn/conceptgraph.db')    # connect to the concept graph SQLite database
     cursor = connection.cursor()                            # get the cursor object
-    for i in range(5):  # for now we'll tell Emma to have five dreams
+    for i in range(5):                                      # for now we'll tell Emma to have five dreams
         with connection:
-            cursor.execute('SELECT noun FROM conceptgraph ORDER BY RANDOM() LIMIT 5;')   # choose 5 random nouns from Emma's concept graph
+            # we'll choose some random objects from Emma's concept graph
+            cursor.execute('SELECT noun FROM conceptgraph ORDER BY RANDOM() LIMIT 5;')
             nounList = cursor.fetchall()
-        utilities.consolidateduplicates(nounList)
+        utilities.consolidateduplicates(nounList)           # make sure there are no duplicate nouns
         print "Dreaming about %s" % str(nounList)
         
-        generatesentence(nounList)
-    pass
-    # loop
-        # generate output
-        # feed input to learning function with flags set to take direct input and not generate a response
+        sentence = generatesentence(nounList)
+        if "?" not in sentence && "%" not in sentence:      # we're only interested in fully-formed sentences
+            read(sentence, False)
+            if random.randint(0, 2) == 0                    # there is a 1/3 chance that we post a dream on Tumblr
+                tumblrclient.postdream(sentence)
+        else:
+            print "Dream contents invalid. Retrying..."
 
 def generatesentence(nounList):
     ## this function is seeded with a list of nouns (for the sentence to be "about"), and generates a sentence

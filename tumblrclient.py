@@ -45,6 +45,9 @@ def getmessages():
     return messageList
     
 # post our output to tumblr
-def post(ask, reply):
+def postReply(ask, reply):
     postBody = ask + "\n\n" + reply
     client.create_text("emmacanlearn", state="published", body=postBody)
+    
+def postDream(thought):
+    client.create_text("emmacanlearn", state="published", body=thought tags=['dreams'])
