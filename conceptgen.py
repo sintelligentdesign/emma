@@ -24,7 +24,6 @@ with open('emma.brn/bannedwords.txt') as bannedWordsFile:
 def findassociations(inputAsWords, inputAsPOSTuple):
     ### given a sentence, find important words and create associations between them
     ## get POS sentence from POS Tuple
-    # todo: add nounList (see emma.old.py:45)
     inputAsPOS = []
     for count in range(0, len(inputAsPOSTuple)):
         inputPOSTuple = inputAsPOSTuple[count]
@@ -80,10 +79,9 @@ def calculateaverages():
 
         if freqAndProx:                                                                 # check to see if there are any values in the table. If not, we have a divide by zero error when we calculate score
             freqAndProxLength = len(freqAndProx)
-            for count in range(0, freqAndProxLength):
-                freqProxStaging = freqAndProx[count]                                    # todo: is there a way we can make this smaller?
-                frequencies.append(freqProxStaging[0])
-                proximities.append(freqProxStaging[1])
+            for item in freqAndProx:
+                frequencies.append(item[0])
+                proximities.append(item[1])
         else:
             freqAndProxLength = 1                                                       # if freqAndProx is empty, we'll use 1 for each value
             frequencies = [1]                                                           # next time scores are calculated they'll become more accurate
@@ -125,13 +123,9 @@ def addconcept(noun, associationType, association, associationPOS, proximity):
             cursor.execute('SELECT * FROM conceptgraph WHERE noun = \'%s\' AND association = \'%s\';' % (noun, association))     # check to see if the row that we want to work with is already in the database
             row = cursor.fetchone()
 
-            if row != None:                                                             # if the row is a duplicate, calculate its new values and add them
+            if row != None:                                                             # if we have already made this association, recalculate its values based on new data
                 #print "Re-evaluating existing association between %s and %s" % (noun, association)
                 conceptid = row[0]
-
-                totalFrequency = row[5]                                                 # get current total frequency
-                totalFrequency += totalFrequency                                        # add 1 for new total frequency
-                                                                                        # todo: this can be full SQL
 
                 avgProximity = row[6]                                                   # get current average proximity
                 avgProximity = (avgProximity + proximity) / totalFrequency              # calculate new average proximity
@@ -139,13 +133,9 @@ def addconcept(noun, associationType, association, associationPOS, proximity):
                 strength = calculatestrength(totalFrequency, avgProximity)              # calculate new association strength
 
                 # COMMIT
-                cursor.execute('UPDATE conceptgraph SET total_frequency = %s, average_proximity = %s, strength = %s WHERE id = %s' % (totalFrequency, avgProximity, strength, conceptid))
+                cursor.execute('UPDATE conceptgraph SET total_frequency = total_frequency + 1, average_proximity = %s, strength = %s WHERE id = %s' % (avgProximity, strength, conceptid))
 
             else:                                                                       # if the row IS NOT a duplicate
-                strength = calculatestrength(1, proximity)                              # calculate association strength
-
+                strength = calculatestrength(1, proximity)                              # calculate association strength and create a new association
                 print "Creating new association for %s (%s)" % (noun, association)
-                totalFrequency = 1
-                
-                # COMMIT
-                cursor.execute('INSERT INTO conceptgraph (noun, association_type, association, association_pos, total_frequency, average_proximity, strength) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\');' % (noun, associationType, association, associationPOS, totalFrequency, proximity, strength))
+                cursor.execute('INSERT INTO conceptgraph (noun, association_type, association, association_pos, total_frequency, average_proximity, strength) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', 1, \'%s\', \'%s\');' % (noun, associationType, association, associationPOS, proximity, strength))
