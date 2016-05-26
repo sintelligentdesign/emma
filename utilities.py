@@ -5,22 +5,25 @@
 # Dependencies:
 # Dependency of:    broca, conceptgen, emma
 
-def personalpronountargetswap(word):
+def personalpronountargetswap(sentence):
     # swap the targets of posessive words like you or mine so that Emma doesn't start going around calling other people Emma, etc.
-    if word == "you":
-        word == "me"
-    elif word == "me":
-        word == "you"
+    for count, word in enumerate(sentence):
+        print word
+        if word == "you":
+            sentence[count] = "me"
+        elif word == "me":
+            sentence[count] = "you"
 
-    elif word == "your":
-        word == "my"
-    elif word == "my":
-        word == "your"
+        elif word == "your":
+            sentence[count] = "my"
+        elif word == "my":
+            sentence[count] = "your"
 
-    elif word == "yours":
-        word == "mine"
-    elif word == "mine":
-        word == "yours"
+        elif word == "yours":
+            sentence[count] = "mine"
+        elif word == "mine":
+           sentence[count] = "yours"
+    return sentence
 
 # list object duplicate finder and remover function
 def consolidateduplicates(dupeList):
