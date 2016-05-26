@@ -83,20 +83,18 @@ def reply(nounList):
     replyTemplate = nltk.word_tokenize(replyTemplate)
     print replyTemplate
     
-    ## check for existing associations with nouns in our list
+    ## check for associations with in our list
     relatedNouns = []
     relatedVerbs = []
     relatedAdjectives = []
     
+    # find related verbs
     for count in range(0, len(nounList)):
-        #relatedNouns.append(broca.findrelatedwords(nounList[count], 0))
         relatedVerbs.append(broca.findrelatedverbs(nounList[count]))
-        #relatedAdjectives.append(broca.findrelatedwords(nounList[count], 2))
         
-    #print "Related nouns: " + str(relatedNouns)
     print "Related verbs: " + str(relatedVerbs)
-    #print "Related adjectives: " + str(relatedAdjectives)
     
+    # try to insert them into the sentence
     broca.insertverbs(replyTemplate, relatedVerbs)
     print "Reply Template: %s" % str(replyTemplate)
 
