@@ -46,40 +46,46 @@ def findrelatedadjectives(GeneratedNounList):
     print "I'm empty"
     # note: this nounList is the list of nouns from our OUTPUT sentence
 
-def insertverbs(sentenceTemplate, convoNouns, relatedVerbs):
+def insertverbs(sentenceTemplate, relatedVerbs):
     verbList = []
     verbPosition = []
-    for count in range(0, len(sentenceTemplate)):       # Get list of verbs and their indexes
+    print sentenceTemplate
+    print relatedVerbs
+    for count in range(0, len(sentenceTemplate)):       # get list of verbs and their indexes
         pos = sentenceTemplate[count]
         if pos in cfg.verbCodes():
             verbList.append(pos)
             verbPosition.append(count)
-
-    for count in range(0, len(verbList)):               # goes thru verb POS's
-        possibleWords = []
-        dieTotal = 0.0
-        for verbTupe in relatedVerbs:                   # matches related verbs by POS
-            if verbTupe[2] == verbList[count]:
-                possibleWords.append(verbtupe)
-        for verbTupe in possibleWords:                  # rolls die weighted by strength of related matching verbs
-            dieTotal += verbtupe[1]
-        dieRoll = random.uniform(0, dieTotal)
-        for verbTupe in possibleWords:
-            dieRoll -= verbTupe[1]
-            if dieRoll < 0:
-                sentenceTemplate[verbPosition[count]] = verbTupe[0] # adds verb based on die to template
-                break
-
-    print sentenceTemplate
+    
+    if verbList:                                        # if we have any verbs in the sentence, try to match them to associated verbs
+        # todo: if we can't match verb types perfectly, should we fall back to allow all verbs to fill a space before going to printing "?"?
+        for count in range(0, len(verbList)):           # goes thru verb POS's
+            possibleWords = []
+            dieTotal = 0.0
+            for verbTupe in relatedVerbs:               # matches related verbs by POS
+                if verbTupe[2] == verbList[count]:
+                    possibleWords.append(verbTupe)
+            for verbTupe in possibleWords:              # rolls die weighted by strength of related matching verbs
+                dieTotal += verbTupe[1]
+            dieRoll = random.uniform(0, dieTotal)
+            for verbTupe in possibleWords:
+                dieRoll -= verbTupe[1]
+                if dieRoll < 0:
+                    sentenceTemplate[verbPosition[count]] = verbTupe[0] # adds verb based on die to template
+                    break
+    else:
+        # todo: replace leftover verb parts of speech with "?"
+    return sentenceTemplate
+    
 # insertverbs(['VBP', 'JJ', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
 # insertverbs(['VBP', 'VB', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
 # insertverbs(['VBP', 'VBP', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
 # insertverbs(['VBP', 'NN', 'VB', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
 # insertverbs(['VBN', 'NN', 'VB', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')]) #note this case has a verb cod in the template but no verb matching that code is related in the brain
-print "Dogs"
-print findrelatedverbs('Dogs')
-print "fox"
-print findrelatedverbs('fox')
-print "moon"
-print findrelatedverbs('moon')
-# insertverbs(['VBZ'], ['fox'], findrelatedverbs(['fox']))
+#print "Dogs"
+#print findrelatedverbs('Dogs')
+#print "fox"
+#print findrelatedverbs('fox')
+#print "moon"
+#print findrelatedverbs('moon')
+print insertverbs(['VBP'], findrelatedverbs('Dogs'))

@@ -99,7 +99,7 @@ def reply(nounList):
     print "Related verbs: " + str(relatedVerbs)
     #print "Related adjectives: " + str(relatedAdjectives)
     
-    broca.insertverbs(replyTemplate, nounList, relatedVerbs)
+    broca.insertverbs(replyTemplate, relatedVerbs)
     print "Reply Template: %s" % str(replyTemplate)
 
 def learnwords():
