@@ -43,3 +43,8 @@ def getmessages():
         message = (asker, question)                     # package the message as a tuple
         messageList.append(message)                     # add message tuple to message list
     return messageList
+    
+# post our output to tumblr
+def post(ask, reply):
+    postBody = ask + "\n\n" + "⌄⌄⌄⌄⌄⌄⌄⌄ RESPONSE ⌄⌄⌄⌄⌄⌄⌄⌄" + "\n" + reply
+    client.create_text("emmacanlearn", state="published", body=postBody)
