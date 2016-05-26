@@ -74,6 +74,7 @@ def insertverbs(sentenceTemplate, relatedVerbs):
                     sentenceTemplate[verbPosition[count]] = verbTupe[0] # adds verb based on die to template
                     break
     else:
+        pass
         # todo: replace leftover verb parts of speech with "?"
     return sentenceTemplate
     

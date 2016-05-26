@@ -113,10 +113,8 @@ def addconcept(noun, associationType, association, associationPOS, proximity):
             bundledWordList = cursor.fetchall()
 
             if bundledWordList:                                         # if the concept graph isn't empty
-                cutWord = []
                 wordList = []
-                for count in range(0, len(bundledWordList)):            # take each word we know and stick it in a list
-                    cutWord = (bundledWordList[count])
+                for cutWord in bundledWordList:                         # take each word we know and stick it in a list
                     wordList.append(cutWord[0])
                 if noun not in wordList:                                # if our noun isn't in that list, it's new
                     print "Learned new word (%s)!" % noun

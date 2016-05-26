@@ -46,5 +46,5 @@ def getmessages():
     
 # post our output to tumblr
 def post(ask, reply):
-    postBody = ask + "\n\n" + "⌄⌄⌄⌄⌄⌄⌄⌄ RESPONSE ⌄⌄⌄⌄⌄⌄⌄⌄" + "\n" + reply
+    postBody = ask + "\n\n" + reply
     client.create_text("emmacanlearn", state="published", body=postBody)
