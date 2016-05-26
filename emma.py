@@ -63,7 +63,6 @@ def read(inputText, REPLY_BOOL):
         
         if REPLY_BOOL:
             ## find nouns in our input and add them to a noun list to help Emma choose what words to use when she responds
-            # todo: check for and remove duplicates
             inputAsPOS = []                                                 # define inputAsPOS
             for count in range(0, len(inputPOSList)):
                 inputPOSTuple = inputPOSList[count]
@@ -85,7 +84,6 @@ def reply(nounList):
     print replyTemplate
     
     ## check for existing associations with nouns in our list
-    # todo: check for and remove duplicates
     relatedNouns = []
     relatedVerbs = []
     relatedAdjectives = []
