@@ -126,6 +126,8 @@ def addconcept(noun, associationType, association, associationPOS, proximity):
             if row != None:                                                             # if we have already made this association, recalculate its values based on new data
                 #print "Re-evaluating existing association between %s and %s" % (noun, association)
                 conceptid = row[0]
+                
+                totalFrequency = row[5]
 
                 avgProximity = row[6]                                                   # get current average proximity
                 avgProximity = (avgProximity + proximity) / totalFrequency              # calculate new average proximity

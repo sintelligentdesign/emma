@@ -74,7 +74,7 @@ def read(inputText, REPLY_BOOL):
                     nounList.append(inputAsWords[count])
             nounList = utilities.consolidateduplicates(nounList)
             print "Noun List: %s" % str(nounList)
-            return: nounList
+            return nounList
     
 def reply(nounList):
     ### now Emma generates a response
