@@ -78,25 +78,7 @@ def read(inputText, REPLY_BOOL):
 def reply(nounList):
     ### now Emma generates a response
     # todo: have this loop n number of times to create multiple sentences
-    ## generate a new sentence template from our template model
-    replyTemplate = sentencetemplategen.generate()
-    replyTemplate = nltk.word_tokenize(replyTemplate)
-    print replyTemplate
-    
-    ## check for associations within our list
-    relatedNouns = []
-    relatedVerbs = []
-    relatedAdjectives = []
-    
-    # find related verbs
-    for count in range(0, len(nounList)):
-        relatedVerbs.append(broca.findrelatedverbs(nounList[count]))
-        
-    print "Related verbs: " + str(relatedVerbs)
-    
-    # try to insert them into the sentence
-    broca.insertverbs(replyTemplate, relatedVerbs)
-    print "Reply Template: %s" % str(replyTemplate)
+    generatesentence(nounList)
 
 def learnwords():
     with open('emma.brn/newwords.txt') as newWordList:
@@ -115,22 +97,29 @@ def dream():
             nounList = cursor.fetchall()
         print "Dreaming about %s" % str(nounList)
         
-        # generate a sentence template
-        replyTemplate = sentencetemplategen.generate()
-        replyTemplate = nltk.word_tokenize(replyTemplate)
-        
-        # find related verbs
-        relatedVerbs = []
-        for noun in nounList:
-            relatedVerbs.append(broca.findrelatedverbs(noun))
-        
-        print "Related verbs: " + str(relatedVerbs)
+        generatesentence(nounList)
     pass
     # loop
         # generate output
         # feed input to learning function with flags set to take direct input and not generate a response
 
-# todo: generatesentence() function does repetitive parts of sentence generation
+def generatesentence(nounList):
+    ## this function is seeded with a list of nouns (for the sentence to be "about"), and generates a sentence
+    # generate a new sentence template from our template model
+    replyTemplate = sentencetemplategen.generate()
+    replyTemplate = nltk.word_tokenize(replyTemplate)
+    
+    # next, find verbs related to the seed nouns
+    relatedVerbs = []
+    for noun in nounList:
+        relatedVerbs.append(broca.findrelatedverbs(noun))
+    print "Related verbs: %s" % str(relatedVerbs)
+    
+    # try to insert our verbs into the sentence template
+    broca.insertverbs(replyTemplate, relatedVerbs)
+    print "Reply (verb pass complete): %s" % str(replyTemplate)
+    
+    # todo: do the rest of the sentence generation
 
 while 1 > 0:
     main()
