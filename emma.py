@@ -17,10 +17,10 @@
 #      Uses elements from the Natural Language Toolkit.
 #                 Visit http://www.nltk.org.
 
-import nltk                             # Natural Language Toolkit
-import conceptgen, posmodelgen          # Learning packages
-import sentencetemplategen, broca       # Reply packages
-import cfg, tumblrclient, utilities     # Misc.
+import nltk                                             # Natural Language Toolkit
+import conceptgen, posmodelgen                          # Learning packages
+import sentencetemplategen, broca                       # Reply packages
+import cfg, tumblrclient, utilities, sqlite3 as sql     # Misc.
 
 # declare parts of speech umbrellas for generating replies
 nounCodes = cfg.nounCodes()
@@ -83,7 +83,7 @@ def reply(nounList):
     replyTemplate = nltk.word_tokenize(replyTemplate)
     print replyTemplate
     
-    ## check for associations with in our list
+    ## check for associations within our list
     relatedNouns = []
     relatedVerbs = []
     relatedAdjectives = []
@@ -105,10 +105,30 @@ def learnwords():
             # Send this to the learning function with flags set to take direct input and not generate a response
             
 def dream():
+    connection = sql.connect('emma.brn/conceptgraph.db')    # connect to the concept graph SQLite database
+    cursor = connection.cursor()                            # get the cursor object
+    for i in range(5):  # for now we'll tell Emma to have five dreams
+        with connection:
+            cursor.execute('SELECT noun FROM conceptgraph ORDER BY RANDOM() LIMIT 5;')   # choose 5 random nouns from Emma's concept graph
+            nounList = cursor.fetchall()
+        print "Dreaming about %s" % str(nounList)
+        
+        # generate a sentence template
+        replyTemplate = sentencetemplategen.generate()
+        replyTemplate = nltk.word_tokenize(replyTemplate)
+        
+        # find related verbs
+        relatedVerbs = []
+        for noun in nounList:
+            relatedVerbs.append(broca.findrelatedverbs(noun))
+        
+        print "Related verbs: " + str(relatedVerbs)
     pass
     # loop
         # generate output
         # feed input to learning function with flags set to take direct input and not generate a response
+
+# todo: generatesentence() function does repetitive parts of sentence generation
 
 while 1 > 0:
     main()
