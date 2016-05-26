@@ -2,9 +2,9 @@
 # Description:      Broca's Area ... is a region in the frontal lobe of the dominant hemisphere ... with functions linked to speech production.
 # Section:          REPLY
 # Writes/reads:     emma.brn/conceptgraph.db
-# Dependencies:     sqlite3, cfg, random
+# Dependencies:     sqlite3, cfg, random, nltk
 # Dependency of:    emma
-import sqlite3 as sql, cfg, random
+import sqlite3 as sql, cfg, random, nltk
 
 connection = sql.connect('emma.brn/conceptgraph.db')        # connect to the concept graph SQLite database
 cursor = connection.cursor()                                # get the cursor object
@@ -13,27 +13,23 @@ nounCodes = cfg.nounCodes()
 verbCodes = cfg.verbCodes()
 adjectiveCodes = cfg.adjectiveCodes()
 
-def findrelatedverbs(nounList):
+def findrelatedverbs(noun):
+    # given a noun, find verbs that are associated with it
+    foundWords = []
+    foundAssociations = []
     with connection:
-        foundWords = []
-        foundAssocs = []
-        for count in range(0, len(nounList)):
-            # this only seems to find the first association
-            cursor.execute('SELECT * FROM conceptgraph WHERE noun = "%s" AND association_type = 1;' % nounList[count])
-            # note: is this output buffered?
-            # if not,
-            # todo: add a buffer or find an alternative way of doing this
-            SQLReturn = cursor.fetchall()
-            # add all found associations to a dictionary, paired with their association strength
-            rowData = SQLReturn[0]
-            print rowData
-            association = rowData[3]                        # todo: strip u from database info
-            strength = rowData[7]
-            partOfSpeech = rowData[4]                       # todo: strip u from database info
-            verbtupe = (association, strength, partOfSpeech)
-            foundAssocs.append(verbtupe)
+        cursor.execute('SELECT * FROM conceptgraph WHERE noun = "%s" AND association_type = 1;' % noun)
+        SQLReturn = cursor.fetchall()
+        # add all found associations to a dictionary, paired with their association strength
+        rowData = SQLReturn[0]
+        print rowData
+        association = rowData[3]
+        strength = rowData[7]
+        partOfSpeech = rowData[4]
+        verbtupe = (association, strength, partOfSpeech)
+        foundAssociations.append(verbtupe)
 
-    return foundAssocs
+    return foundAssociations
 
 def findrelatednouns(nounList, verbList):
     with connection:
@@ -80,5 +76,5 @@ def insertverbs(sentenceTemplate, convoNouns, relatedVerbs):
 # insertverbs(['VBP', 'VBP', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
 # insertverbs(['VBP', 'NN', 'VB', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
 # insertverbs(['VBN', 'NN', 'VB', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')]) #note this case has a verb cod in the template but no verb matching that code is related in the brain
-print findrelatedverbs(['fox', 'moon'])
+#print findrelatedverbs(['fox', 'moon'])
 # insertverbs(['VBZ'], ['fox'], findrelatedverbs(['fox']))

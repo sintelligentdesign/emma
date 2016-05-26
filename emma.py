@@ -49,10 +49,10 @@ def read(inputText, REPLY_BOOL):
     inputAsParagraph = inputText                                # todo: link this to tumblr, maybe have choice of input and output part of main()
     inputAsSentences = nltk.sent_tokenize(inputAsParagraph)     # segment the paragraph into a list of sentences
     inputAsWords = []                                           # segment each sentence into a list of words
+    nounList = []
     
     for sentence in range(0, len(inputAsSentences)):
         ### for each sentence, run learning functions
-        read.nounList = []
         inputAsWords = nltk.word_tokenize(inputAsSentences[sentence])   # tokenize words in each sentence
         
         posmodelgen.grok(inputAsWords)                                  # learn sentence structure from the sentence's parts of speech pattern
@@ -64,7 +64,6 @@ def read(inputText, REPLY_BOOL):
         if REPLY_BOOL:
             ## find nouns in our input and add them to a noun list to help Emma choose what words to use when she responds
             # todo: check for and remove duplicates
-            nounCodes = cfg.nounCodes()
             inputAsPOS = []                                                 # define inputAsPOS
             for count in range(0, len(inputPOSList)):
                 inputPOSTuple = inputPOSList[count]
@@ -72,11 +71,12 @@ def read(inputText, REPLY_BOOL):
 
             for count in range(0, len(inputAsWords)):                       # create nounList
                 if inputAsPOS[count] in nounCodes:
-                    read.nounList.append(inputAsWords[count])
-            read.nounList = utilities.consolidateduplicates(read.nounList)
-            reply()
+                    nounList.append(inputAsWords[count])
+            nounList = utilities.consolidateduplicates(nounList)
+            print "Noun List: %s" % str(nounList)
+            reply(nounList)
     
-def reply():
+def reply(nounList):
     ### now Emma generates a response
     # todo: have this loop n number of times to create multiple sentences
     ## generate a new sentence template from our template model
@@ -90,18 +90,17 @@ def reply():
     relatedVerbs = []
     relatedAdjectives = []
     
-    for count in range(0, len(read.nounList)):
-        #relatedNouns.append(broca.findrelatedwords(read.nounList[count], 0))
-        relatedVerbs.append(broca.findrelatedverbs(read.nounList[count]))
-        #relatedAdjectives.append(broca.findrelatedwords(read.nounList[count], 2))
+    for count in range(0, len(nounList)):
+        #relatedNouns.append(broca.findrelatedwords(nounList[count], 0))
+        relatedVerbs.append(broca.findrelatedverbs(nounList[count]))
+        #relatedAdjectives.append(broca.findrelatedwords(nounList[count], 2))
         
     #print "Related nouns: " + str(relatedNouns)
     print "Related verbs: " + str(relatedVerbs)
     #print "Related adjectives: " + str(relatedAdjectives)
     
-    broca.insertverbs(replyTemplate, read.nounList, relatedVerbs)
+    broca.insertverbs(replyTemplate, nounList, relatedVerbs)
     print "Reply Template: %s" % str(replyTemplate)
-    print "Noun List: %s" % str(read.nounList)
 
 def learnwords():
     with open('emma.brn/newwords.txt') as newWordList:
