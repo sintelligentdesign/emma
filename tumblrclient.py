@@ -16,27 +16,30 @@ client = pytumblr.TumblrRestClient(
 
 # method for searching for new input when we find a new word
 def searchfortextposts(query):
-    resultsList = client.tagged(query)      # note: tumblr returns 20 results by default. should we request more?
-    for count in range(0, len(resultsList)):
-        result = resultsList[count]
-        resultType = result['type']
+    print "Searching Tumblr for posts about \"%s\"..." % query
+    resultsList = client.tagged(query)          # note: tumblr returns 20 results by default. should we request more?
+                                                # maybe we should request more if we fail to find any text posts on the first pass?
+    textPosts = []
+    for result in resultsList:
+        resultType = result['type']             # separate out text posts from other post types
         if result['type'] == 'text':
-            print "Body of result %s" % count
-            print result['body']
-            # todo: strip html and get just strings
-            # todo: fail elegantly if we find no text results
+            textPosts.append(result['body'])    # add each found post to a list
+    print "Found %s text posts for %s" % (len(textPosts), query)
+    for post in textPosts:                      # strip HTML from the text result
+        # todo: strip html
+        pass
+    return textPosts
 
-# get asks so that we can learn and generate responses
+# get asks so that we can learn from them and generate responses
 def getmessages():
     asks = client.submission('emmacanlearn.tumblr.com') # query tumblr API for messages
     asks = asks.values()                                # unwrap JSON
     asks = asks[0]
     
-    messageList = {}                                    # initialize return variable
-    for count in range(0, len(asks)):                   # suck out the stuff we care about
-        currentAsk = asks[count]
-        asker = currentAsk['asking_name']
-        question = currentAsk['question']
-        messageList[question] = asker                   # add message to message list dictionary
-                                                        # messages are stored with the user as the value so that multiple messages from one user don't overwrite that user's old messages
+    messageList = []                                    # initialize return variable
+    for ask in asks:                                    # suck out the stuff we care about
+        asker = ask['asking_name']
+        question = ask['question']
+        message = (asker, question)                     # package the message as a tuple
+        messageList.append(message)                     # add message tuple to message list
     return messageList
