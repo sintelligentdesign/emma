@@ -43,9 +43,10 @@ def conversate():
     ### Emma reads input, learns from it, and generates a response
     #   This will be replaced with Tumblr stuff later
     inputText = raw_input("You >> ")
-    read(inputText, True)
+    reply(read(inputText, True))
         
 def read(inputText, REPLY_BOOL):
+    ### this function learns from our input data, and if we set the reply flag to true, gathers together relevant data for a reply.
     inputAsParagraph = inputText                                # todo: link this to tumblr, maybe have choice of input and output part of main()
     inputAsSentences = nltk.sent_tokenize(inputAsParagraph)     # segment the paragraph into a list of sentences
     inputAsWords = []                                           # segment each sentence into a list of words
@@ -73,12 +74,13 @@ def read(inputText, REPLY_BOOL):
                     nounList.append(inputAsWords[count])
             nounList = utilities.consolidateduplicates(nounList)
             print "Noun List: %s" % str(nounList)
-            reply(nounList)
+            return: nounList
     
 def reply(nounList):
     ### now Emma generates a response
     # todo: have this loop n number of times to create multiple sentences
-    generatesentence(nounList)
+    for i in range(3):  # for now, Emma will generate 3 sentences. todo: have sentence number be dynamic
+        print generatesentence(nounList)
 
 def learnwords():
     with open('emma.brn/newwords.txt') as newWordList:
@@ -95,6 +97,7 @@ def dream():
         with connection:
             cursor.execute('SELECT noun FROM conceptgraph ORDER BY RANDOM() LIMIT 5;')   # choose 5 random nouns from Emma's concept graph
             nounList = cursor.fetchall()
+        utilities.consolidateduplicates(nounList)
         print "Dreaming about %s" % str(nounList)
         
         generatesentence(nounList)
@@ -120,6 +123,7 @@ def generatesentence(nounList):
     print "Reply (verb pass complete): %s" % str(replyTemplate)
     
     # todo: do the rest of the sentence generation
+    return replyTemplate
 
 while 1 > 0:
     main()
