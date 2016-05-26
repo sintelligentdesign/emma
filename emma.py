@@ -101,8 +101,10 @@ def reply(nounList):
 def learnwords():
     with open('emma.brn/newwords.txt') as newWordList:
         for line in newWordList:
-            tumblrclient.searchfortextposts(line)
-            # Send this to the learning function with flags set to take direct input and not generate a response
+            tumblrPosts = tumblrclient.searchfortextposts(line)
+            for post in tumblrPosts:
+                POSTaggedPost = nltk.pos_tag(post)
+                conceptgen.findassociations(post, POSTaggedPost)
             
 def dream():
     connection = sql.connect('emma.brn/conceptgraph.db')    # connect to the concept graph SQLite database
