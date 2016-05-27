@@ -54,14 +54,16 @@ def insertverbs(sentenceTemplate, relatedVerbs):
         if pos in cfg.verbCodes():
             verbList.append(pos)
             verbPosition.append(count)
-    
+
     if verbList:                                        # if we have any verbs in the sentence model, try to match them to associated verbs
         # todo: if we can't match verb types perfectly, should we fall back to allow all verbs to fill a space before going to printing "?"?
         for count in range(0, len(verbList)):           # goes thru verb POS's
             possibleWords = []
             dieTotal = 0.0
+            print 'verbList ' + str(verbList)
+            print 'relatedVerbs ' + str(relatedVerbs)
             for verbTupe in relatedVerbs:               # matches related verbs by pos
-                if verbTupe[2] == verbList[count]:
+                if len(verbTupe) > 0 and verbTupe[2] == verbList[count]:      # this will have a problem if there are no related verbs
                     possibleWords.append(verbTupe)
             for verbTupe in possibleWords:              # rolls die weighted by strength of related matching verbs
                 dieTotal += verbTupe[1]
@@ -76,11 +78,13 @@ def insertverbs(sentenceTemplate, relatedVerbs):
             if pos in verbCodes:
                 sentenceTemplate[count] = "?"
     return sentenceTemplate
-    
-# insertverbs(['VBP', 'JJ', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
+
+# insertverbs(['VBP', 'JJ', 'NN', '.'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
 # insertverbs(['VBP', 'VB', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
 # insertverbs(['VBP', 'VBP', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
 # insertverbs(['VBP', 'NN', 'VB', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
 # insertverbs(['VBN', 'NN', 'VB', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')]) #note this case has a verb cod in the template but no verb matching that code is related in the brain
 
-print insertverbs(['VBP', 'NN', 'VBN', 'VBZ', "VBZ", 'VB'], findrelatedverbs('fox'))
+print findrelatedverbs('fox')
+print insertverbs(['VBP', 'NN', 'VBN', 'VBZ', "VBZ", 'VB', 'VBD'], findrelatedverbs('fox'))
+print insertverbs(['VBD'], [[]])
