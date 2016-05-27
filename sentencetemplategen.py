@@ -26,18 +26,16 @@ def generate():
                 sentenceTemplate += " %"
                 print "Sentence generation ended prematurely! (No leaves for stem %s)" % lastTwoPOS
                 continueSentence = False
-                break
 
             selector = random.randrange(totalOccurances) + 1                # RNG
-            for key in nextPOSDict:                                         # loop through leaves, decrementing selector, to choose the next leaf to follow
+            while selector > 0:                                             # loop through leaves, decrementing selector, to choose the next leaf to follow
                 selector -= nextPOSDict[key]
-                if selector <= 0:                                            # if the selector reaches zero, choose the next stem
+                if selector <= 0:                                           # if the selector reaches zero, choose the next stem
                     if key in ['.', '!', '?']:                              # if the next leaf is punctuation, end the sentence
                         sentenceTemplate += key
                         selector = 0
                         continueSentence = False
                     else:
                         sentenceTemplate += " " + key                       # otherwise, append our next part of speech and loop back to line 19
-                    break
 
     return sentenceTemplate

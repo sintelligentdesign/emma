@@ -54,6 +54,7 @@ def read(inputText, REPLY_BOOL):
     nounList = []
     
     for sentence in range(0, len(inputAsSentences)):
+        print sentence
         ### for each sentence, run learning functions
         inputAsWords = nltk.word_tokenize(inputAsSentences[sentence])   # tokenize words in each sentence
         inputAsWords = utilities.personalpronountargetswap(inputAsWords)# swap the target of personal pronouns so that Emma understands references to herself vs other people (and doesn't get them confused)
