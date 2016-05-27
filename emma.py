@@ -118,6 +118,7 @@ def generatesentence(nounList):
     # generate a new sentence template from our template model
     replyTemplate = sentencetemplategen.generate()
     replyTemplate = nltk.word_tokenize(replyTemplate)
+    print "Reply template: %s" % str(replyTemplate)
     
     # next, find verbs related to the seed nouns
     relatedVerbs = []

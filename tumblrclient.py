@@ -51,5 +51,3 @@ def postReply(ask, reply):
     
 def postDream(thought):
     client.create_text("emmacanlearn", state="published", body=thought, tags=["dreams"])
-    
-print getmessages()

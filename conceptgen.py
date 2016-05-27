@@ -2,9 +2,9 @@
 # Description:      Takes word inputs, links and stores them as an association in the concept graph
 # Section:          LEARNING
 # Writes/reads:     emma.brn/conceptgraph.db
-# Dependencies:     sqlite3
+# Dependencies:     sqlite3, cfg, utilities
 # Dependency of:    emma
-import sqlite3 as sql, cfg
+import sqlite3 as sql, cfg, utilities
 
 connection = sql.connect('emma.brn/conceptgraph.db')        # connect to the concept graph SQLite database
 cursor = connection.cursor()                                # get the cursor object
@@ -33,6 +33,8 @@ def findassociations(inputAsWords, inputAsPOSTuple):
         ## iterate through each word in the sentence              
         if inputAsPOS[count1] in nounCodes:                 # if the word isn't a noun, we aren't interested in it
             noun = inputAsWords[count1]
+            donounscoring(noun)                             # score the noun capitalization in our nouninfo database
+            
             # todo: make these one function somehow
             # look for important words after noun
             for count2 in range(count1 + 1, len(inputAsWords)):
@@ -122,22 +124,56 @@ def addconcept(noun, associationType, association, associationPOS, proximity):
 
             cursor.execute('SELECT * FROM conceptgraph WHERE noun = \'%s\' AND association = \'%s\';' % (noun, association))     # check to see if the row that we want to work with is already in the database
             row = cursor.fetchone()
-
-            if row != None:                                                             # if we have already made this association, recalculate its values based on new data
-                #print "Re-evaluating existing association between %s and %s" % (noun, association)
+            if row != None:                                                     # if we have already made this association, recalculate its values based on new data
                 conceptid = row[0]
-                
-                totalFrequency = row[6]
-
-                avgProximity = row[7]                                                   # get current average proximity
-                avgProximity = (avgProximity + proximity) / totalFrequency              # calculate new average proximity
-
-                strength = calculatestrength(totalFrequency, avgProximity)              # calculate new association strength
-
-                # COMMIT
-                cursor.execute('UPDATE conceptgraph SET total_frequency = total_frequency + 1, average_proximity = %s, strength = %s WHERE concept_id = %s' % (avgProximity, strength, conceptid))
+                print "Re-evaluating association (ID%s)" % conceptid
+                totalFrequency = row[5]
+                avgProximity = row[6]                                           # get current average proximity
+                avgProximity = (avgProximity + proximity) / totalFrequency      # calculate new average proximity
+                strength = calculatestrength(totalFrequency, avgProximity)      # calculate new association strength
+                # Commit
+                cursor.execute('UPDATE conceptgraph SET total_frequency = total_frequency + 1, average_proximity = %s, strength = %s WHERE concept_id = %s;' % (avgProximity, strength, conceptid))
 
             else:                                                                       # if the row IS NOT a duplicate
                 strength = calculatestrength(1, proximity)                              # calculate association strength and create a new association
-                print "Creating new association for %s (%s)" % (noun, association)
+                noun = noun.lower()
+                association = association.lower()
+                print "Creating new association (%s, %s)" % (noun, association)
+                # Commit
                 cursor.execute('INSERT INTO conceptgraph (noun, association_type, association, association_pos, total_frequency, average_proximity, strength) VALUES (\'%s\', \'%s\', \'%s\', \'%s\', 1, \'%s\', \'%s\');' % (noun, associationType, association, associationPOS, proximity, strength))
+                
+def donounscoring(noun):
+    # checks nouninfo for an entry for a given noun, returns its id if it exists or creates an entry and returns THAT id if it doesn't
+    # also ranks capitalization
+    with connection:
+        cursor.execute('SELECT * FROM nouninfo WHERE UPPER(noun) LIKE UPPER(\'%s\');' % noun)  # see if we have any information stored for the input noun
+        nounInfo = cursor.fetchone()
+        if nounInfo != None:
+            capitalizationScore = scorecapitalization(noun, nounInfo[1])
+            noun = noun.lower()
+            cursor.execute('UPDATE nouninfo SET capitalization_score = \'%s\' WHERE noun = \'%s\';' % (capitalizationScore, noun))
+        else:
+            print "Creating new noun entry for %s..." % noun                                    # otherwise, create a new noun entry
+            capitalizationScore = scorecapitalization(noun, '00/00/00')
+            noun = noun.lower()
+            cursor.execute('INSERT INTO nouninfo (noun, capitalization_score) VALUES (\'%s\', \'%s\');' % (noun, capitalizationScore))
+    return capitalizationScore
+                    
+def scorecapitalization(noun, capitalizationScore):
+    # decode the noun's capitalization score, read the noun, adjust the score respectively, and repackage everything
+    capitalizationScore = utilities.decodecapitalizationscore(capitalizationScore)
+    if noun.islower():
+        if capitalizationScore[0] < 10: capitalizationScore[0] += 1
+        if capitalizationScore[1] > 0: capitalizationScore[1] -= 1
+        if capitalizationScore[2] > 0: capitalizationScore[2] -= 1
+    elif noun.istitle():
+        if capitalizationScore[0] > 0: capitalizationScore[0] -= 1
+        if capitalizationScore[1] < 10: capitalizationScore[1] += 1
+        if capitalizationScore[2] > 0: capitalizationScore[2] -= 1
+    elif noun.isupper():
+        if capitalizationScore[0] > 0: capitalizationScore[0] -= 1
+        if capitalizationScore[1] > 0: capitalizationScore[1] -= 1
+        if capitalizationScore[2] < 10: capitalizationScore[2] += 1
+    return utilities.encodecapitalizationscore(capitalizationScore)
+    
+scorecapitalization('frog', '09/04/07')

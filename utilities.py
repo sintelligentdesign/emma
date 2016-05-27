@@ -8,7 +8,6 @@
 def personalpronountargetswap(sentence):
     # swap the targets of posessive words like you or mine so that Emma doesn't start going around calling other people Emma, etc.
     for count, word in enumerate(sentence):
-        print word
         if word == "you":
             sentence[count] = "me"
         elif word == "me":
@@ -25,10 +24,10 @@ def personalpronountargetswap(sentence):
            sentence[count] = "yours"
     return sentence
 
-# list object duplicate finder and remover function
 def consolidateduplicates(dupeList):
+    # list object duplicate finder and remover function
     toRemove = []
-    print "Before consolidation: %s" % str(dupeList)
+    print "Consolidating duplicates in %s" % str(dupeList)
     for count in range(0, len(dupeList)):
         elem = dupeList[count]
         if elem in dupeList[count + 1:]:
@@ -37,3 +36,17 @@ def consolidateduplicates(dupeList):
         dupeList.remove(dupe)
     print "After consolidation: %s" % str(dupeList)
     return dupeList
+    
+def decodecapitalizationscore(score):
+    # decodes the score object in nouninfo    
+    score = score.split('/')    # decode the score code into its parts
+    score = map(int, score)     # scores are stored as (lowercase/titlecase/uppercase), where each value is an int from 0 to 10
+    return score
+    
+def encodecapitalizationscore(splitScore):
+    # packages split score (a list of integers) into the format stored in nouninfo
+    for count, score in enumerate(splitScore):  # add leading zeros to each int
+        score = str(score).zfill(2)
+        splitScore[count] = score
+    score = '/'.join(splitScore)                # package the list into a string
+    return score

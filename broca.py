@@ -49,8 +49,6 @@ def findrelatedadjectives(GeneratedNounList):
 def insertverbs(sentenceTemplate, relatedVerbs):
     verbList = []
     verbPosition = []
-    print sentenceTemplate
-    print relatedVerbs
     for count in range(0, len(sentenceTemplate)):       # get list of verbs and their indexes
         pos = sentenceTemplate[count]
         if pos in cfg.verbCodes():
