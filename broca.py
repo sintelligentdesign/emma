@@ -14,8 +14,7 @@ verbCodes = cfg.verbCodes()
 adjectiveCodes = cfg.adjectiveCodes()
 
 def findrelatedverbs(noun):
-    # given a noun, find verbs that are associated with it
-    foundWords = []
+    # given a noun, find associated verbs
     foundAssociations = []
     SQLReturn = None
     with connection:
@@ -42,9 +41,24 @@ def findrelatednouns(nounList, verbList):
         SQLReturnVerb = cursor.fetchall()
         # todo: compare the two and merge
 
-def findrelatedadjectives(GeneratedNounList):
-    print "I'm empty"
+def findrelatedadjectives(noun):
+    # given a noun, find associated adjectives
     # note: this nounList is the list of nouns from our OUTPUT sentence
+    #       also, this is almost identical to findrelatedverbs(). merge?
+    foundAssociations = []
+    SQLReturn = None
+    with connection:
+        cursor.execute('SELECT * FROM conceptgraph WHERE noun = "%s" AND association_type = 2;' % noun)
+        SQLReturn = cursor.fetchall()
+        # add all found associations to a dictionary, paired with their association strength
+        if SQLReturn:
+            for item in SQLReturn:
+                association = item[3]
+                strength = item[7]
+                partOfSpeech = item[4]
+                adjectiveTupe = (association, strength, partOfSpeech)
+                foundAssociations.append(adjectiveTupe)
+    return foundAssociations
 
 def insertverbs(sentenceTemplate, relatedVerbs):
     verbList = []
