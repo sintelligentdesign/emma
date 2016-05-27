@@ -127,15 +127,15 @@ def addconcept(noun, associationType, association, associationPOS, proximity):
                 #print "Re-evaluating existing association between %s and %s" % (noun, association)
                 conceptid = row[0]
                 
-                totalFrequency = row[5]
+                totalFrequency = row[6]
 
-                avgProximity = row[6]                                                   # get current average proximity
+                avgProximity = row[7]                                                   # get current average proximity
                 avgProximity = (avgProximity + proximity) / totalFrequency              # calculate new average proximity
 
                 strength = calculatestrength(totalFrequency, avgProximity)              # calculate new association strength
 
                 # COMMIT
-                cursor.execute('UPDATE conceptgraph SET total_frequency = total_frequency + 1, average_proximity = %s, strength = %s WHERE id = %s' % (avgProximity, strength, conceptid))
+                cursor.execute('UPDATE conceptgraph SET total_frequency = total_frequency + 1, average_proximity = %s, strength = %s WHERE concept_id = %s' % (avgProximity, strength, conceptid))
 
             else:                                                                       # if the row IS NOT a duplicate
                 strength = calculatestrength(1, proximity)                              # calculate association strength and create a new association
