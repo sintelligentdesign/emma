@@ -60,8 +60,6 @@ def insertverbs(sentenceTemplate, relatedVerbs):
         for count in range(0, len(verbList)):           # goes thru verb POS's
             possibleWords = []
             dieTotal = 0.0
-            print 'verbList ' + str(verbList)
-            print 'relatedVerbs ' + str(relatedVerbs)
             for verbTupe in relatedVerbs:               # matches related verbs by pos
                 if len(verbTupe) > 0 and verbTupe[2] == verbList[count]:      # this will have a problem if there are no related verbs
                     possibleWords.append(verbTupe)
@@ -78,13 +76,3 @@ def insertverbs(sentenceTemplate, relatedVerbs):
             if pos in verbCodes:
                 sentenceTemplate[count] = "?"
     return sentenceTemplate
-
-# insertverbs(['VBP', 'JJ', 'NN', '.'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
-# insertverbs(['VBP', 'VB', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
-# insertverbs(['VBP', 'VBP', 'NN', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
-# insertverbs(['VBP', 'NN', 'VB', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')])
-# insertverbs(['VBN', 'NN', 'VB', '.'], ['god', 'ponies'], [('take', 2.0, 'VBP'), ('taken', 1.3, 'VB'), ('make', 1.3, 'VBP')]) #note this case has a verb cod in the template but no verb matching that code is related in the brain
-
-print findrelatedverbs('fox')
-print insertverbs(['VBP', 'NN', 'VBN', 'VBZ', "VBZ", 'VB', 'VBD'], findrelatedverbs('fox'))
-print insertverbs(['VBD'], [[]])
