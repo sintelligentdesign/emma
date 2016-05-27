@@ -30,6 +30,37 @@ def findrelatedverbs(noun):
                 foundAssociations.append(verbTupe)
     return foundAssociations
 
+def insertverbs(sentenceTemplate, relatedVerbs):
+    verbList = []
+    verbPosition = []
+    for count in range(0, len(sentenceTemplate)):       # get list of verbs and their indexes
+        pos = sentenceTemplate[count]
+        if pos in cfg.verbCodes():
+            verbList.append(pos)
+            verbPosition.append(count)
+
+    if verbList:                                        # if we have any verbs in the sentence model, try to match them to associated verbs
+        # todo: if we can't match verb types perfectly, should we fall back to allow all verbs to fill a space before going to printing "?"?
+        for count in range(0, len(verbList)):           # goes thru verb POS's
+            possibleWords = []
+            dieTotal = 0.0
+            for verbTupe in relatedVerbs:               # matches related verbs by pos
+                if len(verbTupe) > 0 and verbTupe[2] == verbList[count]:      # this will have a problem if there are no related verbs
+                    possibleWords.append(verbTupe)
+            for verbTupe in possibleWords:              # rolls die weighted by strength of related matching verbs
+                dieTotal += verbTupe[1]
+            dieRoll = random.uniform(0, dieTotal)
+            for verbTupe in possibleWords:
+                dieRoll -= verbTupe[1]
+                if dieRoll < 0:
+                    sentenceTemplate[verbPosition[count]] = verbTupe[0] # adds verb based on die to template
+                    # todo: remove verb so that it cannot be used twice
+                    break
+        for count, pos in enumerate(sentenceTemplate):  # replace leftover verbs with "?"
+            if pos in verbCodes:
+                sentenceTemplate[count] = "?"
+    return sentenceTemplate
+
 def findrelatednouns(nounList, verbList):
     with connection:
         for noun in nounList:
@@ -59,34 +90,34 @@ def findrelatedadjectives(noun):
                 adjectiveTupe = (association, strength, partOfSpeech)
                 foundAssociations.append(adjectiveTupe)
     return foundAssociations
-
-def insertverbs(sentenceTemplate, relatedVerbs):
-    verbList = []
-    verbPosition = []
-    for count in range(0, len(sentenceTemplate)):       # get list of verbs and their indexes
+    
+def insertadjectives(sentenceTemplate, relatedWords):
+    adjectiveList = []
+    adjectivePosition = []
+    for count in range(0, len(sentenceTemplate)):       # get list of adjectives and their indexes
         pos = sentenceTemplate[count]
-        if pos in cfg.verbCodes():
-            verbList.append(pos)
-            verbPosition.append(count)
+        if pos in cfg.adjectiveCodes():
+            adjectiveList.append(pos)
+            adjectivePosition.append(count)
 
-    if verbList:                                        # if we have any verbs in the sentence model, try to match them to associated verbs
-        # todo: if we can't match verb types perfectly, should we fall back to allow all verbs to fill a space before going to printing "?"?
-        for count in range(0, len(verbList)):           # goes thru verb POS's
+    if adjectiveList:                                   # if we have any adjectives in the sentence model, try to match them to associated adjectives
+        # todo: if we can't match adjective types perfectly, should we fall back to allow all adjectives to fill a space before going to printing "?"?
+        for count in range(0, len(adjectiveList)):      # goes thru adjective POS's
             possibleWords = []
             dieTotal = 0.0
-            for verbTupe in relatedVerbs:               # matches related verbs by pos
-                if len(verbTupe) > 0 and verbTupe[2] == verbList[count]:      # this will have a problem if there are no related verbs
-                    possibleWords.append(verbTupe)
-            for verbTupe in possibleWords:              # rolls die weighted by strength of related matching verbs
-                dieTotal += verbTupe[1]
+            for adjectiveTupe in relatedAdjectives:     # matches related adjectives by pos
+                if len(adjectiveTupe) > 0 and adjectiveTupe[2] == adjectiveList[count]:      # this will have a problem if there are no related adjectives
+                    possibleWords.append(adjectiveTupe)
+            for adjectiveTupe in possibleWords:         # rolls die weighted by strength of related matching adjectives
+                dieTotal += adjectiveTupe[1]
             dieRoll = random.uniform(0, dieTotal)
-            for verbTupe in possibleWords:
-                dieRoll -= verbTupe[1]
+            for adjectiveTupe in possibleWords:
+                dieRoll -= adjectiveTupe[1]
                 if dieRoll < 0:
-                    sentenceTemplate[verbPosition[count]] = verbTupe[0] # adds verb based on die to template
-                    # todo: remove verb so that it cannot be used twice
+                    sentenceTemplate[adjectivePosition[count]] = adjectiveTupe[0] # adds adjective based on die to template
+                    # todo: remove adjective so that it cannot be used twice
                     break
-        for count, pos in enumerate(sentenceTemplate):  # replace leftover verbs with "?"
-            if pos in verbCodes:
+        for count, pos in enumerate(sentenceTemplate):  # replace leftover adjectives with "?"
+            if pos in adjectiveCodes:
                 sentenceTemplate[count] = "?"
     return sentenceTemplate
