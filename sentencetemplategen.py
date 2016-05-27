@@ -6,10 +6,9 @@
 # Dependency of:    emma
 import random, ast
 
-sentenceStructureModel = ast.literal_eval(open("emma.brn/sentencestructure.mdl", "r").read())    # load the generated sentence structure model
-
 # Sentence Generation
 def generate():
+    sentenceStructureModel = ast.literal_eval(open("emma.brn/sentencestructure.mdl", "r").read())    # load the generated sentence structure model
     sentenceTemplate = ""
     if not sentenceStructureModel == {}:
         sentenceTemplate += random.choice(sentenceStructureModel.keys())    # choose a stem at random from our sentence building block model
