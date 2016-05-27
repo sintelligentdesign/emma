@@ -52,9 +52,9 @@ def read(inputText, REPLY_BOOL):
     inputAsSentences = nltk.sent_tokenize(inputAsParagraph)     # segment the paragraph into a list of sentences
     inputAsWords = []                                           # segment each sentence into a list of words
     nounList = []
+    inputAsPOS = []
     
     for sentence in range(0, len(inputAsSentences)):
-        print sentence
         ### for each sentence, run learning functions
         inputAsWords = nltk.word_tokenize(inputAsSentences[sentence])   # tokenize words in each sentence
         inputAsWords = utilities.personalpronountargetswap(inputAsWords)# swap the target of personal pronouns so that Emma understands references to herself vs other people (and doesn't get them confused)
@@ -69,7 +69,6 @@ def read(inputText, REPLY_BOOL):
         
         if REPLY_BOOL:
             ## find nouns in our input and add them to a noun list to help Emma choose what words to use when she responds
-            inputAsPOS = []                                             # define inputAsPOS
             for count in range(0, len(inputPOSList)):
                 inputPOSTuple = inputPOSList[count]
                 inputAsPOS.append(inputPOSTuple[1])
@@ -85,8 +84,13 @@ def read(inputText, REPLY_BOOL):
 def reply(nounList):
     ### now Emma generates a response
     # todo: have this loop n number of times to create multiple sentences
+    paragraphAsList = []
     for i in range(3):  # for now, Emma will generate 3 sentences. todo: have sentence number be dynamic
-        print generatesentence(nounList)
+        sentence = generatesentence(nounList)
+        sentence = ' '.join(sentence)
+        paragraphAsList.append(sentence)
+    paragraph = ' '.join(paragraphAsList)
+    print "Emma >> %s" % paragraph
 
 def learnwords():
     with open('emma.brn/newwords.txt') as newWordList:
@@ -131,24 +135,26 @@ def generatesentence(nounList):
     
     # try to insert our verbs into the sentence template
     broca.insertverbs(replyTemplate, relatedVerbs)
-    print "Reply (verb pass complete): %s" % str(replyTemplate)
+    print "Verb pass complete."
     
     # generate nouns based on relation to both verbs and input nouns
     relatedNouns = []
     relatedNouns.append(broca.findrelatednouns(nounList, relatedVerbs))
     print "Related nouns: %s" % str(relatedNouns)
     
-    generatedNouns = []
+    # try to insert our nouns into the sentence template
+    broca.insertnouns(replyTemplate, relatedNouns)
+    print "Noun pass complete."
     
     # generate adjectives that are associated with the generated nouns
     relatedAdjectives = []
-    for noun in generatedNouns:
-        relatedAdjectives.append(broca.findrelatedadjectives(generatedNouns))
+    for noun in relatedNouns:
+        relatedAdjectives.append(broca.findrelatedadjectives(relatedNouns))
     print "Related adjectives: %s" % str(relatedAdjectives)
     
     # try to insert our adjectives into the sentence template
     broca.insertadjectives(replyTemplate, relatedAdjectives)
-    print "Reply (adjective pass complete): %s" % str(replyTemplate)
+    print "Adjective pass complete."
     
     return replyTemplate
     

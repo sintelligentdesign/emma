@@ -8,6 +8,7 @@ import random, ast
 
 # Sentence Generation
 def generate():
+    # todo: if a sentence starts with ',', try generation again
     sentenceStructureModel = ast.literal_eval(open("emma.brn/sentencestructure.mdl", "r").read())    # load the generated sentence structure model
     sentenceTemplate = ""
     if not sentenceStructureModel == {}:
@@ -38,5 +39,3 @@ def generate():
                         sentenceTemplate += " " + key                       # otherwise, append our next part of speech and loop back to line 19
 
     return sentenceTemplate
-
-print generate()

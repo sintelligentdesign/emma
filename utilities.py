@@ -30,7 +30,7 @@ def consolidateduplicates(dupeList):
     print "Consolidating duplicates in %s" % str(dupeList)
     for count in range(0, len(dupeList)):
         elem = dupeList[count]
-        if elem in dupeList[count + 1:]:
+        if elem.lower() in dupeList[count + 1:]:
             toRemove.append(elem)
     for dupe in toRemove:
         dupeList.remove(dupe)

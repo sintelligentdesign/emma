@@ -46,6 +46,7 @@ def insertverbs(sentenceTemplate, relatedVerbs):
             possibleWords = []
             dieTotal = 0.0
             for verbTupe in relatedVerbs:               # matches related verbs by pos
+                print verbList[count]
                 if len(verbTupe) > 0 and verbTupe[2] == verbList[count]:      # this will have a problem if there are no related verbs
                     possibleWords.append(verbTupe)
             for verbTupe in possibleWords:              # rolls die weighted by strength of related matching verbs
@@ -54,6 +55,7 @@ def insertverbs(sentenceTemplate, relatedVerbs):
             for verbTupe in possibleWords:
                 dieRoll -= verbTupe[1]
                 if dieRoll < 0:
+                    print "Debug!!!" + str(verbTupe)
                     sentenceTemplate[verbPosition[count]] = verbTupe[0] # adds verb based on die to template
                     # todo: remove verb so that it cannot be used twice
                     break
@@ -100,7 +102,7 @@ def findrelatednouns(nounList, verbList):
         foundAssociations = zip(foundNouns, foundStrengths)
         return foundAssociations
         
-def insertnouns(sentenceTemplate, relatedWords):
+def insertnouns(sentenceTemplate, relatedNouns):
     nounList = []
     nounPosition = []
     for count in range(0, len(sentenceTemplate)):       # get list of nouns and their indexes
@@ -114,7 +116,7 @@ def insertnouns(sentenceTemplate, relatedWords):
         for count in range(0, len(nounList)):           # goes thru noun POS's
             possibleWords = []
             dieTotal = 0.0
-            for nounTupe in relatednouns:               # matches related nouns by pos
+            for nounTupe in relatedNouns:               # matches related nouns by pos
                 if len(nounTupe) > 0 and nounTupe[2] == nounList[count]:      # this will have a problem if there are no related nouns
                     possibleWords.append(nounTupe)
             for nounTupe in possibleWords:              # rolls die weighted by strength of related matching nouns
@@ -150,7 +152,7 @@ def findrelatedadjectives(noun):
                 foundAssociations.append(adjectiveTupe)
     return foundAssociations
     
-def insertadjectives(sentenceTemplate, relatedWords):
+def insertadjectives(sentenceTemplate, relatedAdjectives):
     adjectiveList = []
     adjectivePosition = []
     for count in range(0, len(sentenceTemplate)):       # get list of adjectives and their indexes
@@ -181,4 +183,5 @@ def insertadjectives(sentenceTemplate, relatedWords):
                 sentenceTemplate[count] = "?"
     return sentenceTemplate
     
-print findrelatednouns(['car'], ['grow']) # should find "tree" and "driver" in association network
+#print findrelatednouns(['car'], ['grow']) # should find "tree" and "driver" in association network
+#print findrelatedverbs(['cats'])
