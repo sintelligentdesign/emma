@@ -30,6 +30,7 @@ def findrelatedverbs(noun):
                 foundAssociations.append(verbTupe)
     return foundAssociations
 
+# todo: merge insert(whatever) functions into one function
 def insertverbs(sentenceTemplate, relatedVerbs):
     verbList = []
     verbPosition = []
@@ -71,6 +72,37 @@ def findrelatednouns(nounList, verbList):
             cursor.execute('SELECT * FROM conceptgraph WHERE association = "%s" AND association_type = 1;' % verb)
         SQLReturnVerb = cursor.fetchall()
         # todo: compare the two and merge
+        
+def insertnouns(sentenceTemplate, relatedWords):
+    nounList = []
+    nounPosition = []
+    for count in range(0, len(sentenceTemplate)):       # get list of nouns and their indexes
+        pos = sentenceTemplate[count]
+        if pos in cfg.nounCodes():
+            nounList.append(pos)
+            nounPosition.append(count)
+
+    if nounList:                                        # if we have any nouns in the sentence model, try to match them to associated nouns
+        # todo: if we can't match noun types perfectly, should we fall back to allow all nouns to fill a space before going to printing "?"?
+        for count in range(0, len(nounList)):           # goes thru noun POS's
+            possibleWords = []
+            dieTotal = 0.0
+            for nounTupe in relatednouns:               # matches related nouns by pos
+                if len(nounTupe) > 0 and nounTupe[2] == nounList[count]:      # this will have a problem if there are no related nouns
+                    possibleWords.append(nounTupe)
+            for nounTupe in possibleWords:              # rolls die weighted by strength of related matching nouns
+                dieTotal += nounTupe[1]
+            dieRoll = random.uniform(0, dieTotal)
+            for nounTupe in possibleWords:
+                dieRoll -= nounTupe[1]
+                if dieRoll < 0:
+                    sentenceTemplate[nounPosition[count]] = nounTupe[0] # adds noun based on die to template
+                    # todo: remove noun so that it cannot be used twice
+                    break
+        for count, pos in enumerate(sentenceTemplate):  # replace leftover nouns with "?"
+            if pos in nounCodes:
+                sentenceTemplate[count] = "?"
+    return sentenceTemplate
 
 def findrelatedadjectives(noun):
     # given a noun, find associated adjectives
