@@ -118,21 +118,22 @@ def insertnouns(sentenceTemplate, relatedNouns):
 
     if nounList:                                        # if we have any nouns in the sentence model, try to match them to associated nouns
         # todo: if we can't match noun types perfectly, should we fall back to allow all nouns to fill a space before going to printing "?"?
-        for count in range(0, len(nounList)):           # goes thru noun POS's
-            possibleWords = []
-            dieTotal = 0.0
-            for nounTupe in relatedNouns:               # matches related nouns by pos
-                possibleWords.append(nounTupe)
-            for nounTupe in possibleWords:              # rolls die weighted by strength of related matching nouns
-                dieTotal += int(nounTupe[1])
+        if not relatedNouns[0]:
+            for count in range(0, len(nounList)):           # goes thru noun POS's
+                possibleWords = []
+                dieTotal = 0.0
+                for nounTupe in relatedNouns:               # matches related nouns by pos
+                    possibleWords.append(nounTupe)
+                for nounTupe in possibleWords:              # rolls die weighted by strength of related matching nouns
+                    dieTotal += int(nounTupe[1])
 
-            dieRoll = random.uniform(0, dieTotal)
-            for nounTupe in possibleWords:
-                dieRoll -= nounTupe[1]
-                if dieRoll < 0 and nounTupe[0] not in usedWords:
-                    sentenceTemplate[nounPosition[count]] = nounTupe[0] # adds noun based on die to template
-                    usedWords.append(nounTupe[0])
-                    break
+                dieRoll = random.uniform(0, dieTotal)
+                for nounTupe in possibleWords:
+                    dieRoll -= nounTupe[1]
+                    if dieRoll < 0 and nounTupe[0] not in usedWords:
+                        sentenceTemplate[nounPosition[count]] = nounTupe[0] # adds noun based on die to template
+                        usedWords.append(nounTupe[0])
+                        break
         for count, pos in enumerate(sentenceTemplate):  # replace leftover nouns with "?"
             if pos in nounCodes:
                 sentenceTemplate[count] = "?"
