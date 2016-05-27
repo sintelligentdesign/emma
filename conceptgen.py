@@ -117,7 +117,7 @@ def addconcept(noun, associationType, association, associationPOS, proximity):
                 wordList = []
                 for cutWord in bundledWordList:                         # take each word we know and stick it in a list
                     wordList.append(cutWord[0])
-                if noun not in wordList:                                # if our noun isn't in that list, it's new
+                if noun.lower() not in wordList:                                # if our noun isn't in that list, it's new
                     print "Learned new word (%s)!" % noun
                     newWordFile = open('emma.brn/newwords.txt', 'a')    # print new word to newwords.txt to learn more about later
                     print >>newWordFile, noun
