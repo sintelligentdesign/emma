@@ -138,10 +138,15 @@ def generatesentence(nounList):
     generatedNouns = [] #todo: hook this up to the noun generator
     
     # generate adjectives that are associated with the generated nouns
-    relatedNouns = []
+    relatedAdjectives = []
     for noun in generatedNouns:
-        relatedNouns.append(broca.findrelatednouns(generatedNouns))
-    print "Related nouns: %s" % str(relatedNouns)
+        relatedAdjectives.append(broca.findrelatedadjectives(generatedNouns))
+    print "Related adjectives: %s" % str(relatedAdjectives)
+    
+    # try to insert our adjectives into the sentence template
+    broca.insertadjectives(replyTemplate, relatedAdjectives)
+    print "Reply (adjective pass complete): %s" % str(replyTemplate)
+    
     return replyTemplate
     
 while 1 > 0:
