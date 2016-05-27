@@ -76,7 +76,8 @@ def read(inputText, REPLY_BOOL):
             for count in range(0, len(inputAsWords)):                   # create nounList
                 if inputAsPOS[count] in nounCodes:
                     nounList.append(inputAsWords[count])
-            nounList = utilities.consolidateduplicates(nounList)
+            if len(nounList) > 1:
+                nounList = utilities.consolidateduplicates(nounList)
             print "Noun List: %s" % str(nounList)
             return nounList
     
@@ -102,7 +103,8 @@ def dream():
             # we'll choose some random objects from Emma's concept graph
             cursor.execute('SELECT noun FROM conceptgraph ORDER BY RANDOM() LIMIT 5;')
             nounList = cursor.fetchall()
-        utilities.consolidateduplicates(nounList)           # make sure there are no duplicate nouns
+        if len(nounList) > 1:
+            utilities.consolidateduplicates(nounList)           # make sure there are no duplicate nouns
         print "Dreaming about %s" % str(nounList)
         
         sentence = generatesentence(nounList)

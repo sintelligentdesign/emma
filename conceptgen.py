@@ -24,6 +24,7 @@ with open('emma.brn/bannedwords.txt') as bannedWordsFile:
 def findassociations(inputAsWords, inputAsPOSTuple):
     ### given a sentence, find important words and create associations between them
     ## get POS sentence from POS Tuple
+    # todo: scrub punctuation from inputs
     inputAsPOS = []
     for count in range(0, len(inputAsPOSTuple)):
         inputPOSTuple = inputAsPOSTuple[count]
