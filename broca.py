@@ -15,6 +15,7 @@ adjectiveCodes = cfg.adjectiveCodes()
 
 def findrelatedverbs(noun):
     # given a noun, find associated verbs
+    noun = noun[0]
     foundAssociations = []
     SQLReturn = None
     with connection:
@@ -34,6 +35,7 @@ def findrelatedverbs(noun):
 def insertverbs(sentenceTemplate, relatedVerbs):
     verbList = []
     verbPosition = []
+    usedWords = []
     for count in range(0, len(sentenceTemplate)):       # get list of verbs and their indexes
         pos = sentenceTemplate[count]
         if pos in cfg.verbCodes():
@@ -46,23 +48,25 @@ def insertverbs(sentenceTemplate, relatedVerbs):
             possibleWords = []
             dieTotal = 0.0
             for verbTupe in relatedVerbs:               # matches related verbs by pos
-                print verbList[count]
                 if len(verbTupe) > 0 and verbTupe[2] == verbList[count]:      # this will have a problem if there are no related verbs
                     possibleWords.append(verbTupe)
+                    print possibleWords
             for verbTupe in possibleWords:              # rolls die weighted by strength of related matching verbs
                 dieTotal += verbTupe[1]
             dieRoll = random.uniform(0, dieTotal)
-            for verbTupe in possibleWords:
-                dieRoll -= verbTupe[1]
-                if dieRoll < 0:
-                    print "Debug!!!" + str(verbTupe)
+            for count, verbTupe in enumerate(possibleWords):
+                dieRoll -= int(verbTupe[1])
+                if dieRoll < 0 and verbTupe[0] not in usedWords:
                     sentenceTemplate[verbPosition[count]] = verbTupe[0] # adds verb based on die to template
-                    # todo: remove verb so that it cannot be used twice
+                    usedWords.append(verbTupe[0])
                     break
+                    # todo URGENT: if the var IS in usedWords, use the next var in the list
         for count, pos in enumerate(sentenceTemplate):  # replace leftover verbs with "?"
             if pos in verbCodes:
                 sentenceTemplate[count] = "?"
     return sentenceTemplate
+
+print insertverbs(['VB', 'VB', 'VBN', 'VBG'], findrelatedverbs(['bee']))
 
 def findrelatednouns(nounList, verbList):
     with connection:
@@ -105,6 +109,7 @@ def findrelatednouns(nounList, verbList):
 def insertnouns(sentenceTemplate, relatedNouns):
     nounList = []
     nounPosition = []
+    usedWords = []
     for count in range(0, len(sentenceTemplate)):       # get list of nouns and their indexes
         pos = sentenceTemplate[count]
         if pos in cfg.nounCodes():
@@ -119,13 +124,14 @@ def insertnouns(sentenceTemplate, relatedNouns):
             for nounTupe in relatedNouns:               # matches related nouns by pos
                 possibleWords.append(nounTupe)
             for nounTupe in possibleWords:              # rolls die weighted by strength of related matching nouns
-                dieTotal += nounTupe[1]
+                dieTotal += int(nounTupe[1])
+
             dieRoll = random.uniform(0, dieTotal)
             for nounTupe in possibleWords:
                 dieRoll -= nounTupe[1]
-                if dieRoll < 0:
+                if dieRoll < 0 and nounTupe[0] not in usedWords:
                     sentenceTemplate[nounPosition[count]] = nounTupe[0] # adds noun based on die to template
-                    # todo: remove noun so that it cannot be used twice
+                    usedWords.append(nounTupe[0])
                     break
         for count, pos in enumerate(sentenceTemplate):  # replace leftover nouns with "?"
             if pos in nounCodes:
@@ -184,4 +190,4 @@ def insertadjectives(sentenceTemplate, relatedAdjectives):
 
 # print findrelatednouns(['car'], ['grow']) # should find "tree" and "driver" in association network
 #print findrelatedverbs(['cats'])
-print insertnouns(['NN'], findrelatednouns(['car'], ['grow']))
+#dprint insertnouns(['NN', 'NN'], findrelatednouns(['car'], ['grow']))

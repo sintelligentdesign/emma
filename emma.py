@@ -109,13 +109,13 @@ def dream():
             cursor.execute('SELECT noun FROM conceptgraph ORDER BY RANDOM() LIMIT 5;')
             nounList = cursor.fetchall()
         if len(nounList) > 1:
-            utilities.consolidateduplicates(nounList)           # make sure there are no duplicate nouns
+            utilities.consolidateduplicates(nounList)       # make sure there are no duplicate nouns
         print "Dreaming about %s" % str(nounList)
         
         sentence = generatesentence(nounList)
-        if "?" not in sentence and "%" not in sentence:      # we're only interested in fully-formed sentences
+        if "?" not in sentence and "%" not in sentence:     # we're only interested in fully-formed sentences
             read(sentence, False)
-            if random.randint(0, 2) == 0:                    # there is a 1/3 chance that we post a dream on Tumblr
+            if random.randint(0, 2) == 0:                   # there is a 1/3 chance that we post a dream on Tumblr
                 tumblrclient.postdream(sentence)
         else:
             print "Dream contents invalid. Retrying..."
