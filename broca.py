@@ -73,12 +73,11 @@ def findrelatednouns(nounList, verbList):
             cursor.execute('SELECT * FROM conceptgraph WHERE association = "%s" AND association_type = 1;' % verb)
         SQLReturnVerb = cursor.fetchall()
         
-        print SQLReturnNoun, SQLReturnVerb
         # get lists of nouns and strengths from our noun return
         nounNounList = []
         nounStrengthList = []
         for row in SQLReturnNoun:
-            nounNounList.append(row[1])
+            nounNounList.append(row[3])
             nounStrengthList.append(row[7])
             
         # get lists of nouns and strengths from our verb return
@@ -91,9 +90,14 @@ def findrelatednouns(nounList, verbList):
         # compare the two lists of nouns and check for duplicates
         for count, noun in enumerate(nounNounList):
             if noun in verbNounList:
-                # todo: remove duplicates while preserving strengths
-                # if the strengths between two of the same noun are different, take the average?
-        # zip associations and strengths
+                nounNounList.remove(noun)
+                verbStrengthList[count] = ((nounStrengthList.index(noun) + verbStrengthList[count]) / 2)
+                nounStrengthList.remove(nounStrengthList[count])
+        
+        foundNouns = nounNounList + verbNounList
+        foundStrengths = nounStrengthList + verbStrengthList
+        
+        foundAssociations = zip(foundNouns, foundStrengths)
         return foundAssociations
         
 def insertnouns(sentenceTemplate, relatedWords):
