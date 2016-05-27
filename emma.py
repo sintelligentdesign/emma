@@ -133,9 +133,12 @@ def generatesentence(nounList):
     broca.insertverbs(replyTemplate, relatedVerbs)
     print "Reply (verb pass complete): %s" % str(replyTemplate)
     
-    # todo: do the rest of the sentence generation
     # generate nouns based on relation to both verbs and input nouns
-    generatedNouns = [] #todo: hook this up to the noun generator
+    relatedNouns = []
+    relatedNouns.append(broca.findrelatednouns(nounList, relatedVerbs))
+    print "Related nouns: %s" % str(relatedNouns)
+    
+    generatedNouns = []
     
     # generate adjectives that are associated with the generated nouns
     relatedAdjectives = []
