@@ -1,10 +1,16 @@
-import pattern.en
+# Name:             Input Parser
+# Description:      Tokenizes input and adds new words and their information into brain.db/dictionary
+# Section:          LEARNING
+# Writes/reads:     emma.brn/conceptgraph.db
+# Dependencies:     pattern.en, sqlite3
+# Dependency of:    
+import pattern.en as pattern
 import sqlite3 as sql
 
 def tokenize(text):
-    pattern.en.pprint(pattern.en.parse(text, True, True, True, True, True))
+    pattern.pprint(pattern.en.parse(text, True, True, True, True, True))
 
-    taggedText = pattern.en.parse(text, True, True, True, True, True).split()
+    taggedText = pattern.parse(text, True, True, True, True, True).split()
     for taggedSentence in taggedText:
         posSentence = []
         chunkSeries = []
@@ -29,7 +35,7 @@ def check_words_against_brain():
     pass
 
 # connect to the concept graph SQLite database
-connection = sql.connect('emma.brn/conceptgraph.db')
+connection = sql.connect('../emma.brn/conceptgraph.db')
 cursor = connection.cursor()
 def add_new_words(posSentence, lemmaSentence):
     with connection:
@@ -38,8 +44,9 @@ def add_new_words(posSentence, lemmaSentence):
     storedWords = []
     for row in SQLReturn:
         storedWords.append(row[0])
-    for word in lemmaSentence:
+    for count, word in enumerate(lemmaSentence):
         if word not == "." and word not in storedWords:
-            # todo: get information about part of speech and score capitalization
+            # todo: score capitalization
+            pos = posSentence[count]
             with connection:
-                cursor.execute('INSERT INTO dictionary VALUES (word, pos, capitalizationScore, 1, 0)')
+                cursor.execute('INSERT INTO dictionary VALUES (%s, %s, %s, 1, 0);' % (word, pos, capitalizationScore))
