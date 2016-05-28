@@ -1,11 +1,10 @@
 import pattern.en
 
-def tagText(text):
+def tokenize(text):
     pattern.en.pprint(pattern.en.parse(text, True, True, True, True, True))
 
     taggedText = pattern.en.parse(text, True, True, True, True, True).split()
     for taggedSentence in taggedText:
-        # print taggedSentence
         posSentence = []
         chunkSeries = []
         lemmaSentence = []
@@ -13,10 +12,13 @@ def tagText(text):
             posSentence.append(taggedWord[1])
             chunkSeries.append(taggedWord[2])
             lemmaSentence.append(taggedWord[5])
-        print posSentence
-        print chunkSeries
-        print lemmaSentence
+        print "Parts of Speech: %s" % posSentence
+        print "Sentence Chumks: %s" % chunkSeries
+        print "Lemma: %s\n" % lemmaSentence
+    return posSentence
+    return chunkSeries
+    return lemmaSentence
 
-# tagText("I made a pretty whistle out of wood. It sounds good.")
-# tagText("I am back.")
-tagText("He ate an apple. His friend watched longingly.")
+tokenize("I made a pretty whistle out of wood. It sounds good.")
+tokenize("I am back.")
+tokenize("He ate an apple. His friend watched longingly.")
