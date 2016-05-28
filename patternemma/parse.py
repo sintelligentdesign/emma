@@ -19,4 +19,4 @@ def tagText(text):
 
 # tagText("I made a pretty whistle out of wood. It sounds good.")
 # tagText("I am back.")
-tagText("He ate a apple. His friend watched longingly.")
+tagText("He ate an apple. His friend watched longingly.")
