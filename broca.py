@@ -5,6 +5,7 @@
 # Dependencies:     sqlite3, cfg, random, nltk
 # Dependency of:    emma
 import sqlite3 as sql, cfg, random, nltk
+from pattern.en import pluralize, singularize
 
 connection = sql.connect('emma.brn/conceptgraph.db')        # connect to the concept graph SQLite database
 cursor = connection.cursor()                                # get the cursor object
@@ -132,16 +133,21 @@ def insertnouns(sentenceTemplate, relatedNouns):
             possibleWords = []
             dieTotal = 0.0
             for nounTupe in relatedNouns:               # matches related nouns by pos
-                if nounTupe[2] == nounList[count]:
-                    possibleWords.append(nounTupe)
+                possibleWords.append(nounTupe)
             for nounTupe in possibleWords:              # rolls die weighted by strength of related matching nouns
                 dieTotal += int(nounTupe[1])
-
             dieRoll = random.uniform(0, dieTotal)
             for nounTupe in possibleWords:
                 dieRoll -= nounTupe[1]
                 if dieRoll < 0 and nounTupe[0] not in usedWords:
-                    sentenceTemplate[nounPosition[count]] = nounTupe[0] # adds noun based on die to template
+                    # note this will be a problem if we run out of unused words
+                    # below adds noun to sentece with agreement in pluarality
+                    if sentenceTemplate[nounPosition[count] == 'NNS' or 'NNPS' and isSingular(nounTupe[0]):
+                        sentenceTemplate[nounPosition[count]] = pluralize(nounTupe[0]) # adds noun based on die to template
+                    elif sentenceTemplate[nounPosition[count]] == 'NN' or 'NNP' and isPlural(nounTupe[0]):
+                        sentenceTemplate[nounPosition[count]] = singularize(nounTupe[0])
+                    else
+                        sentenceTemplate[nounPosition[count]] = nounTupe[0]
                     usedWords.append(nounTupe[0])
                     break
         for count, pos in enumerate(sentenceTemplate):  # replace leftover nouns with "?"
@@ -198,6 +204,16 @@ def insertadjectives(sentenceTemplate, relatedAdjectives):
             if pos in adjectiveCodes:
                 sentenceTemplate[count] = "?"
     return sentenceTemplate
+
+# checks pluarality of noun
+def isPlural(noun):
+    singular = singularize(noun)
+    plural = True if noun is not singular else False
+    return plural
+def isSingular(noun):
+    plural = pluralize(noun)
+    singular = True if noun is not plural else False
+    return singular
 
 # print findrelatednouns(['car'], ['grow']) # should find "tree" and "driver" in association network
 # print findrelatedverbs(['cats'])
