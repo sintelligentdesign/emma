@@ -82,32 +82,41 @@ def findrelatednouns(nounList, verbList):
         # get lists of nouns and strengths from our noun return
         nounNounList = []
         nounStrengthList = []
+        nounPOSList = []
         for row in SQLReturnNoun:
             nounNounList.append(row[3])
             nounStrengthList.append(row[7])
+            nounPOSList.append(row[4])
 
         # get lists of nouns and strengths from our verb return
         verbNounList = []
         verbStrengthList = []
+        verbPOSList = []    # note this list stores noun POS, but is sourced from verb relations
         for row in SQLReturnVerb:
             verbNounList.append(row[1])
             verbStrengthList.append(row[7])
+            verbPOSList.append(row[4])
 
         # compare the two lists of nouns and check for duplicates
+        indexesToDel = []
         for count, noun in enumerate(nounNounList):
             if noun in verbNounList:
-                nounNounList.remove(noun)
-                verbStrengthList[count] = ((nounStrengthList.index(noun) + verbStrengthList[count]) / 2)
-                nounStrengthList.remove(nounStrengthList[count])
+                indexesToDel.append(count)
+                verbStrengthList[verbNounList.index(noun)] = ((nounStrengthList[count] + verbStrengthList[verbNounList.index(noun)]) / 2)
+        for index in indexesToDel:
+            del nounNounList[index]
+            del nounStrengthList[index]
+            del nounPOSList[index]
 
         foundNouns = nounNounList + verbNounList
         foundStrengths = nounStrengthList + verbStrengthList
+        foundPOS = nounPOSList + verbPOSList
 
-        foundAssociations = zip(foundNouns, foundStrengths)
+        foundAssociations = zip(foundNouns, foundStrengths, foundPOS)
         return foundAssociations
 
 def insertnouns(sentenceTemplate, relatedNouns):
-    relatedNouns = relatedNouns[0]
+    relatedNouns = relatedNouns[0]                      # for some reason emma passes a list of a list of tupes for relatedNouns, making this line necessary
     nounList = []
     nounPosition = []
     usedWords = []
@@ -123,7 +132,8 @@ def insertnouns(sentenceTemplate, relatedNouns):
             possibleWords = []
             dieTotal = 0.0
             for nounTupe in relatedNouns:               # matches related nouns by pos
-                possibleWords.append(nounTupe)
+                if nounTupe[2] == nounList[count]:
+                    possibleWords.append(nounTupe)
             for nounTupe in possibleWords:              # rolls die weighted by strength of related matching nouns
                 dieTotal += int(nounTupe[1])
 
@@ -190,5 +200,7 @@ def insertadjectives(sentenceTemplate, relatedAdjectives):
     return sentenceTemplate
 
 # print findrelatednouns(['car'], ['grow']) # should find "tree" and "driver" in association network
-#print findrelatedverbs(['cats'])
-#dprint insertnouns(['NN', 'NN'], findrelatednouns(['car'], ['grow']))
+# print findrelatedverbs(['cats'])
+# print findrelatednouns(['milk'], [])
+# print findrelatednouns(['milk'], ['drink'])
+# print insertnouns(['NN', 'NNS'], [findrelatednouns(['milk'], ['drink'])])
