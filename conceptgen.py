@@ -123,7 +123,7 @@ def addconcept(noun, associationType, association, associationPOS, proximity):
                     print >>newWordFile, noun
                     newWordFile.close()
 
-            cursor.execute('SELECT * FROM conceptgraph WHERE noun = \'%s\' AND association = \'%s\';' % (noun, association))     # check to see if the row that we want to work with is already in the database
+            cursor.execute('SELECT * FROM conceptgraph WHERE noun = \'%s\' AND association = \'%s\';' % (noun.lower(), association))     # check to see if the row that we want to work with is already in the database
             row = cursor.fetchone()
             if row != None:                                                     # if we have already made this association, recalculate its values based on new data
                 conceptid = row[0]
