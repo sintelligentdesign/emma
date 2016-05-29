@@ -2,10 +2,12 @@
 # Description:      Tokenizes input and adds new words and their information into brain.db/dictionary
 # Section:          LEARNING
 # Writes/reads:     emma.brn/conceptgraph.db
-# Dependencies:     pattern.en, sqlite3
+# Dependencies:     pattern.en, sqlite3, markovtrainer
 # Dependency of:
 import pattern.en as pattern
 import sqlite3 as sql
+
+import markovtrainer
 
 def tokenize(text):
     pattern.pprint(pattern.parse(text, True, True, True, True, True))
@@ -19,13 +21,17 @@ def tokenize(text):
             posSentence.append(taggedWord[1])
             chunkSeries.append(taggedWord[2])
             lemmaSentence.append(taggedWord[5])
-        tagList = zip(lemmaSentence, posSentence, chunkSeries)
-        print "Zipped Tag Sentence: %s\n" % tagList
-    return tagList
+        wordInfo = zip(lemmaSentence, posSentence, chunkSeries)
+        print "Zipped Tag Sentence: %s\n" % wordInfo
+    return wordInfo
 
-tokenize("I made a pretty whistle out of wood. It sounds good.")
-tokenize("I'm back.")
-tokenize("He ate an apple. His friend watched longingly.")
+run = True
+if run == True:
+    markovtrainer.train(tokenize("I made a pretty whistle out of wood. It sounds good."))
+    markovtrainer.train(tokenize("I'm back."))
+    markovtrainer.train(tokenize("He ate an apple. His friend watched longingly."))
+    
+    run = False
 
 def check_words_against_brain():
     # todo: error checking: see if we agree with how words are used in the sentence. If not, assume our understanding of the word is wrong.
