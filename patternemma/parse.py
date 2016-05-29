@@ -27,7 +27,7 @@ def tokenize(text):
     return lemmaSentence
 
 tokenize("I made a pretty whistle out of wood. It sounds good.")
-tokenize("I am back.")
+tokenize("I'm back.")
 tokenize("He ate an apple. His friend watched longingly.")
 
 def check_words_against_brain():
