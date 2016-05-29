@@ -18,7 +18,7 @@ client = pytumblr.TumblrRestClient(
 )
 
 # method for searching for new input when we find a new word
-def searchfortextposts(query):
+def search_for_text_posts(query):
     print "Searching Tumblr for posts about \"%s\"..." % query
     resultsList = client.tagged(query)          # note: tumblr returns 20 results by default. should we request more?
                                                 # maybe we should request more if we fail to find any text posts on the first pass?
@@ -30,11 +30,11 @@ def searchfortextposts(query):
     print "Found %s text posts for \"%s\"" % (len(textPosts), query)
     for count, post in enumerate(textPosts):    # strip HTML from the text result
         textPosts[count] = pattern.web.plaintext(post)
-        
+    
     return textPosts
 
 # get asks so that we can learn from them and generate responses
-def getmessages():
+def get_messages():
     asks = client.submission('emmacanlearn.tumblr.com') # query tumblr API for messages
     asks = asks.values()                                # unwrap JSON
     asks = asks[0]
@@ -48,9 +48,9 @@ def getmessages():
     return messageList
     
 # post our output to tumblr
-def postReply(ask, reply):
+def post_reply(ask, reply):
     postBody = ask + "\n\n" + reply
     client.create_text("emmacanlearn", state="published", body=postBody)
     
-def postDream(thought):
+def post_dream(thought):
     client.create_text("emmacanlearn", state="published", body=thought, tags=["dreams"])
