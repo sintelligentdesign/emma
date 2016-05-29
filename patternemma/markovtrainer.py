@@ -34,6 +34,7 @@ def train(wordInfo):
                     savedLeaves.append(row[1])
                 if leafAsString in savedLeaves:
                     # if this is an existing building block, increment its score
+                    # todo: find a better scoring system
                     score = int(row[2]) + 1
                     cursor.execute('UPDATE sentencestructuremodel SET score = \'%s\' WHERE stem = \'%s\' AND leaf = \'%s\';' % (score, stemAsString, leafAsString))
             else:
