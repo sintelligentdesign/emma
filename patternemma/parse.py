@@ -10,7 +10,7 @@ import sqlite3 as sql
 import markovtrainer
 
 def tokenize(text):
-    pattern.pprint(pattern.parse(text, True, True, True, True, True))
+    #pattern.pprint(pattern.parse(text, True, True, True, True, True))
 
     taggedText = pattern.parse(text, True, True, True, True, True).split()
     for taggedSentence in taggedText:
@@ -22,16 +22,7 @@ def tokenize(text):
             chunkSeries.append(taggedWord[2])
             lemmaSentence.append(taggedWord[5])
         wordInfo = zip(lemmaSentence, posSentence, chunkSeries)
-        print "Zipped Tag Sentence: %s\n" % wordInfo
     return wordInfo
-
-run = True
-if run == True:
-    markovtrainer.train(tokenize("I made a pretty whistle out of wood. It sounds good."))
-    markovtrainer.train(tokenize("I'm back."))
-    markovtrainer.train(tokenize("He ate an apple. His friend watched longingly."))
-    
-    run = False
 
 def check_words_against_brain():
     # todo: error checking: see if we agree with how words are used in the sentence. If not, assume our understanding of the word is wrong.
@@ -40,22 +31,29 @@ def check_words_against_brain():
 # connect to the concept graph SQLite database
 connection = sql.connect('brain.db')
 cursor = connection.cursor()
-def add_new_words(posSentence, lemmaSentence):
+def add_new_words(wordInfo):
     with connection:
         cursor.execute('SELECT * FROM dictionary;')
         SQLReturn = cursor.fetchall()
+        
     storedLemata = []
     for row in SQLReturn:
         storedLemata.append(row[0])
-    for count, lemma in enumerate(lemmaSentence):
+        
+    for count, item in enumerate(wordInfo):
+        lemma = item[0]
+        pos = item[1]
         if lemma not in storedLemata:       # instead of checking to see if lemma == '.', we just add '.' as a banned word in the dictionary
-            # todo: score capitalization
             capitalizationScore = "000000"
-            pos = posSentence[count]
+            print 'Learned new word! (%s)' % lemma
             with connection:
-                print 'Learned new word! (%s)' % lemma
                 cursor.execute('INSERT INTO dictionary VALUES (\'%s\', \'%s\', %s, 1, 0);' % (lemma, pos, capitalizationScore))
-
-add_new_words(['PRP', 'VBD', 'DT', 'JJ', 'NN', 'IN', 'IN', 'NN'], ['i', 'make', 'a', 'pretty', 'whistle', 'out', 'of', 'wood'])
-add_new_words(['PRP', 'VBD', 'DT', 'NN', '.'], ['he', 'eat', 'an', 'apple', '.'])
-add_new_words(['PRP$', 'NN', 'VBD', 'RB', '.'], ['his', 'friend', 'watch', 'longingly', '.'])
+                
+run = True
+if run == True:
+    testSet = ["I made a pretty whistle out of wood.", "It sounds good.", "I'm back. He ate an apple.", "His friend watched longingly."]
+    for sentence in testSet:
+        markovtrainer.train(tokenize(sentence))
+        add_new_words(tokenize(sentence))
+    
+    run = False
