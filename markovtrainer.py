@@ -33,10 +33,10 @@ def train(wordInfo):
                 for row in SQLReturn:
                     savedLeaves.append(row[1])
                 if leafAsString in savedLeaves:
-                    # if this is an existing building block, increment its score
+                    # if this is an existing building block, increment its weight
                     # todo: find a better scoring system
-                    score = int(row[2]) + 1
-                    cursor.execute('UPDATE sentencestructuremodel SET score = \'%s\' WHERE stem = \'%s\' AND leaf = \'%s\';' % (score, stemAsString, leafAsString))
+                    weight = int(row[2]) + 1
+                    cursor.execute('UPDATE sentencestructuremodel SET weight = \'%s\' WHERE stem = \'%s\' AND leaf = \'%s\';' % (weight, stemAsString, leafAsString))
             else:
                 # otherwise, add the new stuff to the sentence model
                 print "New sentence structure chunk found (%s, %s)! Adding..." % (stemAsString, leafAsString)

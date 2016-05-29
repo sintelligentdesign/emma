@@ -30,7 +30,6 @@ def search_for_text_posts(query):
     print "Found %s text posts for \"%s\"" % (len(textPosts), query)
     for count, post in enumerate(textPosts):    # strip HTML from the text result
         textPosts[count] = pattern.web.plaintext(post)
-    
     return textPosts
 
 # get asks so that we can learn from them and generate responses
@@ -38,19 +37,19 @@ def get_messages():
     asks = client.submission('emmacanlearn.tumblr.com') # query tumblr API for messages
     asks = asks.values()                                # unwrap JSON
     asks = asks[0]
-    print asks
+    #print asks
     messageList = []                                    # initialize return variable
     for ask in asks:                                    # suck out the stuff we care about
+        askid = ask['id']
         asker = ask['asking_name']
         question = ask['question']
-        message = (asker, question)                     # package the message as a tuple
-        messageList.append(message)                     # add message tuple to message list
+        message = (askid, asker, question)
+        messageList.append(message)
     return messageList
     
 # post our output to tumblr
 def post_reply(ask, reply):
-    postBody = ask + "\n\n" + reply
-    client.create_text("emmacanlearn", state="published", body=postBody)
+    pass
     
 def post_dream(thought):
     client.create_text("emmacanlearn", state="published", body=thought, tags=["dreams"])
