@@ -12,7 +12,7 @@ def adjectiveCodes(): return ['JJ', 'JJR', 'JJS']
 def adverbCodes(): return ['RB', 'RBR', 'RBS'] # should this include RP
 
 # contains the 'can have' relation between chunk and pos
-def posInChunk(pos, chunk):
+def isPosPartOf(pos, chunk):
     wordsOfChunk = {'NP':['DT'] + adverbCodes() + adjectiveCodes() + nounCodes() + ['PRP'],
         'PP':['TO', 'IN'],
         'VP':adverbCodes() + ['MD'] + verbCodes(),
@@ -20,6 +20,5 @@ def posInChunk(pos, chunk):
         'ADJP':['CC'] + adverbCodes() + adjectiveCodes(),
         'SBAR':['IN'],
         'PRT':['RP'],
-        'INTJ':['UH'],
-        'PRP':['PP','DT'] + adverbCodes() + adjectiveCodes() + nounCodes() + ['PRP']}
+        'INTJ':['UH']}
     return True if chunk in wordsOfChunk and pos in wordsOfChunk[chunk] else False

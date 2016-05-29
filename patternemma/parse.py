@@ -3,12 +3,12 @@
 # Section:          LEARNING
 # Writes/reads:     emma.brn/conceptgraph.db
 # Dependencies:     pattern.en, sqlite3
-# Dependency of:    
+# Dependency of:
 import pattern.en as pattern
 import sqlite3 as sql
 
 def tokenize(text):
-    pattern.pprint(pattern.en.parse(text, True, True, True, True, True))
+    pattern.pprint(pattern.parse(text, True, True, True, True, True))
 
     taggedText = pattern.parse(text, True, True, True, True, True).split()
     for taggedSentence in taggedText:
@@ -21,10 +21,14 @@ def tokenize(text):
             lemmaSentence.append(taggedWord[5])
         print "Parts of Speech: %s" % posSentence
         print "Sentence Chumks: %s" % chunkSeries
-        print "Lemma: %s\n" % lemmaSentence
+        print "Lemma: %s" % lemmaSentence
+        tagList = zip(lemmaSentence, posSentence, chunkSeries)
+        print "Zipped Tag Sentence: %s\n" % tagList
+
     return posSentence
     return chunkSeries
     return lemmaSentence
+    return tagList              # should we return ONLY this?
 
 tokenize("I made a pretty whistle out of wood. It sounds good.")
 tokenize("I'm back.")
@@ -45,7 +49,7 @@ def add_new_words(posSentence, lemmaSentence):
     for row in SQLReturn:
         storedWords.append(row[0])
     for count, word in enumerate(lemmaSentence):
-        if word not == "." and word not in storedWords:
+        if word is not "." and word not in storedWords:
             # todo: score capitalization
             pos = posSentence[count]
             with connection:
