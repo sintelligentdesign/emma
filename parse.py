@@ -43,11 +43,11 @@ def add_new_words(wordInfo):
     for count, item in enumerate(wordInfo):
         lemma = item[0]
         pos = item[1]
+        
         if lemma not in storedLemata:       # instead of checking to see if lemma == '.', we just add '.' as a banned word in the dictionary
-            capitalizationScore = "000000"
             print 'Learned new word! (%s)' % lemma
             with connection:
-                cursor.execute('INSERT INTO dictionary VALUES (\'%s\', \'%s\', %s, 1, 0);' % (lemma, pos, capitalizationScore))
+                cursor.execute('INSERT INTO dictionary VALUES (\'%s\', \'%s\', 1, 0);' % (lemma, pos))
 
 testSet = ["I made a pretty whistle out of wood.", "It sounds good.", "I'm back. He ate an apple.", "His friend watched longingly."]
 for sentence in testSet:
