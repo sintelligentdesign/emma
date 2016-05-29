@@ -49,7 +49,7 @@ def add_new_words(wordInfo):
             with connection:
                 cursor.execute('INSERT INTO dictionary VALUES (\'%s\', \'%s\', 1, 0);' % (lemma, pos))
 
-testSet = ["I made a pretty whistle out of wood.", "It sounds good.", "I'm back. He ate an apple.", "His friend watched longingly."]
+testSet = ["I made a pretty whistle out of wood.", "It sounds good.", "I'm back.", "He ate an apple.", "His friend watched longingly."]
 for sentence in testSet:
     markovtrainer.train(tokenize(sentence))
     add_new_words(tokenize(sentence))

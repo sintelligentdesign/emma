@@ -23,3 +23,5 @@ def find_new_words():
             word = str(word[0])
             print tumblrclient.search_for_text_posts(word)
             # todo: do stuff with this
+            
+print find_new_words()
