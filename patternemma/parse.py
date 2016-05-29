@@ -48,12 +48,8 @@ def add_new_words(wordInfo):
             print 'Learned new word! (%s)' % lemma
             with connection:
                 cursor.execute('INSERT INTO dictionary VALUES (\'%s\', \'%s\', %s, 1, 0);' % (lemma, pos, capitalizationScore))
-                
-run = True
-if run == True:
-    testSet = ["I made a pretty whistle out of wood.", "It sounds good.", "I'm back. He ate an apple.", "His friend watched longingly."]
-    for sentence in testSet:
-        markovtrainer.train(tokenize(sentence))
-        add_new_words(tokenize(sentence))
-    
-    run = False
+
+testSet = ["I made a pretty whistle out of wood.", "It sounds good.", "I'm back. He ate an apple.", "His friend watched longingly."]
+for sentence in testSet:
+    markovtrainer.train(tokenize(sentence))
+    add_new_words(tokenize(sentence))
