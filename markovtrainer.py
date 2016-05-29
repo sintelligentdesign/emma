@@ -41,6 +41,5 @@ def train(wordInfo):
                 # otherwise, add the new stuff to the sentence model
                 print "New sentence structure chunk found (%s, %s)! Adding..." % (stemAsString, leafAsString)
                 cursor.execute('INSERT INTO sentencestructuremodel VALUES (\'%s\', \'%s\', 1);' % (stemAsString, leafAsString))
-                
-                
+
 train([(u'it', u'PRP', u'B-NP'), (u'sound', u'VBZ', u'B-VP'), (u'good', u'JJ', u'B-ADJP'), (u'.', u'.', u'O')])

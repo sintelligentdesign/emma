@@ -21,7 +21,6 @@ def generate():
         
     stem = random.choice(SQLReturn)
     stem = stem[0]
-    
     sentenceTemplate += stem
     
     while not sentenceTemplate[-1] in ['.', '?','!', '%']:
@@ -30,7 +29,6 @@ def generate():
             stemRows = cursor.fetchall()
             
         possibleLeaves = []
-        
-        leaf = random.choice(possibleLeaves)
+        # choose a leaf based on weights
         sentenceTemplate += leaf
         print sentenceTemplate
