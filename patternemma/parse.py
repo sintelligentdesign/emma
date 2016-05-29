@@ -39,18 +39,24 @@ def check_words_against_brain():
     pass
 
 # connect to the concept graph SQLite database
-connection = sql.connect('../emma.brn/conceptgraph.db')
+connection = sql.connect('brain.db')
 cursor = connection.cursor()
 def add_new_words(posSentence, lemmaSentence):
     with connection:
-        cursor.execute('SELET * FROM dictionary')
+        cursor.execute('SELECT * FROM dictionary;')
         SQLReturn = cursor.fetchall()
-    storedWords = []
+    storedLemata = []
     for row in SQLReturn:
-        storedWords.append(row[0])
-    for count, word in enumerate(lemmaSentence):
-        if word is not "." and word not in storedWords:
+        storedLemata.append(row[0])
+    for count, lemma in enumerate(lemmaSentence):
+        if lemma not in storedLemata:       # instead of checking to see if lemma == '.', we just add '.' as a banned word in the dictionary
             # todo: score capitalization
+            capitalizationScore = "000000"
             pos = posSentence[count]
             with connection:
-                cursor.execute('INSERT INTO dictionary VALUES (%s, %s, %s, 1, 0);' % (word, pos, capitalizationScore))
+                print 'Learned new word! (%s)' % lemma
+                cursor.execute('INSERT INTO dictionary VALUES (\'%s\', \'%s\', %s, 1, 0);' % (lemma, pos, capitalizationScore))
+
+add_new_words(['PRP', 'VBD', 'DT', 'JJ', 'NN', 'IN', 'IN', 'NN'], ['i', 'make', 'a', 'pretty', 'whistle', 'out', 'of', 'wood'])
+add_new_words(['PRP', 'VBD', 'DT', 'NN', '.'], ['he', 'eat', 'an', 'apple', '.'])
+add_new_words(['PRP$', 'NN', 'VBD', 'RB', '.'], ['his', 'friend', 'watch', 'longingly', '.'])
