@@ -7,7 +7,7 @@
 import random
 import sqlite3 as sql
 
-connection = sql.connect('brain.db')
+connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
 def train(wordInfo):

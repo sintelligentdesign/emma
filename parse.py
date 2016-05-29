@@ -29,7 +29,7 @@ def check_words_against_brain():
     pass
 
 # connect to the concept graph SQLite database
-connection = sql.connect('brain.db')
+connection = sql.connect('emma.db')
 cursor = connection.cursor()
 def add_new_words(wordInfo):
     with connection:
