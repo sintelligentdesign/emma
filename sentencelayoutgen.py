@@ -9,7 +9,7 @@ import ast
 
 import sqlite3 as sql
 
-connection = sql.connect('brain.db')
+connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
 def generate():
@@ -18,3 +18,19 @@ def generate():
     with connection:
         cursor.execute('SELECT * FROM sentencestructuremodel')
         SQLReturn = cursor.fetchall()
+        
+    stem = random.choice(SQLReturn)
+    stem = stem[0]
+    
+    sentenceTemplate += stem
+    
+    while not sentenceTemplate[-1] in ['.', '?','!', '%']:
+        with connection:
+            cursor.execute('SELECT * FROM sentencestructuremodel WHERE stem = \'%s\';' % stem)
+            stemRows = cursor.fetchall()
+            
+        possibleLeaves = []
+        
+        leaf = random.choice(possibleLeaves)
+        sentenceTemplate += leaf
+        print sentenceTemplate
