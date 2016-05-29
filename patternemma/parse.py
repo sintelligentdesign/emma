@@ -19,16 +19,9 @@ def tokenize(text):
             posSentence.append(taggedWord[1])
             chunkSeries.append(taggedWord[2])
             lemmaSentence.append(taggedWord[5])
-        print "Parts of Speech: %s" % posSentence
-        print "Sentence Chumks: %s" % chunkSeries
-        print "Lemma: %s" % lemmaSentence
         tagList = zip(lemmaSentence, posSentence, chunkSeries)
         print "Zipped Tag Sentence: %s\n" % tagList
-
-    return posSentence
-    return chunkSeries
-    return lemmaSentence
-    return tagList              # should we return ONLY this?
+    return tagList
 
 tokenize("I made a pretty whistle out of wood. It sounds good.")
 tokenize("I'm back.")
