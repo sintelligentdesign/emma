@@ -2,9 +2,12 @@
 # Description:      Communicates with Tumblr and executes related functions
 # Section:          INPUT, REPLY
 # Writes/reads:
-# Dependencies:     apikeys, pytumblr
+# Dependencies:     apikeys, pytumblr, pattern.web
 # Dependency of:
-import apikeys, pytumblr
+import pytumblr
+import pattern.web
+
+import apikeys
 
 # authenticate with tumblr api
 client = pytumblr.TumblrRestClient(
@@ -15,7 +18,7 @@ client = pytumblr.TumblrRestClient(
 )
 
 # method for searching for new input when we find a new word
-def searchfortextposts(query):
+def search_for_text_posts(query):
     print "Searching Tumblr for posts about \"%s\"..." % query
     resultsList = client.tagged(query)          # note: tumblr returns 20 results by default. should we request more?
                                                 # maybe we should request more if we fail to find any text posts on the first pass?
@@ -24,30 +27,29 @@ def searchfortextposts(query):
         resultType = result['type']             # separate out text posts from other post types
         if result['type'] == 'text':
             textPosts.append(result['body'])    # add each found post to a list
-    print "Found %s text posts for %s" % (len(textPosts), query)
-    for post in textPosts:                      # strip HTML from the text result
-        # todo: strip html
-        pass
+    print "Found %s text posts for \"%s\"" % (len(textPosts), query)
+    for count, post in enumerate(textPosts):    # strip HTML from the text result
+        textPosts[count] = pattern.web.plaintext(post)
     return textPosts
 
 # get asks so that we can learn from them and generate responses
-def getmessages():
+def get_messages():
     asks = client.submission('emmacanlearn.tumblr.com') # query tumblr API for messages
     asks = asks.values()                                # unwrap JSON
     asks = asks[0]
-    print asks
+    #print asks
     messageList = []                                    # initialize return variable
     for ask in asks:                                    # suck out the stuff we care about
+        askid = ask['id']
         asker = ask['asking_name']
         question = ask['question']
-        message = (asker, question)                     # package the message as a tuple
-        messageList.append(message)                     # add message tuple to message list
+        message = (askid, asker, question)
+        messageList.append(message)
     return messageList
     
 # post our output to tumblr
-def postReply(ask, reply):
-    postBody = ask + "\n\n" + reply
-    client.create_text("emmacanlearn", state="published", body=postBody)
+def post_reply(ask, reply):
+    pass
     
-def postDream(thought):
+def post_dream(thought):
     client.create_text("emmacanlearn", state="published", body=thought, tags=["dreams"])

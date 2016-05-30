@@ -219,4 +219,4 @@ def isSingular(noun):
 # print findrelatedverbs(['cats'])
 # print findrelatednouns(['milk'], [])
 # print findrelatednouns(['milk'], ['drink'])
-# print insertnouns(['NN', 'NNS'], [findrelatednouns(['milk'], ['drink'])])
+print insertnouns([u'NN', u'NNS'], [findrelatednouns([u'milk'], [u'drink'])])
