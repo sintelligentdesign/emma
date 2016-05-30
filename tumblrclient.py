@@ -55,5 +55,3 @@ def post_reply(asker, question, reply):
     
 def post_dream(thought):
     client.create_text("emmacanlearn", state="published", body=thought, tags=["dreams"])
-    
-post_reply("sharkthemepark", "test question", "test reply")
