@@ -142,10 +142,12 @@ def insertnouns(sentenceTemplate, relatedNouns):
                 if dieRoll < 0 and nounTupe[0] not in usedWords:
                     # note this will be a problem if we run out of unused words
                     # below adds noun to sentece with agreement in pluarality
-                    if (sentenceTemplate[nounPosition[count]] == 'NN' or sentenceTemplate[nounPosition[count]] == 'NNP'):
+                    if sentenceTemplate[nounPosition[count] == 'NNS' or 'NNPS' and isSingular(nounTupe[0]):
+                        sentenceTemplate[nounPosition[count]] = pluralize(nounTupe[0]) # adds noun based on die to template
+                    elif sentenceTemplate[nounPosition[count]] == 'NN' or 'NNP' and isPlural(nounTupe[0]):
                         sentenceTemplate[nounPosition[count]] = singularize(nounTupe[0])
-                    else:
-                        sentenceTemplate[nounPosition[count]] = pluralize(nounTupe[0])
+                    else
+                        sentenceTemplate[nounPosition[count]] = nounTupe[0]
                     usedWords.append(nounTupe[0])
                     break
         for count, pos in enumerate(sentenceTemplate):  # replace leftover nouns with "?"
