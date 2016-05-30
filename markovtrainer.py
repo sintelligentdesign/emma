@@ -21,23 +21,23 @@ def train(wordInfo):
             stemAsString = word[2] + ' ' + secondWord[2]
             leafAsString = thirdWord[2]
             
-        # fetched saved stems
-        with connection:
-            cursor.execute('SELECT * FROM sentencestructuremodel WHERE stem = \'%s\';' % stemAsString)
-            SQLReturn = cursor.fetchall()
-        
-            # see if we're adding a duplicate stem
-            if SQLReturn:
-                # if it is, check if the leaf is the same
-                savedLeaves = []
-                for row in SQLReturn:
-                    savedLeaves.append(row[1])
-                if leafAsString in savedLeaves:
-                    # if this is an existing building block, increment its weight
-                    # todo: find a better scoring system
-                    weight = int(row[2]) + 1
-                    cursor.execute('UPDATE sentencestructuremodel SET weight = \'%s\' WHERE stem = \'%s\' AND leaf = \'%s\';' % (weight, stemAsString, leafAsString))
-            else:
-                # otherwise, add the new stuff to the sentence model
-                print "New sentence structure chunk found (%s, %s)! Adding..." % (stemAsString, leafAsString)
-                cursor.execute('INSERT INTO sentencestructuremodel VALUES (\'%s\', \'%s\', 1);' % (stemAsString, leafAsString))
+            # fetched saved stems
+            with connection:
+                cursor.execute('SELECT * FROM sentencestructuremodel WHERE stem = \'%s\';' % stemAsString)
+                SQLReturn = cursor.fetchall()
+            
+                # see if we're adding a duplicate stem
+                if SQLReturn:
+                    # if it is, check if the leaf is the same
+                    savedLeaves = []
+                    for row in SQLReturn:
+                        savedLeaves.append(row[1])
+                    if leafAsString in savedLeaves:
+                        # if this is an existing building block, increment its weight
+                        # todo: find a better scoring system
+                        weight = int(row[2]) + 1
+                        cursor.execute('UPDATE sentencestructuremodel SET weight = \'%s\' WHERE stem = \'%s\' AND leaf = \'%s\';' % (weight, stemAsString, leafAsString))
+                else:
+                    # otherwise, add the new stuff to the sentence model
+                    print "New sentence structure chunk found (%s, %s)! Adding..." % (stemAsString, leafAsString)
+                    cursor.execute('INSERT INTO sentencestructuremodel VALUES (\'%s\', \'%s\', 1);' % (stemAsString, leafAsString))
