@@ -48,8 +48,12 @@ def get_messages():
     return messageList
     
 # post our output to tumblr
-def post_reply(ask, reply):
-    pass
+def post_reply(asker, question, reply):
+    asker = "@" + asker
+    post = "%s >> %s\n\nemma >> %s" % (asker, question, reply)
+    client.create_text("emmacanlearn", state="published", body=post, tags=["dialogue"])
     
 def post_dream(thought):
     client.create_text("emmacanlearn", state="published", body=thought, tags=["dreams"])
+    
+post_reply("sharkthemepark", "test question", "test reply")
