@@ -13,22 +13,38 @@ connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
 def generate():
-    sentenceTemplate = ""
+    sentenceTemplate = []
     
     with connection:
-        cursor.execute('SELECT * FROM sentencestructuremodel')
+        cursor.execute("SELECT stem FROM sentencestructuremodel;")
         SQLReturn = cursor.fetchall()
-        
-    stem = random.choice(SQLReturn)
+        SQLReturn = random.choice(SQLReturn)
+    stem = SQLReturn
     stem = stem[0]
-    sentenceTemplate += stem
+    stem = str(stem)
+    stem = stem.split()
+    sentenceTemplate.extend(stem)
     
-    while not sentenceTemplate[-1] in ['.', '?','!', '%']:
+    while sentenceTemplate[-1] not in ['O']:
+        stem = sentenceTemplate[-2:]
         with connection:
-            cursor.execute('SELECT * FROM sentencestructuremodel WHERE stem = \'%s\';' % stem)
+            cursor.execute("SELECT * FROM sentencestructuremodel WHERE stem = '%s';" % " ".join(stem))
             stemRows = cursor.fetchall()
-            
+        weights = []
         possibleLeaves = []
-        # choose a leaf based on weights
-        sentenceTemplate += leaf
-        print sentenceTemplate
+        for row in stemRows:
+            weights.append(row[2])
+            possibleLeaves.append(row[1])
+        # choose a leaf based on weighted die roll
+        die = random.randint(0, sum(weights))
+        dieValue = 0
+        nextChunk = ""
+        for count, weight in enumerate(weights):
+            if die <= dieValue:
+                nextChunk = possibleLeaves[count]
+                dieValue += weight
+        if nextChunk:
+            sentenceTemplate.append(nextChunk)
+    print sentenceTemplate
+        
+generate()
