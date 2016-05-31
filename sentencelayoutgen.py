@@ -14,6 +14,7 @@ cursor = connection.cursor()
 
 def generate():
     print "Generating sentence chunks..."
+    # todo: fix bug where generation hangs randomly
     sentenceTemplate = []
     
     with connection:
@@ -41,11 +42,11 @@ def generate():
         dieValue = 0
         nextChunk = ""
         for count, weight in enumerate(weights):
-            if die <= dieValue:
+            if die >= dieValue:
                 nextChunk = possibleLeaves[count]
                 dieValue += weight
         if nextChunk:
             sentenceTemplate.append(nextChunk)
-    print "Sentence chunks: " + sentenceTemplate
+    print "Sentence chunks: " + " ".join(sentenceTemplate)
         
 generate()

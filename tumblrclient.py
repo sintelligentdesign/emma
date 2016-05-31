@@ -26,9 +26,9 @@ def search_for_text_posts(query):
     for result in resultsList:
         resultType = result['type']             # separate out text posts from other post types
         if result['type'] == 'text':
-            textPosts.append(result['body'])    # add each found post to a list
+            textPosts.append(result['body'])
     print "Found %s text posts for \"%s\"" % (len(textPosts), query)
-    for count, post in enumerate(textPosts):    # strip HTML from the text result
+    for count, post in enumerate(textPosts):
         textPosts[count] = pattern.web.plaintext(post)
     return textPosts
 
@@ -38,7 +38,7 @@ def get_messages():
     asks = asks.values()                                # unwrap JSON
     asks = asks[0]
     #print asks
-    messageList = []                                    # initialize return variable
+    messageList = []
     for ask in asks:                                    # suck out the stuff we care about
         askid = ask['id']
         asker = ask['asking_name']
