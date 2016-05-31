@@ -14,12 +14,13 @@ def train(wordInfo):
     # package things up to be added to the sentence structure model
     for count, word in enumerate(wordInfo):
         # so that we don't go out of bounds
-        if count < len(wordInfo) - 2:
+        if count < len(wordInfo) - 3:
             # get the stem and leaf
             secondWord = wordInfo[count + 1]
             thirdWord = wordInfo[count + 2]
-            stemAsString = word[2] + ' ' + secondWord[2]
-            leafAsString = thirdWord[2]
+            fourthWord = wordInfo[count + 3]
+            stemAsString = word[2] + ' ' + secondWord[2] + ' ' + thirdWord[2]
+            leafAsString = fourthWord[2]
             
             # fetched saved stems
             with connection:

@@ -13,6 +13,7 @@ connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
 def generate():
+    print "Generating sentence chunks..."
     sentenceTemplate = []
     
     with connection:
@@ -26,7 +27,7 @@ def generate():
     sentenceTemplate.extend(stem)
     
     while sentenceTemplate[-1] not in ['O']:
-        stem = sentenceTemplate[-2:]
+        stem = sentenceTemplate[-3:]
         with connection:
             cursor.execute("SELECT * FROM sentencestructuremodel WHERE stem = '%s';" % " ".join(stem))
             stemRows = cursor.fetchall()
@@ -45,6 +46,6 @@ def generate():
                 dieValue += weight
         if nextChunk:
             sentenceTemplate.append(nextChunk)
-    print sentenceTemplate
+    print "Sentence chunks: " + sentenceTemplate
         
 generate()
