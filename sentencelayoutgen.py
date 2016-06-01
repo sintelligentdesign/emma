@@ -59,5 +59,3 @@ def generate():
         print "Generated template is too long. Regnerating..."
         sentenceTemplate = generate()
     return sentenceTemplate
-    
-print generate()

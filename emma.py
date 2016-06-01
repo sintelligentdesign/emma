@@ -13,7 +13,41 @@
 #
 #     Written by Ellie Cochran & Alexander Howard, with
 #                contributions by Omri Barak.
+import time
+import random
 
 import sqlite3 as sql
 
-# todo: high level decision making stuff lives here
+import tumblrclient as tumblr
+
+lastDreamTime = time.clock()
+
+connection = sql.connect('emma.db')
+cursor = connection.cursor()
+
+def main():
+    chooseActivity()
+    
+def chooseActivity():
+    # get number of new words
+    with connection:
+        cursor.execute('SELECT * FROM dictionary WHERE is_new = 1')
+        newWords = len(cursor.fetchall())
+    
+    # get number of new tumblr asks
+    newAsks = len(tumblr.get_messages())
+    
+    # get time elapsed since last dream period
+    timeElapsedSinceLastDream = time.clock() - lastDreamTime
+    
+    # get bias
+    activities = ["tumblr", "learn words", "dream"]
+    bias = random.choice(activities)
+    
+    # todo: do math to this to decide what emma wants to do
+    
+    
+while True:
+    main()
+    print "Sleeping for 10 seconds..."
+    time.sleep(10)
