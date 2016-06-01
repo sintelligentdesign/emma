@@ -12,9 +12,11 @@ import sqlite3 as sql
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
+maxSentenceLength = 7
+
 def generate():
     print "Generating sentence chunks..."
-    # todo: fix bug where generation hangs randomly
+    # todo: detect loops?
     sentenceTemplate = []
     
     with connection:
@@ -27,16 +29,22 @@ def generate():
     stem = stem.split()
     sentenceTemplate.extend(stem)
     
-    while sentenceTemplate[-1] not in ['O']:
+    while sentenceTemplate[-1] not in ['O'] and len(sentenceTemplate) < maxSentenceLength:
         stem = sentenceTemplate[-3:]
         with connection:
             cursor.execute("SELECT * FROM sentencestructuremodel WHERE stem = '%s';" % " ".join(stem))
             stemRows = cursor.fetchall()
         weights = []
         possibleLeaves = []
-        for row in stemRows:
-            weights.append(row[2])
-            possibleLeaves.append(row[1])
+        if stemRows:
+            for row in stemRows:
+                weights.append(row[2])
+                possibleLeaves.append(row[1])
+        else:
+            sentenceTemplate.append("%")
+            print "No leaves for current stem! Regenerating..."
+            sentenceTemplate = generate()
+            break
         # choose a leaf based on weighted die roll
         die = random.randint(0, sum(weights))
         dieValue = 0
@@ -47,4 +55,9 @@ def generate():
                 dieValue += weight
         if nextChunk:
             sentenceTemplate.append(nextChunk)
-    print "Sentence chunks: " + " ".join(sentenceTemplate)
+    if len(sentenceTemplate) >= maxSentenceLength:
+        print "Generated template is too long. Regnerating..."
+        sentenceTemplate = generate()
+    return sentenceTemplate
+    
+print generate()
