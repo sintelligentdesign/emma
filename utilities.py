@@ -1,5 +1,5 @@
-# Name:             Configuration File
-# Description:      Emma's "control panel"
+# Name:             Utilities
+# Description:      Miscellaneous functions and vars
 # Section:
 # Writes/reads:
 # Dependencies:

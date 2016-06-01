@@ -48,5 +48,3 @@ def generate():
         if nextChunk:
             sentenceTemplate.append(nextChunk)
     print "Sentence chunks: " + " ".join(sentenceTemplate)
-        
-generate()
