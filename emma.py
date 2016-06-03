@@ -46,7 +46,6 @@ def chooseActivity():
     
     # todo: do math to this to decide what emma wants to do
     
-    
 while True:
     main()
     print "Sleeping for 10 seconds..."

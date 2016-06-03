@@ -11,10 +11,10 @@ import apikeys
 
 # authenticate with tumblr api
 client = pytumblr.TumblrRestClient(
-    apikeys.consumerKey,
-    apikeys.consumerSecret,
-    apikeys.oauthToken,
-    apikeys.oauthSecret
+    apikeys.tumblrConsumerKey,
+    apikeys.tumblrConsumerSecret,
+    apikeys.tumblrOauthToken,
+    apikeys.tumblrOauthSecret
 )
 
 # method for searching for new input when we find a new word
