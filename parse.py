@@ -10,18 +10,20 @@ import sqlite3 as sql
 import markovtrainer
 
 def tokenize(text):
-    #pattern.en.pprint(pattern.en.parse(text, True, True, True, True, True))
+    pattern.en.pprint(pattern.en.parse(text, True, True, True, True, True))
 
     taggedText = pattern.en.parse(text, True, True, True, True, True).split()
     for taggedSentence in taggedText:
         posSentence = []
         chunkSeries = []
         lemmaSentence = []
+        subObj =[]
         for taggedWord in taggedSentence:
             posSentence.append(taggedWord[1])
             chunkSeries.append(taggedWord[2])
             lemmaSentence.append(taggedWord[5])
-        wordInfo = zip(lemmaSentence, posSentence, chunkSeries)
+            subObj.append(taggedWord[4])
+        wordInfo = zip(lemmaSentence, posSentence, chunkSeries, subObj)
         return wordInfo
 
 def check_words_against_brain():
@@ -35,15 +37,15 @@ def add_new_words(wordInfo):
     with connection:
         cursor.execute('SELECT * FROM dictionary;')
         SQLReturn = cursor.fetchall()
-        
+
     storedLemata = []
     for row in SQLReturn:
         storedLemata.append(row[0])
-        
+
     for count, item in enumerate(wordInfo):
         lemma = item[0]
         pos = item[1]
-        
+
         if lemma not in storedLemata:       # instead of checking to see if lemma == '.', we just add '.' as a banned word in the dictionary
             print 'Learned new word! (%s)' % lemma
             with connection:
