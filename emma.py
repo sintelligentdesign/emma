@@ -28,7 +28,7 @@ cursor = connection.cursor()
 def main():
     chooseActivity()
     
-def chooseActivity():
+def choose_activity():
     # get number of new words
     with connection:
         cursor.execute('SELECT * FROM dictionary WHERE is_new = 1')
@@ -45,6 +45,13 @@ def chooseActivity():
     bias = random.choice(activities)
     
     # todo: do math to this to decide what emma wants to do
+    
+def reply_to_asks():
+    testInput = ["I made a pretty whistle out of wood.", "It sounds good.", "I'm back.", "He ate an apple.", "His friend watched longingly."]
+    for sentence in testSet:
+        markovtrainer.train(tokenize(sentence))
+        add_new_words(tokenize(sentence))
+
     
 while True:
     main()
