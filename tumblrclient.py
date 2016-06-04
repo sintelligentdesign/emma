@@ -34,18 +34,24 @@ def search_for_text_posts(query):
 
 # get asks so that we can learn from them and generate responses
 def get_messages():
-    asks = client.submission('emmacanlearn.tumblr.com') # query tumblr API for messages
-    asks = asks.values()                                # unwrap JSON
+    # query tumblr API for messages
+    asks = client.submission('emmacanlearn.tumblr.com')
+    asks = asks.values()        # unwrap JSON
     asks = asks[0]
-    # todo: delete asks after we get them
+    
     messageList = []
-    for ask in asks:                                    # suck out the stuff we care about
+    for ask in asks:
+        # suck out the stuff we care about
         askid = ask['id']
         asker = ask['asking_name']
         question = ask['question']
         message = (askid, asker, question)
+        remove_message(askid)       # once we have the data we need, delete the ask
         messageList.append(message)
     return messageList
+    
+def remove_message(id)
+    client.delete_post('emmacanlearn', id)
     
 # post our output to tumblr
 def post_reply(asker, question, reply):
