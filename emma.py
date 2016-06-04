@@ -60,16 +60,22 @@ def reply_to_asks():
         # Consume message
         # todo: print message to console
         tokenizedMessage = parse.tokenize(message[2])
-        parse.add_new_words(tokenizedMessage)
-        markovtrainer.train(tokenizedMessage)
+        consume(tokenizedMessage)
         
         # Reply to message
         # todo: shorten this to one line
+        print "Creating reply..."
         reply = sentencelayoutgen.generate()
         reply = chunkunpacker.unpack(reply)
         # todo: fill parts of speech with words
+        #       move sentence generation to its own function
         print "emma >> " + ' '.join(reply)
         tumblr.post_reply(message[1], message[2], reply)
+        
+def consume(sentence):
+    parse.add_new_words(sentence)
+    markovtrainer.train(sentence)
+    print "Sentence consumed."
     
 #while True:
 #    main()
