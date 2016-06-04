@@ -52,25 +52,28 @@ def choose_activity():
 def reply_to_asks():
     testInput = ["I made a pretty whistle out of wood.", "It sounds good.", "I'm back.", "He ate an apple.", "His friend watched longingly."]
     print "Fetching asks from Tumblr..."
+    # todo: move this into choose_activity and store as a var so that it isn't called twice
     messageList = tumblr.get_messages()
-    print "Fetched (" + str(len(messageList)) + ") new asks."       # todo: if there are no new asks, quit
-    for count, message in enumerate(messageList):
-        # todo: intelligently decide how many asks to answer
-        currentMessage = message        # so that other functions can reference information from the message
-        # Consume message
-        # todo: print message to console
-        tokenizedMessage = parse.tokenize(message[2])
-        consume(tokenizedMessage)
-        
-        # Reply to message
-        # todo: shorten this to one line
-        print "Creating reply..."
-        reply = sentencelayoutgen.generate()
-        reply = chunkunpacker.unpack(reply)
-        # todo: fill parts of speech with words
-        #       move sentence generation to its own function
-        print "emma >> " + ' '.join(reply)
-        tumblr.post_reply(message[1], message[2], reply)
+    if len(messageList) > 0:
+        print "Fetched (" + str(len(messageList)) + ") new asks."
+        for count, message in enumerate(messageList):
+            # todo: intelligently decide how many asks to answer
+            print "@" + message[1] + " >> " + message[2]
+            # Consume message
+            tokenizedMessage = parse.tokenize(message[2])
+            consume(tokenizedMessage)
+            
+            # Reply to message
+            print "Creating reply..."
+            reply = chunkunpacker.unpack(
+                sentencelayoutgen.generate()
+                )
+            # todo: fill parts of speech with words
+            #       move sentence generation to its own function
+            print "emma >> " + ' '.join(reply)
+            tumblr.post_reply(message[1], message[2], reply)
+    else:
+        print "No new asks :("
         
 def consume(sentence):
     parse.add_new_words(sentence)
