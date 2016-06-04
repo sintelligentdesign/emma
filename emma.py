@@ -75,6 +75,21 @@ def reply_to_asks():
     else:
         print "No new asks :("
         
+def learn_new_words():
+    with connection:
+        cursor.execute('SELECT word FROM dictionary WHERE is_new = 1;')
+        newWords = cursor.fetchall()
+    if newWords:
+        for word in newWords:
+            word = str(word[0])
+            results = tumblrclient.search_for_text_posts(word)
+            for result in results:
+                tokenizedResult = parse.tokenize(result)
+                if tokenizedResult:
+                    consume(tokenizedResult)
+            with connection:
+                cursor.execute("UPDATE dictionary SET is_new = 0 WHERE word = \'%s\';" % word)
+        
 def consume(sentence):
     parse.add_new_words(sentence)
     markovtrainer.train(sentence)
