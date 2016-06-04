@@ -19,6 +19,10 @@ import random
 import sqlite3 as sql
 
 import tumblrclient as tumblr
+import parse
+import markovtrainer
+import sentencelayoutgen
+import chunkunpacker
 
 lastDreamTime = time.clock()
 
@@ -47,16 +51,29 @@ def choose_activity():
     
 def reply_to_asks():
     testInput = ["I made a pretty whistle out of wood.", "It sounds good.", "I'm back.", "He ate an apple.", "His friend watched longingly."]
-    print "Getting new asks from Tumblr..."
-    tumblr.get_messages
+    print "Fetching asks from Tumblr..."
+    messageList = tumblr.get_messages()
+    print "Fetched (" + str(len(messageList)) + ") new asks."       # todo: if there are no new asks, quit
+    for count, message in enumerate(messageList):
+        # todo: intelligently decide how many asks to answer
+        currentMessage = message        # so that other functions can reference information from the message
+        # Consume message
+        # todo: print message to console
+        tokenizedMessage = parse.tokenize(message[2])
+        parse.add_new_words(tokenizedMessage)
+        markovtrainer.train(tokenizedMessage)
+        
+        # Reply to message
+        # todo: shorten this to one line
+        reply = sentencelayoutgen.generate()
+        reply = chunkunpacker.unpack(reply)
+        # todo: fill parts of speech with words
+        print "emma >> " + ' '.join(reply)
+        tumblr.post_reply(message[1], message[2], reply)
     
-    
-    for sentence in testSet:
-        markovtrainer.train(tokenize(sentence))
-        add_new_words(tokenize(sentence))
+#while True:
+#    main()
+#    print "Sleeping for 10 seconds..."
+#    time.sleep(10)
 
-    
-while True:
-    main()
-    print "Sleeping for 10 seconds..."
-    time.sleep(10)
+reply_to_asks()

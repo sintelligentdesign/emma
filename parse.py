@@ -10,6 +10,7 @@ import sqlite3 as sql
 import markovtrainer
 
 def tokenize(text):
+    print "Tokenizing sentence \"%s\"." % text
     pattern.en.pprint(pattern.en.parse(text, True, True, True, True, True))
 
     taggedText = pattern.en.parse(text, True, True, True, True, True).split()
@@ -33,7 +34,9 @@ def check_words_against_brain():
 # connect to the concept graph SQLite database
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
+# todo: change function name to consume()?
 def add_new_words(wordInfo):
+    print "Reading sentence..."
     with connection:
         cursor.execute('SELECT * FROM dictionary;')
         SQLReturn = cursor.fetchall()

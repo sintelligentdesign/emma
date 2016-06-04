@@ -11,6 +11,7 @@ connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
 def train(wordInfo):
+    print "Analyzing sentence structure..."
     # package things up to be added to the sentence structure model
     for count, word in enumerate(wordInfo):
         # so that we don't go out of bounds
@@ -41,5 +42,5 @@ def train(wordInfo):
                             cursor.execute('UPDATE sentencestructuremodel SET weight = \'%s\' WHERE stem = \'%s\' AND leaf = \'%s\';' % (weight, stemAsString, leafAsString))
                     else:
                         # otherwise, add the new stuff to the sentence model
-                        print "New sentence structure chunk found (%s, %s)! Adding..." % (stemAsString, leafAsString)
+                        print "New chunk pattern found (%s, %s)! Adding..." % (stemAsString, leafAsString)
                         cursor.execute('INSERT INTO sentencestructuremodel VALUES (\'%s\', \'%s\', 1);' % (stemAsString, leafAsString))

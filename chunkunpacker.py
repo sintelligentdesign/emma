@@ -28,5 +28,3 @@ def unpack(chunkList):
         elif "INTJ" in chunk:
             POSList.extend(["UH"])
     return POSList
-    
-print unpack(["NP", "PP", "VP", "ADVP", "ADJP", "SBAR", "PRT", "INTJ"])
