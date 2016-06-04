@@ -26,29 +26,67 @@ import chunkunpacker
 
 lastDreamTime = time.clock()
 
+lastFourActivites = [None, None, None, None]
+
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
 def main():
     chooseActivity()
-    
+
 def choose_activity():
     # get number of new words
     with connection:
         cursor.execute('SELECT * FROM dictionary WHERE is_new = 1')
         newWords = len(cursor.fetchall())
-    
+
     # get number of new tumblr asks
     newAsks = len(tumblr.get_messages())
-    
+
     # get time elapsed since last dream period
+    global lastDreamTime
     timeElapsedSinceLastDream = time.clock() - lastDreamTime
-    
+
     # get bias
-    activities = ["tumblr", "learn words", "dream"]
-    
-    # todo: do math to this to decide what emma wants to do
-    
+    activities = ["reply", "learn words", "dream"]
+
+    # count how many times each activity was don in the last four times.
+    global lastFourActivites
+    countActivities = {activity:lastFourActivites.count(activity) for activity in lastFourActivites}
+
+    # decide what emma wants to do
+    if newAsks == 0 and newWords == 0:
+        # dream
+        lastDreamTime = time.clock()
+        del lastFourActivites[0]
+        lastFourActivites.append("dream")
+    elif timeElapsedSinceLastDream > 1800:
+        #dream
+        lastDreamTime = time.clock()
+        del lastFourActivites[0]
+        lastFourActivites.append("dream")
+    elif ("reply" not in countActivities or countActivities["reply"] <= 1 ) and newAsks > 0:
+        # reply_to_asks()
+        del lastFourActivites[0]
+        lastFourActivites.append("reply")
+    elif ("learn words" not in countActivities or countActivities["learn words"] <= 1 ) and newWords > 0:
+        # learn new words
+        del lastFourActivites[0]
+        lastFourActivites.append("learn words")
+    elif newAsks > 5:
+        # reply_to_asks()
+        del lastFourActivites[0]
+        lastFourActivites.append("reply")
+    elif newWords > 0:
+        # learn new words
+        del lastFourActivites[0]
+        lastFourActivites.append("learn words")
+    else:
+        # dream
+        lastDreamTime = time.clock()
+        del lastFourActivites[0]
+        lastFourActivites.append("dream")
+
 def reply_to_asks():
     testInput = ["I made a pretty whistle out of wood.", "It sounds good.", "I'm back.", "He ate an apple.", "His friend watched longingly."]
     print "Fetching asks from Tumblr..."
@@ -62,7 +100,7 @@ def reply_to_asks():
             # Consume message
             tokenizedMessage = parse.tokenize(message[2])
             consume(tokenizedMessage)
-            
+
             # Reply to message
             print "Creating reply..."
             reply = chunkunpacker.unpack(
@@ -74,7 +112,7 @@ def reply_to_asks():
             tumblr.post_reply(message[1], message[2], reply)
     else:
         print "No new asks :("
-        
+
 def learn_new_words():
     with connection:
         cursor.execute('SELECT word FROM dictionary WHERE is_new = 1;')
@@ -91,12 +129,12 @@ def learn_new_words():
                     consume(tokenizedResult)
             with connection:
                 cursor.execute("UPDATE dictionary SET is_new = 0 WHERE word = \'%s\';" % word)
-        
+
 def consume(sentence):
     parse.add_new_words(sentence)
     markovtrainer.train(sentence)
     print "Sentence consumed."
-    
+
 #while True:
 #    main()
 #    print "Sleeping for 10 seconds..."
