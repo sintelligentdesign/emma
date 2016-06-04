@@ -19,6 +19,9 @@ def tokenize(text):
         chunkSeries = []
         lemmaSentence = []
         subObj =[]
+        
+        # todo: determine important words
+        
         for taggedWord in taggedSentence:
             posSentence.append(taggedWord[1])
             chunkSeries.append(taggedWord[2])
