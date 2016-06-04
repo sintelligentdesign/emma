@@ -88,8 +88,6 @@ def choose_activity():
         lastFourActivites.append("dream")
 
 def reply_to_asks():
-    testInput = ["I made a pretty whistle out of wood.", "It sounds good.", "I'm back.", "He ate an apple.", "His friend watched longingly."]
-    print "Fetching asks from Tumblr..."
     # todo: move this into choose_activity and store as a var so that it isn't called twice
     messageList = tumblr.get_messages()
     if len(messageList) > 0:
