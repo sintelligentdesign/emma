@@ -66,19 +66,19 @@ def choose_activity():
         del lastFourActivites[0]
         lastFourActivites.append("dream")
     elif ("reply" not in countActivities or countActivities["reply"] <= 1 ) and newAsks > 0:
-        # reply_to_asks()
+        reply_to_asks()
         del lastFourActivites[0]
         lastFourActivites.append("reply")
     elif ("learn words" not in countActivities or countActivities["learn words"] <= 1 ) and newWords > 0:
-        # learn new words
+        learn_new_words()
         del lastFourActivites[0]
         lastFourActivites.append("learn words")
     elif newAsks > 5:
-        # reply_to_asks()
+        reply_to_asks()
         del lastFourActivites[0]
         lastFourActivites.append("reply")
-    elif newWords > 0:
-        # learn new words
+    elif newWords > 5:
+        learn_new_words()
         del lastFourActivites[0]
         lastFourActivites.append("learn words")
     else:
