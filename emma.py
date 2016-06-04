@@ -42,12 +42,15 @@ def choose_activity():
     
     # get bias
     activities = ["tumblr", "learn words", "dream"]
-    bias = random.choice(activities)
     
     # todo: do math to this to decide what emma wants to do
     
 def reply_to_asks():
     testInput = ["I made a pretty whistle out of wood.", "It sounds good.", "I'm back.", "He ate an apple.", "His friend watched longingly."]
+    print "Getting new asks from Tumblr..."
+    tumblr.get_messages
+    
+    
     for sentence in testSet:
         markovtrainer.train(tokenize(sentence))
         add_new_words(tokenize(sentence))
