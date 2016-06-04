@@ -80,9 +80,11 @@ def learn_new_words():
         cursor.execute('SELECT word FROM dictionary WHERE is_new = 1;')
         newWords = cursor.fetchall()
     if newWords:
+        # todo: intelligently choose a number of words to learn
         for word in newWords:
+            print "Learning more about \"%s\"..." % word
             word = str(word[0])
-            results = tumblrclient.search_for_text_posts(word)
+            results = tumblr.search_for_text_posts(word)
             for result in results:
                 tokenizedResult = parse.tokenize(result)
                 if tokenizedResult:
