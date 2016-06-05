@@ -49,7 +49,7 @@ def get_messages():
         remove_message(askid)       # once we have the data we need, delete the ask
         messageList.append(message)
     return messageList
-
+    
 def remove_message(id):
     client.delete_post('emmacanlearn', id)
 
