@@ -59,5 +59,5 @@ def post_reply(asker, question, reply):
     post = "%s >> %s\n\nemma >> %s" % (asker, question, reply)
     client.create_text("emmacanlearn", state="published", body=post, tags=["dialogue", asker])
 
-def post_dream(thought):
-    client.create_text("emmacanlearn", state="published", body=thought, tags=["dreams"])
+def post_dream(dream):
+    client.create_text("emmacanlearn", state="published", body=dream, tags=["dreams"])

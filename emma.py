@@ -57,31 +57,40 @@ def choose_activity(lastFourActivites, lastDreamTime):
     if newAsks == 0 and newWords == 0:
         # dream
         lastDreamTime = time.clock()
+        dream()
         del lastFourActivites[0]
         lastFourActivites.append("dream")
+        
     elif timeElapsedSinceLastDream > 1800:
         #dream
         lastDreamTime = time.clock()
+        dream()
         del lastFourActivites[0]
         lastFourActivites.append("dream")
+        
     elif ("reply" not in countActivities or countActivities["reply"] <= 1 ) and newAsks > 0:
         reply_to_asks()
         del lastFourActivites[0]
         lastFourActivites.append("reply")
+        
     elif ("learn words" not in countActivities or countActivities["learn words"] <= 1 ) and newWords > 0:
         learn_new_words()
         del lastFourActivites[0]
         lastFourActivites.append("learn words")
+        
     elif newAsks > 5:
         reply_to_asks()
         del lastFourActivites[0]
         lastFourActivites.append("reply")
+        
     elif newWords > 5:
         learn_new_words()
         del lastFourActivites[0]
         lastFourActivites.append("learn words")
+        
     else:
         # dream
+        dream()
         lastDreamTime = time.clock()
         del lastFourActivites[0]
         lastFourActivites.append("dream")
@@ -129,6 +138,16 @@ def learn_new_words():
             with connection:
                 cursor.execute("UPDATE dictionary SET is_new = 0 WHERE word = \'%s\';" % word)
 
+def dream():
+    print "Dreaming..."
+    for i in range(8):      # todo: semi-logically choose how many dreams to dream
+        # todo: generate a sentence 
+        dream = "sentence"
+        tumblr.post_dream(dream)
+        print "dream >> " + dream
+        consume(dream)
+        time.sleep(5)
+
 def consume(sentence):
     parse.add_new_words(sentence)
     markovtrainer.train(sentence)
@@ -138,5 +157,3 @@ def consume(sentence):
 #     lastFourActivites, lastDreamTime = main(lastFourActivites, lastDreamTime)
 #     print "Sleeping for 10 seconds..."
 #     time.sleep(10)
-
-reply_to_asks()
