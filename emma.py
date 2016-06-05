@@ -31,10 +31,11 @@ lastFourActivites = [None, None, None, None]
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
-def main():
-    chooseActivity()
+def main(lastFourActivites, lastDreamTime):
+    lastFourActivites, lastDreamTime = choose_activity(lastFourActivites, lastDreamTime)
+    return lastFourActivites, lastDreamTime
 
-def choose_activity():
+def choose_activity(lastFourActivites, lastDreamTime):
     # get number of new words
     with connection:
         cursor.execute('SELECT * FROM dictionary WHERE is_new = 1')
@@ -44,14 +45,12 @@ def choose_activity():
     newAsks = len(tumblr.get_messages())
 
     # get time elapsed since last dream period
-    global lastDreamTime
     timeElapsedSinceLastDream = time.clock() - lastDreamTime
 
     # get bias
     activities = ["reply", "learn words", "dream"]
 
     # count how many times each activity was don in the last four times.
-    global lastFourActivites
     countActivities = {activity:lastFourActivites.count(activity) for activity in lastFourActivites}
 
     # decide what emma wants to do
@@ -86,6 +85,8 @@ def choose_activity():
         lastDreamTime = time.clock()
         del lastFourActivites[0]
         lastFourActivites.append("dream")
+
+    return lastFourActivites, lastDreamTime
 
 def reply_to_asks():
     # todo: move this into choose_activity and store as a var so that it isn't called twice
@@ -133,9 +134,9 @@ def consume(sentence):
     markovtrainer.train(sentence)
     print "Sentence consumed."
 
-#while True:
-#    main()
-#    print "Sleeping for 10 seconds..."
-#    time.sleep(10)
+# while True:
+#     lastFourActivites, lastDreamTime = main(lastFourActivites, lastDreamTime)
+#     print "Sleeping for 10 seconds..."
+#     time.sleep(10)
 
 reply_to_asks()

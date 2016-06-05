@@ -38,7 +38,7 @@ def get_messages():
     asks = client.submission('emmacanlearn.tumblr.com')
     asks = asks.values()        # unwrap JSON
     asks = asks[0]
-    
+
     messageList = []
     for ask in asks:
         # suck out the stuff we care about
@@ -49,15 +49,15 @@ def get_messages():
         remove_message(askid)       # once we have the data we need, delete the ask
         messageList.append(message)
     return messageList
-    
-def remove_message(id)
+
+def remove_message(id):
     client.delete_post('emmacanlearn', id)
-    
+
 # post our output to tumblr
 def post_reply(asker, question, reply):
     asker = "@" + asker
     post = "%s >> %s\n\nemma >> %s" % (asker, question, reply)
     client.create_text("emmacanlearn", state="published", body=post, tags=["dialogue", asker])
-    
+
 def post_dream(thought):
     client.create_text("emmacanlearn", state="published", body=thought, tags=["dreams"])
