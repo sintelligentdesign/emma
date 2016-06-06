@@ -3,7 +3,7 @@
 # Section:
 # Writes/reads:
 # Dependencies:     sqlite3
-# Dependency of:
+# Dependency of:    emma
 import sqlite3 as sql
 
 connection = sql.connect('emma.db')
@@ -19,10 +19,11 @@ def find_related_words(word):
     relatedWords = []
     relatedWord = ()
     with connection:
-        cursor.execute('SELECT target, association_type, weight FROM associationmodel WHERE word = \'%s\';' % (word))
+        cursor.execute('SELECT target, association_type, weight FROM associationmodel WHERE word = \'%s\';' % word)
         SQLReturn = cursor.fetchall()
     for row in SQLReturn:
         relatedWord = (row[0], row[1], row[2])
-        relatedWords.append(relatedWord)
+        if relatedWord != ():
+            relatedWords.append(relatedWord)
     # todo: remove dupes
     return relatedWords

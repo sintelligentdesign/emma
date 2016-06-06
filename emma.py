@@ -23,6 +23,7 @@ import parse
 import markovtrainer
 import sentencelayoutgen
 import chunkunpacker
+import utilities
 
 lastDreamTime = time.clock()
 
@@ -34,6 +35,11 @@ cursor = connection.cursor()
 def main(lastFourActivites, lastDreamTime):
     lastFourActivites, lastDreamTime = choose_activity(lastFourActivites, lastDreamTime)
     return lastFourActivites, lastDreamTime
+    
+def consume(sentence):
+    parse.add_new_words(sentence)
+    markovtrainer.train(sentence)
+    print "Sentence consumed."
 
 def choose_activity(lastFourActivites, lastDreamTime):
     # get number of new words
@@ -99,7 +105,8 @@ def choose_activity(lastFourActivites, lastDreamTime):
 
 def reply_to_asks():
     # todo: move this into choose_activity and store as a var so that it isn't called twice
-    messageList = tumblr.get_messages()
+    #messageList = tumblr.get_messages()
+    messageList = [("12345", "asker", "The quick brown fox jumped over the lazy dog.")]
     if len(messageList) > 0:
         print "Fetched (" + str(len(messageList)) + ") new asks."
         for count, message in enumerate(messageList):
@@ -108,6 +115,26 @@ def reply_to_asks():
             # Consume message
             tokenizedMessage = parse.tokenize(message[2])
             consume(tokenizedMessage)
+            
+            # find nouns in the sentence
+            importantWords = []
+            for word in tokenizedMessage:
+                if word[1] in utilities.nounCodes and word[3]:
+                    importantWords.append(word[0])
+            print "Important words: " + str(importantWords)
+            
+            # find words related to the important words
+            depth1 = []
+            depth2 = []
+            relatedWords = []
+            for word in importantWords:
+                depth1.extend(utilities.find_related_words(word))
+            for word in depth1:
+                depth2.extend(utilities.find_related_words(word[0]))
+                relatedWords.extend(word)
+            for word in depth2:
+                relatedWords.extend(word)
+            print "Related words: " + str(relatedWords)
 
             # Reply to message
             print "Creating reply..."
@@ -120,7 +147,8 @@ def reply_to_asks():
             tumblr.post_reply(message[1], message[2], reply)
     else:
         print "No new asks :("
-
+        
+reply_to_asks()
 def learn_new_words():
     with connection:
         cursor.execute('SELECT word FROM dictionary WHERE is_new = 1;')
@@ -147,11 +175,6 @@ def dream():
         print "dream >> " + dream
         consume(dream)
         time.sleep(5)
-
-def consume(sentence):
-    parse.add_new_words(sentence)
-    markovtrainer.train(sentence)
-    print "Sentence consumed."
 
 # while True:
 #     lastFourActivites, lastDreamTime = main(lastFourActivites, lastDreamTime)

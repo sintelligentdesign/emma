@@ -55,8 +55,7 @@ def remove_message(id):
 
 # post our output to tumblr
 def post_reply(asker, question, reply):
-    asker = "@" + asker
-    post = "%s >> %s\n\nemma >> %s" % (asker, question, reply)
+    post = "@%s >> %s\n\nemma >> %s" % (asker, question, reply)
     client.create_text("emmacanlearn", state="published", body=post, tags=["dialogue", asker])
 
 def post_dream(dream):
