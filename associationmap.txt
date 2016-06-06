@@ -1,0 +1,28 @@
+NP + 'be' + ADJP >> JJ IS-PROPERTY-OF NN
+  milk is white >> white IS-PROPERTY-OF milk
+
+NP + 'be' + NP >> NN IS-A NN
+  a dog is an animal >> dog IS-A animal
+
+NP containing JJ + NN >> JJ IS-PROPERTY-OF NN
+  the big house >> big IS-PROPERTY-OF house
+
+VP containing RB + VB >> RB IS-PROPERTY-OF VB
+  It quickly moves >> quickly IS-PROPERTY-OF moves
+
+VP + ADJP >> RB IS-PROPERTY-OF VB
+  Cats can run fast >> fast IS-PROPERTY-OF run
+
+sbj + VB >> NN HAS-ABLITY-TO VB
+  The bird hears... >> bird HAS-ABLITIY-TO hear
+
+sbj + VB + RB >> NN, VB (how) RB
+  The snake moved quickly. >> snake, move (how) quickly
+  The snail moved slowly. >> snail, move (how) slowly
+
+VB + obj >> NN IS-OBJECT-OF VB
+  This button releases the hounds. >> hound IS-OBJECT-OF release
+
+VP + PNP >> VB,NN (preposition) PP
+  Look at your hand. >> look, hand (preposition) at
+  Look behind the door. >> look, door (preposition) behind
