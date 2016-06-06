@@ -1,5 +1,5 @@
-# Name:             Graph-Related Functions
-# Description:      General stuff that requires pattern.graph
+# Name:             Concept Graph Visualizer
+# Description:      Tools for building a graphic representation of Emma's concept graph
 # Section:          REPLY
 # Writes/reads:     emma.brn/conceptgraph.db
 # Dependencies:     pattern.graph, sqlite3
@@ -34,20 +34,10 @@ def find_important_words():
     for n in sorted(graph.nodes, key=lambda n: n.weight):
         print '%.2f' % n.weight, n
 
-def find_related_words(word, association):
-    adjacencyList = pattern.graph.adjacency(graph, directed=True, stochastic=True)
-    tier1 = adjacencyList[word]
-    print tier1
-    tier2 = []
-    for node in tier1:
-        tier2.append(adjacencyList[node])
-    print tier2
-
 with connection:
     cursor.execute('SELECT * FROM associationmodel;')
     SQLReturn = cursor.fetchall()
 for row in SQLReturn:
     create_edge(row[1], row[3], row[2], row[4])
     
-graph.export('tail', directed=True, weighted=True)
-find_related_words('cat', 0)
+graph.export('emma', directed=True, weighted=True)
