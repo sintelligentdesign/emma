@@ -1,9 +1,6 @@
 # Name:             Chunk Unpacker
 # Description:      Takes chunks as input and turns them into parts of speech
 # Section:          REPLY
-# Writes/reads:     
-# Dependencies:     utilities
-# Dependency of:    
 import utilities
 
 def unpack(chunkList):

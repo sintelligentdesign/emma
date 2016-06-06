@@ -1,9 +1,6 @@
 # Name:             Sentence Layout Generator
 # Description:      Generates sentence layout templates from our Markov model of sentence chunks
 # Section:          REPLY
-# Writes/reads:     
-# Dependencies:     random, ast, sqlite3
-# Dependency of:    
 import random
 import ast
 

@@ -1,9 +1,6 @@
 # Name:             Input Parser
 # Description:      Tokenizes input and adds new words and their information into brain.db/dictionary
 # Section:          LEARNING
-# Writes/reads:     emma.db
-# Dependencies:     pattern.en, sqlite3, markovtrainer
-# Dependency of:
 import pattern.en
 import sqlite3 as sql
 

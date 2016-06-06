@@ -1,9 +1,6 @@
 # Name:             Utilities
 # Description:      Miscellaneous functions and vars
 # Section:
-# Writes/reads:
-# Dependencies:     sqlite3
-# Dependency of:    emma
 import sqlite3 as sql
 
 connection = sql.connect('emma.db')

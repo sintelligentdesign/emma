@@ -1,9 +1,6 @@
 # Name:             Sentence Template Markov model Trainer
 # Description:      Trains the sentenestructure database on sentence chunks parsed from our input data
 # Section:          LEARNING
-# Writes/reads:     emma.brn/conceptgraph.db
-# Dependencies:     random, sqlite3
-# Dependency of:    parse
 import random
 import sqlite3 as sql
 

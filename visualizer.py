@@ -1,9 +1,6 @@
 # Name:             Concept Graph Visualizer
 # Description:      Tools for building a graphic representation of Emma's concept graph
 # Section:          REPLY
-# Writes/reads:     emma.brn/conceptgraph.db
-# Dependencies:     pattern.graph, sqlite3
-# Dependency of:    
 import pattern.graph
 import sqlite3 as sql
 
