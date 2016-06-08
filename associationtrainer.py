@@ -13,10 +13,16 @@ def find_associations(sentence):
             nextWord = sentence[count + 1]
             if "NP" in prevWord[2]:
                 if "ADJP" in nextWord[2]:
-                    print "type 1"
+                    print "Found new association: %s IS-PROPERTY-OF %s." % (nextWord[0], prevWord[0])
+                    add_association(nextWord[0], prevWord[0], "IS-PROPERTY-OF")
                 elif "NP" in nextWord[2]:
-                    print "type 2"
-                    
+                    for i in range(len(sentence)):
+                        chunksCountingForward = sentence[count + i]
+                        if chunksCountingForward[1] in utilities.nounCodes:
+                            print "Found new association: %s IS-A %s." % (prevWord[0], chunksCountingForward[0])
+                            add_association(prevWord[0], chunksCountingForward[0], "IS-A")
+                            break
+                            
         # Type 3
         if "NP" in word[2] and word[1] in utilities.nounCodes:
             NPchunk = []
@@ -38,5 +44,7 @@ def add_association(word, target, type):
         SQLReturn = cursor.fetchall()
         if SQLReturn:
             # update record
+            pass
         else:
             # add record
+            pass
