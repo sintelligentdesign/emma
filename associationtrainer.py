@@ -1,7 +1,6 @@
 # Name:             Association Trainer
 # Description:      Finds and adds associations to Emma's association model
 # Section:          LEARNING
-import math
 import numpy as np
 
 import sqlite3 as sql
@@ -59,7 +58,7 @@ def add_association(word, target, associationType):
         with connection:
             cursor.execute('INSERT INTO associationmodel(word, association_type, target, weight) VALUES (\'%s\', \'%s\', \'%s\', \'%s\');' % (word, associationType, target, weight))
             
-e = math.exp(1)     # todo: find a way to do this with numpy
+e = np.exp(1)
 def calculate_weight(isUpdate, currentWeight):
     rankingConstant = 3.19722457734
     if isUpdate == True:
