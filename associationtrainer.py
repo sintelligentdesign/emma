@@ -38,13 +38,24 @@ def find_associations(sentence):
 
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
-def add_association(word, target, type):
+def add_association(word, target, associationType):
     with connection:
-        cursor.execute('SELECT * FROM associationmodel WHERE word = \'%s\' AND target = \'%s\' AND association_type = \'%s\';' % (word, target, type))
-        SQLReturn = cursor.fetchall()
+        cursor.execute('SELECT * FROM associationmodel WHERE word = \'%s\' AND target = \'%s\' AND association_type = \'%s\';' % (word, target, associationType))
+        SQLReturn = cursor.fetchone()
         if SQLReturn:
             # update record
-            pass
+            newWeight = calculate_weight(True, SQLReturn[4])
+            cursor.execute('UPDATE associationmodel SET weight = \'%s\' WHERE word = \'%s\' AND target = \'%s\' AND association_type = \'%s\';' % (newWeight, word, target, associationType))
         else:
             # add record
-            pass
+            weight = calculate_weight(False, None)
+            cursor.execute('INSERT INTO associationmodel VALUES (\'%s\', \'%s\', \'%s\', \'%s\');' % (word, associationType, target, weight))
+            
+def calculate_weight(update, currentWeight):
+    if update = True:
+        # do inverse equation
+        pass
+    else:
+        currentWeight = 0
+    # do equation
+    return weight
