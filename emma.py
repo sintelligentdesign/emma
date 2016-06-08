@@ -121,33 +121,7 @@ def reply_to_asks():
             tokenizedMessage = parse.tokenize(message[2])
             consume(tokenizedMessage)
             
-            # find important words in the sentence
-            importantWords = []
-            for word in tokenizedMessage:
-                if word[1] in utilities.nounCodes and word[3]:
-                    importantWords.append(word[0])
-            print "Important words: " + str(importantWords)
-            
-            # find words related to the important words
-            depth1 = []
-            depth2 = []
-            relatedWords = []
-            for word in importantWords:
-                depth1.extend(utilities.find_related_words(word))
-            for word in depth1:
-                depth2.extend(utilities.find_related_words(word[0]))
-                relatedWords.extend(word)
-            for word in depth2:
-                relatedWords.extend(word)
-            print "Related words: " + str(relatedWords)
-
-            # Reply to message
-            print "Creating reply..."
-            reply = chunkunpacker.unpack(
-                sentencelayoutgen.generate()
-                )
-            # todo: fill parts of speech with words
-            #       move sentence generation to its own function
+            reply = sentencebuilder.generate_sentence(tokenizedMessage)
             print "emma >> " + ' '.join(reply)
             tumblr.post_reply(message[1], message[2], reply)
     else:
