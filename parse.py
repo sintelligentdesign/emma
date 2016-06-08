@@ -24,8 +24,8 @@ def tokenize(text):
             chunkSeries.append(taggedWord[2])
             lemmaSentence.append(taggedWord[5])
             subObj.append(taggedWord[4])
-        wordInfo = zip(lemmaSentence, posSentence, chunkSeries, subObj)
-        return wordInfo
+        wordPackage = zip(lemmaSentence, posSentence, chunkSeries, subObj)
+        return wordPackage
 
 def check_words_against_brain():
     # todo: error checking: see if we agree with how words are used in the sentence. If not, assume our understanding of the word is wrong.
