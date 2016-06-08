@@ -1,9 +1,6 @@
 # Name:             Words API Client
 # Description:      Communicates with Words API via Mashape and executes related functions
 # Section:          LEARNING
-# Writes/reads:
-# Dependencies:     apikeys, unirest
-# Dependency of:
 import unirest
 
 import apikeys

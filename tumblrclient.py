@@ -19,6 +19,7 @@ def search_for_text_posts(query):
     print "Searching Tumblr for posts about \"%s\"..." % query
     resultsList = client.tagged(query)          # note: tumblr returns 20 results by default. should we request more?
                                                 # maybe we should request more if we fail to find any text posts on the first pass?
+                                                # or maybe we could look them up using words API?
     textPosts = []
     for result in resultsList:
         resultType = result['type']             # separate out text posts from other post types
