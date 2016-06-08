@@ -23,8 +23,7 @@ import parse
 import markovtrainer
 import antecedentfiller
 import associationtrainer
-import sentencelayoutgen
-import chunkunpacker
+import sentencebuilder
 import utilities
 
 lastDreamTime = time.clock()
@@ -42,7 +41,7 @@ def consume(sentence):
     # todo: iterate through sentence items here instead of in the functions we call
     parse.add_new_words(sentence)
     markovtrainer.train(sentence)
-    #antecedentfiller.determine_references(sentence)
+    #antecedentfiller.determine_references(sentence)        # todo: uncomment once antecedentfiller is complete
     associationtrainer.find_associations(sentence)
     print "Sentence consumed."
 
@@ -127,7 +126,8 @@ def reply_to_asks():
     else:
         print "No new asks :("
         
-reply_to_asks()
+reply_to_asks()     # todo: remove debug function call
+
 def learn_new_words():
     with connection:
         cursor.execute('SELECT word FROM dictionary WHERE is_new = 1;')
