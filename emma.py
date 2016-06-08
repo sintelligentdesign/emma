@@ -21,6 +21,7 @@ import sqlite3 as sql
 import tumblrclient as tumblr
 import parse
 import markovtrainer
+import antecedentfiller
 import associationtrainer
 import sentencelayoutgen
 import chunkunpacker
@@ -38,8 +39,11 @@ def main(lastFourActivites, lastDreamTime):
     return lastFourActivites, lastDreamTime
     
 def consume(sentence):
+    # todo: iterate through sentence items here instead of in the functions we call
     parse.add_new_words(sentence)
     markovtrainer.train(sentence)
+    #antecedentfiller.determine_references(sentence)
+    associationtrainer.find_associations(sentence)
     print "Sentence consumed."
 
 def choose_activity(lastFourActivites, lastDreamTime):
@@ -107,7 +111,7 @@ def choose_activity(lastFourActivites, lastDreamTime):
 def reply_to_asks():
     # todo: move this into choose_activity and store as a var so that it isn't called twice
     #messageList = tumblr.get_messages()
-    messageList = [("12345", "asker", "The big house is a white building.")]
+    messageList = [("12345", "asker", "It is very good.")]
     if len(messageList) > 0:
         print "Fetched (" + str(len(messageList)) + ") new asks."
         for count, message in enumerate(messageList):
@@ -116,9 +120,8 @@ def reply_to_asks():
             # Consume message
             tokenizedMessage = parse.tokenize(message[2])
             consume(tokenizedMessage)
-            associationtrainer.find_associations(tokenizedMessage)
             
-            # find nouns in the sentence
+            # find important words in the sentence
             importantWords = []
             for word in tokenizedMessage:
                 if word[1] in utilities.nounCodes and word[3]:
