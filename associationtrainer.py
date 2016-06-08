@@ -1,6 +1,9 @@
 # Name:             Association Trainer
 # Description:      Finds and adds associations to Emma's association model
 # Section:          LEARNING
+import math
+import numpy as np
+
 import sqlite3 as sql
 
 import utilities
@@ -13,13 +16,13 @@ def find_associations(sentence):
             nextWord = sentence[count + 1]
             if "NP" in prevWord[2]:
                 if "ADJP" in nextWord[2]:
-                    print "Found new association: %s IS-PROPERTY-OF %s." % (nextWord[0], prevWord[0])
+                    print "Found association: %s IS-PROPERTY-OF %s." % (nextWord[0], prevWord[0])
                     add_association(nextWord[0], prevWord[0], "IS-PROPERTY-OF")
                 elif "NP" in nextWord[2]:
                     for i in range(len(sentence)):
                         chunksCountingForward = sentence[count + i]
                         if chunksCountingForward[1] in utilities.nounCodes:
-                            print "Found new association: %s IS-A %s." % (prevWord[0], chunksCountingForward[0])
+                            print "Found association: %s IS-A %s." % (prevWord[0], chunksCountingForward[0])
                             add_association(prevWord[0], chunksCountingForward[0], "IS-A")
                             break
                             
@@ -34,7 +37,8 @@ def find_associations(sentence):
                     break
             for group in NPchunk:
                 if group[1] in utilities.adjectiveCodes:
-                    print "type 3"
+                    print "Found association: %s IS-PROPERTY-OF %s." % (group[0], word[0])
+                    add_association(group[0], word[0], "IS-PROPERTY-OF")
 
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
@@ -49,13 +53,15 @@ def add_association(word, target, associationType):
         else:
             # add record
             weight = calculate_weight(False, None)
-            cursor.execute('INSERT INTO associationmodel VALUES (\'%s\', \'%s\', \'%s\', \'%s\');' % (word, associationType, target, weight))
+            cursor.execute('INSERT INTO associationmodel(word, association_type, target, weight) VALUES (\'%s\', \'%s\', \'%s\', \'%s\');' % (word, associationType, target, weight))
             
-def calculate_weight(update, currentWeight):
-    if update = True:
-        # do inverse equation
-        pass
+def calculate_weight(isUpdate, currentWeight):
+    rankingConstant = 3.19722457734
+    e = math.exp(1)     # todo: find a way to do this with numpy
+    if isUpdate == True:
+        currentWeight = np.log(currentWeight/(1-currentWeight))+rankingConstant
     else:
         currentWeight = 0
-    # do equation
+    currentWeight += 1
+    weight = 1/(1+e**-(currentWeight-rankingConstant))
     return weight
