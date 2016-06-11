@@ -16,6 +16,9 @@ VP + ADJP >> RB IS-PROPERTY-OF VB
 NP + ‘has' + NP >> NN HAS NN
   People have two hands >> People HAS hands
 
+NP + VP >> NN HAS-ABILITY-TO VB
+  Cats can run fast >> cat HAS-ABILITY-TO run
+
 sbj + VB >> NN HAS-ABLITY-TO VB
   The bird hears... >> bird HAS-ABLITIY-TO hear
 
