@@ -84,7 +84,8 @@ def find_associations(sentence):
             
             # Type 7
             if "NP" in word[2]:
-                nextWord = sentence[count + 1]
+                if count != (len(sentence) - 1):nextWord = sentence[count + 1]
+                else: break
                 if "VP" in nextWord[2]:
                     nounChoice = ""
                     for i in range(count + 1):
@@ -92,13 +93,16 @@ def find_associations(sentence):
                         if chunksCountingBackward[1] in utilities.nounCodes:
                             nounChoice = chunksCountingBackward[0]
                             break
-                    for i in range(len(sentence)):
-                        if i < len(sentence) - count:
-                            chunksCountingForward = sentence[count + i]
-                            if chunksCountingForward[1] in utilities.verbCodes:
-                                print "Found association: %s HAS-ABILITY-TO %s." % (nounChoice, chunksCountingForward[0])
-                                add_association(nounChoice, chunksCountingForward[0], "HAS-ABILITY-TO")
-                                break
+                    if nounChoice != "":        # todo: find out why nounChoice sometimes is blank and fix it
+                        for i in range(len(sentence)):
+                            if i < len(sentence) - count:
+                                chunksCountingForward = sentence[count + i]
+                                if chunksCountingForward[1] in utilities.verbCodes:
+                                    if chunksCountingForward[0] != "be":
+                                        print "Found association: %s HAS-ABILITY-TO %s." % (nounChoice, chunksCountingForward[0])
+                                        add_association(nounChoice, chunksCountingForward[0], "HAS-ABILITY-TO")
+                                        break
+                                    else: break
 
 def add_association(word, target, associationType):
     with connection:

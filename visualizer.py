@@ -19,11 +19,11 @@ def create_edge(node1, node2, association, weight):
         graph.add_edge(node1, node2, weight=weight, type=association, stroke=(0,1,0,weight))
     elif association == "IS-PROPERTY-OF":
         graph.add_edge(node1, node2, weight=weight, type=association, stroke=(0,0,1,weight))
-    elif association == "IS-RELATED-TO":
+    elif association == "HAS-ABILITY-TO":
         graph.add_edge(node1, node2, weight=weight, type=association, stroke=(1,0,1,weight))
     elif association == "IS-EFFECT-OF":
         graph.add_edge(node1, node2, weight=weight, type=association, stroke=(0,1,1,weight))
-    elif association == "HAS-ABILITY-TO":
+    elif association == "IS-RELATED-TO":
         graph.add_edge(node1, node2, weight=weight, type=association, stroke=(0,0,0,weight))
     
 # Determine important nodes
