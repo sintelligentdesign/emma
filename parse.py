@@ -50,7 +50,7 @@ def add_new_words(wordInfo):
         lemma = item[0]
         pos = item[1]
 
-        if lemma not in storedLemata:       # instead of checking to see if lemma == '.', we just add '.' as a banned word in the dictionary
+        if lemma not in storedLemata and "\"" not in pos and lemma.isnumeric() == False and pos != "FW":
             print 'Learned new word: (%s)!' % lemma
             with connection:
                 cursor.execute("INSERT INTO dictionary VALUES (\"%s\", \"%s\", 1, 0);" % (lemma, pos))
