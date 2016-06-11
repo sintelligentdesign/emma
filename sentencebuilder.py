@@ -14,6 +14,10 @@ cursor = connection.cursor()
 maxSentenceLength = 7
 
 def generate_sentence(tokenizedMessage):
+    # Rank the input sentence's tags
+    print "Ranking tags..."
+    tagRanking = rank_tags(tokenizedMessage)
+
     # Find important words in the sentence
     importantWords = []
     for word in tokenizedMessage:
@@ -38,6 +42,33 @@ def generate_sentence(tokenizedMessage):
     print "Creating reply..."
     reply = unpack_chunks(generate_chunks())
     return reply
+
+def rank_tags(sentence):
+    # Tallies how many of each type of part of speech are used to help us decide which to use in our reply
+    nounBlock = [0, 0, 0, 0]
+    verbBlock = [0, 0, 0, 0, 0, 0]
+    adjectiveBlock = [0, 0, 0]
+    adverbBlock = [0, 0, 0]
+    for word in sentence:
+        if word[1] in utilities.nounCodes:
+            for count, pos in enumerate(utilities.nounCodes):
+                if word[1] == pos:
+                    nounBlock[count] += 1
+        elif word[1] in utilities.verbCodes:
+            for count, pos in enumerate(utilities.verbCodes):
+                if word[1] == pos:
+                    verbBlock[count] += 1
+        elif word[1] in utilities.adjectiveCodes:
+            for count, pos in enumerate(utilities.adjectiveCodes):
+                if word[1] == pos:
+                    adjectiveBlock[count] += 1
+        elif word[1] in utilities.adverbCodes:
+            for count, pos in enumerate(utilities.adverbCodes):
+                if word[1] == pos:
+                    adverbBlock[count] += 1
+    tagRanking = [nounBlock, verbBlock, adjectiveBlock, adverbBlock]
+    print tagRanking
+    return tagRanking
 
 def generate_chunks():
     print "Generating sentence chunks..."
