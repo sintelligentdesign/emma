@@ -12,7 +12,9 @@ VP containing RB + VB >> RB IS-PROPERTY-OF VB
 
 VP + ADJP >> RB IS-PROPERTY-OF VB
   Cats can run fast >> fast IS-PROPERTY-OF run
-  ^^ this doesn't work http://i.imgur.com/Rj5oOL2.png
+
+NP + ‘has' + NP >> NN HAS NN
+  People have two hands >> People HAS hands
 
 sbj + VB >> NN HAS-ABLITY-TO VB
   The bird hears... >> bird HAS-ABLITIY-TO hear

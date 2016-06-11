@@ -110,7 +110,7 @@ def choose_activity(lastFourActivites, lastDreamTime):
 def reply_to_asks():
     # todo: move this into choose_activity and store as a var so that it isn't called twice
     #messageList = tumblr.get_messages()
-    messageList = [("12345", "asker", "Cats can run fast.")]
+    messageList = [("12345", "asker", "John has a beautiful voice")]
     if len(messageList) > 0:
         print "Fetched (" + str(len(messageList)) + ") new asks."
         for count, message in enumerate(messageList):

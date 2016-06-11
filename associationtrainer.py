@@ -2,6 +2,7 @@
 # Description:      Finds and adds associations to Emma's association model
 # Section:          LEARNING
 import numpy as np
+import re
 
 import sqlite3 as sql
 
@@ -11,19 +12,19 @@ def find_associations(sentence):
     # todo: optimize
     for count, word in enumerate(sentence):
         # Types 1 & 2
-        if "be" in word[0]:     # todo: add "can"?
+        if "\\bbe\\b" in word[0]:     # todo: add "can"?
             prevWord = sentence[count - 1]
             nextWord = sentence[count + 1]
             if "NP" in prevWord[2]:
                 if "ADJP" in nextWord[2]:
-                    # type 1
+                    # Type 1
                     print "Found association: %s IS-PROPERTY-OF %s." % (nextWord[0], prevWord[0])
                     add_association(nextWord[0], prevWord[0], "IS-PROPERTY-OF")
                 elif "NP" in nextWord[2]:
                     for i in range(len(sentence)):
                         chunksCountingForward = sentence[count + i]
                         if chunksCountingForward[1] in utilities.nounCodes:
-                            # type 2
+                            # Type 2
                             print "Found association: %s IS-A %s." % (prevWord[0], chunksCountingForward[0])
                             add_association(prevWord[0], chunksCountingForward[0], "IS-A")
                             break
@@ -42,6 +43,8 @@ def find_associations(sentence):
                     print "Found association: %s IS-PROPERTY-OF %s." % (group[0], word[0])
                     add_association(group[0], word[0], "IS-PROPERTY-OF")
 
+        # todo: Type 4
+
         # Type 5
         if "VP" in word[2] and word[1] in utilities.verbCodes:
             nextWord = sentence[count + 1]
@@ -57,6 +60,20 @@ def find_associations(sentence):
                     if group[1] in utilities.verbCodes:
                         print "Found association: %s IS-PROPERTY-OF %s." % (nextWord[0], group[0])
                         add_association(nextWord[0], group[0], "IS-PROPERTY-OF")
+
+        # Type 6
+        # todo: move up while optimizing
+        if "\\bhave\\b" in word[0]:
+            prevWord = sentence[count - 1]
+            nextWord = sentence[count + 1]
+            if "NP" in prevWord[2]:
+                if "NP" in nextWord[2]:
+                    for i in range(len(sentence)):
+                        chunksCountingForward = sentence[count + i]
+                        if chunksCountingForward[1] in utilities.nounCodes:
+                            print "Found association: %s HAS %s." % (prevWord[0], chunksCountingForward[0])
+                            add_association(prevWord[0], chunksCountingForward[0], "HAS")
+                            break
 
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
