@@ -15,8 +15,6 @@ maxSentenceLength = 7
 
 def generate_sentence(tokenizedMessage):
     # Rank the input sentence's tags
-    print "Ranking tags..."
-    tagRanking = rank_tags(tokenizedMessage)
 
     # Find important words in the sentence
     importantWords = []
@@ -40,15 +38,16 @@ def generate_sentence(tokenizedMessage):
 
     # Reply to message
     print "Creating reply..."
-    reply = unpack_chunks(generate_chunks())
+    reply = unpack_chunks(generate_chunks(), rank_tags(tokenizedMessage))
     return reply
 
 def rank_tags(sentence):
     # Tallies how many of each type of part of speech are used to help us decide which to use in our reply
+    print "Ranking tags..."
     nounBlock = [0, 0, 0, 0]
     verbBlock = [0, 0, 0, 0, 0, 0]
     adjectiveBlock = [0, 0, 0]
-    adverbBlock = [0, 0, 0]
+    adverbBlock = [0, 0, 0, 0]
     for word in sentence:
         if word[1] in utilities.nounCodes:
             for count, pos in enumerate(utilities.nounCodes):
@@ -67,7 +66,6 @@ def rank_tags(sentence):
                 if word[1] == pos:
                     adverbBlock[count] += 1
     tagRanking = [nounBlock, verbBlock, adjectiveBlock, adverbBlock]
-    print tagRanking
     return tagRanking
 
 def generate_chunks():
@@ -116,21 +114,56 @@ def generate_chunks():
         sentenceTemplate = generate_chunks()
     return sentenceTemplate
 
-def unpack_chunks(chunkList): 
+def unpack_chunks(chunkList, tagRanking): 
     print "Getting parts of speech from generated chunks..."
-    # todo: use sentence parts of speech to choose which code to use when filling in sentences
     POSList = []
+    nounChoice = ""
+    verbChoice = ""
+    adjectiveChoice = ""
+    adverbChoice = ""
+    # Noun pass
+    m = max(tagRanking[0])
+    rankedPosition = [i for i, j in enumerate(tagRanking[0]) if j == m]
+    if len(rankedPosition) == 1:
+        nounChoice = utilities.nounCodes[rankedPosition[0]]
+    else:
+        nounChoice = "NN"
+
+    # Verb pass
+    m = max(tagRanking[1])
+    rankedPosition = [i for i, j in enumerate(tagRanking[1]) if j == m]
+    if len(rankedPosition) == 1:
+        verbChoice = utilities.verbCodes[rankedPosition[0]]
+    else:
+        verbChoice = "VB"
+
+    # Adjective pass
+    m = max(tagRanking[2])
+    rankedPosition = [i for i, j in enumerate(tagRanking[2]) if j == m]
+    if len(rankedPosition) == 1:
+        adjectiveChoice = utilities.adjectiveCodes[rankedPosition[0]]
+    else:
+        adjectiveChoice = "JJ"
+
+    # adverb Pass
+    m = max(tagRanking[3])
+    rankedPosition = [i for i, j in enumerate(tagRanking[3]) if j == m]
+    if len(rankedPosition) == 1:
+        adverbChoice = utilities.adverbCodes[rankedPosition[0]]
+    else:
+        adverbChoice = "RB"
+
     for chunk in chunkList:
         if "NP" in chunk:
-            POSList.extend(["DT"] + utilities.adverbCodes + utilities.adjectiveCodes + utilities.nounCodes + ["PRP"])
+            POSList.extend(["DT"] + [adverbChoice] + [adjectiveChoice] + [nounChoice] + ["PRP"])
         elif "PP" in chunk:
             POSList.extend(["TO", "IN"])
         elif "VP" in chunk:
-            POSList.extend(utilities.adverbCodes + ["MD"] + utilities.verbCodes)
+            POSList.extend([adverbChoice] + ["MD"] + [verbChoice])
         elif "ADVP" in chunk:
-            POSList.extend(utilities.adverbCodes)
+            POSList.extend([adverbChoice])
         elif "ADJP" in chunk:
-            POSList.extend(["CC"] + utilities.adverbCodes + utilities.adjectiveCodes)
+            POSList.extend(["CC"] + [adverbChoice] + [adjectiveChoice])
         elif "SBAR" in chunk:
             POSList.extend(["IN"])
         elif "PRT" in chunk:
