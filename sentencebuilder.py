@@ -37,6 +37,7 @@ def generate_sentence(tokenizedMessage):
     # Reply to message
     print "Creating reply..."
     reply = unpack_chunks(generate_chunks())
+    return reply
 
 def generate_chunks():
     print "Generating sentence chunks..."
@@ -84,7 +85,7 @@ def generate_chunks():
         sentenceTemplate = generate_chunks()
     return sentenceTemplate
 
-def unpack_chunks(): 
+def unpack_chunks(chunkList): 
     print "Getting parts of speech from generated chunks..."
     # todo: use sentence parts of speech to choose which code to use when filling in sentences
     POSList = []
