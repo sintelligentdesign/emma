@@ -2,7 +2,6 @@
 # Description:      Finds and adds associations to Emma's association model
 # Section:          LEARNING
 import numpy as np
-import re
 
 import sqlite3 as sql
 
@@ -12,7 +11,7 @@ def find_associations(sentence):
     # todo: optimize
     for count, word in enumerate(sentence):
         # Types 1 & 2
-        if "\\bbe\\b" in word[0]:     # todo: add "can"?
+        if word[0] == "be":     # todo: add "can"?
             prevWord = sentence[count - 1]
             nextWord = sentence[count + 1]
             if "NP" in prevWord[2]:
@@ -63,7 +62,7 @@ def find_associations(sentence):
 
         # Type 6
         # todo: move up while optimizing
-        if "\\bhave\\b" in word[0]:
+        if word[0] == "have":
             prevWord = sentence[count - 1]
             nextWord = sentence[count + 1]
             if "NP" in prevWord[2]:
