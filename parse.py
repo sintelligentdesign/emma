@@ -20,11 +20,11 @@ def tokenize(text):
         # todo: determine important words
         
         for taggedWord in taggedSentence:
-            if taggedWord[1] != "POS"       # Filter out possesive "'s'"
-            posSentence.append(taggedWord[1])
-            chunkSeries.append(taggedWord[2])
-            lemmaSentence.append(taggedWord[5])
-            subObj.append(taggedWord[4])
+            if taggedWord[1] != "POS":      # Filter out possesive "'s'"
+                posSentence.append(taggedWord[1])
+                chunkSeries.append(taggedWord[2])
+                lemmaSentence.append(taggedWord[5])
+                subObj.append(taggedWord[4])
         wordPackage = zip(lemmaSentence, posSentence, chunkSeries, subObj)
         return wordPackage
 

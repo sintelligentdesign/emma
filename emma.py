@@ -110,7 +110,7 @@ def choose_activity(lastFourActivites, lastDreamTime):
 def reply_to_asks():
     # todo: move this into choose_activity and store as a var so that it isn't called twice
     #messageList = tumblr.get_messages()
-    messageList = [("12345", "asker", "John has a beautiful voice")]
+    messageList = [("12345", "asker", "John the farmer's house is red.'")]
     if len(messageList) > 0:
         print "Fetched (" + str(len(messageList)) + ") new asks."
         for count, message in enumerate(messageList):
@@ -119,7 +119,7 @@ def reply_to_asks():
             # Consume message
             tokenizedMessage = parse.tokenize(message[2])
             consume(tokenizedMessage)
-            
+
             reply = sentencebuilder.generate_sentence(tokenizedMessage)
             print "emma >> " + ' '.join(reply)
             tumblr.post_reply(message[1], message[2], reply)
