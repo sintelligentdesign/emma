@@ -74,7 +74,7 @@ def generate_chunks():
     sentenceTemplate = []
     
     with connection:
-        cursor.execute("SELECT stem FROM sentencestructuremodel;")
+        cursor.execute("SELECT stem FROM sentencestructuremodel WHERE is_sentence_starter = 1;")
         SQLReturn = cursor.fetchall()
         SQLReturn = random.choice(SQLReturn)
     stem = SQLReturn
@@ -110,7 +110,7 @@ def generate_chunks():
         if nextChunk:
             sentenceTemplate.append(nextChunk)
     if len(sentenceTemplate) >= maxSentenceLength:
-        print "Generated template is too long. Regnerating..."
+        print "Generated template is too long. Regenerating..."
         sentenceTemplate = generate_chunks()
     return sentenceTemplate
 

@@ -12,6 +12,10 @@ def train(wordInfo):
     # package things up to be added to the sentence structure model
     for count, word in enumerate(wordInfo):
         # so that we don't go out of bounds
+        if count == 0:
+            isSentenceStarter = 1
+        else:
+            isSentenceStarter = 0
         if count < len(wordInfo) - 3:
             # get the stem and leaf
             secondWord = wordInfo[count + 1]
@@ -34,10 +38,10 @@ def train(wordInfo):
                             savedLeaves.append(row[1])
                         if leafAsString in savedLeaves:
                             # if this is an existing building block, increment its weight
-                            # todo: find a better scoring system
+                            # todo: should weight have a similar score formula to the one we use for associations?
                             weight = int(row[2]) + 1
-                            cursor.execute('UPDATE sentencestructuremodel SET weight = \'%s\' WHERE stem = \'%s\' AND leaf = \'%s\';' % (weight, stemAsString, leafAsString))
+                            cursor.execute('UPDATE sentencestructuremodel SET weight = \'%s\', is_sentence_starter = \'%s\' WHERE stem = \'%s\' AND leaf = \'%s\';' % (weight, isSentenceStarter, stemAsString, leafAsString))
                     else:
                         # otherwise, add the new stuff to the sentence model
                         print "New chunk pattern found (%s, %s)! Adding..." % (stemAsString, leafAsString)
-                        cursor.execute('INSERT INTO sentencestructuremodel VALUES (\'%s\', \'%s\', 1);' % (stemAsString, leafAsString))
+                        cursor.execute('INSERT INTO sentencestructuremodel VALUES (\'%s\', \'%s\', 1, \'%s\');' % (stemAsString, leafAsString, isSentenceStarter))
