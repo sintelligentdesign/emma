@@ -8,6 +8,7 @@ import sqlite3 as sql
 import utilities
 
 def find_associations(sentence):
+    # todo: optimize
     for count, word in enumerate(sentence):
         # Types 1 & 2
         if "be" in word[0]:     # todo: add "can"?
@@ -40,6 +41,22 @@ def find_associations(sentence):
                 if group[1] in utilities.adjectiveCodes:
                     print "Found association: %s IS-PROPERTY-OF %s." % (group[0], word[0])
                     add_association(group[0], word[0], "IS-PROPERTY-OF")
+
+        # Type 5
+        if "VP" in word[2] and word[1] in utilities.verbCodes:
+            nextWord = sentence[count + 1]
+            if "ADVP" in nextWord[2]:
+                VPchunk = []
+                for i in range(count):
+                    chunksCountingBackward = sentence[count - i]
+                    chunksCountingBackward = chunksCountingBackward[2]
+                    if "B" in chunksCountingBackward[0]:
+                        VPchunk.extend(sentence[count - i:count + 1])
+                        break
+                for group in VPchunk:
+                    if group[1] in utilities.verbCodes:
+                        print "Found association: %s IS-PROPERTY-OF %s." % (nextWord[0], group[0])
+                        add_association(nextWord[0], group[0], "IS-PROPERTY-OF")
 
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
