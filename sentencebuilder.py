@@ -41,6 +41,15 @@ def generate_sentence(tokenizedMessage):
     reply = unpack_chunks(generate_chunks(), rank_tags(tokenizedMessage))
     return reply
 
+def insert_words(sentenceChunks, importantWords):
+    nounList = []
+    for chunk in sentenceChunks:
+        # Noun pass
+        if chunk in utilities.nounCodes:
+            for word in importantWords:
+                with connection:
+                    cursor.execute('SELECT word, part_of_speech FROM dictionary WHERE word = \'%s\';' % ())
+
 def rank_tags(sentence):
     # Tallies how many of each type of part of speech are used to help us decide which to use in our reply
     print "Ranking tags..."
