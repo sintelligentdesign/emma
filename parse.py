@@ -17,7 +17,15 @@ def tokenize(text):
         lemmaSentence = []
         subObj =[]
         
-        # todo: determine important words
+        for count, taggedWord in enumerate(taggedSentence):
+            if "\'" in taggedWord[5]:
+                prevWord = taggedSentence[count - 1]
+                prevWord[0] = prevWord[0] + taggedWord[0]
+                prevWord[5] = prevWord[5] + taggedWord[5]
+                taggedSentence.remove(taggedWord)
+            elif "n\'t" in taggedWord[5]
+                taggedWord[1] = "not"
+                taggedWord[5] = "not"
         
         for taggedWord in taggedSentence:
             if taggedWord[1] != "POS":      # Filter out possesive "'s'"

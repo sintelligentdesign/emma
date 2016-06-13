@@ -13,6 +13,7 @@ cursor = connection.cursor()
 def find_associations(sentence):
     # todo: optimize after we get all the core association types in
     # todo: prefer proper nouns when we look for nouns
+    # todo: check for "not" after word, give negative association
     for count, word in enumerate(sentence):
         with connection:
             cursor.execute('SELECT word FROM dictionary WHERE is_banned = 1')

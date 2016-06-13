@@ -2,6 +2,7 @@
 # Description:      Trains the sentenestructure database on sentence chunks parsed from our input data
 # Section:          LEARNING
 import random
+
 import sqlite3 as sql
 
 connection = sql.connect('emma.db')
