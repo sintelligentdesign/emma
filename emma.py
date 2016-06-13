@@ -110,7 +110,7 @@ def choose_activity(lastFourActivites, lastDreamTime):
 def reply_to_asks():
     # todo: move this into choose_activity and store as a var so that it isn't called twice
     #messageList = tumblr.get_messages()
-    messageList = [("12345", "asker", "Tumblr is bad.")]
+    messageList = [("12345", "asker", "I'm afraid the doctor's cure isn't working.")]
     if len(messageList) > 0:
         print "Fetched (" + str(len(messageList)) + ") new asks."
         for count, message in enumerate(messageList):
@@ -125,8 +125,6 @@ def reply_to_asks():
             tumblr.post_reply(message[1], message[2], reply)
     else:
         print "No new asks :("
-        
-reply_to_asks()     # todo: remove debug function call
 
 def learn_new_words():
     with connection:
@@ -143,6 +141,9 @@ def learn_new_words():
                     consume(tokenizedResult)
             with connection:
                 cursor.execute("UPDATE dictionary SET is_new = 0 WHERE word = \'%s\';" % word)
+        
+reply_to_asks()     # todo: remove debug function calls
+learn_new_words()
 
 def dream():
     print "Dreaming..."

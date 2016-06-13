@@ -1,8 +1,12 @@
+# -*- coding: utf-8 -*-
 # Name:             Input Parser
 # Description:      Tokenizes input and adds new words and their information into brain.db/dictionary
 # Section:          LEARNING
+import re
+
 import pattern.en
 import sqlite3 as sql
+from unidecode import unidecode
 
 import markovtrainer
 
@@ -18,14 +22,19 @@ def tokenize(text):
         subObj =[]
         
         for count, taggedWord in enumerate(taggedSentence):
-            if "\'" in taggedWord[5]:
-                prevWord = taggedSentence[count - 1]
-                prevWord[0] = prevWord[0] + taggedWord[0]
-                prevWord[5] = prevWord[5] + taggedWord[5]
-                taggedSentence.remove(taggedWord)
-            elif "n\'t" in taggedWord[5]
-                taggedWord[1] = "not"
+            if taggedWord[5] in ["n\'t", "n’t".decode('utf-8')]:
                 taggedWord[5] = "not"
+            elif taggedWord[5] in ["\'", "’".decode('utf-8')]:
+                if count != len(taggedSentence) - 1:
+                    prevWord = taggedSentence[count - 1]
+                    nextWord = taggedSentence[count + 1]
+                    prevWord[5] = prevWord[5] + "\'" + nextWord[0]
+                    taggedSentence.remove(taggedWord)
+                    taggedSentence.remove(nextWord)
+            elif taggedWord[5] == "’s" or taggedWord[1] == "POS":
+                prevWord = taggedSentence[count - 1]
+                prevWord[5] = prevWord[5] + "\'s"
+                taggedSentence.remove(taggedWord)
         
         for taggedWord in taggedSentence:
             if taggedWord[1] != "POS":      # Filter out possesive "'s'"
@@ -58,7 +67,7 @@ def add_new_words(wordInfo):
         lemma = item[0]
         pos = item[1]
 
-        if lemma not in storedLemata and "\"" not in pos and lemma.isnumeric() == False and pos != "FW":
+        if re.escape(lemma) not in storedLemata and "\"" not in pos and lemma.isnumeric() == False and pos != "FW":
             print 'Learned new word: (%s)!' % lemma
             with connection:
-                cursor.execute("INSERT INTO dictionary VALUES (\"%s\", \"%s\", 1, 0);" % (lemma, pos))
+                cursor.execute("INSERT INTO dictionary VALUES (\"%s\", \"%s\", 1, 0);" % (re.escape(lemma), pos))

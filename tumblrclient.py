@@ -3,6 +3,7 @@
 # Section:          LEARNING, REPLY
 import pytumblr
 import pattern.web
+from unidecode import unidecode
 
 import apikeys
 
@@ -17,7 +18,7 @@ client = pytumblr.TumblrRestClient(
 # method for searching for new input when we find a new word
 def search_for_text_posts(query):
     print "Searching Tumblr for posts about \"%s\"..." % query
-    resultsList = client.tagged(query)          # note: tumblr returns 20 results by default. should we request more?
+    resultsList = client.tagged(unidecode(query))          # note: tumblr returns 20 results by default. should we request more?
                                                 # maybe we should request more if we fail to find any text posts on the first pass?
                                                 # or maybe we could look them up using words API?
     textPosts = []

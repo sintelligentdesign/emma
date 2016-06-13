@@ -2,6 +2,7 @@
 # Description:      Generates sentences based on what Emma knows about English and the world
 # Section:          REPLY
 import random
+import re
 import ast
 
 import sqlite3 as sql
@@ -92,7 +93,9 @@ def generate_chunks():
     stem = stem.split()
     sentenceTemplate.extend(stem)
     
-    while sentenceTemplate[-1] not in ['O'] and len(sentenceTemplate) < maxSentenceLength:
+    attemptCount = 0
+    while attemptCount < 10 and sentenceTemplate[-1] not in ['O'] and len(sentenceTemplate) < maxSentenceLength:        # todo: i figure that 10 attempts is a good number, but do we want to do more?
+    # todo: if generation fails, find a better way to retry than running the function again
         stem = sentenceTemplate[-3:]
         with connection:
             cursor.execute("SELECT * FROM sentencestructuremodel WHERE stem = '%s';" % " ".join(stem))
@@ -106,6 +109,7 @@ def generate_chunks():
         else:
             sentenceTemplate.append("%")
             print "No leaves for current stem! Regenerating..."
+            attemptCount += 1
             sentenceTemplate = generate_chunks()
             break
         # choose a leaf based on weighted die roll
@@ -120,6 +124,11 @@ def generate_chunks():
             sentenceTemplate.append(nextChunk)
     if len(sentenceTemplate) >= maxSentenceLength:
         print "Generated template is too long. Regenerating..."
+        attemptCount += 1
+        sentenceTemplate = generate_chunks()
+    if sentenceTemplate[-1] != "O":
+        print "Invalid ending chunk. Regenerating..."
+        attemptCount += 1
         sentenceTemplate = generate_chunks()
     return sentenceTemplate
 
@@ -185,7 +194,7 @@ def find_related_words(word):
     relatedWords = []
     relatedWord = ()
     with connection:
-        cursor.execute('SELECT target, association_type, weight FROM associationmodel WHERE word = \'%s\';' % word)
+        cursor.execute('SELECT target, association_type, weight FROM associationmodel WHERE word = \"%s\";' % re.escape(word))
         SQLReturn = cursor.fetchall()
     for row in SQLReturn:
         relatedWord = (row[0], row[1], row[2])
