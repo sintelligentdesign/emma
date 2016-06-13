@@ -35,6 +35,9 @@ with connection:
     cursor.execute('SELECT * FROM associationmodel;')
     SQLReturn = cursor.fetchall()
 for row in SQLReturn:
-    create_edge(row[1], row[3], row[2], row[4])
+    create_edge(row[0], row[2], row[1], row[3])
     
-graph.export('emma', directed=True, weighted=True)
+graph.export('associationmodel', directed=True, weighted=True)
+print "Graph exported under associationmodel/"
+print "Important words:"
+find_important_words()
