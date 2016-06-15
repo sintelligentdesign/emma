@@ -2,7 +2,6 @@
 # Description:      Finds and adds associations to Emma's association model
 # Section:          LEARNING
 import numpy as np
-import re
 
 import sqlite3 as sql
 
@@ -109,18 +108,18 @@ def find_associations(sentence):
 
 def add_association(word, target, associationType):
     with connection:
-        cursor.execute('SELECT * FROM associationmodel WHERE word = \"%s\" AND target = \"%s\" AND association_type = \"%s\";' % (re.escape(word), re.escape(target), associationType))
+        cursor.execute('SELECT * FROM associationmodel WHERE word = \"%s\" AND target = \"%s\" AND association_type = \"%s\";' % (word.encode('utf-8'), target.encode('utf-8'), associationType))
         SQLReturn = cursor.fetchone()
     if SQLReturn:
         # update record
         newWeight = calculate_weight(True, SQLReturn[3])
         with connection:
-            cursor.execute('UPDATE associationmodel SET weight = \'%s\' WHERE word = \"%s\" AND target = \"%s\" AND association_type = \'%s\';' % (newWeight, re.escape(word), re.escape(target), associationType))
+            cursor.execute('UPDATE associationmodel SET weight = \'%s\' WHERE word = \"%s\" AND target = \"%s\" AND association_type = \'%s\';' % (newWeight, word.encode('utf-8'), target.encode('utf-8'), associationType))
     else:
         # add record
         weight = calculate_weight(False, None)
         with connection:
-            cursor.execute('INSERT INTO associationmodel(word, association_type, target, weight) VALUES (\"%s\", \'%s\', \"%s\", \'%s\');' % (re.escape(word), associationType, re.escape(target), weight))
+            cursor.execute('INSERT INTO associationmodel(word, association_type, target, weight) VALUES (\"%s\", \'%s\', \"%s\", \'%s\');' % (word.encode('utf-8'), associationType, target.encode('utf-8'), weight))
             
 e = np.exp(1)
 def calculate_weight(isUpdate, currentWeight):

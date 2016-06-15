@@ -46,33 +46,24 @@ def consume(sentence):
     print "Sentence consumed."
 
 def choose_activity(lastFourActivites, lastDreamTime):
-    # get number of new words
     with connection:
         cursor.execute('SELECT * FROM dictionary WHERE is_new = 1')
         newWords = len(cursor.fetchall())
-
-    # get number of new tumblr asks
     newAsks = len(tumblr.get_messages())
-
-    # get time elapsed since last dream period
     timeElapsedSinceLastDream = time.clock() - lastDreamTime
-
-    # get bias
     activities = ["reply", "learn words", "dream"]
 
-    # count how many times each activity was don in the last four times.
+    # Count how many times each activity was done in the last four times.
     countActivities = {activity:lastFourActivites.count(activity) for activity in lastFourActivites}
 
-    # decide what emma wants to do
+    # Decide what emma wants to do
     if newAsks == 0 and newWords == 0:
-        # dream
         lastDreamTime = time.clock()
         dream()
         del lastFourActivites[0]
         lastFourActivites.append("dream")
-        
+    
     elif timeElapsedSinceLastDream > 1800:
-        #dream
         lastDreamTime = time.clock()
         dream()
         del lastFourActivites[0]
@@ -99,30 +90,31 @@ def choose_activity(lastFourActivites, lastDreamTime):
         lastFourActivites.append("learn words")
         
     else:
-        # dream
-        dream()
         lastDreamTime = time.clock()
+        dream()
         del lastFourActivites[0]
         lastFourActivites.append("dream")
 
     return lastFourActivites, lastDreamTime
 
 def reply_to_asks():
-    # todo: move this into choose_activity and store as a var so that it isn't called twice
     #messageList = tumblr.get_messages()
-    messageList = [("12345", "asker", "I'm afraid the doctor's cure isn't working.")]
+    messageList = [("12345", "asker", u"I\u2019m afraid that the doctor\u2019s cure isn\u2019t working.")]
     if len(messageList) > 0:
-        print "Fetched (" + str(len(messageList)) + ") new asks."
+        print "Fetched %d new asks" % len(messageList)
         for count, message in enumerate(messageList):
             # todo: intelligently decide how many asks to answer
-            print "@" + message[1] + " >> " + message[2]
-            # Consume message
+            print u"@" + message[1] + u" >> " + message[2]
+
             tokenizedMessage = parse.tokenize(message[2])
             consume(tokenizedMessage)
 
             reply = sentencebuilder.generate_sentence(tokenizedMessage)
-            print "emma >> " + ' '.join(reply)
+            reply = ' '.join(reply)
+            print u"emma >> %s" % reply
+            
             tumblr.post_reply(message[1], message[2], reply)
+            tumblr.delete_ask(message[0])
     else:
         print "No new asks :("
 
@@ -132,17 +124,19 @@ def learn_new_words():
         newWords = cursor.fetchall()
     if newWords:
         # todo: intelligently choose a number of words to learn
-        for word in newWords:
-            word = word[0]
+        for row in newWords:
+            word = row[0]
+            word = word.decode('utf-8')
             results = tumblr.search_for_text_posts(word)
             for result in results:
                 tokenizedResult = parse.tokenize(result)
                 if tokenizedResult:
                     consume(tokenizedResult)
             with connection:
-                cursor.execute("UPDATE dictionary SET is_new = 0 WHERE word = \'%s\';" % word)
+                cursor.execute("UPDATE dictionary SET is_new = 0 WHERE word = \"%s\";" % word)
         
-reply_to_asks()     # todo: remove debug function calls
+# todo: remove these debug function calls
+reply_to_asks()
 learn_new_words()
 
 def dream():

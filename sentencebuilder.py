@@ -2,7 +2,6 @@
 # Description:      Generates sentences based on what Emma knows about English and the world
 # Section:          REPLY
 import random
-import re
 import ast
 
 import sqlite3 as sql
@@ -22,7 +21,7 @@ def generate_sentence(tokenizedMessage):
     for word in tokenizedMessage:
         if word[1] in utilities.nounCodes and word[3]:
             importantWords.append(word[0])
-    print "Important words: " + str(importantWords)
+    print u"Important words: " + str(importantWords)
 
     # find words related to the important words
     depth1 = []
@@ -35,7 +34,7 @@ def generate_sentence(tokenizedMessage):
         relatedWords.extend(word)
     for word in depth2:
         relatedWords.extend(word)
-    print "Related words: " + str(relatedWords)
+    print u"Related words: " + str(relatedWords)
 
     # Reply to message
     print "Creating reply..."
@@ -194,7 +193,7 @@ def find_related_words(word):
     relatedWords = []
     relatedWord = ()
     with connection:
-        cursor.execute('SELECT target, association_type, weight FROM associationmodel WHERE word = \"%s\";' % re.escape(word))
+        cursor.execute('SELECT target, association_type, weight FROM associationmodel WHERE word = \"%s\";' % word.encode('utf-8'))
         SQLReturn = cursor.fetchall()
     for row in SQLReturn:
         relatedWord = (row[0], row[1], row[2])

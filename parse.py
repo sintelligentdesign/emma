@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
 # Name:             Input Parser
 # Description:      Tokenizes input and adds new words and their information into brain.db/dictionary
 # Section:          LEARNING
-import re
-
 import pattern.en
 import sqlite3 as sql
 from unidecode import unidecode
@@ -11,48 +8,50 @@ from unidecode import unidecode
 import markovtrainer
 
 def tokenize(text):
-    print "Tokenizing sentence \"%s\"." % text
+    print u"Tokenizing sentence \"%s\"." % text
     pattern.en.pprint(pattern.en.parse(text, True, True, True, True, True))
-
     taggedText = pattern.en.parse(text, True, True, True, True, True).split()
+
+    
     for taggedSentence in taggedText:
         posSentence = []
         chunkSeries = []
         lemmaSentence = []
         subObj =[]
         
+        rowsToRemove = []
         for count, taggedWord in enumerate(taggedSentence):
-            if taggedWord[5] in ["n\'t", "n’t".decode('utf-8')]:
+            if taggedWord[5] in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
                 taggedWord[5] = "not"
-            elif taggedWord[5] in ["\'", "’".decode('utf-8')]:
+            elif taggedWord[5] in [u"\'", u"\u2019", u"\u2018"]:
                 if count != len(taggedSentence) - 1:
                     prevWord = taggedSentence[count - 1]
                     nextWord = taggedSentence[count + 1]
                     prevWord[5] = prevWord[5] + "\'" + nextWord[0]
-                    taggedSentence.remove(taggedWord)
-                    taggedSentence.remove(nextWord)
-            elif taggedWord[5] == "’s" or taggedWord[1] == "POS":
+                    rowsToRemove.append(taggedWord)
+                    rowsToRemove.append(nextWord)
+            elif taggedWord[5] in [u"\'s'", u"\u2019s", u"\u2018s"] or taggedWord[1] == "POS":
                 prevWord = taggedSentence[count - 1]
-                prevWord[5] = prevWord[5] + "\'s"
-                taggedSentence.remove(taggedWord)
+                prevWord[5] = prevWord[5] + u"\'s"
+                rowsToRemove.append(taggedWord)
+            elif taggedWord[1] == u"\"" or taggedWord[5] in [u",", u"\u007c", u"\u2015", u"#", u"[", u"]", u"(", u")" u"\u2026", u"<", u">"]:
+                rowsToRemove.append(taggedWord)
+
+        print "Removing garbage..."
+        for row in rowsToRemove:
+            print u"Removing %s..." % row[0]
+            taggedSentence.remove(row)
         
         for taggedWord in taggedSentence:
-            if taggedWord[1] != "POS":      # Filter out possesive "'s'"
-                posSentence.append(taggedWord[1])
-                chunkSeries.append(taggedWord[2])
-                lemmaSentence.append(taggedWord[5])
-                subObj.append(taggedWord[4])
+            posSentence.append(taggedWord[1])
+            chunkSeries.append(taggedWord[2])
+            lemmaSentence.append(taggedWord[5])
+            subObj.append(taggedWord[4])
         wordPackage = zip(lemmaSentence, posSentence, chunkSeries, subObj)
         return wordPackage
 
-def check_words_against_brain():
-    # todo: error checking: see if we agree with how words are used in the sentence. If not, assume our understanding of the word is wrong.
-    pass
-
-# connect to the concept graph SQLite database
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
-# todo: change function name to consume()?
 def add_new_words(wordInfo):
     print "Reading sentence..."
     with connection:
@@ -61,13 +60,16 @@ def add_new_words(wordInfo):
 
     storedLemata = []
     for row in SQLReturn:
-        storedLemata.append(row[0])
+        lemma = row[0]
+        storedLemata.append(lemma)
 
     for count, item in enumerate(wordInfo):
         lemma = item[0]
         pos = item[1]
 
-        if re.escape(lemma) not in storedLemata and "\"" not in pos and lemma.isnumeric() == False and pos != "FW":
-            print 'Learned new word: (%s)!' % lemma
+        wordsLeft = wordInfo[-(len(wordInfo) - count):len(wordInfo) - 1]
+
+        if lemma not in storedLemata and lemma not in wordsLeft and lemma.isnumeric() == False and pos != "FW":
+            print u"Learned new word: (%s)!" % lemma
             with connection:
-                cursor.execute("INSERT INTO dictionary VALUES (\"%s\", \"%s\", 1, 0);" % (re.escape(lemma), pos))
+                cursor.execute("INSERT INTO dictionary VALUES (\"%s\", \"%s\", 1, 0);" % (lemma, pos))
