@@ -97,8 +97,8 @@ def choose_activity(lastFourActivites, lastDreamTime):
     return lastFourActivites, lastDreamTime
 
 def reply_to_asks():
-    #messageList = tumblr.get_messages()
-    messageList = [("12345", "asker", u"He quickly moved into the foyer."), ("12345", "asker", u"Cats can run fast."),  ("12345", "asker", u"I’m afraid that the doctor’s cure isn’t working.")]
+    messageList = tumblr.get_messages()
+    #messageList = [("12345", "asker", u"He quickly moved into the foyer."), ("12345", "asker", u"Cats can run fast."),  ("12345", "asker", u"I’m afraid that the doctor’s cure isn’t working.")]
     if len(messageList) > 0:
         print "Fetched %d new asks" % len(messageList)
         for count, message in enumerate(messageList):
@@ -108,16 +108,20 @@ def reply_to_asks():
             tokenizedMessage = parse.tokenize(message[2])
             consume(tokenizedMessage)
 
-            reply = sentencebuilder.generate_sentence(tokenizedMessage)
+            reply, importantWords, relatedWords = sentencebuilder.generate_sentence(tokenizedMessage)
             if reply:
                 reply = ' '.join(reply)
                 print u"emma >> %s" % reply
+
+                reply = reply + "\n" + "importantWords: " + str(importantWords) + "\n" + "relatedWords: " + str(relatedWords)
                 
                 print "Posting reply..."
                 tumblr.post_reply(message[1], message[2], reply)
             else: print "No reply."
             print "Deleting ask..."
             tumblr.delete_ask(message[0])
+            print "Sleeping for 10 seconds..."
+            time.sleep(10)
     else:
         print "No new asks :("
 
@@ -131,7 +135,7 @@ def learn_new_words():
             word = row[0]
             word = word.decode('utf-8')
             results = tumblr.search_for_text_posts(word)
-            for result in results
+            for result in results:
                 if not u".com" in result:      # This does an ok job of filtering out results from spam bots
                     tokenizedResult = parse.tokenize(result)
                     if tokenizedResult:
@@ -140,8 +144,8 @@ def learn_new_words():
                 cursor.execute("UPDATE dictionary SET is_new = 0 WHERE word = \"%s\";" % word)
         
 # todo: remove these debug function calls
-#reply_to_asks()
-learn_new_words()
+reply_to_asks()
+#learn_new_words()
 
 def dream():
     print "Dreaming..."

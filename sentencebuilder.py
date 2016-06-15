@@ -38,17 +38,20 @@ def generate_sentence(tokenizedMessage):
 
     # Reply to message
     print "Creating reply..."
-    reply = unpack_chunks(generate_chunks(), rank_tags(tokenizedMessage))
-    return reply
+    reply = fill_simple_pos(unpack_chunks(generate_chunks(), rank_tags(tokenizedMessage)))
+    return reply, importantWords, relatedWords
 
-def insert_words(sentenceChunks, importantWords):
-    nounList = []
-    for chunk in sentenceChunks:
-        # Noun pass
-        if chunk in utilities.nounCodes:
-            for word in importantWords:
-                with connection:
-                    cursor.execute('SELECT word, part_of_speech FROM dictionary WHERE word = \'%s\';' % ())
+def find_related_words(word):
+    relatedWords = []
+    with connection:
+        cursor.execute("SELECT word, association_type, target, weight FROM associationmodel WHERE word = \"%s\" OR target = \"%s\";" % (word.encode('utf-8'), word.encode('utf-8')))
+        SQLReturn = cursor.fetchall()
+    for row in SQLReturn:
+        relatedWord = (row[0], row[1], row[2], row[3])
+        relatedWords.append(relatedWord)
+    # todo: remove duplicates
+    print u"Found %d related words for %s" % (len(relatedWords), word)
+    return relatedWords
 
 def rank_tags(sentence):
     # Tallies how many of each type of part of speech are used to help us decide which to use in our reply
@@ -171,12 +174,13 @@ def unpack_chunks(chunkList, tagRanking):
         adverbChoice = "RB"
 
     for chunk in chunkList:
+        # todo: figure out toggles
         if "NP" in chunk:
-            POSList.extend(["DT"] + [adverbChoice] + [adjectiveChoice] + [nounChoice] + ["PRP"])
+            POSList.extend(["DT"] + [adverbChoice] + [adjectiveChoice] + [nounChoice] + ["PRP"])  # + ["PRP"] Toggle at end
         elif "PP" in chunk:
             POSList.extend(["TO", "IN"])
         elif "VP" in chunk:
-            POSList.extend([adverbChoice] + ["MD"] + [verbChoice])
+            POSList.extend([adverbChoice] + ["MD"] + [verbChoice])  # [adverbChoice] + ["MD"] + [verbChoice]
         elif "ADVP" in chunk:
             POSList.extend([adverbChoice])
         elif "ADJP" in chunk:
@@ -189,14 +193,50 @@ def unpack_chunks(chunkList, tagRanking):
             POSList.extend(["UH"])
     return POSList
 
-def find_related_words(word):
-    relatedWords = []
+def fill_simple_pos(POSList):
+    print POSList
+    CClist = []
+    DTlist = []
+    INlist = []
+    MDlist = []
+    RPlist = []
+    UHlist = []
+
     with connection:
-        cursor.execute('SELECT word, association_type, target, weight FROM associationmodel WHERE word = \"%s\" OR target = \"%s\";' % (word.encode('utf-8'), word.encode('utf-8')))
-        SQLReturn = cursor.fetchall()
-    for row in SQLReturn:
-        relatedWord = (row[0], row[1], row[2], row[3])
-        relatedWords.append(relatedWord)
-    # todo: remove duplicates
-    print u"Found %d related words for %s" % (len(relatedWords), word)
-    return relatedWords
+        for partOfSpeech in ["CC", "DT", "IN", "MD", "RP", "UH"]:
+            with connection:
+                cursor.execute("SELECT word FROM dictionary WHERE part_of_speech = \"%s\"" % partOfSpeech)
+                SQLReturn = cursor.fetchall()
+            if partOfSpeech == "CC": CClist = SQLReturn
+            elif partOfSpeech == "DT": DTlist = SQLReturn
+            elif partOfSpeech == "IN": INlist = SQLReturn
+            elif partOfSpeech == "MD": MDlist = SQLReturn
+            elif partOfSpeech == "RP": RPlist = SQLReturn
+            elif partOfSpeech == "UH": UHlist = SQLReturn
+
+    reply = []
+    for partOfSpeech in POSList:
+        if partOfSpeech == "CC":
+            if CClist: reply.append(random.choice(CClist)[0])
+            else: reply.append(u"%")
+        elif partOfSpeech == "DT":
+            if CClist: reply.append(random.choice(DTlist)[0])
+            else: reply.append(u"%")
+        elif partOfSpeech == "IN":
+            if CClist: reply.append(random.choice(INlist)[0])
+            else: reply.append(u"%")
+        elif partOfSpeech == "MD":
+            if CClist: reply.append(random.choice(MDlist)[0])
+            else: reply.append(u"%")
+        elif partOfSpeech == "RP":
+            if CClist: reply.append(random.choice(RPlist)[0])
+            else: reply.append(u"%")
+        elif partOfSpeech == "UH":
+            if CClist: reply.append(random.choice(UHlist)[0])
+            else: reply.append(u"%")
+        elif partOfSpeech == "TO":
+            reply.append(u"to")
+        else:
+            reply.append(partOfSpeech)
+    print reply
+    return reply

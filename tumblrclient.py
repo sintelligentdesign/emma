@@ -31,8 +31,8 @@ def search_for_text_posts(query):
 
 def get_messages():
     asksToGet = 10
-    print "Getting %d asks from Tumblr" % asksToGet
-    asks = client.submission('emmacanlearn.tublr.com')
+    print "Getting Tumblr messages..."
+    asks = client.submission('emmacanlearn.tumblr.com')
     asks = asks.values()        # unwrap JSON
     asks = asks[0]
 
