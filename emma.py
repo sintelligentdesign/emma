@@ -37,12 +37,11 @@ def main(lastFourActivites, lastDreamTime):
     lastFourActivites, lastDreamTime = choose_activity(lastFourActivites, lastDreamTime)
     return lastFourActivites, lastDreamTime
     
-def consume(sentence):
-    # todo: iterate through sentence items here instead of in the functions we call
-    parse.add_new_words(sentence)
-    markovtrainer.train(sentence)
-    #antecedentfiller.determine_references(sentence)        # todo: uncomment once antecedentfiller is complete
-    associationtrainer.find_associations(sentence)
+def consume(parsedSentence):
+    parse.add_new_words(parsedSentence)
+    markovtrainer.train(parsedSentence)
+    #antecedentfiller.determine_references(parsedSentence)        # todo: uncomment once antecedentfiller is complete
+    associationtrainer.find_associations(parsedSentence)
     print "Sentence consumed."
 
 def choose_activity(lastFourActivites, lastDreamTime):
@@ -99,7 +98,7 @@ def choose_activity(lastFourActivites, lastDreamTime):
 
 def reply_to_asks():
     #messageList = tumblr.get_messages()
-    messageList = [("12345", "asker", u"I\u2019m afraid that the doctor\u2019s cure isn\u2019t working.")]
+    messageList = [("12345", "asker", u"He quickly moved into the foyer."), ("12345", "asker", u"Cats can run fast."),  ("12345", "asker", u"I’m afraid that the doctor’s cure isn’t working.")]
     if len(messageList) > 0:
         print "Fetched %d new asks" % len(messageList)
         for count, message in enumerate(messageList):
@@ -110,10 +109,14 @@ def reply_to_asks():
             consume(tokenizedMessage)
 
             reply = sentencebuilder.generate_sentence(tokenizedMessage)
-            reply = ' '.join(reply)
-            print u"emma >> %s" % reply
-            
-            tumblr.post_reply(message[1], message[2], reply)
+            if reply:
+                reply = ' '.join(reply)
+                print u"emma >> %s" % reply
+                
+                print "Posting reply..."
+                tumblr.post_reply(message[1], message[2], reply)
+            else: print "No reply."
+            print "Deleting ask..."
             tumblr.delete_ask(message[0])
     else:
         print "No new asks :("
@@ -128,15 +131,16 @@ def learn_new_words():
             word = row[0]
             word = word.decode('utf-8')
             results = tumblr.search_for_text_posts(word)
-            for result in results:
-                tokenizedResult = parse.tokenize(result)
-                if tokenizedResult:
-                    consume(tokenizedResult)
+            for result in results
+                if not u".com" in result:      # This does an ok job of filtering out results from spam bots
+                    tokenizedResult = parse.tokenize(result)
+                    if tokenizedResult:
+                        consume(tokenizedResult)
             with connection:
                 cursor.execute("UPDATE dictionary SET is_new = 0 WHERE word = \"%s\";" % word)
         
 # todo: remove these debug function calls
-reply_to_asks()
+#reply_to_asks()
 learn_new_words()
 
 def dream():
@@ -145,7 +149,7 @@ def dream():
         # todo: generate a sentence 
         dream = "sentence"
         tumblr.post_dream(dream)
-        print "dream >> " + dream
+        print u"dream >> " + dream
         consume(dream)
         time.sleep(5)
 

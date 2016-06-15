@@ -25,11 +25,6 @@ def create_edge(node1, node2, association, weight):
         graph.add_edge(node1, node2, weight=weight, type=association, stroke=(0,1,1,weight))
     elif association == "IS-RELATED-TO":
         graph.add_edge(node1, node2, weight=weight, type=association, stroke=(0,0,0,weight))
-    
-# Determine important nodes
-def find_important_words():
-    for n in sorted(graph.nodes, key=lambda n: n.weight):
-        print '%.2f' % n.weight, n
 
 with connection:
     cursor.execute('SELECT * FROM associationmodel;')
@@ -39,5 +34,3 @@ for row in SQLReturn:
     
 graph.export('associationmodel', directed=True, weighted=True)
 print "Graph exported under associationmodel/"
-print "Important words:"
-find_important_words()

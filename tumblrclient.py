@@ -16,7 +16,6 @@ client = pytumblr.TumblrRestClient(
 
 # method for searching for new input when we find a new word
 def search_for_text_posts(query):
-    print query
     print u"Searching Tumblr for posts about \"%s\"..." % query
     resultsList = client.tagged(query.encode('utf-8'))          # todo: tumblr returns 20 results by default. should we request more?
                                                 # maybe we should request more if we fail to find any text posts on the first pass?

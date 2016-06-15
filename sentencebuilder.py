@@ -191,13 +191,12 @@ def unpack_chunks(chunkList, tagRanking):
 
 def find_related_words(word):
     relatedWords = []
-    relatedWord = ()
     with connection:
-        cursor.execute('SELECT target, association_type, weight FROM associationmodel WHERE word = \"%s\";' % word.encode('utf-8'))
+        cursor.execute('SELECT word, association_type, target, weight FROM associationmodel WHERE word = \"%s\" OR target = \"%s\";' % (word.encode('utf-8'), word.encode('utf-8')))
         SQLReturn = cursor.fetchall()
     for row in SQLReturn:
-        relatedWord = (row[0], row[1], row[2])
-        if relatedWord != ():
-            relatedWords.append(relatedWord)
-    # todo: remove dupes
+        relatedWord = (row[0], row[1], row[2], row[3])
+        relatedWords.append(relatedWord)
+    # todo: remove duplicates
+    print u"Found %d related words for %s" % (len(relatedWords), word)
     return relatedWords

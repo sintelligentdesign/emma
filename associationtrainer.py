@@ -26,15 +26,15 @@ def find_associations(sentence):
                     if "NP" in prevWord[2]:
                         # Type 1
                         if "ADJP" in nextWord[2]:
-                            print "Found association: %s IS-PROPERTY-OF %s." % (nextWord[0], prevWord[0])
+                            print u"Found association: %s IS-PROPERTY-OF %s." % (nextWord[0], prevWord[0])
                             add_association(nextWord[0], prevWord[0], "IS-PROPERTY-OF")
                         # Type 2
                         elif "NP" in nextWord[2]:
                             for i in range(len(sentence)):
-                                if i < len(sentence) - count:
-                                    chunksCountingForward = sentence[count + i]
+                                if count + (i + 1) <= len(sentence) - 1:
+                                    chunksCountingForward = sentence[count + (i + 1)]
                                     if chunksCountingForward[1] in utilities.nounCodes:
-                                        print "Found association: %s IS-A %s." % (prevWord[0], chunksCountingForward[0])
+                                        print u"Found association: %s IS-A %s." % (prevWord[0], chunksCountingForward[0])
                                         add_association(prevWord[0], chunksCountingForward[0], "IS-A")
                                         break
                                 
@@ -42,33 +42,40 @@ def find_associations(sentence):
             if "NP" in word[2]:
                 NPchunk = []
                 for i in range(count):
-                    chunksCountingBackward = sentence[count - (i + 1)]
-                    # todo: add catch for ADJP in case input lists adjectives (ex. "the big, white, round orb")
-                    if "B" in chunksCountingBackward[2]:
-                        NPchunk.extend(sentence[count - (i + 1):count])
-                        break
+                    if len(sentence) - (count - (i + 1)) >= 0:
+                        chunksCountingBackward = sentence[count - (i + 1)]
+                        # todo: add catch for ADJP in case input lists adjectives (ex. "the big, white, round orb")
+                        if "B" in chunksCountingBackward[2]:
+                            NPchunk.extend(sentence[count - (i + 1):count])
+                            break
                 for group in NPchunk:
                     if group[1] in utilities.adjectiveCodes and group[0]:
-                        print "Found association: %s IS-PROPERTY-OF %s." % (group[0], word[0])
+                        print u"Found association: %s IS-PROPERTY-OF %s." % (group[0], word[0])
                         add_association(group[0], word[0], "IS-PROPERTY-OF")
 
-            # todo: Type 4
-
-            # Type 5
-            if "VP" in word[2] and word[1] in utilities.verbCodes:
-                if count != (len(sentence) - 1): nextWord = sentence[count + 1]
-                else: break
-                if "ADVP" in nextWord[2]:
-                    VPchunk = []
-                    for i in range(count):
-                        chunksCountingBackward = sentence[count - i]
-                        if "B" in chunksCountingBackward[2]:
-                            VPchunk.extend(sentence[count - i:count + 1])
-                            break
-                        for group in VPchunk:
-                            if group[1] in utilities.verbCodes:
-                                print "Found association: %s IS-PROPERTY-OF %s." % (nextWord[0], group[0])
-                                add_association(nextWord[0], group[0], "IS-PROPERTY-OF")
+            # Types 4 & 5
+            if "VP" in word[2] or "ADVP" in word[2]:
+                if word[1] in utilities.adverbCodes:
+                    # Type 4
+                    if count != 0:
+                        prevWord = sentence[count - 1]
+                        if "VP" in prevWord[2]:
+                            for i in range(count):
+                                if len(sentence) - (count - (i + 1)) >= 0:
+                                    chunksCountingBackward = sentence[count - (i + 1)]
+                                    if chunksCountingBackward[1] in utilities.verbCodes:
+                                        print u"Found association: %s IS-PROPERTY-OF %s." % (word[0], chunksCountingBackward[0])
+                                        add_association(word[0], chunksCountingBackward[0], "IS-PROPERTY-OF")
+                    # Type 5
+                    if count != len(sentence) - 1:
+                        nextWord = sentence[count + 1]
+                        if "VP" in nextWord[2]:
+                            for i in range(count):
+                                    if count + (i + 1) <= len(sentence) - 1:
+                                        chunksCountingForward = sentence[count + (i + 1)]
+                                        if chunksCountingForward[1] in utilities.verbCodes:
+                                            print u"Found association: %s IS-PROPERTY-OF %s." % (word[0], chunksCountingForward[0])
+                                            add_association(word[0], chunksCountingForward[0], "IS-PROPERTY-OF")
 
             # Type 6
             if word[0] == "have":
@@ -77,14 +84,15 @@ def find_associations(sentence):
                 if "NP" in prevWord[2]:
                     if "NP" in nextWord[2]:
                         for i in range(len(sentence)):
-                            if i < len(sentence) - count:
+                            if count + (i + 1) <= len(sentence) - 1:
                                 chunksCountingForward = sentence[count + i]
                                 if chunksCountingForward[1] in utilities.nounCodes:
-                                    print "Found association: %s HAS %s." % (prevWord[0], chunksCountingForward[0])
+                                    print u"Found association: %s HAS %s." % (prevWord[0], chunksCountingForward[0])
                                     add_association(prevWord[0], chunksCountingForward[0], "HAS")
                                     break
             
             # Type 7
+            # todo: for optimization purposes, have this and type 3 in the same function
             if "NP" in word[2]:
                 if count != (len(sentence) - 1):nextWord = sentence[count + 1]
                 else: break
@@ -101,7 +109,7 @@ def find_associations(sentence):
                                 chunksCountingForward = sentence[count + i]
                                 if chunksCountingForward[1] in utilities.verbCodes:
                                     if chunksCountingForward[0] != "be":
-                                        print "Found association: %s HAS-ABILITY-TO %s." % (nounChoice, chunksCountingForward[0])
+                                        print u"Found association: %s HAS-ABILITY-TO %s." % (nounChoice, chunksCountingForward[0])
                                         add_association(nounChoice, chunksCountingForward[0], "HAS-ABILITY-TO")
                                         break
                                     else: break

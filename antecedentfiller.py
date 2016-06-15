@@ -17,7 +17,7 @@ def determine_references(sentence):
         if word[0] in antecedents:
             for i in range(count):
                 wordsCountingBackward = sentence[count - (i + 1)]
-                if wordsCountingBackward[1] in utilities.nounCodes:
+                if wordsCountingBackward[1] in utilities.nounCodes and "SBJ" in word[3]:
                     print "Replacing antecedent \'%s\' with \'%s\'..." % (word[0], wordsCountingBackward[0])
                     sentence[count] = (wordsCountingBackward[0], wordsCountingBackward[1], wordsCountingBackward[2], wordsCountingBackward[3])
                     break

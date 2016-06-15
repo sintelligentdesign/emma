@@ -37,10 +37,11 @@ def tokenize(text):
             elif taggedWord[1] == u"\"" or taggedWord[5] in [u",", u"\u007c", u"\u2015", u"#", u"[", u"]", u"(", u")" u"\u2026", u"<", u">"]:
                 rowsToRemove.append(taggedWord)
 
-        print "Removing garbage..."
-        for row in rowsToRemove:
-            print u"Removing %s..." % row[0]
-            taggedSentence.remove(row)
+        if rowsToRemove:
+            print "Removing garbage..."
+            for row in rowsToRemove:
+                taggedSentence.remove(row)
+                print u"Removed %s." % row[0]
         
         for taggedWord in taggedSentence:
             posSentence.append(taggedWord[1])
