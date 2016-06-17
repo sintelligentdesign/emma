@@ -3,7 +3,6 @@
 # Section:          LEARNING
 import pattern.en
 import sqlite3 as sql
-from unidecode import unidecode
 
 import markovtrainer
 

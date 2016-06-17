@@ -21,7 +21,7 @@ import sqlite3 as sql
 import tumblrclient as tumblr
 import parse
 import markovtrainer
-import antecedentfiller
+import antecedent
 import associationtrainer
 import sentencebuilder
 import utilities
@@ -40,7 +40,7 @@ def main(lastFourActivites, lastDreamTime):
 def consume(parsedSentence):
     parse.add_new_words(parsedSentence)
     markovtrainer.train(parsedSentence)
-    #antecedentfiller.determine_references(parsedSentence)        # todo: uncomment once antecedentfiller is complete
+    antecedent.decode_references(parsedSentence)
     associationtrainer.find_associations(parsedSentence)
     print "Sentence consumed."
 
