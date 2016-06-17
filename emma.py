@@ -40,7 +40,7 @@ def main(lastFourActivites, lastDreamTime):
 def consume(parsedSentence):
     parse.add_new_words(parsedSentence)
     markovtrainer.train(parsedSentence)
-    antecedent.decode_references(parsedSentence)
+    #antecedent.decode_references(parsedSentence)
     associationtrainer.find_associations(parsedSentence)
     print "Sentence consumed."
 
@@ -97,8 +97,8 @@ def choose_activity(lastFourActivites, lastDreamTime):
     return lastFourActivites, lastDreamTime
 
 def reply_to_asks():
-    messageList = tumblr.get_messages()
-    #messageList = [("12345", "asker", u"He quickly moved into the foyer."), ("12345", "asker", u"Cats can run fast."),  ("12345", "asker", u"I’m afraid that the doctor’s cure isn’t working.")]
+    #messageList = tumblr.get_messages()
+    messageList = [("12345", "asker", u"John flexed his muscles and kissed them.")]
     if len(messageList) > 0:
         print "Fetched %d new asks" % len(messageList)
         for count, message in enumerate(messageList):
