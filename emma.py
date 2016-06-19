@@ -108,6 +108,11 @@ def reply_to_asks():
 
             tokenizedMessage = parse.tokenize(message[2])
             consume(tokenizedMessage)
+            
+            emmaUnderstanding = u""
+            for count, item in enumerate(tokenizedMessage):
+                emmaUnderstanding += item[0]
+            print u"Emma understands this sentence as: \'%s\'" % emmaUnderstanding
 
             reply, importantWords, relatedWords = sentencebuilder.generate_sentence(tokenizedMessage)
             if reply:

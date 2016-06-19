@@ -47,5 +47,5 @@ def flip_posessive_references(sentence):
         if word[0] in posessiveReferences.keys():
             replacementWord = posessiveReferences.get(word[0])
             print u"replacing posessive reference \'%s\' with \'%s\'..." % (word[0], replacementWord)
-            sentence[count] = (replacementWord, word[1], word[2], word[3])
-    print sentence
+            sentence[count] = (replacementWord, word[1], word[2], word[3])      # todo: is there a better way to do this?
+    return sentence
