@@ -21,7 +21,7 @@ import sqlite3 as sql
 import tumblrclient as tumblr
 import parse
 import markovtrainer
-import antecedent
+import pronouns
 import associationtrainer
 import sentencebuilder
 import utilities
@@ -40,7 +40,8 @@ def main(lastFourActivites, lastDreamTime):
 def consume(parsedSentence):
     parse.add_new_words(parsedSentence)
     markovtrainer.train(parsedSentence)
-    #antecedent.decode_references(parsedSentence)
+    #pronouns.decode_references(parsedSentence)
+    pronouns.flip_posessive_references(parsedSentence)
     associationtrainer.find_associations(parsedSentence)
     print "Sentence consumed."
 
@@ -98,7 +99,7 @@ def choose_activity(lastFourActivites, lastDreamTime):
 
 def reply_to_asks():
     #messageList = tumblr.get_messages()
-    messageList = [("12345", "asker", u"John flexed his muscles and kissed them.")]
+    messageList = [("12345", "asker", u"I think that you are fantastic.")]
     if len(messageList) > 0:
         print "Fetched %d new asks" % len(messageList)
         for count, message in enumerate(messageList):
