@@ -63,13 +63,15 @@ def add_new_words(wordInfo):
         lemma = row[0]
         storedLemata.append(lemma)
 
+    addedWords = []
     for count, item in enumerate(wordInfo):
         lemma = item[0]
         pos = item[1]
 
         wordsLeft = wordInfo[-(len(wordInfo) - count):len(wordInfo) - 1]
 
-        if lemma not in storedLemata and lemma not in wordsLeft and lemma.isnumeric() == False and pos != "FW":
+        if lemma not in storedLemata and lemma not in wordsLeft and lemma not in addedWords and lemma.isnumeric() == False and pos != "FW":
             print u"Learned new word: (%s)!" % lemma
+            addedWords.append(lemma)
             with connection:
                 cursor.execute("INSERT INTO dictionary VALUES (\"%s\", \"%s\", 1, 0);" % (lemma, pos))
