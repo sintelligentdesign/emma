@@ -20,7 +20,7 @@ def tokenize(text):
         for count, taggedWord in enumerate(taggedSentence):
             if taggedWord[5] in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
                 if console['verboseLogging']: print "Replacing \"n\'t\" with not..."
-                taggedWord[5] = "not"
+                taggedWord[5] = u"not"
             elif taggedWord[5] in [u"\'", u"\u2019", u"\u2018"]:
                 if count != len(taggedSentence) - 1:
                     prevWord = taggedSentence[count - 1]
