@@ -7,7 +7,7 @@ import sqlite3 as sql
 import markovtrainer
 
 def tokenize(text):
-    print u"Tokenizing sentence \"%s\"." % text
+    print u"Tokenizing sentence \"%s\"..." % text
     pattern.en.pprint(pattern.en.parse(text, True, True, True, True, True))
     taggedText = pattern.en.parse(text, True, True, True, True, True).split()
 

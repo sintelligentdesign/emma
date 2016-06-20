@@ -193,7 +193,7 @@ def unpack_chunks(chunkList, tagRanking):
     return POSList
 
 def fill_simple_pos(POSList):
-    print POSList
+    #print POSList
     CClist = []
     DTlist = []
     INlist = []
@@ -237,5 +237,5 @@ def fill_simple_pos(POSList):
             reply.append(u"to")
         else:
             reply.append(partOfSpeech)
-    print reply
+    #print reply
     return reply

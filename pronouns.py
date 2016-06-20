@@ -18,11 +18,6 @@ posessiveReferences = [
     "their", "theirs"
     ]
 
-posessiveReferences = {
-    "me": "you", "i": "you", "my": "your", "mine": "yours", "myself": "yourself", 
-              "you": "emma", "your": "my", "yours": "mine", "myself": "yourself"
-    }
-
 def decode_references(sentence):
     lastUsedNouns = []
     for count, word in enumerate(sentence):
@@ -42,12 +37,14 @@ def decode_references(sentence):
             if replacementSuccessful == False:
                 print u"No nouns found for pronoun \'%s\'!" % word[0]
 
-def flip_posessive_references(sentence):
-    print sentence
+def flip_posessive_references(sentence, asker):
+    posessiveReferences = {"you": "emma", "your": "my", "yours": "mine", "myself": "yourself"}
+    if asker: posessiveReferences.update({"me": asker, "i": asker, "my": asker + u"\'s", "mine": asker + u"\'s", "myself": asker})
+    else: posessiveReferences.update({"me": "you", "i": "you", "my": "your", "mine": "yours", "myself": "yourself"})        # todo: if we don't have an asker, should we have some other word? Perhaps 'someone'?
+    
     for count, word in enumerate(sentence):
         if word[0] in posessiveReferences:
             replacementWord = posessiveReferences.get(word[0])
             print u"replacing posessive reference \'%s\' with \'%s\'..." % (word[0], replacementWord)
-            word[0] = replacementWord      # todo: is there a better way to do this?
-    print sentence
+            word[0] = replacementWord
     return sentence

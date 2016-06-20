@@ -37,11 +37,11 @@ def main(lastFourActivites, lastDreamTime):
     lastFourActivites, lastDreamTime = choose_activity(lastFourActivites, lastDreamTime)
     return lastFourActivites, lastDreamTime
     
-def consume(parsedSentence):
+def consume(parsedSentence, asker):
     parse.add_new_words(parsedSentence)
     markovtrainer.train(parsedSentence)
     #pronouns.decode_references(parsedSentence)
-    pronouns.flip_posessive_references(parsedSentence)
+    pronouns.flip_posessive_references(parsedSentence, asker)
     associationtrainer.find_associations(parsedSentence)
     print "Sentence consumed."
 
@@ -107,7 +107,7 @@ def reply_to_asks():
             print u"@" + message[1] + u" >> " + message[2]
 
             tokenizedMessage = parse.tokenize(message[2])
-            consume(tokenizedMessage)
+            consume(tokenizedMessage, message[1])
             
             emmaUnderstanding = u""
             for count, item in enumerate(tokenizedMessage):
