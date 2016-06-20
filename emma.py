@@ -52,9 +52,9 @@ if SQLReturn != [(u'dictionary',), (u'sentencestructuremodel',), (u'associationm
         CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, is_new INTEGER DEFAULT 1, is_banned INTEGER DEFAULT 0);
         CREATE TABLE sentencestructuremodel(stem TEXT, leaf TEXT, weight DOUBLE, is_sentence_starter INTEGER DEFAULT 0);
         """)
-    if console['verboseLogging']: print Fore.GREEN + "Default database created at %s!" % database['path']
+    print Fore.GREEN + "Default database created at %s!" % database['path']
 else: 
-    if console['verboseLogging']: print Fore.GREEN + "Database valid! Continuing..."
+    print Fore.GREEN + "Database valid! Continuing..."
 
 def main(lastFourActivites, lastDreamTime):
     lastFourActivites, lastDreamTime = choose_activity(lastFourActivites, lastDreamTime)

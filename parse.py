@@ -80,7 +80,7 @@ def add_new_words(parsedSentence):
 
         wordsLeft = parsedSentence[-(len(parsedSentence) - count):len(parsedSentence) - 1]
 
-        if lemma not in storedLemata and lemma not in wordsLeft and lemma not in addedWords and lemma.isnumeric() == False and pos != "FW":
+        if lemma not in storedLemata and lemma not in wordsLeft and lemma not in addedWords and lemma not in pattern.en.wordlist.PROFANITY and lemma.isnumeric() == False and pos != "FW":
             print Fore.MAGENTA + u"Learned new word: (%s)!" % lemma
             addedWords.append(lemma)
             with connection:
