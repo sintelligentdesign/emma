@@ -136,6 +136,7 @@ e = np.exp(1)
 def calculate_weight(isUpdate, currentWeight):
     rankingConstant = 3.19722457734
     if isUpdate == True:
+        if currentWeight == 1: currentWeight = 0.9999999999999      # todo: this is a bad fix and we should do something better
         currentWeight = np.log(currentWeight/(1-currentWeight))+rankingConstant
     else:
         currentWeight = 0
