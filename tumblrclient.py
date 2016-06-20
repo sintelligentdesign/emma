@@ -5,6 +5,8 @@ import time
 
 import pytumblr
 import pattern.web
+from colorama import init, Fore
+init(autoreset = True)
 
 import apikeys
 from config import tumblr
@@ -61,7 +63,7 @@ def post_reply(asker, question, response, debugInfo):
     if tumblr['enablePostPreview']: post_preview(post, tags)
     if tumblr['enablePosting']: client.create_text(tumblr['username'], state="published", body=post, tags=tags)
     else: 
-        print "!!! Posting disabled in config.py -- execution will continue normally in 2 seconds..."
+        print Fore.YELLOW + "!!! Posting disabled in config.py -- execution will continue normally in 2 seconds..."
         time.sleep(2)
 
 def post_dream(dream):
@@ -70,11 +72,11 @@ def post_dream(dream):
     if tumblr['enablePostPreview']: post_preview(dream, tags)
     if tumblr['enablePosting']: client.create_text(tumblr['username'], state="published", body=dream, tags=tags)
     else: 
-        print "!!! Posting disabled in config.py -- execution will continue normally in 2 seconds..."
+        print Fore.YELLOW + "!!! Posting disabled in config.py -- execution will continue normally in 2 seconds..."
         time.sleep(2)
 
 def post_preview(post, tags):
     for count, tag in enumerate(tags):
         tags[count] = "#" + tag
     tags = ' '.join(tags)
-    print "\n\nTUMBLR POST PREVIEW\n\n" + post + "\n- - - - - - - - - - - - - - - -\n" + tags + "\n\n"
+    print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + post + "\n- - - - - - - - - - - - - - - -\n" + tags + "\n\n"

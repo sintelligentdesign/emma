@@ -17,6 +17,8 @@ import time
 import random
 
 import sqlite3 as sql
+from colorama import init, Fore
+init(autoreset = True)
 
 import tumblrclient
 import parse
@@ -27,6 +29,7 @@ import sentencebuilder
 import utilities
 from config import console, database, tumblr
 
+
 lastDreamTime = time.clock()
 
 lastFourActivites = [None, None, None, None]
@@ -34,12 +37,12 @@ lastFourActivites = [None, None, None, None]
 connection = sql.connect(database['path'])
 cursor = connection.cursor()
 # Check to see if our database is valid and, if not, create one that is
-if console['verboseLogging']: print "Checking validity of database %s" % database['path']
+if console['verboseLogging']: print Fore.BLUE + "Checking validity of database %s" % database['path']
 with connection:
     cursor.execute('SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'associationmodel\' OR name=\'dictionary\' OR name=\'sentencestructuremodel\';')
     SQLReturn = cursor.fetchall()
 if SQLReturn != [(u'dictionary',), (u'sentencestructuremodel',), (u'associationmodel',)]: 
-    if console['verboseLogging']: print "Database invalid. Creating default tables in %s..." % database['path']
+    if console['verboseLogging']: print Fore.YELLOW + "Database invalid. Creating default tables in %s..." % database['path']
     with connection:
         cursor.executescript("""
         DROP TABLE IF EXISTS associationmodel;
@@ -49,9 +52,9 @@ if SQLReturn != [(u'dictionary',), (u'sentencestructuremodel',), (u'associationm
         CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, is_new INTEGER DEFAULT 1, is_banned INTEGER DEFAULT 0);
         CREATE TABLE sentencestructuremodel(stem TEXT, leaf TEXT, weight DOUBLE, is_sentence_starter INTEGER DEFAULT 0);
         """)
-    if console['verboseLogging']: print "Default database created at %s!" % database['path']
+    if console['verboseLogging']: print Fore.GREEN + "Default database created at %s!" % database['path']
 else: 
-    if console['verboseLogging']: print "Database valid! Continuing..."
+    if console['verboseLogging']: print Fore.GREEN + "Database valid! Continuing..."
 
 def main(lastFourActivites, lastDreamTime):
     lastFourActivites, lastDreamTime = choose_activity(lastFourActivites, lastDreamTime)
@@ -122,13 +125,13 @@ def choose_activity(lastFourActivites, lastDreamTime):
 
 def reply_to_asks():
     #messageList = tumblrclient.get_messages()
-    messageList = [("12345", "asker", u"I think that you're fantastic. I don't know what I would do without you.")]
+    messageList = [("12345", "asker", u"I think you're fantastic. I don't know what I'd do without you.")]
     if len(messageList) > 0:
         print "Fetched %d new asks" % len(messageList)
         for count, message in enumerate(messageList):
             print "Reading ask no. %d..." % (count + 1)
             # todo: intelligently decide how many asks to answer
-            print u"@" + message[1] + u" >> " + message[2]
+            print Fore.BLUE + u"@" + message[1] + u" >> " + message[2]
 
             parsedMessage = parse.tokenize(message[2])
 
@@ -144,12 +147,12 @@ def reply_to_asks():
                     if wordCount < len(sentence) - 2:
                         emmaUnderstanding += u" "
             emmaUnderstanding = u"Emma parsed this ask as: \'%s\'" % emmaUnderstanding
-            print emmaUnderstanding
+            print Fore.BLUE + emmaUnderstanding
 
             reply, importantWords, relatedWords = sentencebuilder.generate_sentence(parsedMessage)
             if reply:
                 reply = ' '.join(reply)
-                print u"emma >> %s" % reply
+                print Fore.BLUE + u"emma >> %s" % reply
 
                 # todo: remove debug reply
                 reply = reply + "\n" + "importantWords: " + str(importantWords) + "\n" + "relatedWords: " + str(relatedWords)
@@ -159,12 +162,12 @@ def reply_to_asks():
                 # todo: remove debugInfo when we enter Beta (?)
                 tumblrclient.post_reply(message[1], message[2], reply, emmaUnderstanding)
 
-            else: print "No reply."
+            else: print Fore.YELLOW + "No reply."
             if tumblr['deleteAsks']:
                 print "Deleting ask..."
                 tumblrclient.delete_ask(message[0])
             else:
-                print "!!! Ask deletion disabled in config.py -- execution will continue normally in 2 seconds..."
+                print Fore.YELLOW + "!!! Ask deletion disabled in config.py -- execution will continue normally in 2 seconds..."
                 time.sleep(2)
 
             print "Sleeping for 10 seconds..."
@@ -203,7 +206,7 @@ def dream():
         # todo: generate a sentence 
         dream = "sentence"
         tumblrclient.post_dream(dream)
-        print u"dream >> " + dream
+        print Fore.BLUE + u"dream >> " + dream
         consume(dream)
         time.sleep(5)
 

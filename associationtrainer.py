@@ -4,6 +4,8 @@
 import numpy as np
 
 import sqlite3 as sql
+from colorama import init, Fore
+init(autoreset = True)
 
 import utilities
 from config import database
@@ -27,7 +29,7 @@ def find_associations(sentence):
                     if "NP" in prevWord[2]:
                         # Type 1
                         if "ADJP" in nextWord[2]:
-                            print u"Found association: %s IS-PROPERTY-OF %s." % (nextWord[0], prevWord[0])
+                            print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (nextWord[0], prevWord[0])
                             add_association(nextWord[0], prevWord[0], "IS-PROPERTY-OF")
                         # Type 2
                         elif "NP" in nextWord[2]:
@@ -35,7 +37,7 @@ def find_associations(sentence):
                                 if count + (i + 1) <= len(sentence) - 1:
                                     chunksCountingForward = sentence[count + (i + 1)]
                                     if chunksCountingForward[1] in utilities.nounCodes:
-                                        print u"Found association: %s IS-A %s." % (prevWord[0], chunksCountingForward[0])
+                                        print Fore.MAGENTA + u"Found association: %s IS-A %s." % (prevWord[0], chunksCountingForward[0])
                                         add_association(prevWord[0], chunksCountingForward[0], "IS-A")
                                         break
                                 
@@ -51,7 +53,7 @@ def find_associations(sentence):
                             break
                 for group in NPchunk:
                     if group[1] in utilities.adjectiveCodes and group[0]:
-                        print u"Found association: %s IS-PROPERTY-OF %s." % (group[0], word[0])
+                        print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (group[0], word[0])
                         add_association(group[0], word[0], "IS-PROPERTY-OF")
 
             # Types 4 & 5
@@ -65,7 +67,7 @@ def find_associations(sentence):
                                 if len(sentence) - (count - (i + 1)) >= 0:
                                     chunksCountingBackward = sentence[count - (i + 1)]
                                     if chunksCountingBackward[1] in utilities.verbCodes:
-                                        print u"Found association: %s IS-PROPERTY-OF %s." % (word[0], chunksCountingBackward[0])
+                                        print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (word[0], chunksCountingBackward[0])
                                         add_association(word[0], chunksCountingBackward[0], "IS-PROPERTY-OF")
                     # Type 5
                     if count != len(sentence) - 1:
@@ -75,7 +77,7 @@ def find_associations(sentence):
                                     if count + (i + 1) <= len(sentence) - 1:
                                         chunksCountingForward = sentence[count + (i + 1)]
                                         if chunksCountingForward[1] in utilities.verbCodes:
-                                            print u"Found association: %s IS-PROPERTY-OF %s." % (word[0], chunksCountingForward[0])
+                                            print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (word[0], chunksCountingForward[0])
                                             add_association(word[0], chunksCountingForward[0], "IS-PROPERTY-OF")
 
             # Type 6
@@ -88,7 +90,7 @@ def find_associations(sentence):
                             if count + (i + 1) <= len(sentence) - 1:
                                 chunksCountingForward = sentence[count + i]
                                 if chunksCountingForward[1] in utilities.nounCodes:
-                                    print u"Found association: %s HAS %s." % (prevWord[0], chunksCountingForward[0])
+                                    print Fore.MAGENTA + u"Found association: %s HAS %s." % (prevWord[0], chunksCountingForward[0])
                                     add_association(prevWord[0], chunksCountingForward[0], "HAS")
                                     break
             
@@ -110,7 +112,7 @@ def find_associations(sentence):
                                 chunksCountingForward = sentence[count + i]
                                 if chunksCountingForward[1] in utilities.verbCodes:
                                     if chunksCountingForward[0] != "be":
-                                        print u"Found association: %s HAS-ABILITY-TO %s." % (nounChoice, chunksCountingForward[0])
+                                        print Fore.MAGENTA + u"Found association: %s HAS-ABILITY-TO %s." % (nounChoice, chunksCountingForward[0])
                                         add_association(nounChoice, chunksCountingForward[0], "HAS-ABILITY-TO")
                                         break
                                     else: break

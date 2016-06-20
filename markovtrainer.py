@@ -5,6 +5,8 @@ import random
 
 import sqlite3 as sql
 from config import database
+from colorama import init, Fore
+init(autoreset = True)
 
 connection = sql.connect(database['path'])
 cursor = connection.cursor()
@@ -45,5 +47,5 @@ def train(wordInfo):
                             cursor.execute('UPDATE sentencestructuremodel SET weight = \'%s\', is_sentence_starter = \'%s\' WHERE stem = \'%s\' AND leaf = \'%s\';' % (weight, isSentenceStarter, stemAsString, leafAsString))
                     else:
                         # otherwise, add the new stuff to the sentence model
-                        print "New chunk pattern found (%s, %s)! Adding..." % (stemAsString, leafAsString)
+                        print Fore.MAGENTA + "New chunk pattern found (%s, %s)! Adding..." % (stemAsString, leafAsString)
                         cursor.execute('INSERT INTO sentencestructuremodel VALUES (\'%s\', \'%s\', 1, \'%s\');' % (stemAsString, leafAsString, isSentenceStarter))

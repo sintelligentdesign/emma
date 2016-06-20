@@ -3,6 +3,8 @@
 # Section:          LEARNING
 import pattern.en
 import sqlite3 as sql
+from colorama import init, Fore
+init(autoreset = True)
 
 import markovtrainer
 from config import console, database
@@ -19,29 +21,29 @@ def tokenize(text):
         rowsToRemove = []
         for count, taggedWord in enumerate(taggedSentence):
             if taggedWord[5] in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
-                if console['verboseLogging']: print "Replacing \"n\'t\" with not..."
+                if console['verboseLogging']: print Fore.GREEN + "Replacing \"n\'t\" with not..."
                 taggedWord[5] = u"not"
             elif taggedWord[5] in [u"\'", u"\u2019", u"\u2018"]:
                 if count != len(taggedSentence) - 1:
                     prevWord = taggedSentence[count - 1]
                     nextWord = taggedSentence[count + 1]
-                    if console['verboseLogging']: print "Joining \'%s\' and \'%s\'..." % (prevWord[5], nextWord[0])
+                    if console['verboseLogging']: print Fore.GREEN + "Joining \'%s\' and \'%s\'..." % (prevWord[5], nextWord[0])
                     prevWord[5] = prevWord[5] + "\'" + nextWord[0]
                     rowsToRemove.append(taggedWord)
                     rowsToRemove.append(nextWord)
             elif taggedWord[5] in [u"\'s'", u"\u2019s", u"\u2018s"] or taggedWord[1] == "POS":
                 prevWord = taggedSentence[count - 1]
-                if console['verboseLogging']: print "Appending \"\'s\" to \'%s\'..." % prevWord[5]
+                if console['verboseLogging']: print Fore.GREEN + "Appending \"\'s\" to \'%s\'..." % prevWord[5]
                 prevWord[5] = prevWord[5] + u"\'s"
                 rowsToRemove.append(taggedWord)
             elif taggedWord[1] == u"\"" or taggedWord[5] in [u",", u"\u007c", u"\u2015", u"#", u"[", u"]", u"(", u")" u"\u2026", u"<", u">"]:
                 rowsToRemove.append(taggedWord)
 
         if rowsToRemove:
-            if console['verboseLogging']: print "Tidying up..."
+            if console['verboseLogging']: print Fore.BLUE + "Tidying up..."
             for row in rowsToRemove:
                 taggedSentence.remove(row)
-                if console['verboseLogging']: print u"Removed %s." % row[0]
+                if console['verboseLogging']: print Fore.GREEN + u"Removed %s." % row[0]
         
         posSentence = []
         chunkSeries = []
@@ -79,7 +81,7 @@ def add_new_words(parsedSentence):
         wordsLeft = parsedSentence[-(len(parsedSentence) - count):len(parsedSentence) - 1]
 
         if lemma not in storedLemata and lemma not in wordsLeft and lemma not in addedWords and lemma.isnumeric() == False and pos != "FW":
-            print u"Learned new word: (%s)!" % lemma
+            print Fore.MAGENTA + u"Learned new word: (%s)!" % lemma
             addedWords.append(lemma)
             with connection:
                 cursor.execute("INSERT INTO dictionary VALUES (\"%s\", \"%s\", 1, 0);" % (lemma, pos))

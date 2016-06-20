@@ -4,6 +4,8 @@
 import random
 
 import sqlite3 as sql
+from colorama import init, Fore
+init(autoreset = True)
 
 import utilities
 from config import console, database
@@ -21,7 +23,7 @@ def generate_sentence(tokenizedMessage):
     for word in tokenizedMessage:
         if word[1] in utilities.nounCodes and word[3]:
             importantWords.append(word[0])
-    if console['verboseLogging']: print u"Important words: " + str(importantWords)
+    if console['verboseLogging']: print Fore.MAGENTA + u"Important words: " + str(importantWords)
 
     # find words related to the important words
     depth1 = []
@@ -34,7 +36,7 @@ def generate_sentence(tokenizedMessage):
         relatedWords.extend(word)
     for word in depth2:
         relatedWords.extend(word)
-    if console['verboseLogging']: print u"Related words: " + str(relatedWords)
+    if console['verboseLogging']: print Fore.MAGENTA + u"Related words: " + str(relatedWords)
 
     # Reply to message
     print "Creating reply..."
@@ -50,7 +52,7 @@ def find_related_words(word):
         relatedWord = (row[0], row[1], row[2], row[3])
         relatedWords.append(relatedWord)
     # todo: remove duplicates
-    if console['verboseLogging']: print u"Found %d related words for %s" % (len(relatedWords), word)
+    if console['verboseLogging']: print Fore.MAGENTA + u"Found %d related words for %s" % (len(relatedWords), word)
     return relatedWords
 
 def rank_tags(sentence):
@@ -110,7 +112,7 @@ def generate_chunks():
                 possibleLeaves.append(row[1])
         else:
             sentenceTemplate.append("%")
-            if console['verboseLogging']: print "No leaves for current stem! Regenerating..."
+            if console['verboseLogging']: print Fore.YELLOW + "No leaves for current stem! Regenerating..."
             attemptCount += 1
             sentenceTemplate = generate_chunks()
             break
@@ -125,11 +127,11 @@ def generate_chunks():
         if nextChunk:
             sentenceTemplate.append(nextChunk)
     if len(sentenceTemplate) >= maxSentenceLength:
-        if console['verboseLogging']: print "Generated template is too long. Regenerating..."
+        if console['verboseLogging']: print Fore.YELLOW + "Generated template is too long. Regenerating..."
         attemptCount += 1
         sentenceTemplate = generate_chunks()
     if sentenceTemplate[-1] != "O":
-        if console['verboseLogging']: print "Invalid ending chunk. Regenerating..."
+        if console['verboseLogging']: print Fore.Yellow + "Invalid ending chunk. Regenerating..."
         attemptCount += 1
         sentenceTemplate = generate_chunks()
     return sentenceTemplate
