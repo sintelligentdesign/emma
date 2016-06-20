@@ -27,7 +27,7 @@ import pronouns
 import associationtrainer
 import sentencebuilder
 import utilities
-from config import console, database, tumblr
+from config import debug, console, database, tumblr
 
 
 lastDreamTime = time.clock()
@@ -66,9 +66,6 @@ def consume(parsedSentence, asker):
     #pronouns.decode_references(parsedSentence)
     pronouns.flip_posessive_references(parsedSentence, asker)
     associationtrainer.find_associations(parsedSentence)
-
-    emmaUnderstanding = ""
-
     print "Sentence consumed."
 
 def choose_activity(lastFourActivites, lastDreamTime):
@@ -124,8 +121,11 @@ def choose_activity(lastFourActivites, lastDreamTime):
     return lastFourActivites, lastDreamTime
 
 def reply_to_asks():
-    #messageList = tumblrclient.get_messages()
-    messageList = [("12345", "asker", u"I think you're fantastic. I don't know what I'd do without you.")]
+    if debug['fetchRealAsks']: messageList = tumblrclient.get_messages()
+    else: 
+        print Fore.YELLOW + "!!! Ask fetching disabled in config.py -- execution will continue with sample Asks provided in 2 seconds..."
+        time.sleep(2)
+        messageList = debug['fakeAsks']
     if len(messageList) > 0:
         print "Fetched %d new asks" % len(messageList)
         for count, message in enumerate(messageList):
