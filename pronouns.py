@@ -51,6 +51,6 @@ def flip_posessive_references(sentence, asker):
     for count, word in enumerate(sentence):
         if word[0] in posessiveReferences:
             replacementWord = posessiveReferences.get(word[0])
-            if console['verboseLogging']: print Fore.GREEN + u"replacing posessive reference \'%s\' with \'%s\'..." % (word[0], replacementWord)
+            if console['verboseLogging']: print Fore.MAGENTA + u"replacing posessive reference \'%s\' with \'%s\'..." % (word[0], replacementWord)
             word[0] = replacementWord
     return sentence
