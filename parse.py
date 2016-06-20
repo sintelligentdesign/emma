@@ -48,7 +48,10 @@ def tokenize(text):
             lemmaSentence.append(taggedWord[5])
             subObj.append(taggedWord[4])
         wordPackage = zip(lemmaSentence, posSentence, chunkSeries, subObj)
-        return wordPackage
+        parsedSentence = []
+        for package in wordPackage:
+            parsedSentence.append(list(package))
+        return parsedSentence
 
 connection = sql.connect('emma.db')
 cursor = connection.cursor()

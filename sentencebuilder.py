@@ -2,7 +2,6 @@
 # Description:      Generates sentences based on what Emma knows about English and the world
 # Section:          REPLY
 import random
-import ast
 
 import sqlite3 as sql
 

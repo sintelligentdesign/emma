@@ -43,9 +43,11 @@ def decode_references(sentence):
                 print u"No nouns found for pronoun \'%s\'!" % word[0]
 
 def flip_posessive_references(sentence):
+    print sentence
     for count, word in enumerate(sentence):
-        if word[0] in posessiveReferences.keys():
+        if word[0] in posessiveReferences:
             replacementWord = posessiveReferences.get(word[0])
             print u"replacing posessive reference \'%s\' with \'%s\'..." % (word[0], replacementWord)
-            sentence[count] = (replacementWord, word[1], word[2], word[3])      # todo: is there a better way to do this?
+            word[0] = replacementWord      # todo: is there a better way to do this?
+    print sentence
     return sentence
