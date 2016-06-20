@@ -63,7 +63,7 @@ def main(lastFourActivites, lastDreamTime):
 def consume(parsedSentence, asker):
     parse.add_new_words(parsedSentence)
     markovtrainer.train(parsedSentence)
-    #pronouns.decode_references(parsedSentence)
+    pronouns.determine_references(parsedSentence)
     pronouns.flip_posessive_references(parsedSentence, asker)
     associationtrainer.find_associations(parsedSentence)
     print "Sentence consumed."
@@ -123,19 +123,20 @@ def choose_activity(lastFourActivites, lastDreamTime):
 def reply_to_asks():
     if debug['fetchRealAsks']: messageList = tumblrclient.get_messages()
     else: 
-        print Fore.YELLOW + "!!! Ask fetching disabled in config.py -- execution will continue with sample Asks provided in 2 seconds..."
+        print Fore.YELLOW + "!!! Ask fetching disabled in config file -- execution will continue with sample Asks provided in 2 seconds..."
         time.sleep(2)
         messageList = debug['fakeAsks']
     if len(messageList) > 0:
         print "Fetched %d new asks" % len(messageList)
-        for count, message in enumerate(messageList):
-            print "Reading ask no. %d..." % (count + 1)
+        for askCount, message in enumerate(messageList):
+            print "Reading ask no. %d..." % (askCount + 1)
             # todo: intelligently decide how many asks to answer
             print Fore.BLUE + u"@" + message[1] + u" >> " + message[2]
 
             parsedMessage = parse.tokenize(message[2])
 
-            for sentence in parsedMessage:
+            for sentenceCount, sentence in enumerate(parsedMessage):
+                print "Reading sentence no. %d of ask no. %d..." % ((sentenceCount + 1), (askCount + 1))
                 consume(sentence, message[1])
             
             emmaUnderstanding = u""
@@ -167,7 +168,7 @@ def reply_to_asks():
                 print "Deleting ask..."
                 tumblrclient.delete_ask(message[0])
             else:
-                print Fore.YELLOW + "!!! Ask deletion disabled in config.py -- execution will continue normally in 2 seconds..."
+                print Fore.YELLOW + "!!! Ask deletion disabled in config file -- execution will continue normally in 2 seconds..."
                 time.sleep(2)
 
             print "Sleeping for 10 seconds..."

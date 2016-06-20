@@ -21,24 +21,27 @@ posessiveReferences = [
     "their", "theirs"
     ]
 
-def decode_references(sentence):
+def determine_references(sentence):
+    # (last used noun, is it proper y/n)
+    # todo: work differently with proper nouns
+    # todo: maybe do something different if the noun is tagged as a subject/object?
     lastUsedNouns = []
     for count, word in enumerate(sentence):
         if word[1] in utilities.nounCodes:
             if word[1] in ["NNP", "NNPS"]: lastUsedNouns.append((word, True))
             else: lastUsedNouns.append((word, False))
 
-        if word[0] in subordinateReferences:
+        if word[0] in subordinateReferences or word[0] in posessiveReferences:
             replacementSuccessful = False
             if lastUsedNouns:
                 for noun in reversed(lastUsedNouns):
                     if noun[1] == False:
-                        word = noun[0]
-                        print u"Replacing pronoun \'%s\' with \'%s\'..." % (word[0], noun[0])
-                        sentence[count] = word
+                        replacement = noun[0]
+                        print Fore.MAGENTA + u"Replacing pronoun \'%s\' with \'%s\'..." % (word[0], replacement[0])
+                        sentence[count] = replacement
                         replacementSuccessful = True
             if replacementSuccessful == False:
-                print u"No nouns found for pronoun \'%s\'!" % word[0]
+                print Fore.YELLOW + u"No nouns found for pronoun \'%s\'!" % word[0]
 
 def flip_posessive_references(sentence, asker):
     posessiveReferences = {"you": "emma", "your": "my", "yours": "mine", "myself": "yourself"}
