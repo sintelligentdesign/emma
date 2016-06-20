@@ -52,8 +52,8 @@ def get_messages():
 def delete_ask(askid):
     client.delete_post(tumblr['username'], askid)
 
-def post_reply(asker, question, reply):
-    post = "@%s >> %s\n\nemma >> %s" % (asker, question, reply)
+def post_reply(asker, question, response, debugInfo):
+    post = "@%s >> %s\n(%s)\n\nemma >> %s" % (asker, question, debugInfo, response)
     post = post.encode('utf-8')
     client.create_text(tumblr['username'], state="published", body=post, tags=["dialogue", asker])
 

@@ -43,6 +43,9 @@ def consume(parsedSentence, asker):
     #pronouns.decode_references(parsedSentence)
     pronouns.flip_posessive_references(parsedSentence, asker)
     associationtrainer.find_associations(parsedSentence)
+
+    emmaUnderstanding = ""
+
     print "Sentence consumed."
 
 def choose_activity(lastFourActivites, lastDreamTime):
@@ -99,32 +102,42 @@ def choose_activity(lastFourActivites, lastDreamTime):
 
 def reply_to_asks():
     #messageList = tumblr.get_messages()
-    messageList = [("12345", "asker", u"I think that you are fantastic.")]
+    messageList = [("12345", "asker", u"I think that you are fantastic. I don't know what I would do without you.")]
     if len(messageList) > 0:
         print "Fetched %d new asks" % len(messageList)
         for count, message in enumerate(messageList):
             # todo: intelligently decide how many asks to answer
             print u"@" + message[1] + u" >> " + message[2]
 
-            tokenizedMessage = parse.tokenize(message[2])
-            consume(tokenizedMessage, message[1])
+            parsedMessage = parse.tokenize(message[2])
+
+            for sentence in parsedMessage:
+                consume(sentence, message[1])
             
             emmaUnderstanding = u""
-            for count, item in enumerate(tokenizedMessage):
-                emmaUnderstanding += item[0]
-                if count + 2 < len(tokenizedMessage):
-                    emmaUnderstanding += u" "
-            print u"Emma understands this sentence as: \'%s\'" % emmaUnderstanding
+            for sentenceCount, sentence in enumerate(parsedMessage):
+                for wordCount, word in enumerate(sentence):
+                    if wordCount == 0 and sentenceCount != 0:
+                        emmaUnderstanding += u" "
+                    emmaUnderstanding += word[0]
+                    if wordCount < len(sentence) - 2:
+                        emmaUnderstanding += u" "
+            emmaUnderstanding = u"Emma parsed this ask as: \'%s\'" % emmaUnderstanding
+            print emmaUnderstanding
 
-            reply, importantWords, relatedWords = sentencebuilder.generate_sentence(tokenizedMessage)
+            reply, importantWords, relatedWords = sentencebuilder.generate_sentence(parsedMessage)
             if reply:
                 reply = ' '.join(reply)
                 print u"emma >> %s" % reply
 
+                # todo: remove debug reply
                 reply = reply + "\n" + "importantWords: " + str(importantWords) + "\n" + "relatedWords: " + str(relatedWords)
                 
                 print "Posting reply..."
-                tumblr.post_reply(message[1], message[2], reply)
+                # Reply bundle is (asker, question, response, debugInfo)
+                # todo: remove debugInfo when we enter Beta (?)
+                tumblr.post_reply(message[1], message[2], reply, emmaUnderstanding)
+
             else: print "No reply."
             print "Deleting ask..."
             tumblr.delete_ask(message[0])
