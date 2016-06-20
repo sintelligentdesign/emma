@@ -147,7 +147,7 @@ def reply_to_asks():
                     emmaUnderstanding += word[0]
                     if wordCount < len(sentence) - 2:
                         emmaUnderstanding += u" "
-            emmaUnderstanding = u"Emma understood this ask as: \'%s\'" % emmaUnderstanding
+            emmaUnderstanding = u"Emma understood this ask to mean: \'%s\'" % emmaUnderstanding
             print Fore.BLUE + emmaUnderstanding
 
             reply, importantWords, relatedWords = sentencebuilder.generate_sentence(parsedMessage)
