@@ -16,6 +16,7 @@
 import time
 import random
 
+import pattern.en
 import sqlite3 as sql
 from colorama import init, Fore
 init(autoreset = True)
@@ -31,7 +32,6 @@ from config import debug, console, database, tumblr
 
 
 lastDreamTime = time.clock()
-
 lastFourActivites = [None, None, None, None]
 
 connection = sql.connect(database['path'])
@@ -120,18 +120,28 @@ def choose_activity(lastFourActivites, lastDreamTime):
 
     return lastFourActivites, lastDreamTime
 
+class moodStack(list):
+    def push(self, item):
+        self.insert(0, item)
+        self.remove(self[10])
+moodModifiers = moodStack([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+
 def reply_to_asks():
     if debug['fetchRealAsks']: messageList = tumblrclient.get_messages()
     else: 
         print Fore.YELLOW + "!!! Ask fetching disabled in config file -- execution will continue with sample Asks provided in 2 seconds..."
         time.sleep(2)
         messageList = debug['fakeAsks']
+
     if len(messageList) > 0:
         print "Fetched %d new asks" % len(messageList)
         for askCount, message in enumerate(messageList):
-            print "Reading ask no. %d..." % (askCount + 1)
             # todo: intelligently decide how many asks to answer
+            print "Reading ask no. %d..." % (askCount + 1)
             print Fore.BLUE + u"@" + message[1] + u" >> " + message[2]
+
+            moodModifiers.push(reduce(lambda x, y: x * y, pattern.en.sentiment(message[2])))
+            mood = sum(moodModifiers)
 
             parsedMessage = parse.tokenize(message[2])
 
@@ -161,7 +171,7 @@ def reply_to_asks():
                 print "Posting reply..."
                 # Reply bundle is (asker, question, response, debugInfo)
                 # todo: remove debugInfo when we enter Beta (?)
-                tumblrclient.post_reply(message[1], message[2], reply, emmaUnderstanding)
+                tumblrclient.post_reply(message[1], message[2], reply, (emmaUnderstanding, mood))
 
             else: print Fore.YELLOW + "No reply."
             if tumblr['deleteAsks']:

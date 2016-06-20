@@ -57,9 +57,9 @@ def delete_ask(askid):
     client.delete_post(tumblr['username'], askid)
 
 def post_reply(asker, question, response, debugInfo):
-    post = "@%s >> %s\n(%s)\n\nemma >> %s" % (asker, question, debugInfo, response)
+    post = "@%s >> %s\n(%s)\n\nemma >> %s" % (asker, question, debugInfo[0], response)
     post = post.encode('utf-8')
-    tags = ["dialogue", asker]
+    tags = ["dialogue", asker, "mood: " + str(debugInfo[1])]
     if tumblr['enablePostPreview']: post_preview(post, tags)
     if tumblr['enablePosting']: client.create_text(tumblr['username'], state="published", body=post, tags=tags)
     else: 
