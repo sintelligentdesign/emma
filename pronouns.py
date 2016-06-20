@@ -37,7 +37,7 @@ def determine_references(sentence):
                 for noun in reversed(lastUsedNouns):
                     if noun[1] == False:
                         replacement = noun[0]
-                        print Fore.MAGENTA + u"Replacing pronoun \'%s\' with \'%s\'..." % (word[0], replacement[0])
+                        print Fore.GREEN + u"Replacing pronoun \'%s\' with \'%s\'..." % (word[0], replacement[0])
                         sentence[count] = replacement
                         replacementSuccessful = True
             if replacementSuccessful == False:
@@ -51,6 +51,6 @@ def flip_posessive_references(sentence, asker):
     for count, word in enumerate(sentence):
         if word[0] in posessiveReferences:
             replacementWord = posessiveReferences.get(word[0])
-            print Fore.MAGENTA + u"replacing posessive reference \'%s\' with \'%s\'..." % (word[0], replacementWord)
+            print Fore.GREEN + u"replacing posessive reference \'%s\' with \'%s\'..." % (word[0], replacementWord)
             word[0] = replacementWord
     return sentence

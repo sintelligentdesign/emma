@@ -23,7 +23,7 @@ def generate_sentence(tokenizedMessage):
     for word in tokenizedMessage:
         if word[1] in utilities.nounCodes and word[3]:
             importantWords.append(word[0])
-    if console['verboseLogging']: print Fore.MAGENTA + u"Important words: " + str(importantWords)
+    if console['verboseLogging']: print Fore.BLUE + u"Important words: " + str(importantWords)
 
     # find words related to the important words
     depth1 = []
@@ -36,7 +36,7 @@ def generate_sentence(tokenizedMessage):
         relatedWords.extend(word)
     for word in depth2:
         relatedWords.extend(word)
-    if console['verboseLogging']: print Fore.MAGENTA + u"Related words: " + str(relatedWords)
+    if console['verboseLogging']: print Fore.BLUE+ u"Related words: " + str(relatedWords)
 
     # Reply to message
     print "Creating reply..."

@@ -21,29 +21,29 @@ def tokenize(text):
         rowsToRemove = []
         for count, taggedWord in enumerate(taggedSentence):
             if taggedWord[5] in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
-                if console['verboseLogging']: print Fore.GREEN + "Replacing \"n\'t\" with not..."
+                print Fore.GREEN + "Replacing \"n\'t\" with not..."
                 taggedWord[5] = u"not"
             elif taggedWord[5] in [u"\'", u"\u2019", u"\u2018"]:
                 if count != len(taggedSentence) - 1:
                     prevWord = taggedSentence[count - 1]
                     nextWord = taggedSentence[count + 1]
-                    if console['verboseLogging']: print Fore.GREEN + "Joining \'%s\' and \'%s\'..." % (prevWord[5], nextWord[0])
+                    print Fore.GREEN + "Joining \'%s\' and \'%s\'..." % (prevWord[5], nextWord[0])
                     prevWord[5] = prevWord[5] + "\'" + nextWord[0]
                     rowsToRemove.append(taggedWord)
                     rowsToRemove.append(nextWord)
             elif taggedWord[5] in [u"\'s'", u"\u2019s", u"\u2018s"] or taggedWord[1] == "POS":
                 prevWord = taggedSentence[count - 1]
-                if console['verboseLogging']: print Fore.GREEN + "Appending \"\'s\" to \'%s\'..." % prevWord[5]
+                print Fore.GREEN + "Appending \"\'s\" to \'%s\'..." % prevWord[5]
                 prevWord[5] = prevWord[5] + u"\'s"
                 rowsToRemove.append(taggedWord)
             elif taggedWord[1] == u"\"" or taggedWord[5] in [u",", u"\u007c", u"\u2015", u"#", u"[", u"]", u"(", u")" u"\u2026", u"<", u">"]:
                 rowsToRemove.append(taggedWord)
 
         if rowsToRemove:
-            if console['verboseLogging']: print Fore.BLUE + "Tidying up..."
+            print Fore.GREEN + "Tidying up..."
             for row in rowsToRemove:
                 taggedSentence.remove(row)
-                if console['verboseLogging']: print Fore.GREEN + u"Removed %s." % row[0]
+                print Fore.GREEN + u"Removed %s." % row[0]
         
         posSentence = []
         chunkSeries = []
