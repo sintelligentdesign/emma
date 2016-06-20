@@ -7,7 +7,7 @@ debug = {
     'fetchRealAsks': False,
 
     # If the above is false, supply a list of fake asks for Emma to read for testing and debugging
-    'fakeAsks' = [
+    'fakeAsks': [
         ("12345", "hotpizzapie", u"I think you're fantastic. I don't know what I'd do without you.")
         ("67890", "nanopup", u"Hi Emma! I hope you're doing well. I like dogs because they are gay.")]
 }
