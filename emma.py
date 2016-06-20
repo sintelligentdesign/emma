@@ -37,7 +37,7 @@ lastFourActivites = [None, None, None, None]
 connection = sql.connect(database['path'])
 cursor = connection.cursor()
 # Check to see if our database is valid and, if not, create one that is
-print Fore.BLUE + "Checking validity of database at %s" % database['path']
+print Fore.BLUE + "Checking validity of the database at %s" % database['path']
 with connection:
     cursor.execute('SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'associationmodel\' OR name=\'dictionary\' OR name=\'sentencestructuremodel\';')
     SQLReturn = cursor.fetchall()
