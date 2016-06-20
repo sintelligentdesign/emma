@@ -5,6 +5,7 @@ import pytumblr
 import pattern.web
 
 import apikeys
+from config import tumblr
 
 # authenticate with tumblr api
 client = pytumblr.TumblrRestClient(
@@ -49,13 +50,13 @@ def get_messages():
     return messageList
 
 def delete_ask(askid):
-    client.delete_post('emmacanlearn', askid)
+    client.delete_post(tumblr['username'], askid)
 
 def post_reply(asker, question, reply):
     post = "@%s >> %s\n\nemma >> %s" % (asker, question, reply)
     post = post.encode('utf-8')
-    client.create_text("emmacanlearn", state="published", body=post, tags=["dialogue", asker])
+    client.create_text(tumblr['username'], state="published", body=post, tags=["dialogue", asker])
 
 def post_dream(dream):
     dream = dream.encode('utf-8')
-    client.create_text("emmacanlearn", state="published", body=dream, tags=["dreams"])
+    client.create_text(tumblr['username'], state="published", body=dream, tags=["dreams"])
