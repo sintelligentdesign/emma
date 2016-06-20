@@ -18,22 +18,40 @@ import random
 
 import sqlite3 as sql
 
-import tumblrclient as tumblr
+import tumblrclient
 import parse
 import markovtrainer
 import pronouns
 import associationtrainer
 import sentencebuilder
 import utilities
-from config import database, tumblr
+from config import console, database, tumblr
 
 lastDreamTime = time.clock()
 
 lastFourActivites = [None, None, None, None]
 
-
 connection = sql.connect(database['path'])
 cursor = connection.cursor()
+# Check to see if our database is valid and, if not, create one that is
+if console['verboseLogging']: print "Checking validity of database %s" % database['path']
+with connection:
+    cursor.execute('SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'associationmodel\' OR name=\'dictionary\' OR name=\'sentencestructuremodel\';')
+    SQLReturn = cursor.fetchall()
+if SQLReturn != [(u'dictionary',), (u'sentencestructuremodel',), (u'associationmodel',)]: 
+    if console['verboseLogging']: print "Database invalid. Creating default tables in %s..." % database['path']
+    with connection:
+        cursor.executescript("""
+        DROP TABLE IF EXISTS associationmodel;
+        DROP TABLE IF EXISTS dictionary;
+        DROP TABLE IF EXISTS sentencestructuremodel;
+        CREATE TABLE associationmodel(word TEXT, association_type TEXT, target TEXT, weight DOUBLE);
+        CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, is_new INTEGER DEFAULT 1, is_banned INTEGER DEFAULT 0);
+        CREATE TABLE sentencestructuremodel(stem TEXT, leaf TEXT, weight DOUBLE, is_sentence_starter INTEGER DEFAULT 0);
+        """)
+    if console['verboseLogging']: print "Default database created at %s!" % database['path']
+else: 
+    if console['verboseLogging']: print "Database valid! Continuing..."
 
 def main(lastFourActivites, lastDreamTime):
     lastFourActivites, lastDreamTime = choose_activity(lastFourActivites, lastDreamTime)
@@ -54,7 +72,7 @@ def choose_activity(lastFourActivites, lastDreamTime):
     with connection:
         cursor.execute('SELECT * FROM dictionary WHERE is_new = 1')
         newWords = len(cursor.fetchall())
-    newAsks = len(tumblr.get_messages())
+    newAsks = len(tumblrclient.get_messages())
     timeElapsedSinceLastDream = time.clock() - lastDreamTime
     activities = ["reply", "learn words", "dream"]
 
@@ -103,7 +121,7 @@ def choose_activity(lastFourActivites, lastDreamTime):
     return lastFourActivites, lastDreamTime
 
 def reply_to_asks():
-    #messageList = tumblr.get_messages()
+    #messageList = tumblrclient.get_messages()
     messageList = [("12345", "asker", u"I think that you're fantastic. I don't know what I would do without you.")]
     if len(messageList) > 0:
         print "Fetched %d new asks" % len(messageList)
@@ -139,12 +157,12 @@ def reply_to_asks():
                 print "Posting reply..."
                 # Reply bundle is (asker, question, response, debugInfo)
                 # todo: remove debugInfo when we enter Beta (?)
-                tumblr.post_reply(message[1], message[2], reply, emmaUnderstanding)
+                tumblrclient.post_reply(message[1], message[2], reply, emmaUnderstanding)
 
             else: print "No reply."
             if tumblr['deleteAsks']:
                 print "Deleting ask..."
-                tumblr.delete_ask(message[0])
+                tumblrclient.delete_ask(message[0])
             else:
                 print "!!! Ask deletion disabled in config.py -- execution will continue normally in 2 seconds..."
                 time.sleep(2)
@@ -163,7 +181,7 @@ def learn_new_words():
         for row in newWords:
             word = row[0]
             word = word.decode('utf-8')
-            results = tumblr.search_for_text_posts(word)
+            results = tumblrclient.search_for_text_posts(word)
             for result in results:
                 if not u".com" in result:      # This does an ok job of filtering out results from spam bots
                     tokenizedResult = parse.tokenize(result)
@@ -184,7 +202,7 @@ def dream():
             SQLReturn = cursor.fetchall()
         # todo: generate a sentence 
         dream = "sentence"
-        tumblr.post_dream(dream)
+        tumblrclient.post_dream(dream)
         print u"dream >> " + dream
         consume(dream)
         time.sleep(5)

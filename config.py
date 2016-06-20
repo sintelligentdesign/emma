@@ -13,7 +13,7 @@ console = {
 
 database = {
     # Specify what file Emma stores her information in (For now, this database must be pre-formatted. Emma will support generating new database files in a future update)
-    'path': 'emma.db'
+    'path': './emma.db'
 }
 
 tumblr = {
@@ -24,7 +24,7 @@ tumblr = {
     'enablePosting': False,
 
     # Enable or disable Tumblr post previews, which give a rough idea of what a tumblr post will look like in the terminal
-    'enablePostPreview': True
+    'enablePostPreview': True,
 
     # Enable or disable deletion of asks after we're done with them
     'deleteAsks': False
