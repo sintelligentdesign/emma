@@ -25,7 +25,7 @@ import pronouns
 import associationtrainer
 import sentencebuilder
 import utilities
-from config import database
+from config import database, tumblr
 
 lastDreamTime = time.clock()
 
@@ -142,8 +142,13 @@ def reply_to_asks():
                 tumblr.post_reply(message[1], message[2], reply, emmaUnderstanding)
 
             else: print "No reply."
-            print "Deleting ask..."
-            tumblr.delete_ask(message[0])
+            if tumblr['deleteAsks']:
+                print "Deleting ask..."
+                tumblr.delete_ask(message[0])
+            else:
+                print "!!! Ask deletion disabled in config.py -- execution will continue normally in 2 seconds..."
+                time.sleep(2)
+
             print "Sleeping for 10 seconds..."
             time.sleep(10)
     else:

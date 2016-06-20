@@ -57,12 +57,24 @@ def delete_ask(askid):
 def post_reply(asker, question, response, debugInfo):
     post = "@%s >> %s\n(%s)\n\nemma >> %s" % (asker, question, debugInfo, response)
     post = post.encode('utf-8')
-    if tumblr['enablePosting']: client.create_text(tumblr['username'], state="published", body=post, tags=["dialogue", asker])
-    else: print "!!! Posting disabled in config.py -- execution will continue normally in 2 seconds..."
-    time.sleep(2)
+    tags = ["dialogue", asker]
+    if tumblr['enablePostPreview']: post_preview(post, tags)
+    if tumblr['enablePosting']: client.create_text(tumblr['username'], state="published", body=post, tags=tags)
+    else: 
+        print "!!! Posting disabled in config.py -- execution will continue normally in 2 seconds..."
+        time.sleep(2)
 
 def post_dream(dream):
     dream = dream.encode('utf-8')
-    if tumblr['enablePosting']: client.create_text(tumblr['username'], state="published", body=dream, tags=["dreams"])
-    else: print "!!! Posting disabled in config.py -- execution will continue normally in 2 seconds..."
-    time.sleep(2)
+    tags = ["dreams"]
+    if tumblr['enablePostPreview']: post_preview(dream, tags)
+    if tumblr['enablePosting']: client.create_text(tumblr['username'], state="published", body=dream, tags=tags)
+    else: 
+        print "!!! Posting disabled in config.py -- execution will continue normally in 2 seconds..."
+        time.sleep(2)
+
+def post_preview(post, tags):
+    for count, tag in enumerate(tags):
+        tags[count] = "#" + tag
+    tags = ' '.join(tags)
+    print "\n\nTUMBLR POST PREVIEW\n\n" + post + "\n- - - - - - - - - - - - - - - -\n" + tags + "\n\n"

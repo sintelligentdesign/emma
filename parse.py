@@ -9,7 +9,7 @@ from config import console, database
 
 def tokenize(text):
     print "Tokenizing ask..."
-    if console['prettyPrint']: pattern.en.pprint(pattern.en.parse(text, True, True, True, True, True))
+    if console['verboseLogging']: pattern.en.pprint(pattern.en.parse(text, True, True, True, True, True))
     taggedText = pattern.en.parse(text, True, True, True, True, True).split()
     
     parsedMessage = []
