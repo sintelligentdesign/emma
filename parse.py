@@ -63,7 +63,7 @@ def tokenize(text):
 connection = sql.connect(database['path'])
 cursor = connection.cursor()
 def add_new_words(parsedSentence):
-    print "Looking for new words..."
+    if console['verboseLogging']: print "Looking for new words..."
     with connection:
         cursor.execute('SELECT * FROM dictionary;')
         SQLReturn = cursor.fetchall()

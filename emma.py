@@ -37,12 +37,12 @@ lastFourActivites = [None, None, None, None]
 connection = sql.connect(database['path'])
 cursor = connection.cursor()
 # Check to see if our database is valid and, if not, create one that is
-if console['verboseLogging']: print Fore.BLUE + "Checking validity of database at %s" % database['path']
+print Fore.BLUE + "Checking validity of database at %s" % database['path']
 with connection:
     cursor.execute('SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'associationmodel\' OR name=\'dictionary\' OR name=\'sentencestructuremodel\';')
     SQLReturn = cursor.fetchall()
 if SQLReturn != [(u'dictionary',), (u'sentencestructuremodel',), (u'associationmodel',)]: 
-    if console['verboseLogging']: print Fore.YELLOW + "Database invalid. Creating default tables in %s..." % database['path']
+    print Fore.YELLOW + "Database invalid. Creating default tables in %s..." % database['path']
     with connection:
         cursor.executescript("""
         DROP TABLE IF EXISTS associationmodel;
@@ -66,7 +66,7 @@ def consume(parsedSentence, asker):
     pronouns.determine_references(parsedSentence)
     pronouns.flip_posessive_references(parsedSentence, asker)
     associationtrainer.find_associations(parsedSentence)
-    print "Sentence consumed."
+    if console['verboseLogging']: print "Sentence consumed."
 
 def choose_activity(lastFourActivites, lastDreamTime):
     with connection:
@@ -136,7 +136,7 @@ def reply_to_asks():
             parsedMessage = parse.tokenize(message[2])
 
             for sentenceCount, sentence in enumerate(parsedMessage):
-                print "Reading sentence no. %d of ask no. %d..." % ((sentenceCount + 1), (askCount + 1))
+                if console['verboseLogging']: print "Reading sentence no. %d of ask no. %d..." % ((sentenceCount + 1), (askCount + 1))
                 consume(sentence, message[1])
             
             emmaUnderstanding = u""
