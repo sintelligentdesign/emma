@@ -3,8 +3,9 @@
 # Section:          REPLY
 import pattern.graph
 import sqlite3 as sql
+from config import database
 
-connection = sql.connect('emma.db')
+connection = sql.connect(database['path'])
 cursor = connection.cursor()
 
 graph = pattern.graph.Graph()
@@ -32,5 +33,7 @@ with connection:
 for row in SQLReturn:
     create_edge(row[0], row[2], row[1], row[3])
     
-graph.export('associationmodel', directed=True, weighted=True)
-print "Graph exported under associationmodel/"
+print "Emma >> Please enter the name of a directory where I can dump the visualization of my association model"
+exportFolder = raw_input('Directory name: ./').replace("/", "")
+graph.export(exportFolder, directed=True, weighted=True)
+print "Graph exported under ./%s/" % exportFolder
