@@ -79,4 +79,4 @@ def post_preview(post, tags):
     for count, tag in enumerate(tags):
         tags[count] = "#" + tag
     tags = ' '.join(tags)
-    print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + post + "\n- - - - - - - - - - - - - - - - - - - - -\n" + tags + "\n\n"
+    print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + post + "\n- - - - - - - - - - - - - - - - - - - - - - - - -\n" + tags + "\n\n"
