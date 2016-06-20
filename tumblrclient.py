@@ -1,6 +1,8 @@
 # Name:             Tumblr client
 # Description:      Communicates with Tumblr and executes related functions
 # Section:          LEARNING, REPLY
+import time
+
 import pytumblr
 import pattern.web
 
@@ -33,7 +35,7 @@ def search_for_text_posts(query):
 def get_messages():
     asksToGet = 10
     print "Getting Tumblr messages..."
-    asks = client.submission('emmacanlearn.tumblr.com')
+    asks = client.submission(tumblr['username'] + '.tumblr.com')
     asks = asks.values()        # unwrap JSON
     asks = asks[0]
 
@@ -55,8 +57,12 @@ def delete_ask(askid):
 def post_reply(asker, question, response, debugInfo):
     post = "@%s >> %s\n(%s)\n\nemma >> %s" % (asker, question, debugInfo, response)
     post = post.encode('utf-8')
-    client.create_text(tumblr['username'], state="published", body=post, tags=["dialogue", asker])
+    if tumblr['enablePosting']: client.create_text(tumblr['username'], state="published", body=post, tags=["dialogue", asker])
+    else: print "!!! Posting disabled in config.py -- execution will continue normally in 2 seconds..."
+    time.sleep(2)
 
 def post_dream(dream):
     dream = dream.encode('utf-8')
-    client.create_text(tumblr['username'], state="published", body=dream, tags=["dreams"])
+    if tumblr['enablePosting']: client.create_text(tumblr['username'], state="published", body=dream, tags=["dreams"])
+    else: print "!!! Posting disabled in config.py -- execution will continue normally in 2 seconds..."
+    time.sleep(2)

@@ -4,8 +4,9 @@
 import random
 
 import sqlite3 as sql
+from config import database
 
-connection = sql.connect('emma.db')
+connection = sql.connect(database['path'])
 cursor = connection.cursor()
 
 def train(wordInfo):

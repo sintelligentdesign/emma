@@ -25,12 +25,14 @@ import pronouns
 import associationtrainer
 import sentencebuilder
 import utilities
+from config import database
 
 lastDreamTime = time.clock()
 
 lastFourActivites = [None, None, None, None]
 
-connection = sql.connect('emma.db')
+
+connection = sql.connect(database['path'])
 cursor = connection.cursor()
 
 def main(lastFourActivites, lastDreamTime):
@@ -102,10 +104,11 @@ def choose_activity(lastFourActivites, lastDreamTime):
 
 def reply_to_asks():
     #messageList = tumblr.get_messages()
-    messageList = [("12345", "asker", u"I think that you are fantastic. I don't know what I would do without you.")]
+    messageList = [("12345", "asker", u"I think that you're fantastic. I don't know what I would do without you.")]
     if len(messageList) > 0:
         print "Fetched %d new asks" % len(messageList)
         for count, message in enumerate(messageList):
+            print "Reading ask no. %d..." % (count + 1)
             # todo: intelligently decide how many asks to answer
             print u"@" + message[1] + u" >> " + message[2]
 

@@ -6,8 +6,9 @@ import numpy as np
 import sqlite3 as sql
 
 import utilities
+from config import database
 
-connection = sql.connect('emma.db')
+connection = sql.connect(database['path'])
 cursor = connection.cursor()
 def find_associations(sentence):
     # todo: optimize after we get all the core association types in

@@ -6,8 +6,9 @@ import random
 import sqlite3 as sql
 
 import utilities
+from config import console, database
 
-connection = sql.connect('emma.db')
+connection = sql.connect(database['path'])
 cursor = connection.cursor()
 
 maxSentenceLength = 7
@@ -20,7 +21,7 @@ def generate_sentence(tokenizedMessage):
     for word in tokenizedMessage:
         if word[1] in utilities.nounCodes and word[3]:
             importantWords.append(word[0])
-    print u"Important words: " + str(importantWords)
+    if console['verboseLogging']: print u"Important words: " + str(importantWords)
 
     # find words related to the important words
     depth1 = []
@@ -33,7 +34,7 @@ def generate_sentence(tokenizedMessage):
         relatedWords.extend(word)
     for word in depth2:
         relatedWords.extend(word)
-    print u"Related words: " + str(relatedWords)
+    if console['verboseLogging']: print u"Related words: " + str(relatedWords)
 
     # Reply to message
     print "Creating reply..."
@@ -49,12 +50,12 @@ def find_related_words(word):
         relatedWord = (row[0], row[1], row[2], row[3])
         relatedWords.append(relatedWord)
     # todo: remove duplicates
-    print u"Found %d related words for %s" % (len(relatedWords), word)
+    if console['verboseLogging']: print u"Found %d related words for %s" % (len(relatedWords), word)
     return relatedWords
 
 def rank_tags(sentence):
     # Tallies how many of each type of part of speech are used to help us decide which to use in our reply
-    print "Ranking tags..."
+    if console['verboseLogging']: print "Ranking tags..."
     nounBlock = [0, 0, 0, 0]
     verbBlock = [0, 0, 0, 0, 0, 0]
     adjectiveBlock = [0, 0, 0]
@@ -80,7 +81,7 @@ def rank_tags(sentence):
     return tagRanking
 
 def generate_chunks():
-    print "Generating sentence chunks..."
+    if console['verboseLogging']: print "Generating sentence chunks..."
     # todo: detect loops?
     sentenceTemplate = []
     
@@ -109,7 +110,7 @@ def generate_chunks():
                 possibleLeaves.append(row[1])
         else:
             sentenceTemplate.append("%")
-            print "No leaves for current stem! Regenerating..."
+            if console['verboseLogging']: print "No leaves for current stem! Regenerating..."
             attemptCount += 1
             sentenceTemplate = generate_chunks()
             break
@@ -124,17 +125,17 @@ def generate_chunks():
         if nextChunk:
             sentenceTemplate.append(nextChunk)
     if len(sentenceTemplate) >= maxSentenceLength:
-        print "Generated template is too long. Regenerating..."
+        if console['verboseLogging']: print "Generated template is too long. Regenerating..."
         attemptCount += 1
         sentenceTemplate = generate_chunks()
     if sentenceTemplate[-1] != "O":
-        print "Invalid ending chunk. Regenerating..."
+        if console['verboseLogging']: print "Invalid ending chunk. Regenerating..."
         attemptCount += 1
         sentenceTemplate = generate_chunks()
     return sentenceTemplate
 
 def unpack_chunks(chunkList, tagRanking): 
-    print "Getting parts of speech from generated chunks..."
+    if console['verboseLogging']: print "Getting parts of speech from generated chunks..."
     POSList = []
     nounChoice = ""
     verbChoice = ""

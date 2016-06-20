@@ -2,6 +2,7 @@
 # Description:      Replaces words like "it" or "they" with the nouns that they refer to
 # Section:          
 import utilities
+from config import console
 
 # todo: finish this and fix the bugs and stuff
 
@@ -45,6 +46,6 @@ def flip_posessive_references(sentence, asker):
     for count, word in enumerate(sentence):
         if word[0] in posessiveReferences:
             replacementWord = posessiveReferences.get(word[0])
-            print u"replacing posessive reference \'%s\' with \'%s\'..." % (word[0], replacementWord)
+            if console['verboseLogging']: print u"replacing posessive reference \'%s\' with \'%s\'..." % (word[0], replacementWord)
             word[0] = replacementWord
     return sentence
