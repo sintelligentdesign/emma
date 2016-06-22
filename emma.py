@@ -194,19 +194,15 @@ def learn_new_words():
         # todo: intelligently choose a number of words to learn
         for row in newWords:
             word = row[0]
-            word = word.decode('utf-8')
             results = tumblrclient.search_for_text_posts(word)
             for result in results:
                 if not u".com" in result:      # This does an ok job of filtering out results from spam bots
                     tokenizedResult = parse.tokenize(result)
                     if tokenizedResult:
-                        consume(tokenizedResult)
+                        for tokenizedSentence in tokenizedResult:
+                            consume(tokenizedSentence, "people")
             with connection:
                 cursor.execute("UPDATE dictionary SET is_new = 0 WHERE word = \"%s\";" % word)
-        
-# todo: remove these debug function calls
-reply_to_asks()
-#learn_new_words()
 
 def dream():
     print "Dreaming..."
@@ -221,7 +217,11 @@ def dream():
         consume(dream)
         time.sleep(5)
 
-# while True:
+while True:
+    utilities.printInfo()
+    # todo: remove these debug function calls
+    #reply_to_asks()
+    learn_new_words()
 #     lastFourActivites, lastDreamTime = main(lastFourActivites, lastDreamTime)
 #     print "Sleeping for 10 seconds..."
 #     time.sleep(10)
