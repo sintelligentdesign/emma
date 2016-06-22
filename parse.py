@@ -10,7 +10,7 @@ import markovtrainer
 from config import console, database
 
 def tokenize(text):
-    print "Tokenizing ask..."
+    print "Tokenizing message..."
     if console['verboseLogging']: pattern.en.pprint(pattern.en.parse(text, True, True, True, True, True))
     taggedText = pattern.en.parse(text, True, True, True, True, True).split()
     
@@ -42,8 +42,9 @@ def tokenize(text):
         if rowsToRemove:
             print Fore.GREEN + "Tidying up..."
             for row in rowsToRemove:
-                taggedSentence.remove(row)
-                print Fore.GREEN + u"Removed %s." % row[0]
+                if row in taggedSentence:
+                    taggedSentence.remove(row)
+                    print Fore.GREEN + u"Removed %s." % row[0]
         
         posSentence = []
         chunkSeries = []
