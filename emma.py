@@ -55,6 +55,7 @@ if SQLReturn != [(u'dictionary',), (u'sentencestructuremodel',), (u'associationm
     print Fore.GREEN + "Default database created at %s!" % database['path']
 else: 
     print Fore.GREEN + "Database valid! Continuing..."
+utilities.printInfo()
 
 def main(lastFourActivites, lastDreamTime):
     lastFourActivites, lastDreamTime = choose_activity(lastFourActivites, lastDreamTime)
@@ -167,6 +168,8 @@ def reply_to_asks():
                 print Fore.BLUE + u"emma >> %s" % reply
 
                 # todo: remove debug reply
+                print type(relatedWords)
+                if len(relatedWords) > 10: relatedWords = relatedWords[0:9]
                 reply = reply + "\n" + "importantWords: " + str(importantWords) + "\n" + "relatedWords: " + str(relatedWords)
                 
                 print "Posting reply..."
@@ -219,10 +222,9 @@ def dream():
         time.sleep(5)
 
 while True:
-    utilities.printInfo()
     # todo: remove these debug function calls
-    #reply_to_asks()
-    learn_new_words()
+    reply_to_asks()
+    #learn_new_words()
 #     lastFourActivites, lastDreamTime = main(lastFourActivites, lastDreamTime)
 #     print "Sleeping for 10 seconds..."
 #     time.sleep(10)

@@ -20,9 +20,10 @@ def generate_sentence(tokenizedMessage):
 
     # Find important words in the sentence
     importantWords = []
-    for word in tokenizedMessage:
-        if word[1] in utilities.nounCodes and word[3]:
-            importantWords.append(word[0])
+    for sentence in tokenizedMessage:
+        for word in sentence:
+            if word[1] in utilities.nounCodes and word[3]:
+                importantWords.append(word[0])
     if console['verboseLogging']: print Fore.BLUE + u"Important words: " + str(importantWords)
 
     # find words related to the important words
@@ -33,9 +34,9 @@ def generate_sentence(tokenizedMessage):
         depth1.extend(find_related_words(word))
     for word in depth1:
         depth2.extend(find_related_words(word[0]))
-        relatedWords.extend(word)
+        relatedWords.append(word)
     for word in depth2:
-        relatedWords.extend(word)
+        relatedWords.append(word)
     if console['verboseLogging']: print Fore.BLUE+ u"Related words: " + str(relatedWords)
 
     # Reply to message
@@ -49,7 +50,7 @@ def find_related_words(word):
         cursor.execute("SELECT word, association_type, target, weight FROM associationmodel WHERE word = \"%s\" OR target = \"%s\";" % (word.encode('utf-8'), word.encode('utf-8')))
         SQLReturn = cursor.fetchall()
     for row in SQLReturn:
-        relatedWord = (row[0], row[1], row[2], row[3])
+        relatedWord = [row[0], row[1], row[2], row[3]]
         relatedWords.append(relatedWord)
     # todo: remove duplicates
     if console['verboseLogging']: print Fore.MAGENTA + u"Found %d related words for %s" % (len(relatedWords), word)
