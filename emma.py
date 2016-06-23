@@ -62,6 +62,7 @@ def main(lastFourActivites, lastDreamTime):
     
 def consume(parsedSentence, asker):
     parse.add_new_words(parsedSentence)
+    #utilities.spellcheck(parsedSentence)
     markovtrainer.train(parsedSentence)
     pronouns.determine_references(parsedSentence)
     pronouns.flip_posessive_references(parsedSentence, asker)
