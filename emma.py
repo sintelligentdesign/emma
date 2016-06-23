@@ -63,7 +63,7 @@ def main(lastFourActivites, lastDreamTime):
     
 def consume(parsedSentence, asker):
     parse.add_new_words(parsedSentence)
-    #utilities.spellcheck(parsedSentence)
+    utilities.spellcheck(parsedSentence)
     markovtrainer.train(parsedSentence)
     pronouns.determine_references(parsedSentence)
     pronouns.flip_posessive_references(parsedSentence, asker)
@@ -168,7 +168,6 @@ def reply_to_asks():
                 print Fore.BLUE + u"emma >> %s" % reply
 
                 # todo: remove debug reply
-                print type(relatedWords)
                 if len(relatedWords) > 10: relatedWords = relatedWords[0:9]
                 reply = reply + "\n" + "importantWords: " + str(importantWords) + "\n" + "relatedWords: " + str(relatedWords)
                 

@@ -32,13 +32,6 @@ def spellcheck(parsedSentence):
     for count, row in enumerate(parsedSentence):
         word = row[0]
         if d.check(word) == False:
-            userPrompt = raw_input(Fore.RED + "Possible mispelled word found: \'%s\'. Add to dictionary? y/n: " % word)
-            if "y" in userPrompt.lower():
-                d.add(word)
-            elif "n" in userPrompt.lower():
-                newWord = d.suggest(word)
-                userPrompt = raw_input(Fore.RED + "Replace \'%s\' with my best guess at its correct spelling, \'%s\'? y/n: " % (word, newWord[0]))
-                if "y" in userPrompt.lower():
-                    print Fore.GREEN + "Replacing \'%s\' with \'%s\'" % (word, newWord[0])
-                    parsedSentence[count] = [newWord[0], row[1], row[2], row[3]]
+            # todo: put what we want to do for words that flag the spell checker here
+            print Fore.RED + "Found possible mispelled word: \'%s\'" % word
     return parsedSentence
