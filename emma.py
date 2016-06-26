@@ -189,6 +189,7 @@ def learn_new_words():
 
     if newWords:
         # todo: intelligently choose a number of words to learn
+        newWords = newWords[0:9]
         for row in newWords:
             word = row[0]
             results = tumblrclient.search_for_text_posts(word)
@@ -205,19 +206,18 @@ def dream():
     print "Dreaming..."
     for i in range(8):      # todo: semi-logically choose how many dreams to dream
         with connection:
-            cursor.execute('SELECT word FROM dictionary WHERE is_new = 0 AND is_banned = 0 ORDER BY RANDOM() LIMIT 3;')
+            cursor.execute('SELECT word FROM dictionary WHERE is_new = 0 AND is_banned = 0 ORDER BY RANDOM() LIMIT 10;')
             SQLReturn = cursor.fetchall()
-        # todo: generate a sentence 
-        dream = "sentence"
-        tumblrclient.post_dream(dream)
+        dreamSeed = ""
+        for word in SQLReturn:
+            dreamSeed += word[0] + " "
+        print "Dream: " + dreamSeed
+        dream = sentencebuilder.generate_sentence(pattern.en.parse(dreamSeed, True, True, True, True, True).split())
         print Fore.BLUE + u"dream >> " + dream
-        consume(dream)
+        tumblrclient.post_dream(dream)
         time.sleep(5)
 
 while True:
-    # todo: remove these debug function calls
-    reply_to_asks()
-    learn_new_words()
-#     lastFourActivites, lastDreamTime = main(lastFourActivites, lastDreamTime)
-#     print "Sleeping for 10 seconds..."
-#     time.sleep(10)
+     lastFourActivites, lastDreamTime = main(lastFourActivites, lastDreamTime)
+     print "Sleeping for 10 seconds..."
+     time.sleep(10)
