@@ -11,7 +11,7 @@ init(autoreset = True)
 import utilities
 from config import console, database
 
-connection = sql.connect(database['path'])
+connection = sql.connect(database["path"])
 cursor = connection.cursor()
 
 maxSentenceLength = 7
@@ -79,14 +79,14 @@ def build_phrase(importantWords, isPlural, returnSet=False):
     queriedWords.extend(importantWords)
     for word in importantWords:
         with connection:
-            cursor.execute("SELECT target FROM associationmodel WHERE word = \'%s\' AND association_type = \'HAS\';" % word)
+            cursor.execute("SELECT target FROM associationmodel WHERE word = \"%s\" AND association_type = \"HAS\";" % word)
             SQLReturn = (cursor.fetchall())
         for word in SQLReturn: queriedWords.extend(word)
             
     phraseSets = []
     for word in queriedWords:
         with connection:
-            cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \'%s\' AND association_type = \'IS-PROPERTY-OF\' AND part_of_speech = \'JJ\';" % word)
+            cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\" AND part_of_speech = \"JJ\";" % word)
             SQLReturn = cursor.fetchall()
         if SQLReturn != []: phraseSets.append([word, choose_association(SQLReturn)[0], choose_association(SQLReturn)[0]])
 
@@ -113,7 +113,7 @@ def build_imperative(importantWords):
 
     # Using the noun from our phrase, find matching verbs and adverbs
     with connection:
-        cursor.execute("SELECT * FROM associationmodel WHERE target = \'%s\' AND association_type = \'IS-PROPERTY-OF\';" % phraseSet[0])
+        cursor.execute("SELECT * FROM associationmodel WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\";" % phraseSet[0])
         verbAssociations = cursor.fetchall()
 
     verb = choose_association(verbAssociations)[0]
@@ -133,7 +133,7 @@ def build_declarative(importantWords):
     imperative = build_imperative([phraseSet[0]])
 
     with connection:
-        cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \'%s\' AND association_type = \'IS-PROPERTY-OF\' AND part_of_speech IN (\'JJ\', \'JJR\', \'JJS\');" % phraseSet[0])
+        cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\" AND part_of_speech IN (\"JJ\", \"JJR\", \"JJS\");" % phraseSet[0])
         adjectiveAssociations = cursor.fetchall()
     
     adjective = choose_association(adjectiveAssociations)[0]

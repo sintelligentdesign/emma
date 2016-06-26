@@ -23,7 +23,6 @@ init(autoreset = True)
 
 import tumblrclient
 import parse
-import markovtrainer
 import pronouns
 import associationtrainer
 import sentencebuilder
@@ -37,11 +36,11 @@ lastFourActivites = [None, None, None, None]
 connection = sql.connect(database['path'])
 cursor = connection.cursor()
 # Check to see if our database is valid and, if not, create one that is
-print Fore.BLUE + "Checking validity of the database at %s" % database['path']
+print Fore.BLUE + "Checking if database exists at %s" % database['path']
 with connection:
-    cursor.execute('SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'associationmodel\' OR name=\'dictionary\' OR name=\'sentencestructuremodel\';')
-    SQLReturn = cursor.fetchall()
-if SQLReturn != [(u'dictionary',), (u'sentencestructuremodel',), (u'associationmodel',)]: 
+    cursor.execute("SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'associationmodel\';")
+    SQLReturn = cursor.fetchone()
+if SQLReturn != (u'associationmodel',):
     print Fore.YELLOW + "Database invalid. Creating default tables in %s..." % database['path']
     with connection:
         cursor.executescript("""
@@ -50,7 +49,6 @@ if SQLReturn != [(u'dictionary',), (u'sentencestructuremodel',), (u'associationm
         DROP TABLE IF EXISTS sentencestructuremodel;
         CREATE TABLE associationmodel(word TEXT, association_type TEXT, target TEXT, weight DOUBLE);
         CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, is_new INTEGER DEFAULT 1, is_banned INTEGER DEFAULT 0);
-        CREATE TABLE sentencestructuremodel(stem TEXT, leaf TEXT, weight DOUBLE, is_sentence_starter INTEGER DEFAULT 0);
         """)
     print Fore.GREEN + "Default database created at %s!" % database['path']
 else: 
@@ -63,8 +61,7 @@ def main(lastFourActivites, lastDreamTime):
     
 def consume(parsedSentence, asker):
     parse.add_new_words(parsedSentence)
-    utilities.spellcheck(parsedSentence)
-    markovtrainer.train(parsedSentence)
+    #utilities.spellcheck(parsedSentence)
     pronouns.determine_references(parsedSentence)
     pronouns.flip_posessive_references(parsedSentence, asker)
     associationtrainer.find_associations(parsedSentence)
@@ -185,12 +182,13 @@ def reply_to_asks():
         print "No new asks :("
 
 def learn_new_words():
+    print "Learning new words..."
     with connection:
         cursor.execute('SELECT word FROM dictionary WHERE is_new = 1;')
         newWords = cursor.fetchall()
+
     if newWords:
         # todo: intelligently choose a number of words to learn
-        newWords = newWords[0:3]
         for row in newWords:
             word = row[0]
             results = tumblrclient.search_for_text_posts(word)

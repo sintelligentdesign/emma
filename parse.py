@@ -6,7 +6,6 @@ import sqlite3 as sql
 from colorama import init, Fore
 init(autoreset = True)
 
-import markovtrainer
 from config import console, database
 
 def tokenize(text):
