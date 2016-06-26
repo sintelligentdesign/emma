@@ -16,7 +16,7 @@ debug = {
 
 console = {
     # Enable or disable verbose logging to the console while Emma is running
-    'verboseLogging': True,
+    'verboseLogging': False,
 
     # Enable or disable "console mode," which allows a developer to execute Emma's modules and functions one-by-one at the Python command line
     # todo: write support for this
