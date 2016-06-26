@@ -124,6 +124,12 @@ class moodStack(list):
         self.insert(0, item)
         self.remove(self[10])
 moodModifiers = moodStack([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+mood = 0
+
+def calculate_mood(text):
+    moodModifiers.push(reduce(lambda x, y: x * y, pattern.en.sentiment(text)))
+    if console['verboseLogging']: print "Mood modifiers: " + str(moodModifiers)
+    return sum(moodModifiers) / 10
 
 def reply_to_asks():
     if debug['fetchRealAsks']: messageList = tumblrclient.get_messages()
@@ -139,9 +145,7 @@ def reply_to_asks():
             print "Reading ask no. %d of %d..." % (askCount + 1, len(messageList))
             print Fore.BLUE + u"@" + message[1] + u" >> " + message[2]
 
-            moodModifiers.push(reduce(lambda x, y: x * y, pattern.en.sentiment(message[2])))
-            if console['verboseLogging']: print "Mood modifiers: " + str(moodModifiers)
-            mood = sum(moodModifiers) / 10
+            mood = calculate_mood(message[2])
 
             parsedMessage = parse.tokenize(message[2])
 
@@ -163,6 +167,8 @@ def reply_to_asks():
             reply = sentencebuilder.generate_sentence(parsedMessage)
             if "%" not in reply:
                 print Fore.BLUE + u"emma >> %s" % reply
+
+                mood = calculate_mood(reply)
                 
                 print "Posting reply..."
                 # Reply bundle is (asker, question, response, debugInfo)
