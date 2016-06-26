@@ -140,7 +140,7 @@ def reply_to_asks():
             print Fore.BLUE + u"@" + message[1] + u" >> " + message[2]
 
             moodModifiers.push(reduce(lambda x, y: x * y, pattern.en.sentiment(message[2])))
-            if console.['verboseLogging']: print "Mood modifiers: " str(moodModifiers)
+            if console['verboseLogging']: print "Mood modifiers: " str(moodModifiers)
             mood = sum(moodModifiers) / 10
 
             parsedMessage = parse.tokenize(message[2])
