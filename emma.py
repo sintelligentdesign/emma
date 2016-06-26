@@ -183,6 +183,9 @@ def reply_to_asks():
 
 def learn_new_words():
     print "Learning new words..."
+    pass
+    # taking this offline until we can figure out a better way to learn words
+    '''
     with connection:
         cursor.execute('SELECT word FROM dictionary WHERE is_new = 1;')
         newWords = cursor.fetchall()
@@ -201,6 +204,7 @@ def learn_new_words():
                             consume(tokenizedSentence, "people")
             with connection:
                 cursor.execute("UPDATE dictionary SET is_new = 0 WHERE word = \"%s\";" % word)
+    '''
 
 def dream():
     print "Dreaming..."
@@ -215,9 +219,11 @@ def dream():
         dream = sentencebuilder.generate_sentence(pattern.en.parse(dreamSeed, True, True, True, True, True).split())
         print Fore.BLUE + u"dream >> " + dream
         tumblrclient.post_dream(dream)
-        time.sleep(5)
+        time.sleep(60)
 
 while True:
-     lastFourActivites, lastDreamTime = main(lastFourActivites, lastDreamTime)
+     #lastFourActivites, lastDreamTime = main(lastFourActivites, lastDreamTime)
+     reply_to_asks()
+     dream()
      print "Sleeping for 10 seconds..."
-     time.sleep(10)
+     time.sleep(120)
