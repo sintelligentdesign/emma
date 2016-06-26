@@ -162,13 +162,10 @@ def reply_to_asks():
             emmaUnderstanding = u"Emma interpreted this message as: \'%s\'" % emmaUnderstanding
             print Fore.BLUE + emmaUnderstanding
 
-            reply, importantWords, associations = sentencebuilder.generate_sentence(parsedMessage)
+            reply, importantWords = sentencebuilder.generate_sentence(parsedMessage)
             if reply:
+                reply = ' '.join(reply)
                 print Fore.BLUE + u"emma >> %s" % reply
-
-                # todo: remove debug reply
-                if len(associations) > 10: associations = associations[0:9]
-                reply = reply + "\n" + "importantWords: " + str(importantWords) + "\n" + "associations: " + str(associations)
                 
                 print "Posting reply..."
                 # Reply bundle is (asker, question, response, debugInfo)
