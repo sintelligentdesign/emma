@@ -43,7 +43,7 @@ intents = [['=DECLARATIVE'], ['=DECLARATIVE', 'like', '=DECLARATIVE'], ['=DECLAR
 
 declaratives = [['=PHRASE', 'is', '=ADJECTIVE'], ['=PLURPHRASE', 'are', '=ADJECTIVE'], ['=PHRASE', '=IMPERATIVE']] #['=PHRASE', 'has/have', '=PHRASE']  todo: this would be a special case. Should we have a few special case domains that get their own special code?
 imperatives = [['=VERB'], ['=VERB', '=PHRASE'], ['=VERB', 'a', '=PHRASE'], ['=VERB', 'the', '=PHRASE'], ['=VERB', 'the', '=PLURPHRASE'], ['=VERB', 'at', '=PLURPHRASE'], ['always', '=VERB', '=PHRASE'], ['never', '=VERB', '=PHRASE']] #['=VERB', 'a', '=PHRASE', 'with', '=PLURPHRASE']
-phrases =[['=NOUN'], ['a', '=NOUN'], ['the', '=NOUN'], ['=ADJECTIVE', '=NOUN'], ['=ADJECTIVE', ',', '=ADJECTIVE', '=NOUN']]
+phrases =[['=NOUN'], ['=ADJECTIVE', '=NOUN'], ['=ADJECTIVE', ',', '=ADJECTIVE', '=NOUN']]
 greetings = [['hi', '=NAME', '!'], ['hello', '=NAME', '!'], ['what\'s', 'up,', '=NAME', '?']]
 def create_reply(importantWords):
     reply = random.choice(intents)
