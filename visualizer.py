@@ -28,7 +28,7 @@ def create_edge(node1, node2, association, weight):
         graph.add_edge(node1, node2, weight=weight, type=association, stroke=(0,0,0,weight))
 
 with connection:
-    cursor.execute('SELECT * FROM associationmodel;')
+    cursor.execute('SELECT * FROM associationmodel WHERE weight > 0.25;')
     SQLReturn = cursor.fetchall()
 for row in SQLReturn:
     create_edge(row[0], row[2], row[1], row[3])
