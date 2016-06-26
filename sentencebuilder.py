@@ -26,36 +26,10 @@ def generate_sentence(tokenizedMessage):
                 importantWords.append(word[0])
     if console['verboseLogging']: print Fore.BLUE + u"Important words: " + str(importantWords)
 
-    if console['verboseLogging']: print Fore.BLUE+ u"Associations: " + str(associations)
-
     # Reply to message
     print "Creating reply..."
     reply = create_reply(importantWords)
-    return reply, importantWords
-
-def common_sense_halo(importantWords):
-    depth1 = []
-    depth2 = []
-    associations = []
-    for word in importantWords:
-        depth1.extend(find_associations(word))
-    for word in depth1:
-        depth2.extend(find_associations(word[0]))
-        associations.append(word)
-    for word in depth2:
-        associations.append(word)
-
-def find_associations(word):
-    associations = []
-    with connection:
-        cursor.execute("SELECT word, association_type, target, weight FROM associationmodel WHERE word = \"%s\" OR target = \"%s\";" % (word.encode('utf-8'), word.encode('utf-8')))
-        SQLReturn = cursor.fetchall()
-    for row in SQLReturn:
-        relatedWord = [row[0], row[1], row[2], row[3]]
-        associations.append(relatedWord)
-    # todo: remove duplicates
-    if console['verboseLogging']: print Fore.MAGENTA + u"Found %d associations for %s" % (len(associations), word)
-    return associations
+    return ' '.join(reply)
 
 def choose_association(associations):
     dieSeed = 0
@@ -67,11 +41,10 @@ def choose_association(associations):
             return row
             break
 
-# Reply > Intent > Domain > Parts of Speech
 intents = [['=DECLARATIVE'], ['=DECLARATIVE', 'like', '=DECLARATIVE'], ['=DECLARATIVE', 'and', '=DECLARATIVE'], ['=DECLARATIVE', ',', 'but', '=DECLARATIVE'], ['=IMPERATIVE'], ['=IMPERATIVE', 'like', '=DECLARATIVE'], ['=PHRASE']]
 
 declaratives = [['=PHRASE', 'is', 'a', '=ADJECTIVE'], ['=PLURPHRASE', 'are', '=ADJECTIVE'], ['=PHRASE', '=IMPERATIVE']]
-imperatives = [['=VERB'], ['=VERB', '=PHRASE'], ['=VERB', '(a/an)', '=PHRASE'], ['=VERB', 'the', '=PHRASE'], ['=VERB', 'the', '=PLURPHRASE'], ['=VERB', 'at', '=PLURPHRASE'], ['always', '=VERB', '=PHRASE'], ['never', '=VERB', '=PHRASE']] #['=VERB', '(a/an)', '=PHRASE', 'with', '=PLURPHRASE']
+imperatives = [['=VERB'], ['=VERB', '=PHRASE'], ['=VERB', 'a', '=PHRASE'], ['=VERB', 'the', '=PHRASE'], ['=VERB', 'the', '=PLURPHRASE'], ['=VERB', 'at', '=PLURPHRASE'], ['always', '=VERB', '=PHRASE'], ['never', '=VERB', '=PHRASE']] #['=VERB', 'a', '=PHRASE', 'with', '=PLURPHRASE']
 phrases =[['=NOUN'], ['=ADJECTIVE', '=NOUN'], ['=ADJECTIVE', ',', '=ADJECTIVE', '=NOUN']]
 greetings = [['hi', '=NAME', '!'], ['hello', '=NAME', '!'], ['what\'s', 'up,', '=NAME', '?']]
 def create_reply(importantWords):
@@ -82,6 +55,9 @@ def create_reply(importantWords):
         newReply = expand_domains(importantWords, reply)
         if reply == newReply: domainsExpanded = True
         reply = newReply
+
+    reply[-1] += u"."
+    reply[0] = reply[0].title()
     return reply
 
 def expand_domains(importantWords, reply):

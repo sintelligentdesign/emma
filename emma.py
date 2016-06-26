@@ -162,9 +162,8 @@ def reply_to_asks():
             emmaUnderstanding = u"Emma interpreted this message as: \'%s\'" % emmaUnderstanding
             print Fore.BLUE + emmaUnderstanding
 
-            reply, importantWords = sentencebuilder.generate_sentence(parsedMessage)
+            reply = sentencebuilder.generate_sentence(parsedMessage)
             if reply:
-                reply = ' '.join(reply)
                 print Fore.BLUE + u"emma >> %s" % reply
                 
                 print "Posting reply..."
