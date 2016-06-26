@@ -176,8 +176,12 @@ def reply_to_asks():
                 print Fore.YELLOW + "!!! Ask deletion disabled in config file -- execution will continue normally in 2 seconds..."
                 time.sleep(2)
 
-            print "Sleeping for 5 minutes..."
-            time.sleep(300)
+            if debug['enableSleep']:
+                print "Sleeping for 3 minutes..."
+                time.sleep(180)
+            else:
+                print Fore.YELLOW + "!!! Sleep disabled in config file -- execution will continue normally in 2 seconds..."
+                time.sleep(2)
     else:
         print "No new asks :("
 
@@ -220,12 +224,20 @@ def dream():
         print Fore.BLUE + u"dream >> " + dream
         tumblrclient.post_dream(dream)
     else: print "Dreamless sleep..."
-    print "Sleeping for 5 minutes"
-    time.sleep(300)
+    if debug['enableSleep']:
+        print "Sleeping for 5 minutes"
+        time.sleep(300)
+    else:
+        print Fore.YELLOW + "!!! Sleep disabled in config file -- execution will continue normally in 2 seconds..."
+        time.sleep(2)
 
 while True:
-     #lastFourActivites, lastDreamTime = main(lastFourActivites, lastDreamTime)
-     reply_to_asks()
-     dream()
-     print "Sleeping for 10 minutes..."
-     time.sleep(600)
+    #lastFourActivites, lastDreamTime = main(lastFourActivites, lastDreamTime)
+    reply_to_asks()
+    dream()
+    if debug['enableSleep']:
+        print "Sleeping for 10 minutes..."
+        time.sleep(600)
+    else:
+        print Fore.YELLOW + "!!! Sleep disabled in config file -- execution will continue normally in 2 seconds..."
+        time.sleep(2)

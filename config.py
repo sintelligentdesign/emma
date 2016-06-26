@@ -11,7 +11,9 @@ debug = {
         ("12345", "hotpizzapie", u"I think you're fantastic. I don't know what I'd do without you."),
         ("67890", "nanopup", u"Hi Emma! I hope you're doing well. I like dogs because they are gay."),
         ("12345", "sparkplugiv", u"hi emma im gay"),
-        ("67890", "sharkthemepark", u"I love nanopup they're so perfect so pretty so pure i love that dog")]
+        ("67890", "sharkthemepark", u"I love nanopup they're so perfect so pretty so pure i love that dog")],
+
+    'enableSleep': True
 }
 
 console = {

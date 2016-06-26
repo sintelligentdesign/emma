@@ -55,6 +55,15 @@ def create_reply(importantWords):
         reply = newReply
     reply[-1] += u"."
     reply[0] = reply[0].title()
+    for count, word in enumerate(reply):
+        # having to fix the position of commas ANYWAY gives us the ability to throw in a cute little easter egg when referencing Alex or Ellie's Tumblr usernames
+        if word == "sharkthemepark":
+            reply[count] = "mom"
+        elif word == "nosiron":
+            reply[count] = "dad"
+        elif word == ",":
+            reply[count - 1] = reply[count - 1] + u","
+            del reply[count]
     return reply
 
 def expand_domains(importantWords, reply):
