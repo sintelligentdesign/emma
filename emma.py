@@ -160,7 +160,7 @@ def reply_to_asks():
             print Fore.BLUE + emmaUnderstanding
 
             reply = sentencebuilder.generate_sentence(parsedMessage)
-            if reply:
+            if "%" not in reply:
                 print Fore.BLUE + u"emma >> %s" % reply
                 
                 print "Posting reply..."
@@ -215,10 +215,12 @@ def dream():
         dreamSeed = ""
         for word in SQLReturn:
             dreamSeed += word[0] + " "
-        print "Dream: " + dreamSeed
+        print "Dream seed: " + dreamSeed
         dream = sentencebuilder.generate_sentence(pattern.en.parse(dreamSeed, True, True, True, True, True).split())
-        print Fore.BLUE + u"dream >> " + dream
-        tumblrclient.post_dream(dream)
+        if "%" not in dream:
+            print Fore.BLUE + u"dream >> " + dream
+            tumblrclient.post_dream(dream)
+        else: print "Dreamless sleep..."
         print "Sleeping for 5 minutes"
         time.sleep(300)
 

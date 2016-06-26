@@ -89,6 +89,9 @@ def build_phrase(importantWords, isPlural, returnSet=False):
             cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\" AND part_of_speech = \"JJ\";" % word)
             SQLReturn = cursor.fetchall()
         if SQLReturn != []: phraseSets.append([word, choose_association(SQLReturn)[0], choose_association(SQLReturn)[0]])
+    
+    # todo: handle errors correctly lmao
+    if phraseSets == []: return "%", "%"
 
     phrase = []
     domain = random.choice(phrases)
@@ -110,6 +113,7 @@ def build_imperative(importantWords):
     pluralPhrase = False
     if "=PLURPHRASE" in domain: pluralPhrase = True
     phrase, phraseSet = build_phrase(importantWords, pluralPhrase, True)
+    if phrase == "%": return "%"
 
     # Using the noun from our phrase, find matching verbs and adverbs
     with connection:
@@ -130,6 +134,7 @@ def build_declarative(importantWords):
     pluralPhrase = False
     if "=PLURPHRASE" in domain: pluralPhrase = True
     phrase, phraseSet = build_phrase(importantWords, pluralPhrase, True)
+    if phrase == "%": return "%"
     imperative = build_imperative([phraseSet[0]])
 
     with connection:
