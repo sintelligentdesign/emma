@@ -140,7 +140,7 @@ def reply_to_asks():
             print Fore.BLUE + u"@" + message[1] + u" >> " + message[2]
 
             moodModifiers.push(reduce(lambda x, y: x * y, pattern.en.sentiment(message[2])))
-            mood = sum(moodModifiers)
+            mood = sum(moodModifiers) / 10
 
             parsedMessage = parse.tokenize(message[2])
 
@@ -176,8 +176,8 @@ def reply_to_asks():
                 print Fore.YELLOW + "!!! Ask deletion disabled in config file -- execution will continue normally in 2 seconds..."
                 time.sleep(2)
 
-            print "Sleeping for 2 minutes..."
-            time.sleep(120)
+            print "Sleeping for 5 minutes..."
+            time.sleep(300)
     else:
         print "No new asks :("
 
