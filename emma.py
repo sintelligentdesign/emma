@@ -59,7 +59,7 @@ def main(lastFourActivites, lastDreamTime):
     lastFourActivites, lastDreamTime = choose_activity(lastFourActivites, lastDreamTime)
     return lastFourActivites, lastDreamTime
     
-def consume(parsedSentence, asker):
+def consume(parsedSentence, asker=""):
     parse.add_new_words(parsedSentence)
     #utilities.spellcheck(parsedSentence)
     pronouns.determine_references(parsedSentence)
@@ -231,13 +231,27 @@ def dream():
         print Fore.YELLOW + "!!! Sleep disabled in config file -- execution will continue normally in 2 seconds..."
         time.sleep(2)
 
+def chat():
+    while True:
+        message = raw_input(Fore.BLUE + 'You >> ')
+        tokenizedMessage = parse.tokenize(message)
+        for sentence in tokenizedMessage:
+            consume(sentence)
+        reply = sentencebuilder.generate_sentence(tokenizedMessage)
+        if "%" not in reply: print Fore.BLUE + u"emma >> %s" % reply
+        else: print Fore.YELLOW + "No reply."
+
 while True:
-    #lastFourActivites, lastDreamTime = main(lastFourActivites, lastDreamTime)
-    reply_to_asks()
-    dream()
-    if debug['enableSleep']:
-        print "Sleeping for 10 minutes..."
-        time.sleep(600)
-    else:
-        print Fore.YELLOW + "!!! Sleep disabled in config file -- execution will continue normally in 2 seconds..."
-        time.sleep(2)
+    if not console['chatMode']:
+        #lastFourActivites, lastDreamTime = main(lastFourActivites, lastDreamTime)
+        reply_to_asks()
+        dream()
+        if debug['enableSleep']:
+            print "Sleeping for 10 minutes..."
+            time.sleep(600)
+        else:
+            print Fore.YELLOW + "!!! Sleep disabled in config file -- execution will continue normally in 2 seconds..."
+            time.sleep(2)
+    else: 
+        print Fore.YELLOW + "!!! Chat mode enabled in config file."
+        chat()
