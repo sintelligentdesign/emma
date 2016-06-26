@@ -55,30 +55,43 @@ def find_associations(word):
     if console['verboseLogging']: print Fore.MAGENTA + u"Found %d associations for %s" % (len(associations), word)
     return associations
 
+def choose_association(associations):
+    dieSeed = 0
+    for row in associations: dieSeed += row[3]
+    dieResult = random.uniform(0, dieSeed)
+    for row in associations:
+        dieResult -= row[3]
+        if dieResult <= 0:
+            return row
+            break
+
 def create_reply(importantWords, associations):
-    reply = []
+    reply = ""
     verbAssociations = []
-    chosenVerb = ''
     for row in associations:
         with connection:
             cursor.execute("SELECT * FROM dictionary WHERE word = \'%s\' AND part_of_speech IN (\'VB\', \'VBD\', \'VBG\', \'VBN\', \'VBP\', \'VBZ\');" % row[2])
             SQLReturn = cursor.fetchall()
-            if SQLReturn:
-                verbAssociations.extend(row)
-    verbsWithWeights = []
-    for count in range(0 ,len(verbAssociations) / 4):
-        verbWeightTuple = (verbAssociations[(4 * count) - 2], verbAssociations[(4 * count) - 1])
-        verbsWithWeights.append(verbWeightTuple)
-    dieSeed = 0
-    for verbWeightTuple in verbsWithWeights:
-        dieSeed += verbWeightTuple[1]
-    dieResult = random.uniform(0, dieSeed)
-    for verbWeightTuple in verbsWithWeights:
-        dieResult -= verbWeightTuple[1]
-        if dieResult <= 0:
-            chosenVerb = verbWeightTuple[0]
-            break
+            if SQLReturn: verbAssociations.append(row)
 
-    return chosenVerb
+    # Choose a verb to seed our sentence
+    verbChoice = choose_association(verbAssociations)
+    print verbChoice
+            
+    with connection:
+        importantWordsSQL = u"("
+        for count, word in enumerate(importantWords):
+            importantWordsSQL += u"\'" + word + u"\'"
+            if count != len(importantWords) - 1:
+                importantWordsSQL += u","
+        importantWordsSQL += u")"
+        cursor.execute("SELECT * FROM associationmodel WHERE word IN %s AND association_type = \'HAS-ABILITY-TO\' AND target = \'%s\';" % (importantWordsSQL, verbChoice[2]))
+        sbjAssociations = cursor.fetchall()
 
-print create_reply([u'sharkthemepark', u'dog'], [[u'pure', u'IS-PROPERTY-OF', u'sharkthemepark', 0.0999999999997], [u'sharkthemepark', u'HAS-ABILITY-TO', u'love', 0.0999999999997], [u'dog', u'HAS-ABILITY-TO', u'pass', 0.0999999999997], [u'gay', u'IS-PROPERTY-OF', u'dog', 0.450853060378], [u'dominant', u'IS-PROPERTY-OF', u'dog', 0.0999999999997], [u'siberian', u'IS-PROPERTY-OF', u'dog', 0.0999999999997], [u'dog', u'HAS-ABILITY-TO', u'gonna', 0.0999999999997], [u'pure', u'IS-PROPERTY-OF', u'joy', 0.0999999999997], [u'pure', u'IS-PROPERTY-OF', u'sharkthemepark', 0.0999999999997]])
+    # Choose a subject noun
+    sbjChoice = choose_association(sbjAssociations)
+    print sbjChoice
+
+    reply = sbjChoice[0] + u" " + verbChoice[2]
+
+    return reply
