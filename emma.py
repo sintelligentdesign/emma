@@ -176,8 +176,8 @@ def reply_to_asks():
                 print Fore.YELLOW + "!!! Ask deletion disabled in config file -- execution will continue normally in 2 seconds..."
                 time.sleep(2)
 
-            print "Sleeping for 10 seconds..."
-            time.sleep(10)
+            print "Sleeping for 60 seconds..."
+            time.sleep(60)
     else:
         print "No new asks :("
 
@@ -210,7 +210,7 @@ def dream():
     print "Dreaming..."
     for i in range(8):      # todo: semi-logically choose how many dreams to dream
         with connection:
-            cursor.execute('SELECT word FROM dictionary WHERE is_new = 0 AND is_banned = 0 ORDER BY RANDOM() LIMIT 10;')
+            cursor.execute('SELECT word FROM dictionary WHERE is_banned = 0 ORDER BY RANDOM() LIMIT 10;')
             SQLReturn = cursor.fetchall()
         dreamSeed = ""
         for word in SQLReturn:
@@ -219,11 +219,12 @@ def dream():
         dream = sentencebuilder.generate_sentence(pattern.en.parse(dreamSeed, True, True, True, True, True).split())
         print Fore.BLUE + u"dream >> " + dream
         tumblrclient.post_dream(dream)
+        print "Sleeping for 60 seconds"
         time.sleep(60)
 
 while True:
      #lastFourActivites, lastDreamTime = main(lastFourActivites, lastDreamTime)
      reply_to_asks()
      dream()
-     print "Sleeping for 10 seconds..."
+     print "Sleeping for 2 minutes..."
      time.sleep(120)
