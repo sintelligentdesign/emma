@@ -98,13 +98,13 @@ def build_phrase(importantWords, isPlural, returnSet=False):
     phraseSet = random.choice(phraseSets)
     for word in domain:
         if word == "=NOUN": 
-            if isPlural:
-                phrase.append(pattern.en.pluralize(phraseSet[0]))
+            if isPlural: phrase.append(pattern.en.pluralize(phraseSet[0]))
             else: phrase.append(phraseSet[0])
         elif word == "=ADJECTIVE":
             phrase.append(phraseSet[1])
             del phraseSet[1]
         else: phrase.append(word)
+    print phrase
     if returnSet: return phrase, phraseSet
     else: return phrase
 
@@ -127,6 +127,7 @@ def build_imperative(importantWords):
         if word in ["=PHRASE", "=PLURPHRASE"]: imperative.extend(phrase)
         elif word == "=VERB": imperative.append(verb)
         else: imperative.append(word)
+    print imperative
     return imperative
     
 def build_declarative(importantWords):
@@ -149,4 +150,5 @@ def build_declarative(importantWords):
         elif word == "=IMPERATIVE": declarative.extend(imperative)
         elif word == "=ADJECTIVE": declarative.append(adjective)
         else: declarative.append(word)
+    print declarative
     return declarative

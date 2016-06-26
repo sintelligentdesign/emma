@@ -208,21 +208,20 @@ def learn_new_words():
 
 def dream():
     print "Dreaming..."
-    for i in range(2):      # todo: semi-logically choose how many dreams to dream
-        with connection:
-            cursor.execute('SELECT word FROM dictionary WHERE is_banned = 0 ORDER BY RANDOM() LIMIT 10;')
-            SQLReturn = cursor.fetchall()
-        dreamSeed = ""
-        for word in SQLReturn:
-            dreamSeed += word[0] + " "
-        print "Dream seed: " + dreamSeed
-        dream = sentencebuilder.generate_sentence(pattern.en.parse(dreamSeed, True, True, True, True, True).split())
-        if "%" not in dream:
-            print Fore.BLUE + u"dream >> " + dream
-            tumblrclient.post_dream(dream)
-        else: print "Dreamless sleep..."
-        print "Sleeping for 5 minutes"
-        time.sleep(300)
+    with connection:
+        cursor.execute('SELECT word FROM dictionary WHERE is_banned = 0 ORDER BY RANDOM() LIMIT 10;')
+        SQLReturn = cursor.fetchall()
+    dreamSeed = ""
+    for word in SQLReturn:
+        dreamSeed += word[0] + " "
+    print "Dream seed: " + dreamSeed
+    dream = sentencebuilder.generate_sentence(pattern.en.parse(dreamSeed, True, True, True, True, True).split())
+    if "%" not in dream:
+        print Fore.BLUE + u"dream >> " + dream
+        tumblrclient.post_dream(dream)
+    else: print "Dreamless sleep..."
+    print "Sleeping for 5 minutes"
+    time.sleep(300)
 
 while True:
      #lastFourActivites, lastDreamTime = main(lastFourActivites, lastDreamTime)
