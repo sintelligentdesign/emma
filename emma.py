@@ -208,7 +208,7 @@ def learn_new_words():
 
 def dream():
     print "Dreaming..."
-    for i in range(8):      # todo: semi-logically choose how many dreams to dream
+    for i in range(2):      # todo: semi-logically choose how many dreams to dream
         with connection:
             cursor.execute('SELECT word FROM dictionary WHERE is_banned = 0 ORDER BY RANDOM() LIMIT 10;')
             SQLReturn = cursor.fetchall()
