@@ -136,7 +136,7 @@ def reply_to_asks():
         print "Fetched %d new asks" % len(messageList)
         for askCount, message in enumerate(messageList):
             # todo: intelligently decide how many asks to answer
-            print "Reading ask no. %d..." % (askCount + 1)
+            print "Reading ask no. %d of %d..." % (askCount + 1, len(messageList))
             print Fore.BLUE + u"@" + message[1] + u" >> " + message[2]
 
             moodModifiers.push(reduce(lambda x, y: x * y, pattern.en.sentiment(message[2])))

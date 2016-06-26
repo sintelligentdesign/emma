@@ -41,7 +41,7 @@ def choose_association(associations):
 
 intents = [['=DECLARATIVE'], ['=DECLARATIVE', 'like', '=DECLARATIVE'], ['=DECLARATIVE', 'and', '=DECLARATIVE'], ['=DECLARATIVE', ',', 'but', '=DECLARATIVE'], ['=IMPERATIVE'], ['=IMPERATIVE', 'like', '=DECLARATIVE'], ['=PHRASE']]
 
-declaratives = [['=PHRASE', 'is', 'a', '=ADJECTIVE'], ['=PLURPHRASE', 'are', '=ADJECTIVE'], ['=PHRASE', '=IMPERATIVE']]
+declaratives = [['=PHRASE', 'is', '=ADJECTIVE'], ['=PLURPHRASE', 'are', '=ADJECTIVE'], ['=PHRASE', '=IMPERATIVE']] #['=PHRASE', 'has/have', '=PHRASE']  todo: this would be a special case. Should we have a few special case domains that get their own special code?
 imperatives = [['=VERB'], ['=VERB', '=PHRASE'], ['=VERB', 'a', '=PHRASE'], ['=VERB', 'the', '=PHRASE'], ['=VERB', 'the', '=PLURPHRASE'], ['=VERB', 'at', '=PLURPHRASE'], ['always', '=VERB', '=PHRASE'], ['never', '=VERB', '=PHRASE']] #['=VERB', 'a', '=PHRASE', 'with', '=PLURPHRASE']
 phrases =[['=NOUN'], ['=ADJECTIVE', '=NOUN'], ['=ADJECTIVE', ',', '=ADJECTIVE', '=NOUN']]
 greetings = [['hi', '=NAME', '!'], ['hello', '=NAME', '!'], ['what\'s', 'up,', '=NAME', '?']]
