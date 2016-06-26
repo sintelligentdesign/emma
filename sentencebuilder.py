@@ -65,36 +65,37 @@ def choose_association(associations):
             return row
             break
 
+intents = [['=DECLARATIVE'], ['=DECLARATIVE', 'like', '=DECLARATIVE'], ['=DECLARATIVE', 'and', '=DECLARATIVE'], ['=DECLARATIVE', ',', 'but', '=DECLARATIVE'], ['=IMPERATIVE'], ['=IMPERATIVE', 'like', '=DECLARATIVE'], ['=PHRASE']]
+
+declaratives = [['=PHRASE', 'is', '=ADJECTIVE'], ['=PLURPHRASE', 'are', '=ADJECTIVE'], ['=PHRASE', '=IMPERATIVE']]
+imperatives = [['=VERB'], ['=VERB', '=PHRASE'], ['=VERB', 'me'], ['=VERB', '(a/an)', '=PHRASE'], ['=VERB', 'the', '=PLURPHRASE'], ['=VERB', 'the', '=PHRASE', '=ADVERB'], ['=VERB', 'at', '=PLURPHRASE'], ['=VERB', '(a/an)', '=PHRASE', 'with', '=PLURPHRASE'], ['always', '=VERB', '=PHRASE'], ['never', '=VERB', '=PHRASE']]
+phrases =[['=NOUN'], ['=ADJECTIVE', '=NOUN'], ['=ADJECTIVE', ',', '=ADJECTIVE', '=NOUN']]
+greetings = [['hi', '=NAME', '!'], ['hello', '=NAME', '!'], ['what\'s', 'up,', '=NAME', '?']]
 def create_reply(importantWords, associations):
-    reply = ""
-    verbAssociations = []
-    for row in associations:
-        with connection:
-            cursor.execute("SELECT * FROM dictionary WHERE word = \"%s\" AND part_of_speech IN (\'VB\', \'VBD\', \'VBG\', \'VBN\', \'VBP\', \'VBZ\');" % row[2])
-            SQLReturn = cursor.fetchall()
-            if SQLReturn: verbAssociations.append(row)
 
-    # Choose a verb to seed our sentence
-    verbChoice = choose_association(verbAssociations)
-    print u"verbChoice:" + str(verbChoice)
-            
-    with connection:
-        importantWordsSQL = u"("
-        for count, word in enumerate(importantWords):
-            importantWordsSQL += u"\"" + word + u"\""
-            if count != len(importantWords) - 1:
-                importantWordsSQL += u","
-        importantWordsSQL += u")"
-        cursor.execute("SELECT * FROM associationmodel WHERE word IN %s AND association_type = \"HAS-ABILITY-TO\" AND target = \"%s\";" % (importantWordsSQL, verbChoice[2]))
-        sbjAssociations = cursor.fetchall()
-        if sbjAssociations == []:
-            cursor.execute("SELECT * FROM associationmodel WHERE association_type = \"HAS-ABILITY-TO\" AND target = \"%s\";" % verbChoice[2])
-            sbjAssociations = cursor.fetchall()
+    reply = random.choice(intents)
+    domainsExpanded = False
 
-    # Choose a subject noun
-    sbjChoice = choose_association(sbjAssociations)
-    print u"sbjChoice:" + str(sbjChoice)
-
-    reply = sbjChoice[0] + u" " + verbChoice[2]
+    while not domainsExpanded:
+        print reply
+        newReply = expand_domains(reply)
+        if reply == newReply: domainsExpanded = True
+        reply = newReply
 
     return reply
+
+def expand_domains(reply):
+    newReply = []
+    for word in reply:
+        if word == "=DECLARATIVE":
+            newReply.append(random.choice(declaratives))
+        elif word == "=IMPERATIVE":
+            newReply.append(random.choice(imperatives))
+        elif word in ["=PHRASE", "=PLURPHRASE"]:
+            newReply.append(random.choice(phrases))
+        elif type(word) == list:
+            newReply.append(expand_domains(word))
+        else: newReply.append(word)
+    return newReply
+
+create_reply([u'sharkthemepark', u'dog'], [[u'pure', u'IS-PROPERTY-OF', u'sharkthemepark', 0.0999999999997], [u'sharkthemepark', u'HAS-ABILITY-TO', u'love', 0.0999999999997], [u'dog', u'HAS-ABILITY-TO', u'pass', 0.0999999999997], [u'gay', u'IS-PROPERTY-OF', u'dog', 0.450853060378], [u'dominant', u'IS-PROPERTY-OF', u'dog', 0.0999999999997], [u'siberian', u'IS-PROPERTY-OF', u'dog', 0.0999999999997], [u'dog', u'HAS-ABILITY-TO', u'gonna', 0.0999999999997], [u'pure', u'IS-PROPERTY-OF', u'joy', 0.0999999999997], [u'pure', u'IS-PROPERTY-OF', u'sharkthemepark', 0.0999999999997]])
