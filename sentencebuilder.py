@@ -87,6 +87,9 @@ def create_reply(importantWords, associations):
         importantWordsSQL += u")"
         cursor.execute("SELECT * FROM associationmodel WHERE word IN %s AND association_type = \"HAS-ABILITY-TO\" AND target = \"%s\";" % (importantWordsSQL, verbChoice[2]))
         sbjAssociations = cursor.fetchall()
+        if sbjAssociations == []:
+            cursor.execute("SELECT * FROM associationmodel WHERE association_type = \"HAS-ABILITY-TO\" AND target = \"%s\";" % verbChoice[2])
+            sbjAssociations = cursor.fetchall()
 
     # Choose a subject noun
     sbjChoice = choose_association(sbjAssociations)
