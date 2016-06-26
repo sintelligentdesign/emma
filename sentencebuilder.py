@@ -48,8 +48,8 @@ greetings = [['hi', '=NAME', '!'], ['hello', '=NAME', '!'], ['what\'s', 'up,', '
 def create_reply(importantWords):
     reply = random.choice(intents)
     domainsExpanded = False
+    print reply
     while not domainsExpanded:
-        print reply
         newReply = expand_domains(importantWords, reply)
         if reply == newReply: domainsExpanded = True
         reply = newReply
@@ -68,19 +68,23 @@ def create_reply(importantWords):
 
 def expand_domains(importantWords, reply):
     newReply = []
-    for word in reply:
+    for count, word in enumerate(reply):
         if word == "=DECLARATIVE":
             newReply.extend(build_declarative(importantWords))
+            print newReply + reply[count + 1:len(reply)]
         elif word == "=IMPERATIVE":
             newReply.extend(build_imperative(importantWords))
+            print newReply + reply[count + 1:len(reply)]
         elif word in ["=PHRASE", "=PLURPHRASE"]:
             if word == "=PHRASE":
                 newReply.extend(build_phrase(importantWords, False))
             elif word == "=PLURPHRASE":
                 newReply.extend(build_phrase(importantWords, True))
+            print newReply + reply[count + 1:len(reply)]
         elif type(word) == list:
             newReply.append(expand_domains(importantWords, word))
-        else: newReply.append(word)
+        else: 
+            newReply.append(word)
     return newReply
 
 def build_phrase(importantWords, isPlural, returnSet=False):
@@ -113,7 +117,6 @@ def build_phrase(importantWords, isPlural, returnSet=False):
             phrase.append(phraseSet[1])
             del phraseSet[1]
         else: phrase.append(word)
-    print phrase
     if returnSet: return phrase, phraseSet
     else: return phrase
 
@@ -136,7 +139,6 @@ def build_imperative(importantWords):
         if word in ["=PHRASE", "=PLURPHRASE"]: imperative.extend(phrase)
         elif word == "=VERB": imperative.append(verb)
         else: imperative.append(word)
-    print imperative
     return imperative
     
 def build_declarative(importantWords):
@@ -159,5 +161,4 @@ def build_declarative(importantWords):
         elif word == "=IMPERATIVE": declarative.extend(imperative)
         elif word == "=ADJECTIVE": declarative.append(adjective)
         else: declarative.append(word)
-    print declarative
     return declarative
