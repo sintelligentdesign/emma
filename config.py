@@ -39,5 +39,5 @@ tumblr = {
     'enablePostPreview': True,
 
     # Enable or disable deletion of asks after we're done with them
-    'deleteAsks': False
+    'deleteAsks': True
 }

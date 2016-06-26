@@ -190,6 +190,7 @@ def learn_new_words():
         newWords = cursor.fetchall()
     if newWords:
         # todo: intelligently choose a number of words to learn
+        newWords = newWords[0:3]
         for row in newWords:
             word = row[0]
             results = tumblrclient.search_for_text_posts(word)
@@ -218,7 +219,7 @@ def dream():
 while True:
     # todo: remove these debug function calls
     reply_to_asks()
-    #learn_new_words()
+    learn_new_words()
 #     lastFourActivites, lastDreamTime = main(lastFourActivites, lastDreamTime)
 #     print "Sleeping for 10 seconds..."
 #     time.sleep(10)
