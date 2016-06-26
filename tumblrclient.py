@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Name:             Tumblr client
 # Description:      Communicates with Tumblr and executes related functions
 # Section:          LEARNING, REPLY
@@ -78,5 +79,6 @@ def post_dream(dream):
 def post_preview(post, tags):
     for count, tag in enumerate(tags):
         tags[count] = "#" + tag
-    tags = ' '.join(tags)
-    print Fore.BLUE + u"\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + post + u"\n- - - - - - - - - - - - - - - - - - - - - - - - -\n" + tags + u"\n\n"
+    tags = u' '.join(tags)
+    print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" 
+    print post + u"\n- - - - - - - - - - - - - - - - - - - - - - - - -\n" + tags + u"\n\n"
