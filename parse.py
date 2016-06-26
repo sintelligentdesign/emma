@@ -47,7 +47,7 @@ def tokenize(text):
                 print Fore.GREEN + "Appending \"\'s\" to \"%s\"..." % prevWord[5]
                 prevWord[5] = prevWord[5] + u"\'s"
                 rowsToRemove.append(taggedWord)
-            elif taggedWord[1] == u"\"" or taggedWord[5] in [u",", u"\u007c", u"\u2015", u"#", u"[", u"]", u"(", u")" u"\u2026", u"<", u">"]:
+            elif taggedWord[1] == u"\"" or taggedWord[5] in [u",", u"\u007c", u"\u2015", u"#", u"[", u"]", u"(", u")", u"{", u"}" u"\u2026", u"<", u">"]:
                 rowsToRemove.append(taggedWord)
 
         if rowsToRemove:

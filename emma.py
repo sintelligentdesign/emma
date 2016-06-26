@@ -187,7 +187,6 @@ def reply_to_asks():
 
 def learn_new_words():
     print "Learning new words..."
-    pass
     # taking this offline until we can figure out a better way to learn words
     '''
     with connection:
