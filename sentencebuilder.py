@@ -71,7 +71,7 @@ def choose_association(associations):
 intents = [['=DECLARATIVE'], ['=DECLARATIVE', 'like', '=DECLARATIVE'], ['=DECLARATIVE', 'and', '=DECLARATIVE'], ['=DECLARATIVE', ',', 'but', '=DECLARATIVE'], ['=IMPERATIVE'], ['=IMPERATIVE', 'like', '=DECLARATIVE'], ['=PHRASE']]
 
 declaratives = [['=PHRASE', 'is', '=ADJECTIVE'], ['=PLURPHRASE', 'are', '=ADJECTIVE'], ['=PHRASE', '=IMPERATIVE']]
-imperatives = [['=VERB'], ['=VERB', '=PHRASE'], ['=VERB', 'me'], ['=VERB', '(a/an)', '=PHRASE'], ['=VERB', 'the', '=PLURPHRASE'], ['=VERB', 'the', '=PHRASE', '=ADVERB'], ['=VERB', 'at', '=PLURPHRASE'], ['=VERB', '(a/an)', '=PHRASE', 'with', '=PLURPHRASE'], ['always', '=VERB', '=PHRASE'], ['never', '=VERB', '=PHRASE']]
+imperatives = [['=VERB'], ['=VERB', '=PHRASE'], ['=VERB', '(a/an)', '=PHRASE'], ['=VERB', 'the', '=PHRASE'], ['=VERB', 'the', '=PLURPHRASE'], ['=VERB', 'at', '=PLURPHRASE'], ['always', '=VERB', '=PHRASE'], ['never', '=VERB', '=PHRASE']] #['=VERB', '(a/an)', '=PHRASE', 'with', '=PLURPHRASE']
 phrases =[['=NOUN'], ['=ADJECTIVE', '=NOUN'], ['=ADJECTIVE', ',', '=ADJECTIVE', '=NOUN']]
 greetings = [['hi', '=NAME', '!'], ['hello', '=NAME', '!'], ['what\'s', 'up,', '=NAME', '?']]
 def create_reply(importantWords):
@@ -90,7 +90,7 @@ def expand_domains(importantWords, reply):
         if word == "=DECLARATIVE":
             newReply.append(random.choice(declaratives))
         elif word == "=IMPERATIVE":
-            newReply.append(random.choice(imperatives))
+            newReply.extend(build_imperative(importantWords))
         elif word in ["=PHRASE", "=PLURPHRASE"]:
             if word == "=PHRASE":
                 newReply.extend(build_phrase(importantWords, False))
@@ -101,7 +101,7 @@ def expand_domains(importantWords, reply):
         else: newReply.append(word)
     return newReply
 
-def build_phrase(importantWords, isPlural):
+def build_phrase(importantWords, isPlural, returnSet=False):
     queriedWords = []
     queriedWords.extend(importantWords)
     for word in importantWords:
@@ -129,6 +129,29 @@ def build_phrase(importantWords, isPlural):
             phrase.append(phraseSet[1])
             del phraseSet[1]
         else: phrase.append(word)
-    return phrase
+    if returnSet: return phrase, phraseSet
+    else: return phrase
 
-create_reply([u'emma', u'dog'])
+def build_imperative(importantWords):
+    domain = random.choice(imperatives)
+    pluralPhrase = False
+    if "=PLURPHRASE" in domain: pluralPhrase = True
+    phrase, phraseSet = build_phrase(importantWords, pluralPhrase, True)
+
+    # Using the noun from our phrase, find matching verbs and adverbs
+    with connection:
+        cursor.execute("SELECT * FROM associationmodel WHERE target = \'%s\' AND association_type = \'IS-PROPERTY-OF\';" % phraseSet[0])
+        verbAssociations = cursor.fetchall()
+
+    verb = choose_association(verbAssociations)[0]
+
+    imperative = []
+    print domain
+    for word in domain:
+        if word in ["=PHRASE", "=PLURPHRASE"]: imperative.append(phrase)
+        elif word == "=VERB": imperative.append(verb)
+        else: imperative.append(word)
+    return imperative
+
+#create_reply([u'affection', u'dog'])
+print build_imperative([u'affection', u'dog'], True)
