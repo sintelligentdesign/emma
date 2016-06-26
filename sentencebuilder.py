@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Name:             Sentence Generator
 # Description:      Generates sentences based on what Emma knows about English and the world
 # Section:          REPLY
@@ -55,7 +53,6 @@ def create_reply(importantWords):
         newReply = expand_domains(importantWords, reply)
         if reply == newReply: domainsExpanded = True
         reply = newReply
-
     reply[-1] += u"."
     reply[0] = reply[0].title()
     return reply

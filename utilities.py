@@ -24,7 +24,7 @@ def printInfo():
     ·~-.¸¸,.-~*'¯¨'*·~-.¸,.-~*'¯¨'*·~-.¸¸,.-~*'¯¨'*·~-.¸¸,.
     
             EXPANDING MODEL of MAPPED ASSOCIATIONS
-                           Pre-Alpha
+                         Alpha v0.0.1
     """
 
 d = enchant.Dict('en_US')
