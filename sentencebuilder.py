@@ -6,6 +6,7 @@
 import random
 
 import sqlite3 as sql
+import pattern.en
 from colorama import init, Fore
 init(autoreset = True)
 
@@ -25,7 +26,14 @@ def generate_sentence(tokenizedMessage):
                 importantWords.append(word[0])
     if console['verboseLogging']: print Fore.BLUE + u"Important words: " + str(importantWords)
 
-    # find words related to the important words
+    if console['verboseLogging']: print Fore.BLUE+ u"Associations: " + str(associations)
+
+    # Reply to message
+    print "Creating reply..."
+    reply = create_reply(importantWords)
+    return reply, importantWords
+
+def common_sense_halo(importantWords):
     depth1 = []
     depth2 = []
     associations = []
@@ -36,12 +44,6 @@ def generate_sentence(tokenizedMessage):
         associations.append(word)
     for word in depth2:
         associations.append(word)
-    if console['verboseLogging']: print Fore.BLUE+ u"Associations: " + str(associations)
-
-    # Reply to message
-    print "Creating reply..."
-    reply = create_reply(importantWords, associations)
-    return reply, importantWords, associations
 
 def find_associations(word):
     associations = []
@@ -65,26 +67,24 @@ def choose_association(associations):
             return row
             break
 
+# Reply > Intent > Domain > Parts of Speech
 intents = [['=DECLARATIVE'], ['=DECLARATIVE', 'like', '=DECLARATIVE'], ['=DECLARATIVE', 'and', '=DECLARATIVE'], ['=DECLARATIVE', ',', 'but', '=DECLARATIVE'], ['=IMPERATIVE'], ['=IMPERATIVE', 'like', '=DECLARATIVE'], ['=PHRASE']]
 
 declaratives = [['=PHRASE', 'is', '=ADJECTIVE'], ['=PLURPHRASE', 'are', '=ADJECTIVE'], ['=PHRASE', '=IMPERATIVE']]
 imperatives = [['=VERB'], ['=VERB', '=PHRASE'], ['=VERB', 'me'], ['=VERB', '(a/an)', '=PHRASE'], ['=VERB', 'the', '=PLURPHRASE'], ['=VERB', 'the', '=PHRASE', '=ADVERB'], ['=VERB', 'at', '=PLURPHRASE'], ['=VERB', '(a/an)', '=PHRASE', 'with', '=PLURPHRASE'], ['always', '=VERB', '=PHRASE'], ['never', '=VERB', '=PHRASE']]
 phrases =[['=NOUN'], ['=ADJECTIVE', '=NOUN'], ['=ADJECTIVE', ',', '=ADJECTIVE', '=NOUN']]
 greetings = [['hi', '=NAME', '!'], ['hello', '=NAME', '!'], ['what\'s', 'up,', '=NAME', '?']]
-def create_reply(importantWords, associations):
-
+def create_reply(importantWords):
     reply = random.choice(intents)
     domainsExpanded = False
-
     while not domainsExpanded:
         print reply
-        newReply = expand_domains(reply)
+        newReply = expand_domains(importantWords, reply)
         if reply == newReply: domainsExpanded = True
         reply = newReply
-
     return reply
 
-def expand_domains(reply):
+def expand_domains(importantWords, reply):
     newReply = []
     for word in reply:
         if word == "=DECLARATIVE":
@@ -92,10 +92,43 @@ def expand_domains(reply):
         elif word == "=IMPERATIVE":
             newReply.append(random.choice(imperatives))
         elif word in ["=PHRASE", "=PLURPHRASE"]:
-            newReply.append(random.choice(phrases))
+            if word == "=PHRASE":
+                newReply.extend(build_phrase(importantWords, False))
+            elif word == "=PLURPHRASE":
+                newReply.extend(build_phrase(importantWords, True))
         elif type(word) == list:
-            newReply.append(expand_domains(word))
+            newReply.append(expand_domains(importantWords, word))
         else: newReply.append(word)
     return newReply
 
-create_reply([u'sharkthemepark', u'dog'], [[u'pure', u'IS-PROPERTY-OF', u'sharkthemepark', 0.0999999999997], [u'sharkthemepark', u'HAS-ABILITY-TO', u'love', 0.0999999999997], [u'dog', u'HAS-ABILITY-TO', u'pass', 0.0999999999997], [u'gay', u'IS-PROPERTY-OF', u'dog', 0.450853060378], [u'dominant', u'IS-PROPERTY-OF', u'dog', 0.0999999999997], [u'siberian', u'IS-PROPERTY-OF', u'dog', 0.0999999999997], [u'dog', u'HAS-ABILITY-TO', u'gonna', 0.0999999999997], [u'pure', u'IS-PROPERTY-OF', u'joy', 0.0999999999997], [u'pure', u'IS-PROPERTY-OF', u'sharkthemepark', 0.0999999999997]])
+def build_phrase(importantWords, isPlural):
+    queriedWords = []
+    queriedWords.extend(importantWords)
+    for word in importantWords:
+        with connection:
+            cursor.execute("SELECT target FROM associationmodel WHERE word = \'%s\' AND association_type = \'HAS\';" % word)
+            SQLReturn = (cursor.fetchall())
+        for word in SQLReturn: queriedWords.extend(word)
+            
+    phraseSets = []
+    for word in queriedWords:
+        with connection:
+            cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \'%s\' AND association_type = \'IS-PROPERTY-OF\' AND part_of_speech = \'JJ\';" % word)
+            SQLReturn = cursor.fetchall()
+        if SQLReturn != []: phraseSets.append([word, choose_association(SQLReturn)[0], choose_association(SQLReturn)[0]])
+
+    phrase = []
+    domain = random.choice(phrases)
+    phraseSet = random.choice(phraseSets)
+    for word in domain:
+        if word == "=NOUN": 
+            if isPlural:
+                phrase.append(pattern.en.pluralize(phraseSet[0]))
+            else: phrase.append(phraseSet[0])
+        elif word == "=ADJECTIVE":
+            phrase.append(phraseSet[1])
+            del phraseSet[1]
+        else: phrase.append(word)
+    return phrase
+
+create_reply([u'emma', u'dog'])
