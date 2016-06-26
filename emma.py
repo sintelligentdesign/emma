@@ -164,7 +164,6 @@ def reply_to_asks():
 
             reply, importantWords, associations = sentencebuilder.generate_sentence(parsedMessage)
             if reply:
-                reply = ' '.join(reply)
                 print Fore.BLUE + u"emma >> %s" % reply
 
                 # todo: remove debug reply

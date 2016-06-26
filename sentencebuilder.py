@@ -21,7 +21,7 @@ def generate_sentence(tokenizedMessage):
     importantWords = []
     for sentence in tokenizedMessage:
         for word in sentence:
-            if word[1] in utilities.nounCodes and word[3]:
+            if word[1] in utilities.nounCodes and word[3] and word[0] not in importantWords:
                 importantWords.append(word[0])
     if console['verboseLogging']: print Fore.BLUE + u"Important words: " + str(importantWords)
 
@@ -70,27 +70,27 @@ def create_reply(importantWords, associations):
     verbAssociations = []
     for row in associations:
         with connection:
-            cursor.execute("SELECT * FROM dictionary WHERE word = \'%s\' AND part_of_speech IN (\'VB\', \'VBD\', \'VBG\', \'VBN\', \'VBP\', \'VBZ\');" % row[2])
+            cursor.execute("SELECT * FROM dictionary WHERE word = \"%s\" AND part_of_speech IN (\'VB\', \'VBD\', \'VBG\', \'VBN\', \'VBP\', \'VBZ\');" % row[2])
             SQLReturn = cursor.fetchall()
             if SQLReturn: verbAssociations.append(row)
 
     # Choose a verb to seed our sentence
     verbChoice = choose_association(verbAssociations)
-    print verbChoice
+    print u"verbChoice:" + str(verbChoice)
             
     with connection:
         importantWordsSQL = u"("
         for count, word in enumerate(importantWords):
-            importantWordsSQL += u"\'" + word + u"\'"
+            importantWordsSQL += u"\"" + word + u"\""
             if count != len(importantWords) - 1:
                 importantWordsSQL += u","
         importantWordsSQL += u")"
-        cursor.execute("SELECT * FROM associationmodel WHERE word IN %s AND association_type = \'HAS-ABILITY-TO\' AND target = \'%s\';" % (importantWordsSQL, verbChoice[2]))
+        cursor.execute("SELECT * FROM associationmodel WHERE word IN %s AND association_type = \"HAS-ABILITY-TO\" AND target = \"%s\";" % (importantWordsSQL, verbChoice[2]))
         sbjAssociations = cursor.fetchall()
 
     # Choose a subject noun
     sbjChoice = choose_association(sbjAssociations)
-    print sbjChoice
+    print u"sbjChoice:" + str(sbjChoice)
 
     reply = sbjChoice[0] + u" " + verbChoice[2]
 

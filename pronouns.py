@@ -53,4 +53,5 @@ def flip_posessive_references(sentence, asker):
             replacementWord = posessiveReferences.get(word[0])
             print Fore.GREEN + u"replacing posessive reference \'%s\' with \'%s\'..." % (word[0], replacementWord)
             word[0] = replacementWord
+            word[1] = "NNP"
     return sentence
