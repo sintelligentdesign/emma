@@ -129,7 +129,7 @@ def build_imperative(importantWords):
 
     # Using the noun from our phrase, find matching verbs and adverbs
     with connection:
-        cursor.execute("SELECT * FROM associationmodel WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\";" % phraseSet[0])
+        cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\" AND part_of_speech IN (\'VB\', \'VBD\', \'VBG\', \'VBN\', \'VBP\', \'VBZ\');" % phraseSet[0])
         verbAssociations = cursor.fetchall()
 
     verb = choose_association(verbAssociations)[0]
