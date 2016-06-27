@@ -165,17 +165,14 @@ def reply_to_asks():
             print Fore.BLUE + emmaUnderstanding
 
             reply = sentencebuilder.generate_sentence(parsedMessage)
-            if "%" not in reply:
-                print Fore.BLUE + u"emma >> %s" % reply
-
-                mood = calculate_mood(reply)
+            print Fore.BLUE + u"emma >> %s" % reply
+            mood = calculate_mood(reply)
                 
-                print "Posting reply..."
-                # Reply bundle is (asker, question, response, debugInfo)
-                # todo: remove debugInfo when we enter Beta (?)
-                tumblrclient.post_reply(message[1], message[2], reply, (emmaUnderstanding, mood))
+            print "Posting reply..."
+            # Reply bundle is (asker, question, response, debugInfo)
+            # todo: remove debugInfo when we enter Beta (?)
+            tumblrclient.post_reply(message[1], message[2], reply, (emmaUnderstanding, mood))
 
-            else: print Fore.YELLOW + "No reply."
             if tumblr['deleteAsks']:
                 print "Deleting ask..."
                 tumblrclient.delete_ask(message[0])
@@ -244,8 +241,7 @@ def chat():
         for sentence in tokenizedMessage:
             consume(sentence)
         reply = sentencebuilder.generate_sentence(tokenizedMessage)
-        if "%" not in reply: print Fore.BLUE + u"emma >> %s" % reply
-        else: print Fore.YELLOW + "No reply."
+        print Fore.BLUE + u"emma >> %s" % reply
 
 while True:
     if not console['chatMode']:

@@ -14,8 +14,6 @@ from config import console, database
 connection = sql.connect(database["path"])
 cursor = connection.cursor()
 
-maxSentenceLength = 7
-
 def generate_sentence(tokenizedMessage):
     importantWords = []
     for sentence in tokenizedMessage:
@@ -26,11 +24,9 @@ def generate_sentence(tokenizedMessage):
 
     # Reply to message
     print "Creating reply..."
-    for i in range(0, 2):
-        reply = create_reply(importantWords)
-        if "%" not in reply:
-            break
-    return ' '.join(reply)
+    reply = ' '.join(create_reply(importantWords))
+    print reply
+    return reply.strip('%')
 
 def choose_association(associations):
     dieSeed = 0
@@ -132,7 +128,7 @@ def build_imperative(importantWords):
 
     # Using the noun from our phrase, find matching verbs and adverbs
     with connection:
-        cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\" AND part_of_speech IN (\'VB\', \'VBD\', \'VBG\', \'VBN\', \'VBP\', \'VBZ\');" % phraseSet[0])
+        cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\" AND part_of_speech IN (\'VB\', \'VBD\', \'VBG\', \'VBN\', \'VBP\', \'VBZ\', \'RB\', \'RBR\', \'RBS\', \'RP\');" % phraseSet[0])
         verbAssociations = cursor.fetchall()
 
     if verbAssociations == []: return "%"
