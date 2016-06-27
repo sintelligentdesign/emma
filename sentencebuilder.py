@@ -91,14 +91,14 @@ def build_phrase(importantWords, isPlural, returnSet=False):
     queriedWords.extend(importantWords)
     for word in importantWords:
         with connection:
-            cursor.execute("SELECT target FROM associationmodel WHERE word = \"%s\" AND association_type = \"HAS\";" % word)
+            cursor.execute("SELECT target FROM associationmodel WHERE word = \"%s\" AND association_type in (\"IS-A\", \"HAS\");" % word)
             SQLReturn = (cursor.fetchall())
         for word in SQLReturn: queriedWords.extend(word)
             
     phraseSets = []
     for word in queriedWords:
         with connection:
-            cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\" AND part_of_speech = \"JJ\";" % word)
+            cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\" AND part_of_speech in(\"JJ\", \"JJR\", \"JJS\");" % word)
             SQLReturn = cursor.fetchall()
         if SQLReturn != []: phraseSets.append([word, choose_association(SQLReturn)[0], choose_association(SQLReturn)[0]])
     
