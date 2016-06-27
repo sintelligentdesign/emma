@@ -132,6 +132,8 @@ def build_imperative(importantWords):
         cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\" AND part_of_speech IN (\'VB\', \'VBD\', \'VBG\', \'VBN\', \'VBP\', \'VBZ\');" % phraseSet[0])
         verbAssociations = cursor.fetchall()
 
+    if verbAssociations == []: return "%"
+
     verb = choose_association(verbAssociations)[0]
 
     imperative = []
