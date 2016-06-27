@@ -26,7 +26,10 @@ def generate_sentence(tokenizedMessage):
 
     # Reply to message
     print "Creating reply..."
-    reply = create_reply(importantWords)
+    for i in range(0, 2):
+        reply = create_reply(importantWords)
+        if "%" not in reply:
+            break
     return ' '.join(reply)
 
 def choose_association(associations):
