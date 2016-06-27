@@ -45,10 +45,10 @@ imperatives = [['=VERB'], ['=VERB', '=PHRASE'], ['=VERB', 'a', '=PHRASE'], ['=VE
 phrases =[['=NOUN'], ['=ADJECTIVE', '=NOUN'], ['=ADJECTIVE', ',', '=ADJECTIVE', '=NOUN']]
 greetings = [['hi', '=NAME', '!'], ['hello', '=NAME', '!'], ['what\'s', 'up,', '=NAME', '?']]
 def create_reply(importantWords):
-    reply = ' %'
+    reply = '%'
     remainingIntents = intents
-    while ' %' in reply:
-        if remainingIntents == []: return ' %'
+    while '%' in reply:
+        if remainingIntents == []: return '%'
         reply = random.choice(remainingIntents)
         remainingIntents.remove(reply)
         domainsExpanded = False
