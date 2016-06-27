@@ -26,7 +26,7 @@ def generate_sentence(tokenizedMessage):
     print "Creating reply..."
     reply = ' '.join(create_reply(importantWords))
     print reply
-    return reply.strip('%')
+    return reply
 
 def choose_association(associations):
     dieSeed = 0
@@ -45,24 +45,30 @@ imperatives = [['=VERB'], ['=VERB', '=PHRASE'], ['=VERB', 'a', '=PHRASE'], ['=VE
 phrases =[['=NOUN'], ['=ADJECTIVE', '=NOUN'], ['=ADJECTIVE', ',', '=ADJECTIVE', '=NOUN']]
 greetings = [['hi', '=NAME', '!'], ['hello', '=NAME', '!'], ['what\'s', 'up,', '=NAME', '?']]
 def create_reply(importantWords):
-    reply = random.choice(intents)
-    domainsExpanded = False
-    print reply
-    while not domainsExpanded:
-        newReply = expand_domains(importantWords, reply)
-        if reply == newReply: domainsExpanded = True
-        reply = newReply
-    reply[-1] += u"."
-    reply[0] = reply[0].title()
-    for count, word in enumerate(reply):
-        # having to fix the position of commas ANYWAY gives us the ability to throw in a cute little easter egg when referencing Alex or Ellie's Tumblr usernames
-        if word == "sharkthemepark":
-            reply[count] = "mom"
-        elif word == "nosiron":
-            reply[count] = "dad"
-        elif word == ",":
-            reply[count - 1] = reply[count - 1] + u","
-            del reply[count]
+    reply = ' %'
+    remainingIntents = intents
+    while ' %' in reply:
+        if remainingIntents == []: return ' %'
+        reply = random.choice(remainingIntents)
+        remainingIntents.remove(reply)
+        domainsExpanded = False
+        print reply
+        while not domainsExpanded:
+            newReply = expand_domains(importantWords, reply)
+            if reply == newReply: domainsExpanded = True
+            reply = newReply
+        reply[-1] += u"."
+        reply[0] = reply[0].title()
+        for count, word in enumerate(reply):
+            # having to fix the position of commas ANYWAY gives us the ability to throw in a cute little easter egg when referencing Alex or Ellie's Tumblr usernames
+            if word == "sharkthemepark":
+                reply[count] = "mom"
+            elif word == "nosiron":
+                reply[count] = "dad"
+            elif word == ",":
+                reply[count - 1] = reply[count - 1] + u","
+                del reply[count]
+
     return reply
 
 def expand_domains(importantWords, reply):
@@ -82,7 +88,7 @@ def expand_domains(importantWords, reply):
             print newReply + reply[count + 1:len(reply)]
         elif type(word) == list:
             newReply.append(expand_domains(importantWords, word))
-        else: 
+        else:
             newReply.append(word)
     return newReply
 
@@ -94,14 +100,14 @@ def build_phrase(importantWords, isPlural, returnSet=False):
             cursor.execute("SELECT target FROM associationmodel WHERE word = \"%s\" AND association_type in (\"IS-A\", \"HAS\");" % word)
             SQLReturn = (cursor.fetchall())
         for word in SQLReturn: queriedWords.extend(word)
-            
+
     phraseSets = []
     for word in queriedWords:
         with connection:
             cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\" AND part_of_speech in(\"JJ\", \"JJR\", \"JJS\");" % word)
             SQLReturn = cursor.fetchall()
         if SQLReturn != []: phraseSets.append([word, choose_association(SQLReturn)[0], choose_association(SQLReturn)[0]])
-    
+
     # todo: handle errors correctly lmao
     if phraseSets == []: return "%", "%"
 
@@ -109,7 +115,7 @@ def build_phrase(importantWords, isPlural, returnSet=False):
     domain = random.choice(phrases)
     phraseSet = random.choice(phraseSets)
     for word in domain:
-        if word == "=NOUN": 
+        if word == "=NOUN":
             if isPlural: phrase.append(pattern.en.pluralize(phraseSet[0]))
             else: phrase.append(phraseSet[0])
         elif word == "=ADJECTIVE":
@@ -141,7 +147,7 @@ def build_imperative(importantWords):
         elif word == "=VERB": imperative.append(verb)
         else: imperative.append(word)
     return imperative
-    
+
 def build_declarative(importantWords):
     domain = random.choice(declaratives)
     pluralPhrase = False
@@ -153,7 +159,7 @@ def build_declarative(importantWords):
     with connection:
         cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\" AND part_of_speech IN (\"JJ\", \"JJR\", \"JJS\");" % phraseSet[0])
         adjectiveAssociations = cursor.fetchall()
-    
+
     adjective = choose_association(adjectiveAssociations)[0]
 
     declarative = []
