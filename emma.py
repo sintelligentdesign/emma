@@ -165,13 +165,18 @@ def reply_to_asks():
             print Fore.BLUE + emmaUnderstanding
 
             reply = sentencebuilder.generate_sentence(parsedMessage)
-            print Fore.BLUE + u"emma >> %s" % reply
-            mood = calculate_mood(reply)
-                
-            print "Posting reply..."
-            # Reply bundle is (asker, question, response, debugInfo)
-            # todo: remove debugInfo when we enter Beta (?)
-            tumblrclient.post_reply(message[1], message[2], reply, (emmaUnderstanding, mood))
+            if "%" not in reply:
+                print Fore.BLUE + u"emma >> %s" % reply
+                mood = calculate_mood(reply)
+                    
+                print "Posting reply..."
+                # Reply bundle is (asker, question, response, debugInfo)
+                # todo: remove debugInfo when we enter Beta (?)
+                tumblrclient.post_reply(message[1], message[2], reply, (emmaUnderstanding, mood))
+            else:
+                print Fore.YELLOW + "Sentence generation failed."
+                print "Posting reply..."
+                tumblrclient.post_reply(message[1], message[2], "(Emma doesn\'t know enough about this topic to generate a reply!)", (emmaUnderstanding, mood))
 
             if tumblr['deleteAsks']:
                 print "Deleting ask..."

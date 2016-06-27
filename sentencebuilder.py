@@ -25,7 +25,6 @@ def generate_sentence(tokenizedMessage):
     # Reply to message
     print "Creating reply..."
     reply = ' '.join(create_reply(importantWords))
-    print reply
     return reply
 
 def choose_association(associations):
@@ -109,7 +108,7 @@ def build_phrase(importantWords, isPlural, returnSet=False):
         if SQLReturn != []: phraseSets.append([word, choose_association(SQLReturn)[0], choose_association(SQLReturn)[0]])
 
     # todo: handle errors correctly lmao
-    if phraseSets == []: return "%", "%"
+    if phraseSets == []: return ["%", "%"]
 
     phrase = []
     domain = random.choice(phrases)
