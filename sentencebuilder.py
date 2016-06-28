@@ -43,6 +43,8 @@ declaratives = [['=PHRASE', 'is', '=ADJECTIVE'], ['=PLURPHRASE', 'are', '=ADJECT
 imperatives = [['=VERB', '=PHRASE'], ['=VERB', 'a', '=PHRASE'], ['=VERB', 'the', '=PHRASE'], ['=VERB', 'the', '=PLURPHRASE'], ['=VERB', 'at', '=PLURPHRASE'], ['always', '=VERB', '=PHRASE'], ['never', '=VERB', '=PHRASE']] #['=VERB', 'a', '=PHRASE', 'with', '=PLURPHRASE']
 phrases =[['=NOUN'], ['=ADJECTIVE', '=NOUN'], ['=ADJECTIVE', ',', '=ADJECTIVE', '=NOUN']]
 greetings = [['hi', '=NAME', '!'], ['hello', '=NAME', '!'], ['what\'s', 'up,', '=NAME', '?']]
+
+
 def create_reply(importantWords):
     reply = ['%']
     remainingIntents = intents
@@ -51,7 +53,6 @@ def create_reply(importantWords):
         reply = random.choice(remainingIntents)
         remainingIntents.remove(reply)
         domainsExpanded = False
-        print reply
         while not domainsExpanded:
             newReply = expand_domains(importantWords, reply)
             if reply == newReply: domainsExpanded = True
@@ -154,7 +155,6 @@ def build_declarative(importantWords):
     imperative = build_imperative([phraseSet[0]])
 
     with connection:
-        # Alex: I want to remove the part_of_speech IN bit from this execute
         cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\" AND part_of_speech IN (\"JJ\", \"JJR\", \"JJS\");" % phraseSet[0])
         adjectiveAssociations = cursor.fetchall()
 
@@ -166,4 +166,4 @@ def build_declarative(importantWords):
         elif word == "=IMPERATIVE": declarative.extend(imperative)
         elif word == "=ADJECTIVE": declarative.append(adjective)
         else: declarative.append(word)
-    return declarative
+        return declarative
