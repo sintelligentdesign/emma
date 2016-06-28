@@ -46,6 +46,8 @@ def tokenize(text):
                 taggedWord[5] = u"not"
             elif taggedWord[5] in [u"\'", u"\u2019", u"\u2018"]:
                 if count != len(taggedSentence) - 1:
+                    prevWord = taggedSentence[count - 1]
+                    nextWord = taggedSentence[count + 1]
                     print Fore.GREEN + "Joining \"%s\" and \"%s\"..." % (prevWord[5], nextWord[0])
                     prevWord[5] = prevWord[5] + "\'" + nextWord[0]
                     rowsToRemove.append(taggedWord)
