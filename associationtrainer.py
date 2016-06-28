@@ -13,6 +13,7 @@ from config import database
 connection = sql.connect(database['path'])
 cursor = connection.cursor()
 def find_associations(sentence):
+    print "find_associations"
     # todo: optimize after we get all the core association types in
     # todo: prefer proper nouns when we look for nouns
     # todo: check for "not" after word, give negative association
@@ -40,7 +41,7 @@ def find_associations(sentence):
                                         print Fore.MAGENTA + u"Found association: %s IS-A %s." % (prevWord[0], chunksCountingForward[0])
                                         add_association(prevWord[0], chunksCountingForward[0], "IS-A")
                                         break
-                                
+
             # Type 3
             if "NP" in word[2]:
                 NPchunk = []
@@ -93,7 +94,7 @@ def find_associations(sentence):
                                     print Fore.MAGENTA + u"Found association: %s HAS %s." % (prevWord[0], chunksCountingForward[0])
                                     add_association(prevWord[0], chunksCountingForward[0], "HAS")
                                     break
-            
+
             # Type 7
             # todo: for optimization purposes, have this and type 3 in the same function
             if "NP" in word[2]:
@@ -117,6 +118,13 @@ def find_associations(sentence):
                                         break
                                     else: break
 
+            # Type 10
+            if "OBJ" in word[3] and word[1] in utilities.nounCodes:
+                for otherWord in sentence:
+                    if otherWord[1] in utilities.verbCodes:
+                        print Fore.MAGENTA + u"Found association: %s IS-OBJECT-OF %s." % (word[0], otherWord[0])
+                        add_association(word[0], otherWord[0], "IS-OBJECT-OF")
+
 def add_association(word, target, associationType):
     with connection:
         cursor.execute('SELECT * FROM associationmodel WHERE word = \"%s\" AND target = \"%s\" AND association_type = \"%s\";' % (word.encode('utf-8'), target.encode('utf-8'), associationType))
@@ -131,7 +139,7 @@ def add_association(word, target, associationType):
         weight = calculate_weight(False, None)
         with connection:
             cursor.execute('INSERT INTO associationmodel(word, association_type, target, weight) VALUES (\"%s\", \'%s\', \"%s\", \'%s\');' % (word.encode('utf-8'), associationType, target.encode('utf-8'), weight))
-            
+
 e = np.exp(1)
 def calculate_weight(isUpdate, currentWeight):
     rankingConstant = 3.19722457734
