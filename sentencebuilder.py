@@ -63,9 +63,9 @@ def create_reply(importantWords):
     reply[0] = reply[0].title()
     for count, word in enumerate(reply):
         # having to fix the position of commas ANYWAY gives us the ability to throw in a cute little easter egg when referencing Alex or Ellie's Tumblr usernames
-        if word == u"sharkthemepark":
+        if word in [u"sharkthemepark", u"sharkthemeparks"]:
             reply[count] = u"mom"
-        elif word == u"nosiron":
+        elif word in [u"nosiron", u"nosirons"]:
             reply[count] = u"dad"
         elif word == u",":
             reply[count - 1] = reply[count - 1] + u","
