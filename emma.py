@@ -240,7 +240,7 @@ def dream():
 def chat():
     while True:
         message = raw_input(Fore.BLUE + 'You >> ')
-        tokenizedMessage = parse.tokenize(message)
+        tokenizedMessage = parse.tokenize(message.decode('utf-8'))
         for sentence in tokenizedMessage:
             consume(sentence)
         reply = sentencebuilder.generate_sentence(tokenizedMessage)
