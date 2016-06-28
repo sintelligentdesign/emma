@@ -11,7 +11,7 @@ init(autoreset = True)
 subordinateReferences = [
     "he", "him", "himself",
     "she", "herself",
-    "its", "itself",
+    "it", "itself",
     "they", "them", "themself", "themselves"
     ]
 posessiveReferences = [
@@ -22,11 +22,11 @@ posessiveReferences = [
     ]
 
 def determine_references(sentence):
-    # (last used noun, is it proper y/n)
     # todo: work differently with proper nouns
     # todo: maybe do something different if the noun is tagged as a subject/object?
     lastUsedNouns = []
     for count, word in enumerate(sentence):
+        # lastUsedNoun tuples are (last used noun, is proper y/n)
         if word[1] in utilities.nounCodes:
             if word[1] in ["NNP", "NNPS"]: lastUsedNouns.append((word, True))
             else: lastUsedNouns.append((word, False))
