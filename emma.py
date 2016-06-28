@@ -229,7 +229,7 @@ def dream():
     if "%" not in dream:
         print Fore.BLUE + u"dream >> " + dream
         tumblrclient.post_dream(dream)
-    else: print "Dreamless sleep..."
+    else: print Fore.YELLOW + "Dreamless sleep..."
     if debug['enableSleep']:
         print "Sleeping for 5 minutes"
         time.sleep(300)
