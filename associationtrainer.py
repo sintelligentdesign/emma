@@ -13,7 +13,6 @@ from config import database
 connection = sql.connect(database['path'])
 cursor = connection.cursor()
 def find_associations(sentence):
-    print "find_associations"
     # todo: optimize after we get all the core association types in
     # todo: prefer proper nouns when we look for nouns
     # todo: check for "not" after word, give negative association

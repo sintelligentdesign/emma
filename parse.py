@@ -56,7 +56,7 @@ def tokenize(text):
                 if row in taggedSentence:
                     taggedSentence.remove(row)
                     print Fore.GREEN + u"Removed %s." % row[0]
-        
+
         posSentence = []
         chunkSeries = []
         lemmaSentence = []

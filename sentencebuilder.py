@@ -126,8 +126,7 @@ def build_phrase(importantWords, isPlural, returnSet=False):
 
 def build_imperative(importantWords):
     domain = random.choice(imperatives)
-    pluralPhrase = False
-    if "=PLURPHRASE" in domain: pluralPhrase = True
+    pluralPhrase = True if "=PLURPHRASE" in domain else False
     phrase, phraseSet = build_phrase(importantWords, pluralPhrase, True)
     if phrase == "%": return "%"
 
@@ -149,13 +148,13 @@ def build_imperative(importantWords):
 
 def build_declarative(importantWords):
     domain = random.choice(declaratives)
-    pluralPhrase = False
-    if "=PLURPHRASE" in domain: pluralPhrase = True
+    pluralPhrase = True if "=PLURPHRASE" in domain else False
     phrase, phraseSet = build_phrase(importantWords, pluralPhrase, True)
     if phrase == "%": return "%"
     imperative = build_imperative([phraseSet[0]])
 
     with connection:
+        # Alex: I want to remove the part_of_speech IN bit from this execute
         cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\" AND part_of_speech IN (\"JJ\", \"JJR\", \"JJS\");" % phraseSet[0])
         adjectiveAssociations = cursor.fetchall()
 
