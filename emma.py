@@ -139,7 +139,7 @@ def reply_to_asks():
         messageList = debug['fakeAsks']
 
     if len(messageList) > 0:
-        print "Fetched %d new asks" % len(messageList)
+        print "Fetched %d new asks." % len(messageList)
         for askCount, message in enumerate(messageList):
             # todo: intelligently decide how many asks to answer
             print "Reading ask no. %d of %d..." % (askCount + 1, len(messageList))
