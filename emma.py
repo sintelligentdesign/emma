@@ -175,8 +175,6 @@ def reply_to_asks():
                 tumblrclient.post_reply(message[1], message[2], reply, (emmaUnderstanding, mood))
             else:
                 print Fore.YELLOW + "Sentence generation failed."
-                print "Posting reply..."
-                tumblrclient.post_reply(message[1], message[2], "(Emma doesn\'t know enough about this topic to generate a reply!)", (emmaUnderstanding, mood))
 
             if tumblr['deleteAsks']:
                 print "Deleting ask..."

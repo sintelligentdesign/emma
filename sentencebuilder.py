@@ -44,10 +44,10 @@ imperatives = [['=VERB', '=PHRASE'], ['=VERB', 'a', '=PHRASE'], ['=VERB', 'the',
 phrases =[['=NOUN'], ['=ADJECTIVE', '=NOUN'], ['=ADJECTIVE', ',', '=ADJECTIVE', '=NOUN']]
 greetings = [['hi', '=NAME', '!'], ['hello', '=NAME', '!'], ['what\'s', 'up,', '=NAME', '?']]
 def create_reply(importantWords):
-    reply = '%'
+    reply = ['%']
     remainingIntents = intents
     while '%' in reply:
-        if remainingIntents == []: return '%'
+        if remainingIntents == []: return ['%']
         reply = random.choice(remainingIntents)
         remainingIntents.remove(reply)
         domainsExpanded = False
@@ -57,18 +57,17 @@ def create_reply(importantWords):
             if reply == newReply: domainsExpanded = True
             reply = newReply
 
-        reply[-1] += u"."
-        reply[0] = reply[0].title()
-        for count, word in enumerate(reply):
-            # having to fix the position of commas ANYWAY gives us the ability to throw in a cute little easter egg when referencing Alex or Ellie's Tumblr usernames
-            if word == "sharkthemepark":
-                reply[count] = "mom"
-            elif word == "nosiron":
-                reply[count] = "dad"
-            elif word == ",":
-                reply[count - 1] = reply[count - 1] + u","
-                del reply[count]
-
+    reply[-1] += u"."
+    reply[0] = reply[0].title()
+    for count, word in enumerate(reply):
+        # having to fix the position of commas ANYWAY gives us the ability to throw in a cute little easter egg when referencing Alex or Ellie's Tumblr usernames
+        if word == "sharkthemepark":
+            reply[count] = "mom"
+        elif word == "nosiron":
+            reply[count] = "dad"
+        elif word == ",":
+            reply[count - 1] = reply[count - 1] + u","
+            del reply[count]
     return reply
 
 def expand_domains(importantWords, reply):
@@ -168,3 +167,5 @@ def build_declarative(importantWords):
         elif word == "=ADJECTIVE": declarative.append(adjective)
         else: declarative.append(word)
     return declarative
+
+create_reply(['animal'])
