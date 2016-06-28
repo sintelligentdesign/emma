@@ -167,5 +167,3 @@ def build_declarative(importantWords):
         elif word == "=ADJECTIVE": declarative.append(adjective)
         else: declarative.append(word)
     return declarative
-
-create_reply(['animal'])
