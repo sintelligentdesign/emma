@@ -8,6 +8,7 @@ debug = {
 
     # If the above is false, supply a list of fake asks for Emma to read for testing and debugging
     'fakeAsks': [
+        ("67890", "sharkthemepark", u"Hey babe! It's me, your mom! I just wanted to drop in and say how proud I am of you. Keep it up!"),
         ("12345", "hotpizzapie", u"I think you're fantastic. I don't know what I'd do without you."),
         ("67890", "nanopup", u"Hi Emma! I hope you're doing well. I like dogs because they are gay."),
         ("12345", "sparkplugiv", u"hi emma im gay"),
