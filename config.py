@@ -4,7 +4,7 @@
 
 debug = {
     # Enable or disable connecting to tumblr to fetch asks
-    'fetchRealAsks': False,
+    'fetchRealAsks': True,
 
     # If the above is false, supply a list of fake asks for Emma to read for testing and debugging
     'fakeAsks': [
@@ -13,7 +13,7 @@ debug = {
         ("12345", "sparkplugiv", u"hi emma im gay"),
         ("67890", "sharkthemepark", u"I love nanopup they're so perfect so pretty so pure i love that dog")],
 
-    'enableSleep': False
+    'enableSleep': True
 }
 
 console = {
@@ -21,7 +21,7 @@ console = {
     'verboseLogging': False,
 
     # Enable or disable a mode where you can directly chat with Emma without going through Tumblr
-    'chatMode': True
+    'chatMode': False
 }
 
 database = {
@@ -34,7 +34,7 @@ tumblr = {
     'username': 'emmacanlearn',
 
     # Enable or disable posting on Tumblr (So that Emma doesn't post a bunch of garbage while we debug or work on new features)
-    'enablePosting': False,
+    'enablePosting': True,
 
     # Enable or disable Tumblr post previews, which give a rough idea of what a tumblr post will look like in the terminal
     'enablePostPreview': True,
