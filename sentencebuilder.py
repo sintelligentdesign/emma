@@ -54,6 +54,7 @@ def create_reply(importantWords):
         remainingIntents.remove(reply)
         domainsExpanded = False
         while not domainsExpanded:
+            print reply
             newReply = expand_domains(importantWords, reply)
             if reply == newReply: domainsExpanded = True
             reply = newReply
