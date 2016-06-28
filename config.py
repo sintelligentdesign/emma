@@ -21,7 +21,7 @@ console = {
     'verboseLogging': False,
 
     # Enable or disable a mode where you can directly chat with Emma without going through Tumblr
-    'chatMode': False
+    'chatMode': True
 }
 
 database = {
