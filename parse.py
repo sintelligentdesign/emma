@@ -15,6 +15,16 @@ def tokenize(text):
         if word in [u"im", u"Im"]:
             print Fore.GREEN + "Replacing \"im\" with \"I\'m\"..."
             text[count] = u"I'm"
+        elif word == u"u":
+            print Fore.GREEN + "Replacing \"u\" with \"you\"..."
+            text[count] = u"you"
+        elif word == u"r":
+            print Fore.GREEN + "Replacing \"r\" with \"are\"..."
+            text[count] = u"are"
+        elif word == u"ur":
+            # todo: be able to tell whether we should replace ur with "your" or "you're"
+            print Fore.GREEN + "Replacing \"ur\" with \"your\"..."
+            text[count] = u"your"
     text = ' '.join(text)
 
     # todo: be smarter about what punctuation mark to append
@@ -36,8 +46,6 @@ def tokenize(text):
                 taggedWord[5] = u"not"
             elif taggedWord[5] in [u"\'", u"\u2019", u"\u2018"]:
                 if count != len(taggedSentence) - 1:
-                    prevWord = taggedSentence[count - 1]
-                    nextWord = taggedSentence[count + 1]
                     print Fore.GREEN + "Joining \"%s\" and \"%s\"..." % (prevWord[5], nextWord[0])
                     prevWord[5] = prevWord[5] + "\'" + nextWord[0]
                     rowsToRemove.append(taggedWord)
