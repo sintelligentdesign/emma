@@ -23,11 +23,25 @@ client = pytumblr.TumblrRestClient(
 def get_messages():
     print "Checking Tumblr messages..."
     asks = client.submission(tumblr['username'] + '.tumblr.com')
-    asks = asks.values()[0]        # unwrap JSON
 
     messageList = []
-    for ask in asks: messageList.append((int(ask['id']), ask['asking_name'], ask['question']))
+    for ask in asks.values()[0]: messageList.append((int(ask['id']), ask['asking_name'], ask['question']))
     return messageList
+
+def get_recent_posts(user):
+    print "Fetching @%s\'s 5 most recent text posts..." % user
+    posts = client.posts(user + '.tumblr.com', type='text', limit=5, filter='text')[u'posts']
+    
+    postList = []
+    for post in posts: 
+        body = post['body'].split(' ')
+        for count, word in enumerate(body):
+            if u':' in word or word == u"" or len(word) > 10: leftBound = count + 1
+            else:
+                body = ' '.join(body[leftBound:])
+                break
+        postList.append((int(post['id']), post['reblog_key'], post['blog_name'], body))
+    return postList
 
 def delete_ask(askid):
     if tumblr['enableAskDeletion']: 

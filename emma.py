@@ -73,7 +73,6 @@ def update_mood(text):
     return mood
 
 def express_mood(moodNum):
-    moodStr = ""
     if -0.8 > moodNum: moodStr = u"abysmal \ud83d\ude31"
     elif -0.6 > moodNum >= 0.8: moodStr = u"dreadful \ud83d\ude16"
     elif -0.4 > moodNum >= 0.6: moodStr = u"bad \ud83d\ude23"
