@@ -190,10 +190,10 @@ while True:
             reply_to_asks(askList)
         else:
             activity = random.choice(['reblog', 'dream'])
-            if activity = 'reblog':
+            if activity == 'reblog':
                 print "Reblogging a post..."
                 reblog_post()
-            if activity = 'dream':
+            if activity == 'dream':
                 print "Dreaming..."
                 dream()
         
