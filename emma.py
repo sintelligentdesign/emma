@@ -104,9 +104,7 @@ def reply_to_asks(messageList):
 
             greet = False
             for keyword in utilities.greetingTerms:
-                print Fore.RED + u'line 171 %s' % keyword
                 if parse.find_whole_words(keyword, message[2]):
-                    print 'line 173'
                     greet = True
                     break
             if greet:
