@@ -8,6 +8,8 @@ init(autoreset = True)
 
 from config import console, database
 
+import re
+
 def tokenize(text):
     # todo: for other simple "internet mispellings" of conjunctions like this, and the function after it that breaks conjunctions into words after parsing, should we have a separate function?
     text = text.split(' ')
@@ -85,7 +87,6 @@ def tokenize(text):
 connection = sql.connect(database['path'])
 cursor = connection.cursor()
 def add_new_words(parsedSentence):
-    if console['verboseLogging']: print "Looking for new words..."
     with connection:
         cursor.execute('SELECT * FROM dictionary;')
         SQLReturn = cursor.fetchall()
@@ -103,7 +104,7 @@ def add_new_words(parsedSentence):
         wordsLeft = parsedSentence[-(len(parsedSentence) - count):len(parsedSentence) - 1]
 
         if lemma not in storedLemata and lemma not in wordsLeft and lemma not in addedWords and lemma not in pattern.en.wordlist.PROFANITY and lemma.isnumeric() == False and pos != "FW":
-            print Fore.MAGENTA + u"Learned new word: (%s)!" % lemma
+            print Fore.MAGENTA + u"Learned new word: \'%s\'!" % lemma
             addedWords.append(lemma)
             with connection:
                 cursor.execute("INSERT INTO dictionary VALUES (\"%s\", \"%s\", 1, 0);" % (lemma, pos))

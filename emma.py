@@ -29,19 +29,14 @@ import sentencebuilder
 import utilities
 from config import debug, console, database, tumblr
 
-
-lastDreamTime = time.clock()
-lastFourActivites = [None, None, None, None]
-
 connection = sql.connect(database['path'])
 cursor = connection.cursor()
-# Check to see if our database is valid and, if not, create one that is
-print Fore.BLUE + "Checking if database exists at %s" % database['path']
+print Fore.BLUE + "Checking if concept database exists at %s..." % database['path']
 with connection:
     cursor.execute("SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'associationmodel\';")
     SQLReturn = cursor.fetchone()
 if SQLReturn != (u'associationmodel',):
-    print Fore.YELLOW + "Database invalid. Creating default tables in %s..." % database['path']
+    print Fore.YELLOW + "Database invalid. Creating database at %s..." % database['path']
     with connection:
         cursor.executescript("""
         DROP TABLE IF EXISTS associationmodel;
@@ -50,74 +45,20 @@ if SQLReturn != (u'associationmodel',):
         CREATE TABLE associationmodel(word TEXT, association_type TEXT, target TEXT, weight DOUBLE);
         CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, is_new INTEGER DEFAULT 1, is_banned INTEGER DEFAULT 0);
         """)
-    print Fore.GREEN + "Default database created at %s!" % database['path']
+    print Fore.GREEN + "Database with required schema created at %s!" % database['path']
 else: 
     print Fore.GREEN + "Database valid! Continuing..."
-utilities.printInfo()
 
-def main(lastFourActivites, lastDreamTime):
-    lastFourActivites, lastDreamTime = choose_activity(lastFourActivites, lastDreamTime)
-    return lastFourActivites, lastDreamTime
+# "Emma" banner
+print Fore.MAGENTA + u" .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .oooo.\nd88' `88b `888P\"Y88bP\"Y88b  `888P\"Y88bP\"Y88b  `P  )88b\n888ooo888  888   888   888   888   888   888   .oP\"888\n888    .,  888   888   888   888   888   888  d8(  888\n`Y8bod8P' o888o o888o o888o o888o o888o o888o `Y888\"\"8o\n\n·~-.¸¸,.-~*'¯¨'*·~-.¸,.-~*'¯¨'*·~-.¸¸,.-~*'¯¨'*·~-.¸¸,.\n\n        EXPANDING MODEL of MAPPED ASSOCIATIONS\n                     Alpha v0.0.1"
     
-def consume(parsedSentence, asker=""):
-    parse.add_new_words(parsedSentence)
-    #utilities.spellcheck(parsedSentence)
+def consume(parsedSentence, asker=u""):
+    if console['verboseLogging']: print "Consuming sentence..."
     pronouns.determine_references(parsedSentence)
     pronouns.flip_posessive_references(parsedSentence, asker)
+    parse.add_new_words(parsedSentence)
     associationtrainer.find_associations(parsedSentence)
     if console['verboseLogging']: print "Sentence consumed."
-
-def choose_activity(lastFourActivites, lastDreamTime):
-    with connection:
-        cursor.execute('SELECT * FROM dictionary WHERE is_new = 1')
-        newWords = len(cursor.fetchall())
-    newAsks = len(tumblrclient.get_messages())
-    timeElapsedSinceLastDream = time.clock() - lastDreamTime
-    activities = ["reply", "learn words", "dream"]
-
-    # Count how many times each activity was done in the last four times.
-    countActivities = {activity:lastFourActivites.count(activity) for activity in lastFourActivites}
-
-    # Decide what emma wants to do
-    if newAsks == 0 and newWords == 0:
-        lastDreamTime = time.clock()
-        dream()
-        del lastFourActivites[0]
-        lastFourActivites.append("dream")
-    
-    elif timeElapsedSinceLastDream > 1800:
-        lastDreamTime = time.clock()
-        dream()
-        del lastFourActivites[0]
-        lastFourActivites.append("dream")
-        
-    elif ("reply" not in countActivities or countActivities["reply"] <= 1 ) and newAsks > 0:
-        reply_to_asks()
-        del lastFourActivites[0]
-        lastFourActivites.append("reply")
-        
-    elif ("learn words" not in countActivities or countActivities["learn words"] <= 1 ) and newWords > 0:
-        learn_new_words()
-        del lastFourActivites[0]
-        lastFourActivites.append("learn words")
-        
-    elif newAsks > 5:
-        reply_to_asks()
-        del lastFourActivites[0]
-        lastFourActivites.append("reply")
-        
-    elif newWords > 5:
-        learn_new_words()
-        del lastFourActivites[0]
-        lastFourActivites.append("learn words")
-        
-    else:
-        lastDreamTime = time.clock()
-        dream()
-        del lastFourActivites[0]
-        lastFourActivites.append("dream")
-
-    return lastFourActivites, lastDreamTime
 
 class moodStack(list):
     def push(self, item):
@@ -131,17 +72,10 @@ def calculate_mood(text):
     if console['verboseLogging']: print "Mood modifiers: " + str(moodModifiers)
     return sum(moodModifiers) / 10
 
-def reply_to_asks():
-    if debug['fetchRealAsks']: messageList = tumblrclient.get_messages()
-    else: 
-        print Fore.YELLOW + "!!! Ask fetching disabled in config file -- execution will continue with sample Asks provided in 2 seconds..."
-        time.sleep(2)
-        messageList = debug['fakeAsks']
-
+def reply_to_asks(messageList):
     if len(messageList) > 0:
         print "Fetched %d new asks." % len(messageList)
         for askCount, message in enumerate(messageList):
-            # todo: intelligently decide how many asks to answer
             print "Reading ask no. %d of %d..." % (askCount + 1, len(messageList))
             print Fore.BLUE + u"@" + message[1] + u" >> " + message[2]
 
@@ -153,6 +87,7 @@ def reply_to_asks():
                 if console['verboseLogging']: print "Reading sentence no. %d of ask no. %d..." % ((sentenceCount + 1), (askCount + 1))
                 consume(sentence, message[1])
             
+            # todo: merge this loop with the loop directly above it
             emmaUnderstanding = u""
             for sentenceCount, sentence in enumerate(parsedMessage):
                 for wordCount, word in enumerate(sentence):
@@ -164,7 +99,8 @@ def reply_to_asks():
             emmaUnderstanding = u"Emma interpreted this message as: \'%s\'" % emmaUnderstanding
             print Fore.BLUE + emmaUnderstanding
 
-            reply = sentencebuilder.generate_sentence(parsedMessage)
+            reply = sentencebuilder.generate_sentence(parsedMessage, message[1])
+
             if "%" not in reply:
                 print Fore.BLUE + u"emma >> %s" % reply
                 mood = calculate_mood(reply)
@@ -176,12 +112,7 @@ def reply_to_asks():
             else:
                 print Fore.YELLOW + "Sentence generation failed."
 
-            if tumblr['deleteAsks']:
-                print "Deleting ask..."
-                tumblrclient.delete_ask(message[0])
-            else:
-                print Fore.YELLOW + "!!! Ask deletion disabled in config file -- execution will continue normally in 2 seconds..."
-                time.sleep(2)
+            tumblrclient.delete_ask(message[0])
 
             if debug['enableSleep']:
                 print "Sleeping for 3 minutes..."
@@ -189,35 +120,8 @@ def reply_to_asks():
             else:
                 print Fore.YELLOW + "!!! Sleep disabled in config file -- execution will continue normally in 2 seconds..."
                 time.sleep(2)
-    else:
-        print "No new asks :("
-
-def learn_new_words():
-    print "Learning new words..."
-    # taking this offline until we can figure out a better way to learn words
-    '''
-    with connection:
-        cursor.execute('SELECT word FROM dictionary WHERE is_new = 1;')
-        newWords = cursor.fetchall()
-
-    if newWords:
-        # todo: intelligently choose a number of words to learn
-        newWords = newWords[0:9]
-        for row in newWords:
-            word = row[0]
-            results = tumblrclient.search_for_text_posts(word)
-            for result in results:
-                if not u".com" in result:      # This does an ok job of filtering out results from spam bots
-                    tokenizedResult = parse.tokenize(result)
-                    if tokenizedResult:
-                        for tokenizedSentence in tokenizedResult:
-                            consume(tokenizedSentence, "people")
-            with connection:
-                cursor.execute("UPDATE dictionary SET is_new = 0 WHERE word = \"%s\";" % word)
-    '''
 
 def dream():
-    print "Dreaming..."
     with connection:
         cursor.execute('SELECT word FROM dictionary WHERE is_banned = 0 ORDER BY RANDOM() LIMIT 10;')
         SQLReturn = cursor.fetchall()
@@ -230,33 +134,37 @@ def dream():
         print Fore.BLUE + u"dream >> " + dream
         tumblrclient.post_dream(dream)
     else: print Fore.YELLOW + "Dreamless sleep..."
-    if debug['enableSleep']:
-        print "Sleeping for 5 minutes"
-        time.sleep(300)
-    else:
-        print Fore.YELLOW + "!!! Sleep disabled in config file -- execution will continue normally in 2 seconds..."
-        time.sleep(2)
 
 def chat():
+    print Fore.YELLOW + "!!! Chat mode enabled in config file. Press Control-C to exit."
     while True:
-        message = raw_input(Fore.BLUE + 'You >> ')
-        tokenizedMessage = parse.tokenize(message.decode('utf-8'))
+        tokenizedMessage = parse.tokenize(raw_input(Fore.BLUE + 'You >> ').decode('utf-8'))
         for sentence in tokenizedMessage:
             consume(sentence)
+        # todo: if sentence generation fails, what's a good way to let the user know?
         reply = sentencebuilder.generate_sentence(tokenizedMessage)
-        print Fore.BLUE + u"emma >> %s" % reply
+        print Fore.BLUE + u"emma >> " + reply
 
 while True:
-    if not console['chatMode']:
-        #lastFourActivites, lastDreamTime = main(lastFourActivites, lastDreamTime)
-        reply_to_asks()
-        dream()
+    if console['chatMode']: chat()
+    else:
+        print "Choosing activity..."
+        if debug['fetchRealAsks']: messageList = tumblrclient.get_messages()
+        else: 
+            print Fore.YELLOW + "!!! Real ask fetching disabled in config file. Using fake asks instead -- execution will continue with sample Asks provided in 2 seconds..."
+            time.sleep(2)
+            messageList = debug['fakeAsks']
+
+        if messageList != []: 
+            print "Replying to messages..."
+            reply_to_asks(messageList)
+        else:
+            print "Dreaming..."
+            dream()
+        
         if debug['enableSleep']:
             print "Sleeping for 10 minutes..."
             time.sleep(600)
         else:
             print Fore.YELLOW + "!!! Sleep disabled in config file -- execution will continue normally in 2 seconds..."
             time.sleep(2)
-    else: 
-        print Fore.YELLOW + "!!! Chat mode enabled in config file."
-        chat()
