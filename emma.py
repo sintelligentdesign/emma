@@ -93,6 +93,10 @@ def reply_to_asks(askList):
             print "Reading ask no. %d of %d..." % (askCount + 1, len(askList))
             print Fore.BLUE + u"@" + ask['asker'] + u" >> " + ask['message']
 
+            with connection:
+                cursor.execute("SELECT username FROM friends")
+                if not ask['asker'] in cursor.fetchall(): cursor.execute("INSERT INTO friends(username) VALUES(\'%s\');" % ask['asker'])
+
             update_mood(ask['message'])
 
             parsedAsk = parse.tokenize(ask['message'])
