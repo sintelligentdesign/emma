@@ -15,16 +15,16 @@ debug = {
         {'asker': u'sharkthemepark', 'message': u"I love nanopup they're so perfect so pretty so pure i love that dog", 'id': 67890}],
 
     # Enable or disable sleeping between actions
-    'enableSleep': False,
+    'enableSleep': True,
 
     # Enable or disable replying to asks
-    'enableReplies': False,
+    'enableReplies': True,
 
     # Enable or disable reblogging posts
     'enableReblogs': True,
 
     # Enable or disable dreaming
-    'enableDreams': False
+    'enableDreams': True
 }
 
 console = {
