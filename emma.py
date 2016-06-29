@@ -95,7 +95,9 @@ def reply_to_asks(askList):
 
             with connection:
                 cursor.execute("SELECT username FROM friends")
-                if not ask['asker'] in cursor.fetchall(): cursor.execute("INSERT INTO friends(username) VALUES(\'%s\');" % ask['asker'])
+                if not ask['asker'] in cursor.fetchall(): 
+                    print Fore.BLUE + "Adding @%s to friends list..." % ask['asker']
+                    cursor.execute("INSERT INTO friends(username) VALUES(\'%s\');" % ask['asker'])
 
             update_mood(ask['message'])
 
@@ -185,15 +187,15 @@ while True:
             print Fore.YELLOW + "!!! Real ask fetching disabled in config file. Using fake asks instead."
             askList = debug['fakeAsks']
 
-        if askList != []: 
+        if askList != [] and debug['enableReplies']: 
             print "Replying to messages..."
             reply_to_asks(askList)
         else:
             activity = random.choice(['reblog', 'dream'])
-            if activity == 'reblog':
+            if activity == 'reblog' and debug['enableReblogs']:
                 print "Reblogging a post..."
                 reblog_post()
-            if activity == 'dream':
+            if activity == 'dream' and debug['enableDreams']:
                 print "Dreaming..."
                 dream()
         
