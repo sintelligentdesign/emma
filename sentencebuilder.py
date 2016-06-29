@@ -42,7 +42,7 @@ intents = [['=DECLARATIVE'], ['=DECLARATIVE', u'like', '=DECLARATIVE'], ['=DECLA
 declaratives = [['=PHRASE', u'is', '=ADJECTIVE'], ['=PLURPHRASE', u'are', '=ADJECTIVE'], ['=PHRASE', '=IMPERATIVE']] #['=PHRASE', u'has/have', '=PHRASE']  todo: this would be a special case. Should we have a few special case domains that get their own special code?
 imperatives = [['=VERB', '=PHRASE'], ['=VERB', u'a', '=PHRASE'], ['=VERB', u'the', '=PHRASE'], ['=VERB', u'the', '=PLURPHRASE'], ['=VERB', u'at', '=PLURPHRASE'], [u'always', '=VERB', '=PHRASE'], [u'never', '=VERB', '=PHRASE']] #['=VERB', u'a', '=PHRASE', u'with', '=PLURPHRASE']
 phrases =[['=NOUN'], ['=ADJECTIVE', '=NOUN'], ['=ADJECTIVE', u',', '=ADJECTIVE', '=NOUN']]
-greetings = [[u'hi', '=NAME', u'!'], [u'hello', '=NAME', u'!'], [u'what\'s', u'up,', '=NAME', u'?']]
+# greetings = [[u'hi', '=NAME', u'!'], [u'hello', '=NAME', u'!'], [u'what\'s', u'up,', '=NAME', u'?']]
 
 
 def create_reply(importantWords):
