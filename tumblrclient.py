@@ -1,11 +1,7 @@
-# -*- coding: utf-8 -*-
 # Name:             Tumblr client
 # Description:      Communicates with Tumblr and executes related functions
 # Section:          LEARNING, REPLY
-import time
-
 import pytumblr
-import pattern.web
 from colorama import init, Fore
 init(autoreset = True)
 
@@ -25,7 +21,7 @@ def get_asks():
     asks = client.submission('emmacanlearn.tumblr.com')
 
     askList = []
-    for ask in asks.values()[0]: askList.append((int(ask['id']), ask['asking_name'], ask['question']))
+    for ask in asks.values()[0]: askList.append({'id': int(ask['id']), 'asker': ask['asking_name'], 'question': ask['question']})
     return askList
 
 def delete_ask(askid):
@@ -46,7 +42,7 @@ def get_recent_posts(user):
             else:
                 body = ' '.join(body[leftBound:])
                 break
-        postList.append((int(post['id']), post['reblog_key'], post['blog_name'], body))
+        postList.append({'id': int(post['id']), 'reblogKey': post['reblog_key'], 'blogName': post['blog_name'], 'body': body})
     return postList
 
 def post(body, tags=[]):
