@@ -41,9 +41,10 @@ if SQLReturn != (u'associationmodel',):
         cursor.executescript("""
         DROP TABLE IF EXISTS associationmodel;
         DROP TABLE IF EXISTS dictionary;
-        DROP TABLE IF EXISTS sentencestructuremodel;
+        DROP TABLE IF EXISTS friends;
         CREATE TABLE associationmodel(word TEXT, association_type TEXT, target TEXT, weight DOUBLE);
         CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, is_new INTEGER DEFAULT 1, is_banned INTEGER DEFAULT 0);
+        CREATE TABLE friends(username TEXT, can_reblog_from INTEGER DEFAULT 0);
         """)
     print Fore.GREEN + "Database with required schema created at %s!" % database['path']
 else: 
