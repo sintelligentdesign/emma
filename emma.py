@@ -189,8 +189,13 @@ while True:
             print "Replying to messages..."
             reply_to_asks(askList)
         else:
-            print "Dreaming..."
-            dream()
+            activity = random.choice(['reblog', 'dream'])
+            if activity = 'reblog':
+                print "Reblogging a post..."
+                reblog_post()
+            if activity = 'dream':
+                print "Dreaming..."
+                dream()
         
         if debug['enableSleep']:
             print "Sleeping for 10 minutes..."
