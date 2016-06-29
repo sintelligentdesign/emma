@@ -73,7 +73,6 @@ def update_mood(text):
     return mood
 
 def express_mood(moodNum):
-    moodStr = ""
     if -0.8 > moodNum: moodStr = u"abysmal \ud83d\ude31"
     elif -0.6 > moodNum >= 0.8: moodStr = u"dreadful \ud83d\ude16"
     elif -0.4 > moodNum >= 0.6: moodStr = u"bad \ud83d\ude23"
@@ -86,21 +85,21 @@ def express_mood(moodNum):
     elif 1.0 > moodNum >= 0.8: moodStr = u"glorious \ud83d\ude1c"
     return moodStr
 
-def reply_to_asks(messageList):
-    if len(messageList) > 0:
-        print "Fetched %d new asks." % len(messageList)
-        for askCount, message in enumerate(messageList):
-            print "Reading ask no. %d of %d..." % (askCount + 1, len(messageList))
-            print Fore.BLUE + u"@" + message[1] + u" >> " + message[2]
+def reply_to_asks(askList):
+    if len(askList) > 0:
+        print "Fetched %d new asks." % len(askList)
+        for askCount, ask in enumerate(askList):
+            print "Reading ask no. %d of %d..." % (askCount + 1, len(askList))
+            print Fore.BLUE + u"@" + ask['asker'] + u" >> " + ask['message']
 
-            update_mood(message[2])
+            update_mood(ask['message'])
 
-            parsedMessage = parse.tokenize(message[2])
+            parsedAsk = parse.tokenize(ask['message'])
 
             understanding = u""
-            for sentenceCount, sentence in enumerate(parsedMessage):
+            for sentenceCount, sentence in enumerate(parsedAsk):
                 if console['verboseLogging']: print "Reading sentence no. %d of ask no. %d..." % ((sentenceCount + 1), (askCount + 1))
-                consume(sentence, message[1])
+                consume(sentence, ask['asker'])
             
                 for wordCount, word in enumerate(sentence):
                     if wordCount == 0 and sentenceCount != 0:
@@ -111,18 +110,18 @@ def reply_to_asks(messageList):
             understanding = u"Emma interpreted this message as: \'%s\'" % understanding
             print Fore.BLUE + understanding
 
-            reply = sentencebuilder.generate_sentence(parsedMessage, message[1])
+            reply = sentencebuilder.generate_sentence(parsedAsk, ask['asker'])
 
             if "%" not in reply:
                 print Fore.BLUE + u"emma >> %s" % reply
 
                 print "Posting reply..."
-                body = "@%s >> %s\n(%s)\n\nemma >> %s" % (message[1], message[2], understanding, reply)
-                tumblrclient.post(body.encode('utf-8'), ["dialogue", message[1].encode('utf-8'), "feeling " + express_mood(update_mood(reply)).encode('utf-8')])
+                body = "@%s >> %s\n(%s)\n\nemma >> %s" % (ask['asker'], ask['message'], understanding, reply)
+                tumblrclient.post(body.encode('utf-8'), ["dialogue", ask['asker'].encode('utf-8'), "feeling " + express_mood(update_mood(reply)).encode('utf-8')])
             else:
                 print Fore.YELLOW + "Sentence generation failed."
 
-            tumblrclient.delete_ask(message[0])
+            tumblrclient.delete_ask(ask['id'])
 
             if debug['enableSleep']:
                 print "Sleeping for 3 minutes..."
@@ -159,14 +158,14 @@ while True:
     if console['chatMode']: chat()
     else:
         print "Choosing activity..."
-        if debug['fetchRealAsks']: messageList = tumblrclient.get_messages()
+        if debug['fetchRealAsks']: askList = tumblrclient.get_asks()
         else: 
             print Fore.YELLOW + "!!! Real ask fetching disabled in config file. Using fake asks instead."
-            messageList = debug['fakeAsks']
+            askList = debug['fakeAsks']
 
-        if messageList != []: 
+        if askList != []: 
             print "Replying to messages..."
-            reply_to_asks(messageList)
+            reply_to_asks(askList)
         else:
             print "Dreaming..."
             dream()
