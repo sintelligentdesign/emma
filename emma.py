@@ -141,7 +141,7 @@ def reblog_post():
     with connection:
         cursor.execute("SELECT username FROM friends WHERE can_reblog_from = 1")
         SQLReturn = cursor.fetchall()
-    posts = tumblrclient.get_recent_posts(random.choice(SQLReturn))
+    posts = tumblrclient.get_recent_posts(random.choice(SQLReturn)[0])
 
     while posts:
         post = random.choice(posts)
@@ -151,7 +151,8 @@ def reblog_post():
         
         if "%" not in comment:
             print Fore.BLUE + u"Emma >> " + comment
-            tumblrclient.reblog(post['id'], post['reblogKey'], post['blogName'], comment, ["reblog", post['blogName'], "feeling " + express_mood(update_mood(post['body'])).encode('utf-8')])
+            tumblrclient.reblog(post['id'], post['reblogKey'], comment.encode('utf-8'), ["reblog", post['blogName'].encode('utf-8'), "feeling " + express_mood(update_mood(post['body'])).encode('utf-8')])
+            break
         else: print Fore.YELLOW + "Reply generation failed."
 
 def dream():

@@ -54,6 +54,7 @@ def post(body, tags=[]):
     if tumblr['enablePublishing']: client.create_text('emmacanlearn', state="published", body=body, tags=tags)
     else: print Fore.YELLOW + "!!! Posting disabled in config file."
 
-def reblog(postid, reblogKey, blogName, comment, tags):
-    if tumblr['enablePublishing']: client.reblog(blogName, id=postid, reblog_key=reblogKey, comment=comment, tags=tags)
+def reblog(postid, reblogKey, comment, tags):
+    print "Reblogging post & adding comment..." % blogName
+    if tumblr['enablePublishing']: client.reblog('emmacanlearn', id=postid, reblog_key=reblogKey, comment=comment, tags=tags)
     else: print Fore.YELLOW + "!!! Reblogging disabled in config file."
