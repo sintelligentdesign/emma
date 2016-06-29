@@ -88,18 +88,18 @@ def express_mood(moodNum):
 def reply_to_asks(askList):
     if len(askList) > 0:
         print "Fetched %d new asks." % len(askList)
-        for askCount, message in enumerate(askList):
+        for askCount, ask in enumerate(askList):
             print "Reading ask no. %d of %d..." % (askCount + 1, len(askList))
-            print Fore.BLUE + u"@" + message[1] + u" >> " + message[2]
+            print Fore.BLUE + u"@" + ask['asker'] + u" >> " + ask['message']
 
-            update_mood(message[2])
+            update_mood(ask['message'])
 
-            parsedMessage = parse.tokenize(message[2])
+            parsedAsk = parse.tokenize(ask['message'])
 
             understanding = u""
-            for sentenceCount, sentence in enumerate(parsedMessage):
+            for sentenceCount, sentence in enumerate(parsedAsk):
                 if console['verboseLogging']: print "Reading sentence no. %d of ask no. %d..." % ((sentenceCount + 1), (askCount + 1))
-                consume(sentence, message[1])
+                consume(sentence, ask['asker'])
             
                 for wordCount, word in enumerate(sentence):
                     if wordCount == 0 and sentenceCount != 0:
@@ -110,18 +110,18 @@ def reply_to_asks(askList):
             understanding = u"Emma interpreted this message as: \'%s\'" % understanding
             print Fore.BLUE + understanding
 
-            reply = sentencebuilder.generate_sentence(parsedMessage, message[1])
+            reply = sentencebuilder.generate_sentence(parsedAsk, ask['asker'])
 
             if "%" not in reply:
                 print Fore.BLUE + u"emma >> %s" % reply
 
                 print "Posting reply..."
-                body = "@%s >> %s\n(%s)\n\nemma >> %s" % (message[1], message[2], understanding, reply)
-                tumblrclient.post(body.encode('utf-8'), ["dialogue", message[1].encode('utf-8'), "feeling " + express_mood(update_mood(reply)).encode('utf-8')])
+                body = "@%s >> %s\n(%s)\n\nemma >> %s" % (ask['asker'], ask['message'], understanding, reply)
+                tumblrclient.post(body.encode('utf-8'), ["dialogue", ask['asker'].encode('utf-8'), "feeling " + express_mood(update_mood(reply)).encode('utf-8')])
             else:
                 print Fore.YELLOW + "Sentence generation failed."
 
-            tumblrclient.delete_ask(message[0])
+            tumblrclient.delete_ask(ask['id'])
 
             if debug['enableSleep']:
                 print "Sleeping for 3 minutes..."
