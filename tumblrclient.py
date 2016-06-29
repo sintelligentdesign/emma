@@ -23,16 +23,15 @@ client = pytumblr.TumblrRestClient(
 def get_messages():
     print "Checking Tumblr messages..."
     asks = client.submission(tumblr['username'] + '.tumblr.com')
-    asks = asks.values()        # unwrap JSON
-    asks = asks[0]
+    asks = asks.values()[0]        # unwrap JSON
 
     messageList = []
-    for ask in asks: messageList.append((ask['id'], ask['asking_name'], ask['question']))
+    for ask in asks: messageList.append((int(ask['id']), ask['asking_name'], ask['question']))
     return messageList
 
 def delete_ask(askid):
     if tumblr['enableAskDeletion']: 
-        print "Deleting ask with ID %s..." % askid
+        print "Deleting ask with ID %d..." % askid
         client.delete_post(tumblr['username'], askid)
     else: print Fore.YELLOW + "!!! Ask deletion disabled in config file."
 
