@@ -31,11 +31,8 @@ database = {
 }
 
 tumblr = {
-    # Set the username of the Tumblr account that Emma communicates with
-    'username': 'emmacanlearn',
-
-    # Enable or disable posting on Tumblr (So that Emma doesn't post a bunch of garbage while we debug or work on new features)
-    'enablePosting': True,
+    # Enable or disable posting on Tumblr (this also affects Reblogs)
+    'enablePublishing': True,
 
     # Enable or disable Tumblr post previews, which give a rough idea of what a tumblr post will look like in the terminal
     'enablePostPreview': True,
