@@ -52,7 +52,7 @@ else:
 # "Emma" banner
 print Fore.MAGENTA + u" .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .oooo.\nd88' `88b `888P\"Y88bP\"Y88b  `888P\"Y88bP\"Y88b  `P  )88b\n888ooo888  888   888   888   888   888   888   .oP\"888\n888    .,  888   888   888   888   888   888  d8(  888\n`Y8bod8P' o888o o888o o888o o888o o888o o888o `Y888\"\"8o\n\n·~-.¸¸,.-~*'¯¨'*·~-.¸,.-~*'¯¨'*·~-.¸¸,.-~*'¯¨'*·~-.¸¸,.\n\n        EXPANDING MODEL of MAPPED ASSOCIATIONS\n                     Alpha v0.0.1"
     
-def consume(parsedSentence, asker=""):
+def consume(parsedSentence, asker=u""):
     if console['verboseLogging']: print "Consuming sentence..."
     pronouns.determine_references(parsedSentence)
     pronouns.flip_posessive_references(parsedSentence, asker)
@@ -73,11 +73,9 @@ def calculate_mood(text):
     return sum(moodModifiers) / 10
 
 def reply_to_asks(messageList):
-
     if len(messageList) > 0:
         print "Fetched %d new asks." % len(messageList)
         for askCount, message in enumerate(messageList):
-            # todo: intelligently decide how many asks to answer
             print "Reading ask no. %d of %d..." % (askCount + 1, len(messageList))
             print Fore.BLUE + u"@" + message[1] + u" >> " + message[2]
 
@@ -89,6 +87,7 @@ def reply_to_asks(messageList):
                 if console['verboseLogging']: print "Reading sentence no. %d of ask no. %d..." % ((sentenceCount + 1), (askCount + 1))
                 consume(sentence, message[1])
             
+            # todo: merge this loop with the loop directly above it
             emmaUnderstanding = u""
             for sentenceCount, sentence in enumerate(parsedMessage):
                 for wordCount, word in enumerate(sentence):
@@ -100,16 +99,7 @@ def reply_to_asks(messageList):
             emmaUnderstanding = u"Emma interpreted this message as: \'%s\'" % emmaUnderstanding
             print Fore.BLUE + emmaUnderstanding
 
-            reply = sentencebuilder.generate_sentence(parsedMessage)
-
-            greet = False
-            for keyword in utilities.greetingTerms:
-                if parse.find_whole_words(keyword, message[2]):
-                    greet = True
-                    break
-            if greet:
-                reply = reply[0].lower() + reply[1:]
-                reply = random.choice(utilities.greetingTerms) + ", @" + message[1] + ", " + reply
+            reply = sentencebuilder.generate_sentence(parsedMessage, message[1])
 
             if "%" not in reply:
                 print Fore.BLUE + u"emma >> %s" % reply
@@ -163,7 +153,7 @@ while True:
         else: 
             print Fore.YELLOW + "!!! Real ask fetching disabled in config file. Using fake asks instead -- execution will continue with sample Asks provided in 2 seconds..."
             time.sleep(2)
-            messageList = debug[fakeAsks]
+            messageList = debug['fakeAsks']
 
         if messageList != []: 
             print "Replying to messages..."

@@ -44,9 +44,9 @@ def determine_references(sentence):
                 print Fore.YELLOW + u"No nouns found for pronoun \'%s\'!" % word[0]
 
 def flip_posessive_references(sentence, asker):
-    posessiveReferences = {"you": "emma", "your": "emma\'s", "yours": "emma\'s", "myself": "emma"}
-    if asker: posessiveReferences.update({"me": asker, "i": asker, "my": asker + u"\'s", "mine": asker + u"\'s", "myself": asker})
-    else: posessiveReferences.update({"me": "you", "i": "you", "my": "your", "mine": "yours", "myself": "yourself"})        # todo: if we don't have an asker, should we have some other word? Perhaps 'someone'?
+    posessiveReferences = {u"you": u"emma", u"your": u"emma\'s", u"yours": u"emma\'s", u"myself": u"emma"}
+    if asker: posessiveReferences.update({u"me": asker, u"i": asker, u"my": asker + u"\'s", u"mine": asker + u"\'s", u"myself": asker})
+    else: posessiveReferences.update({u"me": u"you", u"i": u"you", u"my": u"your", u"mine": u"yours", u"myself": u"yourself"})        # todo: if we don't have an asker, should we have some other word? Perhaps 'someone'?
     
     for count, word in enumerate(sentence):
         if word[0] in posessiveReferences:
