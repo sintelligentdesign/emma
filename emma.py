@@ -118,7 +118,7 @@ def reply_to_asks(messageList):
 
                 print "Posting reply..."
                 body = "@%s >> %s\n(%s)\n\nemma >> %s" % (message[1], message[2], understanding, reply)
-                tumblrclient.post(body.encode('utf-8'), ["dialogue", message[1].encode('utf-8'), "feeling " + express_mood(update_mood(reply)).encode('utf-8')])
+                tumblrclient.post(body.encode('utf-8'), [u"dialogue", message[1], u"feeling " + express_mood(update_mood(reply))])
             else:
                 print Fore.YELLOW + "Sentence generation failed."
 

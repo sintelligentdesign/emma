@@ -38,8 +38,8 @@ def delete_ask(askid):
 
 def post(body, tags=[]):
     if tumblr['enablePostPreview']: 
-        for count, tag in enumerate(tags): tags[count] = "#" + tag
-        tags = ' '.join(tags)
-        print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + "%s\n- - - - - - - - - - - - - - - - - - - - - - - - -\n%s\n\n" % (body, tags)
+        for count, tag in enumerate(tags): tags[count] = u"#" + tag
+        tags = u' '.join(tags)
+        print Fore.BLUE + u"\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + u"%s\n- - - - - - - - - - - - - - - - - - - - - - - - -\n%s\n\n" % (body.encode('utf-8'), tags)
     if tumblr['enablePosting']: client.create_text(tumblr['username'], state="published", body=body, tags=tags)
     else: print Fore.YELLOW + "!!! Posting disabled in config file."
