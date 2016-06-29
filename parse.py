@@ -8,6 +8,8 @@ init(autoreset = True)
 
 from config import console, database
 
+import re
+
 def tokenize(text):
     # todo: for other simple "internet mispellings" of conjunctions like this, and the function after it that breaks conjunctions into words after parsing, should we have a separate function?
     text = text.split(' ')
@@ -107,3 +109,20 @@ def add_new_words(parsedSentence):
             addedWords.append(lemma)
             with connection:
                 cursor.execute("INSERT INTO dictionary VALUES (\"%s\", \"%s\", 1, 0);" % (lemma, pos))
+
+# This funtion find exact matches of multi word phrases in the first three words of a text. Used for finding greeting terms
+def find_whole_words(search, text):
+    re_Text   = re.split('[ ,.!?:;\-]+', text)[:3]
+    re_Search = re.split('[ ,.!?:;\-]+', search)
+
+    matches = 0
+    for word in re_Text:
+        for term in re_Search:
+            if term.lower() == word.lower():
+                matches += 1
+                print matches
+
+    if matches == len(re_Search):
+        return True
+    else:
+        return False

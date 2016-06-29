@@ -166,6 +166,18 @@ def reply_to_asks():
             print Fore.BLUE + emmaUnderstanding
 
             reply = sentencebuilder.generate_sentence(parsedMessage)
+
+            greet = False
+            for keyword in utilities.greetingTerms:
+                print Fore.RED + u'line 171 %s' % keyword
+                if parse.find_whole_words(keyword, message[2]):
+                    print 'line 173'
+                    greet = True
+                    break
+            if greet:
+                reply = reply[0].lower() + reply[1:]
+                reply = random.choice(utilities.greetingTerms) + ", @" + message[1] + ", " + reply
+
             if "%" not in reply:
                 print Fore.BLUE + u"emma >> %s" % reply
                 mood = calculate_mood(reply)

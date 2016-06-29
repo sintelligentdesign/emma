@@ -13,6 +13,9 @@ verbCodes = ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']
 adjectiveCodes = ['JJ', 'JJR', 'JJS']
 adverbCodes = ['RB', 'RBR', 'RBS', 'RP']
 
+# N.B. Do not use greeting terms longer than 3 words
+greetingTerms = ['What\'s up', 'Hi', 'Hello', 'What up', 'Wassup', 'What is up', 'What\'s going on', 'How are you', 'Howdy', 'Hey', 'hey']
+
 def printInfo():
     print Fore.MAGENTA + u"""
      .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .oooo.
