@@ -166,7 +166,7 @@ def dream():
     dream = sentencebuilder.generate_sentence(pattern.en.parse(dreamSeed, True, True, True, True, True).split())
     if "%" not in dream:
         print Fore.BLUE + u"dream >> " + dream
-        tumblrclient.post(dream.encode('utf-8'), ["dreams", "feeling " + express_mood(update_mood(post['dream'])).encode('utf-8')])
+        tumblrclient.post(dream.encode('utf-8'), ["dreams", "feeling " + express_mood(update_mood(dream)).encode('utf-8')])
     else: print Fore.YELLOW + "Dreamless sleep..."
 
 def chat():
