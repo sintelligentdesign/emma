@@ -34,10 +34,10 @@ def generate_sentence(tokenizedMessage, asker=""):
                 importantWords.append(word[0])
     if console['verboseLogging']: print Fore.BLUE + u"Important words: " + str(importantWords)
 
-    # Reply to message
     print "Creating reply..."
     reply = ['%']
     remainingIntents = intents
+    # todo: sentence generation sometimes doesn't trigger. like at all. we've gotta figure out why that happens and fix it
     while '%' in reply:
         if remainingIntents == []: return ['%']
         reply = random.choice(remainingIntents)

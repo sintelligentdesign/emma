@@ -36,26 +36,10 @@ def delete_ask(askid):
         client.delete_post(tumblr['username'], askid)
     else: print Fore.YELLOW + "!!! Ask deletion disabled in config file."
 
-def post_reply(asker, question, understanding, reply, mood):
-    body = "@%s >> %s\n(%s)\n\nemma >> %s" % (asker, question, understanding, reply)
-    body = body.encode('utf-8')
-    tags = ["dialogue", asker, "mood: " + mood]
-    if tumblr['enablePostPreview']: preview_post(body, tags)
+def post(body, tags=[]):
+    if tumblr['enablePostPreview']: 
+        for count, tag in enumerate(tags): tags[count] = "#" + tag
+        tags = ' '.join(tags)
+        print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + "%s\n- - - - - - - - - - - - - - - - - - - - - - - - -\n%s\n\n" % (body, tags)
     if tumblr['enablePosting']: client.create_text(tumblr['username'], state="published", body=body, tags=tags)
     else: print Fore.YELLOW + "!!! Posting disabled in config file."
-
-def post_dream(dream):
-    body = dream.encode('utf-8')
-    tags = ["dreams"]
-    if tumblr['enablePostPreview']: preview_post(body, tags)
-    if tumblr['enablePosting']: client.create_text(tumblr['username'], state="published", body=body, tags=tags)
-    else: print Fore.YELLOW + "!!! Posting disabled in config file."
-
-def preview_post(body, tags):
-    for count, tag in enumerate(tags):
-        tags[count] = "#" + tag
-    tags = ' '.join(tags)
-    print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n" 
-    print body
-    print "- - - - - - - - - - - - - - - - - - - - - - - - -"
-    print tags + "\n\n"

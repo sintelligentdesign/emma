@@ -74,16 +74,16 @@ def update_mood(text):
 
 def express_mood(moodNum):
     moodStr = ""
-    if -0.8 > moodNum: moodStr = u"abysmal\ud83d\ude31"
-    elif -0.6 > moodNum >= 0.8: moodStr = u"dreadful\ud83d\ude16"
-    elif -0.4 > moodNum >= 0.6: moodStr = u"bad\ud83d\ude23"
-    elif -0.2 > moodNum >= 0.4: moodStr = u"crummy\ud83d\ude41"
-    elif 0.0 > moodNum >= -0.2: moodStr = u"blah\ud83d\ude15"
-    elif 0.2 > moodNum >= 0.0: moodStr = u"alright\ud83d\ude10"
-    elif 0.4 > moodNum >= 0.2: moodStr = u"good\ud83d\ude42"
-    elif 0.6 > moodNum >= 0.4: moodStr = u"great\ud83d\ude09"
-    elif 0.8 > moodNum >= 0.6: moodStr = u"fantastic\ud83d\ude00"
-    elif 1.0 > moodNum >= 0.8: moodStr = u"glorious\ud83d\ude1c"
+    if -0.8 > moodNum: moodStr = u"abysmal \ud83d\ude31"
+    elif -0.6 > moodNum >= 0.8: moodStr = u"dreadful \ud83d\ude16"
+    elif -0.4 > moodNum >= 0.6: moodStr = u"bad \ud83d\ude23"
+    elif -0.2 > moodNum >= 0.4: moodStr = u"crummy \ud83d\ude41"
+    elif 0.0 > moodNum >= -0.2: moodStr = u"blah \ud83d\ude15"
+    elif 0.2 > moodNum >= 0.0: moodStr = u"alright \ud83d\ude10"
+    elif 0.4 > moodNum >= 0.2: moodStr = u"good \ud83d\ude42"
+    elif 0.6 > moodNum >= 0.4: moodStr = u"great \ud83d\ude09"
+    elif 0.8 > moodNum >= 0.6: moodStr = u"fantastic \ud83d\ude00"
+    elif 1.0 > moodNum >= 0.8: moodStr = u"glorious \ud83d\ude1c"
     return moodStr
 
 def reply_to_asks(messageList):
@@ -117,7 +117,8 @@ def reply_to_asks(messageList):
                 print Fore.BLUE + u"emma >> %s" % reply
 
                 print "Posting reply..."
-                tumblrclient.post_reply(message[1], message[2], understanding, reply, express_mood(update_mood(reply)))
+                body = "@%s >> %s\n(%s)\n\nemma >> %s" % (message[1], message[2], understanding, reply)
+                tumblrclient.post(body.encode('utf-8'), ["dialogue", message[1].encode('utf-8'), "feeling " + express_mood(update_mood(reply)).encode('utf-8')])
             else:
                 print Fore.YELLOW + "Sentence generation failed."
 
@@ -141,7 +142,7 @@ def dream():
     dream = sentencebuilder.generate_sentence(pattern.en.parse(dreamSeed, True, True, True, True, True).split())
     if "%" not in dream:
         print Fore.BLUE + u"dream >> " + dream
-        tumblrclient.post_dream(dream)
+        tumblrclient.post(dream.encode('utf-8'), ["dreams"])
     else: print Fore.YELLOW + "Dreamless sleep..."
 
 def chat():
