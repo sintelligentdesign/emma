@@ -36,7 +36,7 @@ def generate_sentence(tokenizedMessage, asker=""):
 
     print "Creating reply..."
     reply = ['%']
-    remainingIntents = intents
+    remainingIntents = [random.choice(intents) for _ in range len(intents)]
     # todo: sentence generation sometimes doesn't trigger. like at all. we've gotta figure out why that happens and fix it
     while '%' in reply:
         if remainingIntents == []: return ['%']
