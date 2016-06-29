@@ -20,13 +20,19 @@ client = pytumblr.TumblrRestClient(
     apikeys.tumblrOauthSecret
 )
 
-def get_messages():
+def get_asks():
     print "Checking Tumblr messages..."
-    asks = client.submission(tumblr['username'] + '.tumblr.com')
+    asks = client.submission('emmacanlearn.tumblr.com')
 
-    messageList = []
-    for ask in asks.values()[0]: messageList.append((int(ask['id']), ask['asking_name'], ask['question']))
-    return messageList
+    askList = []
+    for ask in asks.values()[0]: askList.append((int(ask['id']), ask['asking_name'], ask['question']))
+    return askList
+
+def delete_ask(askid):
+    if tumblr['enableAskDeletion']: 
+        print "Deleting ask with ID %d..." % askid
+        client.delete_post('emmacanlearn', askid)
+    else: print Fore.YELLOW + "!!! Ask deletion disabled in config file."
 
 def get_recent_posts(user):
     print "Fetching @%s\'s 5 most recent text posts..." % user
@@ -43,16 +49,14 @@ def get_recent_posts(user):
         postList.append((int(post['id']), post['reblog_key'], post['blog_name'], body))
     return postList
 
-def delete_ask(askid):
-    if tumblr['enableAskDeletion']: 
-        print "Deleting ask with ID %d..." % askid
-        client.delete_post(tumblr['username'], askid)
-    else: print Fore.YELLOW + "!!! Ask deletion disabled in config file."
-
 def post(body, tags=[]):
     if tumblr['enablePostPreview']: 
         tagsAsString = ""
         for tag in tags: tagsAsString += "#%s " % tag
         print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + "%s\n- - - - - - - - - - - - - - - - - - - - - - - - -\n%s\n\n" % (body, tagsAsString)
-    if tumblr['enablePosting']: client.create_text(tumblr['username'], state="published", body=body, tags=tags)
+    if tumblr['enablePublishing']: client.create_text('emmacanlearn', state="published", body=body, tags=tags)
     else: print Fore.YELLOW + "!!! Posting disabled in config file."
+
+def reblog(postid, reblogKey, blogName, comment, tags):
+    if tumblr['enablePublishing']: client.reblog(blogName, id=postid, reblog_key=reblogKey, comment=comment, tags=tags)
+    else: print Fore.YELLOW + "!!! Reblogging disabled in config file."
