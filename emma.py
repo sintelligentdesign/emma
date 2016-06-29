@@ -85,11 +85,11 @@ def express_mood(moodNum):
     elif 1.0 > moodNum >= 0.8: moodStr = u"glorious \ud83d\ude1c"
     return moodStr
 
-def reply_to_asks(messageList):
-    if len(messageList) > 0:
-        print "Fetched %d new asks." % len(messageList)
-        for askCount, message in enumerate(messageList):
-            print "Reading ask no. %d of %d..." % (askCount + 1, len(messageList))
+def reply_to_asks(askList):
+    if len(askList) > 0:
+        print "Fetched %d new asks." % len(askList)
+        for askCount, message in enumerate(askList):
+            print "Reading ask no. %d of %d..." % (askCount + 1, len(askList))
             print Fore.BLUE + u"@" + message[1] + u" >> " + message[2]
 
             update_mood(message[2])
@@ -158,14 +158,14 @@ while True:
     if console['chatMode']: chat()
     else:
         print "Choosing activity..."
-        if debug['fetchRealAsks']: messageList = tumblrclient.get_messages()
+        if debug['fetchRealAsks']: askList = tumblrclient.get_asks()
         else: 
             print Fore.YELLOW + "!!! Real ask fetching disabled in config file. Using fake asks instead."
-            messageList = debug['fakeAsks']
+            askList = debug['fakeAsks']
 
-        if messageList != []: 
+        if askList != []: 
             print "Replying to messages..."
-            reply_to_asks(messageList)
+            reply_to_asks(askList)
         else:
             print "Dreaming..."
             dream()
