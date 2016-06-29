@@ -61,7 +61,7 @@ def post_reply(asker, question, response, debugInfo):
     post = "@%s >> %s\n(%s)\n\nemma >> %s" % (asker, question, debugInfo[0], response)
     post = post.encode('utf-8')
     tags = ["dialogue", asker, "mood: " + str(debugInfo[1])]
-    if tumblr['enablePostPreview']: post_preview(post, tags)
+    if tumblr['enablePostPreview']: preview_post(post, tags)
     if tumblr['enablePosting']: client.create_text(tumblr['username'], state="published", body=post, tags=tags)
     else: 
         print Fore.YELLOW + "!!! Posting disabled in config file -- execution will continue normally in 2 seconds..."
@@ -70,13 +70,13 @@ def post_reply(asker, question, response, debugInfo):
 def post_dream(dream):
     dream = dream.encode('utf-8')
     tags = ["dreams"]
-    if tumblr['enablePostPreview']: post_preview(dream, tags)
+    if tumblr['enablePostPreview']: preview_post(dream, tags)
     if tumblr['enablePosting']: client.create_text(tumblr['username'], state="published", body=dream, tags=tags)
     else: 
         print Fore.YELLOW + "!!! Posting disabled in config file -- execution will continue normally in 2 seconds..."
         time.sleep(2)
 
-def post_preview(post, tags):
+def preview_post(post, tags):
     for count, tag in enumerate(tags):
         tags[count] = "#" + tag
     tags = u' '.join(tags)
