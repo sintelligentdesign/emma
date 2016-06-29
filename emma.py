@@ -36,12 +36,12 @@ lastFourActivites = [None, None, None, None]
 connection = sql.connect(database['path'])
 cursor = connection.cursor()
 # Check to see if our database is valid and, if not, create one that is
-print Fore.BLUE + "Checking if database exists at %s" % database['path']
+print Fore.BLUE + "Checking if database exists at %s..." % database['path']
 with connection:
     cursor.execute("SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'associationmodel\';")
     SQLReturn = cursor.fetchone()
 if SQLReturn != (u'associationmodel',):
-    print Fore.YELLOW + "Database invalid. Creating default tables in %s..." % database['path']
+    print Fore.YELLOW + "Database invalid. Creating database at %s..." % database['path']
     with connection:
         cursor.executescript("""
         DROP TABLE IF EXISTS associationmodel;
@@ -60,6 +60,7 @@ def main(lastFourActivites, lastDreamTime):
     return lastFourActivites, lastDreamTime
     
 def consume(parsedSentence, asker=""):
+    if console['verboseLogging']: print "Consuming sentence..."
     parse.add_new_words(parsedSentence)
     #utilities.spellcheck(parsedSentence)
     pronouns.determine_references(parsedSentence)
@@ -231,7 +232,7 @@ def dream():
         tumblrclient.post_dream(dream)
     else: print Fore.YELLOW + "Dreamless sleep..."
     if debug['enableSleep']:
-        print "Sleeping for 5 minutes"
+        print "Sleeping for 5 minutes..."
         time.sleep(300)
     else:
         print Fore.YELLOW + "!!! Sleep disabled in config file -- execution will continue normally in 2 seconds..."
@@ -244,7 +245,7 @@ def chat():
         for sentence in tokenizedMessage:
             consume(sentence)
         reply = sentencebuilder.generate_sentence(tokenizedMessage)
-        print Fore.BLUE + u"emma >> %s" % reply
+        print Fore.BLUE + u"emma >> " + reply
 
 while True:
     if not console['chatMode']:
