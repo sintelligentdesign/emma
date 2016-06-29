@@ -37,6 +37,7 @@ def get_recent_posts(user):
     postList = []
     for post in posts: 
         body = post['body'].split(' ')
+        # todo: remove posts that are over some arbitrary word number limit
         for count, word in enumerate(body):
             if u':' in word or word == u"" or len(word) > 10: leftBound = count + 1
             else:

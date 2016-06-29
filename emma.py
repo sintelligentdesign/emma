@@ -135,6 +135,23 @@ def reply_to_asks(askList):
                 print Fore.YELLOW + "!!! Sleep disabled in config file -- execution will continue normally in 2 seconds..."
                 time.sleep(2)
 
+def reblog_post():
+    with connection:
+        cursor.execute("SELECT username FROM friends WHERE can_reblog_from = 1")
+        SQLReturn = cursor.fetchall()
+    posts = tumblrclient.get_recent_posts(random.choice(SQLReturn))
+
+    while posts:
+        post = random.choice(posts)
+        posts.remove(post)
+        print "Attempting to reply to @%s\'s post (attempt %d of 5)..." % (post['blogName'], 5 - len(posts))
+        comment = sentencebuilder.generate_sentence(pattern.en.parse(post['body'], True, True, True, True, True).split())
+        
+        if "%" not in comment:
+            print Fore.BLUE + u"Emma >> " + comment
+            tumblrclient.reblog(post['id'], post['reblogKey'], post['blogName'], comment, ["reblog", post['blogName'], "feeling " + express_mood(update_mood(post['body'])).encode('utf-8')])
+        else: print Fore.YELLOW + "Reply generation failed."
+
 def dream():
     with connection:
         cursor.execute('SELECT word FROM dictionary WHERE is_banned = 0 ORDER BY RANDOM() LIMIT 10;')
@@ -146,7 +163,7 @@ def dream():
     dream = sentencebuilder.generate_sentence(pattern.en.parse(dreamSeed, True, True, True, True, True).split())
     if "%" not in dream:
         print Fore.BLUE + u"dream >> " + dream
-        tumblrclient.post(dream.encode('utf-8'), ["dreams"])
+        tumblrclient.post(dream.encode('utf-8'), ["dreams", "feeling " + express_mood(update_mood(post['dream'])).encode('utf-8')])
     else: print Fore.YELLOW + "Dreamless sleep..."
 
 def chat():
