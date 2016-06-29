@@ -64,13 +64,27 @@ class moodStack(list):
     def push(self, item):
         self.insert(0, item)
         self.remove(self[10])
-moodModifiers = moodStack([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-mood = 0
+moodValues = moodStack([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
-def calculate_mood(text):
-    moodModifiers.push(reduce(lambda x, y: x * y, pattern.en.sentiment(text)))
-    if console['verboseLogging']: print "Mood modifiers: " + str(moodModifiers)
-    return sum(moodModifiers) / 10
+def update_mood(text):
+    moodValues.push(reduce(lambda x, y: x * y, pattern.en.sentiment(text)))
+    mood = sum(moodValues) / 10
+    if console['verboseLogging']: print "Mood values: %s\nCalculated mood: %d" % (str(moodValues), mood)
+    return mood
+
+def express_mood(moodNum):
+    moodStr = ""
+    if -0.8 > moodNum: moodStr = u"abysmal\ud83d\ude31"
+    elif -0.6 > moodNum >= 0.8: moodStr = u"dreadful\ud83d\ude16"
+    elif -0.4 > moodNum >= 0.6: moodStr = u"bad\ud83d\ude23"
+    elif -0.2 > moodNum >= 0.4: moodStr = u"crummy\ud83d\ude41"
+    elif 0.0 > moodNum >= -0.2: moodStr = u"blah\ud83d\ude15"
+    elif 0.2 > moodNum >= 0.0: moodStr = u"alright\ud83d\ude10"
+    elif 0.4 > moodNum >= 0.2: moodStr = u"good\ud83d\ude42"
+    elif 0.6 > moodNum >= 0.4: moodStr = u"great\ud83d\ude09"
+    elif 0.8 > moodNum >= 0.6: moodStr = u"fantastic\ud83d\ude00"
+    elif 1.0 > moodNum >= 0.8: moodStr = u"glorious\ud83d\ude1c"
+    return moodStr
 
 def reply_to_asks(messageList):
     if len(messageList) > 0:
@@ -79,36 +93,31 @@ def reply_to_asks(messageList):
             print "Reading ask no. %d of %d..." % (askCount + 1, len(messageList))
             print Fore.BLUE + u"@" + message[1] + u" >> " + message[2]
 
-            mood = calculate_mood(message[2])
+            update_mood(message[2])
 
             parsedMessage = parse.tokenize(message[2])
 
+            understanding = u""
             for sentenceCount, sentence in enumerate(parsedMessage):
                 if console['verboseLogging']: print "Reading sentence no. %d of ask no. %d..." % ((sentenceCount + 1), (askCount + 1))
                 consume(sentence, message[1])
             
-            # todo: merge this loop with the loop directly above it
-            emmaUnderstanding = u""
-            for sentenceCount, sentence in enumerate(parsedMessage):
                 for wordCount, word in enumerate(sentence):
                     if wordCount == 0 and sentenceCount != 0:
-                        emmaUnderstanding += u" "
-                    emmaUnderstanding += word[0]
+                        understanding += u" "
+                    understanding += word[0]
                     if wordCount < len(sentence) - 2:
-                        emmaUnderstanding += u" "
-            emmaUnderstanding = u"Emma interpreted this message as: \'%s\'" % emmaUnderstanding
-            print Fore.BLUE + emmaUnderstanding
+                        understanding += u" "
+            understanding = u"Emma interpreted this message as: \'%s\'" % understanding
+            print Fore.BLUE + understanding
 
             reply = sentencebuilder.generate_sentence(parsedMessage, message[1])
 
             if "%" not in reply:
                 print Fore.BLUE + u"emma >> %s" % reply
-                mood = calculate_mood(reply)
-                    
+
                 print "Posting reply..."
-                # Reply bundle is (asker, question, response, debugInfo)
-                # todo: remove debugInfo when we enter Beta (?)
-                tumblrclient.post_reply(message[1], message[2], reply, (emmaUnderstanding, mood))
+                tumblrclient.post_reply(message[1], message[2], understanding, reply, express_mood(update_mood(reply)))
             else:
                 print Fore.YELLOW + "Sentence generation failed."
 
@@ -151,8 +160,7 @@ while True:
         print "Choosing activity..."
         if debug['fetchRealAsks']: messageList = tumblrclient.get_messages()
         else: 
-            print Fore.YELLOW + "!!! Real ask fetching disabled in config file. Using fake asks instead -- execution will continue with sample Asks provided in 2 seconds..."
-            time.sleep(2)
+            print Fore.YELLOW + "!!! Real ask fetching disabled in config file. Using fake asks instead."
             messageList = debug['fakeAsks']
 
         if messageList != []: 
