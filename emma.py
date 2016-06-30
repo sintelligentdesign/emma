@@ -69,7 +69,10 @@ moodValues = moodStack([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
 def update_mood(text):
     moodValues.push(reduce(lambda x, y: x * y, pattern.en.sentiment(text)))
-    mood = sum(moodValues) / 10
+    valTotal = 0
+    for count, val in enumerate(moodValues):
+        valTotal += val / (count + 1)
+    mood = valTotal / 10
     if console['verboseLogging']: print "Mood values: %s\nCalculated mood: %d" % (str(moodValues), mood)
     return mood
 
