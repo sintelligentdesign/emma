@@ -2,6 +2,7 @@
 # Description:      Communicates with Tumblr and executes related functions
 # Section:          LEARNING, REPLY
 import pytumblr
+import cgi
 from colorama import init, Fore
 init(autoreset = True)
 
@@ -43,7 +44,7 @@ def get_recent_posts(user):
             else:
                 body = ' '.join(body[leftBound:])
                 break
-        postList.append({'id': int(post['id']), 'reblogKey': post['reblog_key'], 'blogName': post['blog_name'], 'body': body})
+        postList.append({'id': int(post['id']), 'reblogKey': post['reblog_key'], 'blogName': cgi.escape(post['blog_name']), 'body': body})
     return postList
 
 def post(body, tags=[]):
@@ -56,5 +57,5 @@ def post(body, tags=[]):
 
 def reblog(postid, reblogKey, comment, tags):
     print "Reblogging post & adding comment..."
-    if tumblr['enablePublishing']: client.reblog('emmacanlearn', id=postid, reblog_key=reblogKey, comment=comment, tags=tags)
+    if tumblr['enablePublishing']: client.reblog('emmacanlearn', id=postid, reblog_key=reblogKey, comment=cgi.escape(comment), tags=tags)
     else: print Fore.YELLOW + "!!! Reblogging disabled in config file."
