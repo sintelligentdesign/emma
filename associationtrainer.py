@@ -65,19 +65,18 @@ def find_associations(sentence):
                             add_association(nextWord[0], word[0], "IS-PROPERTY-OF")
 
             # Type 6
-            if word[0] == "have":
-                if "NP" in wordsBack[-1][2] and "NP" in wordsFore[0][2]:
-                    for word in reversed(wordsBack):
-                        if word[1] in utilities.nounCodes:
-                            subjectNoun = word[0]
-                            break
-                    for word in wordsFore:
-                        if word[1] in utilities.nounCodes:
-                            targetNoun = word[0]
-                            break
-                    if subjectNoun and targetNoun:
-                        print Fore.MAGENTA + u"Found association: %s HAS %s." % (subjectNoun, targetNoun)
-                        add_association(subjectNoun, targetNoun, "HAS")
+            if word[0] == "have" and "NP" in wordsBack[-1][2] and "NP" in wordsFore[0][2]:
+                for word in reversed(wordsBack):
+                    if word[1] in utilities.nounCodes:
+                        subjectNoun = word[0]
+                        break
+                for word in wordsFore:
+                    if word[1] in utilities.nounCodes:
+                        targetNoun = word[0]
+                        break
+                if subjectNoun and targetNoun:
+                    print Fore.MAGENTA + u"Found association: %s HAS %s." % (subjectNoun, targetNoun)
+                    add_association(subjectNoun, targetNoun, "HAS")
 
             # Type 7
             # todo: for optimization purposes, have this and type 3 in the same function
