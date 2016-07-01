@@ -43,19 +43,13 @@ def find_associations(sentence):
                             else: break
 
             # Type 3
-            if "NP" in word[2]:
-                NPchunk = []
-                for i in range(count):
-                    if len(sentence) - (count - (i + 1)) >= 0:
-                        chunksCountingBackward = sentence[count - (i + 1)]
-                        # todo: add catch for ADJP in case input lists adjectives (ex. "the big, white, round orb")
-                        if "B" in chunksCountingBackward[2]:
-                            NPchunk.extend(sentence[count - (i + 1):count])
-                            break
-                for group in NPchunk:
-                    if group[1] in utilities.adjectiveCodes and group[0]:
-                        print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (group[0], word[0])
-                        add_association(group[0], word[0], "IS-PROPERTY-OF")
+            if "NP" in word[2] and word[1] in utilities.nounCodes:
+                print word
+                for prevWord in reversed(wordsBack):
+                    if prevWord[1] in utilities.adjectiveCodes:     # Type 3
+                        print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (prevWord[0], word[0])
+                        add_association(prevWord[0], word[0], "IS-PROPERTY-OF")
+                    else: break
 
             # Types 4 & 5
             if "VP" in word[2] or "ADVP" in word[2]:
