@@ -66,17 +66,18 @@ def find_associations(sentence):
 
             # Type 6
             if word[0] == "have":
-                prevWord = sentence[count - 1]
-                nextWord = sentence[count + 1]
-                if "NP" in prevWord[2]:
-                    if "NP" in nextWord[2]:
-                        for i in range(len(sentence)):
-                            if count + (i + 1) <= len(sentence) - 1:
-                                chunksCountingForward = sentence[count + i]
-                                if chunksCountingForward[1] in utilities.nounCodes:
-                                    print Fore.MAGENTA + u"Found association: %s HAS %s." % (prevWord[0], chunksCountingForward[0])
-                                    add_association(prevWord[0], chunksCountingForward[0], "HAS")
-                                    break
+                if "NP" in wordsBack[-1][2] and "NP" in wordsFore[0][2]:
+                    for word in reversed(wordsBack):
+                        if word[1] in utilities.nounCodes:
+                            subjectNoun = word[0]
+                            break
+                    for word in wordsFore:
+                        if word[1] in utilities.nounCodes:
+                            targetNoun = word[0]
+                            break
+                    if subjectNoun and targetNoun:
+                        print Fore.MAGENTA + u"Found association: %s HAS %s." % (subjectNoun, targetNoun)
+                        add_association(subjectNoun, targetNoun, "HAS")
 
             # Type 7
             # todo: for optimization purposes, have this and type 3 in the same function
