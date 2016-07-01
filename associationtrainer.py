@@ -16,30 +16,31 @@ def find_associations(sentence):
     # todo: optimize after we get all the core association types in
     # todo: prefer proper nouns when we look for nouns
     # todo: check for "not" after word, give negative association
+    with connection:
+        cursor.execute('SELECT word FROM dictionary WHERE is_banned = 1')
+        bannedWords = cursor.fetchall()
+
     for count, word in enumerate(sentence):
-        with connection:
-            cursor.execute('SELECT word FROM dictionary WHERE is_banned = 1')
-            bannedWords = cursor.fetchall()
-        if word[0] not in bannedWords and word[1] != "FW":      # Don't store banned or foreign words
+        wordsBack = sentence[0:count]
+        wordsFore = sentence[count + 1:-1]
+        if count != 0 and count != len(sentence): wordSandwich = True
+        else: wordSandwich = False
+
+        if word[0] not in bannedWords and word[1]  not in ["LS", "SYM", "UH", ".", ",", ":", "(", ")", "FW"]:      # Don't store banned words or unusable parts of speech
             # Types 1 & 2
-            if word[0] == "be":
-                if count != 0 and count != len(sentence) - 1:
-                    prevWord = sentence[count - 1]
-                    nextWord = sentence[count + 1]
-                    if "NP" in prevWord[2]:
-                        # Type 1
-                        if "ADJP" in nextWord[2]:
-                            print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (nextWord[0], prevWord[0])
-                            add_association(nextWord[0], prevWord[0], "IS-PROPERTY-OF")
-                        # Type 2
-                        elif "NP" in nextWord[2]:
-                            for i in range(len(sentence)):
-                                if count + (i + 1) <= len(sentence) - 1:
-                                    chunksCountingForward = sentence[count + (i + 1)]
-                                    if chunksCountingForward[1] in utilities.nounCodes:
-                                        print Fore.MAGENTA + u"Found association: %s IS-A %s." % (prevWord[0], chunksCountingForward[0])
-                                        add_association(prevWord[0], chunksCountingForward[0], "IS-A")
-                                        break
+            if wordSandwich:
+                if word[0] == "be":
+                    if "NP" in wordsBack[-1][2] and "ADJP" in wordsFore[0][2] or "NP" in wordsFore[0][2]:
+                        for nextWord in wordsFore:
+                            if nextWord[1] in utilities.adjectiveCodes:     # Type 1
+                                print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (wordsBack[-1][0], nextWord[0])
+                                add_association(wordsBack[-1][0], nextWord[0], "IS-PROPERTY-OF")
+                            elif nextWord[1] in utilities.nounCodes:        # Type 2
+                                print Fore.MAGENTA + u"Found association: %s IS-A %s." % (wordsBack[-1][0], nextWord[0])
+                                add_association(wordsBack[-1][0], nextWord[0], "IS-A")
+                                break
+                            # catch us if we go over because of incorrect sentence parsing
+                            else: break
 
             # Type 3
             if "NP" in word[2]:
