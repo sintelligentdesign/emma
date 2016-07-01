@@ -26,7 +26,7 @@ def find_associations(sentence):
         if count != 0 and count != len(sentence): wordSandwich = True
         else: wordSandwich = False
 
-        if word[0] not in bannedWords and word[1]  not in ["LS", "SYM", "UH", ".", ",", ":", "(", ")", "FW"]:      # Don't store banned words or unusable parts of speech
+        if word[0] not in bannedWords and word[1]  not in ["LS", "SYM", "UH", ".", ",", ":", "(", ")", "FW"]:      # Don't associate banned words or unusable parts of speech
             # Types 1 & 2
             if wordSandwich:
                 if word[0] == "be":
@@ -46,34 +46,23 @@ def find_associations(sentence):
             if "NP" in word[2] and word[1] in utilities.nounCodes:
                 print word
                 for prevWord in reversed(wordsBack):
-                    if prevWord[1] in utilities.adjectiveCodes:     # Type 3
+                    if prevWord[1] in utilities.adjectiveCodes:
                         print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (prevWord[0], word[0])
                         add_association(prevWord[0], word[0], "IS-PROPERTY-OF")
                     else: break
 
             # Types 4 & 5
-            if "VP" in word[2] or "ADVP" in word[2]:
-                if word[1] in utilities.adverbCodes:
-                    # Type 4
-                    if count != 0:
-                        prevWord = sentence[count - 1]
-                        if "VP" in prevWord[2]:
-                            for i in range(count):
-                                if len(sentence) - (count - (i + 1)) >= 0:
-                                    chunksCountingBackward = sentence[count - (i + 1)]
-                                    if chunksCountingBackward[1] in utilities.verbCodes:
-                                        print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (word[0], chunksCountingBackward[0])
-                                        add_association(word[0], chunksCountingBackward[0], "IS-PROPERTY-OF")
-                    # Type 5
-                    if count != len(sentence) - 1:
-                        nextWord = sentence[count + 1]
-                        if "VP" in nextWord[2]:
-                            for i in range(count):
-                                    if count + (i + 1) <= len(sentence) - 1:
-                                        chunksCountingForward = sentence[count + (i + 1)]
-                                        if chunksCountingForward[1] in utilities.verbCodes:
-                                            print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (word[0], chunksCountingForward[0])
-                                            add_association(word[0], chunksCountingForward[0], "IS-PROPERTY-OF")
+            if word[1] in utilities.verbCodes:
+                if wordsBack[-1][1] in utilities.adverbCodes:       # Type 4
+                    for prevWord in reversed(wordsBack):
+                        if prevWord[1] in utilities.adverbCodes:
+                            print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (prevWord[0], word[0])
+                            add_association(prevWord[0], word[0], "IS-PROPERTY-OF")
+                if "VP" in wordsFore[0][1]:     # Type 5
+                    for nextWord in wordsFore:
+                        if nextWord[1] in utilities.adverbCodes or nextWord[1] in utilities.verbCodes:
+                            print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (prevWord[0], word[0])
+                            add_association(nextWord[0], word[0], "IS-PROPERTY-OF")
 
             # Type 6
             if word[0] == "have":
