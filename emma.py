@@ -15,6 +15,8 @@
 #                contributions by Omri Barak.
 import time
 import random
+import os
+import pickle
 
 import pattern.en
 import sqlite3 as sql
@@ -50,6 +52,33 @@ if SQLReturn != (u'associationmodel',):
 else: 
     print Fore.GREEN + "Database valid! Continuing..."
 
+class stack(list):
+    def push(self, item):
+        self.insert(0, item)
+        self.remove(self[10])
+
+print Fore.BLUE + "Checking if mood values file exists at ./moodValues..."
+if os.path.isfile(r'./moodValues'):
+    print Fore.GREEN + "File exists! Loading mood values..."
+    with open('moodValues','r') as moodFile:
+        moodValues = stack(pickle.load(moodFile))
+else:   
+    print Fore.YELLOW + "File does not exist! Creating file with randomized moods..."
+    moodValues = []
+    with open('moodValues','wb') as moodFile:
+        for i in range(0, 10): moodValues.append(random.uniform(-1, 1))
+        moodValues = stack(moodValues)
+        pickle.dump(moodValues, moodFile)
+
+def update_mood(text):
+    moodValues.push(reduce(lambda x, y: x * y, pattern.en.sentiment(text)))
+    valTotal = 0
+    for count, val in enumerate(moodValues):
+        valTotal += val / (count + 1)
+    mood = valTotal / 10
+    if console['verboseLogging']: print "Mood values: %s\nCalculated mood: %d" % (str(moodValues), mood)
+    return mood
+
 # "Emma" banner
 print Fore.MAGENTA + u" .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .oooo.\nd88' `88b `888P\"Y88bP\"Y88b  `888P\"Y88bP\"Y88b  `P  )88b\n888ooo888  888   888   888   888   888   888   .oP\"888\n888    .,  888   888   888   888   888   888  d8(  888\n`Y8bod8P' o888o o888o o888o o888o o888o o888o `Y888\"\"8o\n\n·~-.¸¸,.-~*'¯¨'*·~-.¸,.-~*'¯¨'*·~-.¸¸,.-~*'¯¨'*·~-.¸¸,.\n\n        EXPANDING MODEL of MAPPED ASSOCIATIONS\n                     Alpha v0.0.1"
     
@@ -61,20 +90,6 @@ def consume(parsedSentence, asker=u""):
     associationtrainer.find_associations(parsedSentence)
     if console['verboseLogging']: print "Sentence consumed."
 
-class moodStack(list):
-    def push(self, item):
-        self.insert(0, item)
-        self.remove(self[10])
-moodValues = moodStack([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-
-def update_mood(text):
-    moodValues.push(reduce(lambda x, y: x * y, pattern.en.sentiment(text)))
-    valTotal = 0
-    for count, val in enumerate(moodValues):
-        valTotal += val / (count + 1)
-    mood = valTotal / 10
-    if console['verboseLogging']: print "Mood values: %s\nCalculated mood: %d" % (str(moodValues), mood)
-    return mood
 
 def express_mood(moodNum):
     if -0.4 > moodNum: moodStr = u"abysmal \ud83d\ude31"
