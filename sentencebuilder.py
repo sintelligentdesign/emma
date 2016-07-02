@@ -60,9 +60,9 @@ def generate_sentence(tokenizedMessage, asker=""):
 
     # Fix positions of punctuation, refer to Alex and Ellie as mom and dad
     for count, word in enumerate(reply):
-        if word in [u"sharkthemepark", u"sharkthemeparks"]:
+        if word in [u"sharkthemepark", u"sharkthemeparks", u"@sharkthemepark"]:
             reply[count] = u"mom"
-        elif word in [u"nosiron", u"nosirons"]:
+        elif word in [u"nosiron", u"nosirons", u"@nosiron"]:
             reply[count] = u"dad"
         elif word in [u",", u"!"]:
             reply[count - 1] = reply[count - 1] + word
