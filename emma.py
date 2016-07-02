@@ -100,9 +100,9 @@ def reply_to_asks(askList):
             with connection:
                 cursor.execute("SELECT username FROM friends")
                 for name in cursor.fetchall(): friendsList.append(name[0])
-            if not ask['asker'] in friendsList: 
-                print Fore.BLUE + "Adding @%s to friends list..." % ask['asker']
-                cursor.execute("INSERT INTO friends(username) VALUES(\'%s\');" % ask['asker'])
+                if not ask['asker'] in friendsList: 
+                    print Fore.BLUE + "Adding @%s to friends list..." % ask['asker']
+                    cursor.execute("INSERT INTO friends(username) VALUES(\'%s\');" % ask['asker'])
 
             update_mood(ask['message'])
 
