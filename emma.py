@@ -39,8 +39,8 @@ class stack(list):
 connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 
-print Fore.BLUE + "Checking for concept database and mood values..."
-if console['verboseLogging']: print Fore.BLUE + "Checking for concept database at %s..." % files['dbPath']
+print "Checking for concept database and mood values..."
+if console['verboseLogging']: print "Checking for concept database at %s..." % files['dbPath']
 if os.path.isfile(files['dbPath']): print Fore.GREEN + "Database found!"
 else:
     print Fore.YELLOW + "Concept database not found. Creating database at %s..." % files['dbPath']
@@ -54,7 +54,7 @@ else:
         CREATE TABLE friends(username TEXT, can_reblog_from INTEGER DEFAULT 0);
         """)
 
-if console['verboseLogging']: print Fore.BLUE + "Checking if mood values file exists at %s..." % files['moodPath']
+if console['verboseLogging']: print "Checking if mood values file exists at %s..." % files['moodPath']
 if os.path.isfile(files['moodPath']):
     print Fore.GREEN + "Mood values file found! Loading values..."
     with open(files['moodPath'],'r') as moodFile: moodValues = stack(pickle.load(moodFile))
