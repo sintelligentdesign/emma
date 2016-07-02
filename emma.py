@@ -73,7 +73,7 @@ def update_mood(text):
         valTotal += val / (count + 1)
     mood = valTotal / 10
     if console['verboseLogging']: print "Mood values: %s\nCalculated mood: %d" % (str(moodValues), mood)
-    with open('moodHistory','a') as debugHistory: debugHistory.write(mood)      # todo: debug stuff. remove this and the corresponding file later
+    with open('moodHistory.txt','a') as roxie: roxie.write(mood)      # todo: debug stuff. remove this and the corresponding file later
     return mood
 
 # "Emma" banner
