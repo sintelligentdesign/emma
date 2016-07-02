@@ -40,22 +40,22 @@ def tokenize(text):
     parsedMessage = []
     for count, taggedSentence in enumerate(taggedText):
         if console['verboseLogging']: print "Reading sentence no. %d..." % (count + 1)
-        if console['verboseLogging']: print "Checking for conjunctions and illegal characters..."
+
         rowsToRemove = []
         for count, taggedWord in enumerate(taggedSentence):
+            if console['verboseLogging']: print "Checking for conjunctions and illegal characters..."
+            if count != 0: prevWord = taggedSentence[count - 1]
+            if count != len(taggedSentence) - 1: nextWord = taggedSentence[count + 1]
+            
             if taggedWord[5] in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
                 print Fore.GREEN + "Replacing \"n\'t\" with \"not\"..."
                 taggedWord[5] = u"not"
-            elif taggedWord[5] in [u"\'", u"\u2019", u"\u2018"]:
-                if count != len(taggedSentence) - 1:
-                    prevWord = taggedSentence[count - 1]
-                    nextWord = taggedSentence[count + 1]
-                    print Fore.GREEN + "Joining \"%s\" and \"%s\"..." % (prevWord[5], nextWord[0])
-                    prevWord[5] = prevWord[5] + "\'" + nextWord[0]
-                    rowsToRemove.append(taggedWord)
-                    rowsToRemove.append(nextWord)
-            elif taggedWord[5] in [u"\'s'", u"\u2019s", u"\u2018s"] or taggedWord[1] == "POS":
-                prevWord = taggedSentence[count - 1]
+            elif taggedWord[5] in [u"\'", u"\u2019", u"\u2018"] and prevWord and nextWord:
+                print Fore.GREEN + "Joining \"%s\" and \"%s\"..." % (prevWord[5], nextWord[0])
+                prevWord[5] = prevWord[5] + "\'" + nextWord[0]
+                rowsToRemove.append(taggedWord)
+                rowsToRemove.append(nextWord)
+            elif taggedWord[5] in [u"\'s'", u"\u2019s", u"\u2018s"] or taggedWord[1] == "POS" and prevWord:
                 print Fore.GREEN + "Appending \"\'s\" to \"%s\"..." % prevWord[5]
                 prevWord[5] = prevWord[5] + u"\'s"
                 rowsToRemove.append(taggedWord)
