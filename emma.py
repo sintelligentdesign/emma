@@ -34,11 +34,9 @@ from config import debug, console, database, tumblr
 connection = sql.connect(database['path'])
 cursor = connection.cursor()
 print Fore.BLUE + "Checking if concept database exists at %s..." % database['path']
-with connection:
-    cursor.execute("SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'associationmodel\';")
-    SQLReturn = cursor.fetchone()
-if SQLReturn != (u'associationmodel',):
-    print Fore.YELLOW + "Database invalid. Creating database at %s..." % database['path']
+if os.path.isfile(database['path']): print Fore.GREEN + "Database exists! Continuing..."
+else:
+    print Fore.YELLOW + "Database not found. Creating database at %s..." % database['path']
     with connection:
         cursor.executescript("""
         DROP TABLE IF EXISTS associationmodel;
@@ -48,9 +46,7 @@ if SQLReturn != (u'associationmodel',):
         CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, is_new INTEGER DEFAULT 1, is_banned INTEGER DEFAULT 0);
         CREATE TABLE friends(username TEXT, can_reblog_from INTEGER DEFAULT 0);
         """)
-    print Fore.GREEN + "Database with required schema created at %s!" % database['path']
-else: 
-    print Fore.GREEN + "Database valid! Continuing..."
+    print Fore.GREEN + "Database created at %s! Continuing..." % database['path']
 
 class stack(list):
     def push(self, item):
@@ -63,7 +59,7 @@ if os.path.isfile(r'./moodValues'):
     with open('moodValues','r') as moodFile:
         moodValues = stack(pickle.load(moodFile))
 else:   
-    print Fore.YELLOW + "File does not exist! Creating file with randomized moods..."
+    print Fore.YELLOW + "File not found! Creating file with randomized moods at ./moodValues..."
     moodValues = []
     with open('moodValues','wb') as moodFile:
         for i in range(0, 10): moodValues.append(random.uniform(-1, 1))
