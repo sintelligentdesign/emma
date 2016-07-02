@@ -67,7 +67,7 @@ else:
 
 def update_mood(text):
     moodValues.push(reduce(lambda x, y: x * y, pattern.en.sentiment(text)))
-    with open(files['moodPath'],'r') as moodFile: pickle.dump(moodValues, moodFile)
+    with open(files['moodPath'],'wb') as moodFile: pickle.dump(moodValues, moodFile)
     valTotal = 0
     for count, val in enumerate(moodValues):
         valTotal += val / (count + 1)
