@@ -90,16 +90,16 @@ def consume(parsedSentence, asker=u""):
 
 
 def express_mood(moodNum):
-    if -0.4 > moodNum: moodStr = u"abysmal \ud83d\ude31"
-    elif -0.3 > moodNum >= -0.4: moodStr = u"dreadful \ud83d\ude16"
-    elif -0.2 > moodNum >= -0.3: moodStr = u"bad \ud83d\ude23"
-    elif -0.1 > moodNum >= -0.2: moodStr = u"crummy \ud83d\ude41"
-    elif 0.0 > moodNum >= -0.1: moodStr = u"blah \ud83d\ude15"
-    elif 0.1 > moodNum >= 0.0: moodStr = u"alright \ud83d\ude10"
-    elif 0.2 > moodNum >= 0.1: moodStr = u"good \ud83d\ude42"
-    elif 0.3 > moodNum >= 0.2: moodStr = u"great \ud83d\ude09"
-    elif 0.4 > moodNum >= 0.3: moodStr = u"fantastic \ud83d\ude00"
-    elif moodNum >= 0.4: moodStr = u"glorious \ud83d\ude1c"
+    if -0.2 > moodNum: moodStr = u"abysmal \ud83d\ude31"
+    elif -0.15 > moodNum >= -0.2: moodStr = u"dreadful \ud83d\ude16"
+    elif -0.1 > moodNum >= -0.15: moodStr = u"bad \ud83d\ude23"
+    elif -0.05 > moodNum >= -0.1: moodStr = u"crummy \ud83d\ude41"
+    elif 0.0 > moodNum >= -0.05: moodStr = u"blah \ud83d\ude15"
+    elif 0.05 > moodNum >= 0.0: moodStr = u"alright \ud83d\ude10"
+    elif 0.1 > moodNum >= 0.05: moodStr = u"good \ud83d\ude42"
+    elif 0.15 > moodNum >= 0.1: moodStr = u"great \ud83d\ude09"
+    elif 0.2 > moodNum >= 0.15: moodStr = u"fantastic \ud83d\ude00"
+    elif moodNum >= 0.2: moodStr = u"glorious \ud83d\ude1c"
     return moodStr
 
 def reply_to_asks(askList):
