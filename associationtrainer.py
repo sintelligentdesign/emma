@@ -68,7 +68,7 @@ def find_associations(sentence):
                             add_association(nextWord[0], word[0], "IS-PROPERTY-OF")
 
             # Type 6
-            if word[0] == "have" and "NP" in wordsBack[-1][2] and "NP" in wordsFore[0][2]:
+            if wordSandwich and word[0] == "have" and "NP" in wordsBack[-1][2] and "NP" in wordsFore[0][2]:
                 for word in reversed(wordsBack):
                     if word[1] in utilities.nounCodes:
                         subjectNoun = word[0]
