@@ -13,8 +13,6 @@ from config import database
 connection = sql.connect(database['path'])
 cursor = connection.cursor()
 def find_associations(sentence):
-    # todo: optimize after we get all the core association types in
-    # todo: prefer proper nouns when we look for nouns
     # todo: check for "not" after word, give negative association
     with connection:
         cursor.execute('SELECT word FROM dictionary WHERE is_banned = 1')
@@ -42,14 +40,19 @@ def find_associations(sentence):
                             # catch us if we go over because of incorrect sentence parsing
                             else: break
 
-            # Type 3
+            # Types 3 & 7
             if "NP" in word[2] and word[1] in utilities.nounCodes:
-                print word
-                for prevWord in reversed(wordsBack):
+                for prevWord in reversed(wordsBack):        # Type 3
                     if prevWord[1] in utilities.adjectiveCodes:
                         print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (prevWord[0], word[0])
                         add_association(prevWord[0], word[0], "IS-PROPERTY-OF")
                     else: break
+                for nextWord in wordsFore:      # Type 7
+                    if "VP" in nextWord[2] and nextWord[1] in utilities.verbCodes and nextWord[0] != "be":
+                        print Fore.MAGENTA + u"Found association: %s HAS-ABILITY-TO %s." % (word[0], nextWord[0])
+                        add_association(word[0], nextWord[0], "HAS-ABILITY-TO")
+                    elif "NP" not in nextWord[2]:
+                        break
 
             # Types 4 & 5
             if word[1] in utilities.verbCodes:
@@ -77,29 +80,6 @@ def find_associations(sentence):
                 if subjectNoun and targetNoun:
                     print Fore.MAGENTA + u"Found association: %s HAS %s." % (subjectNoun, targetNoun)
                     add_association(subjectNoun, targetNoun, "HAS")
-
-            # Type 7
-            # todo: for optimization purposes, have this and type 3 in the same function
-            if "NP" in word[2]:
-                if count != (len(sentence) - 1):nextWord = sentence[count + 1]
-                else: break
-                if "VP" in nextWord[2]:
-                    nounChoice = ""
-                    for i in range(count + 1):
-                        chunksCountingBackward = sentence[count - i]
-                        if chunksCountingBackward[1] in utilities.nounCodes:
-                            nounChoice = chunksCountingBackward[0]
-                            break
-                    if nounChoice != "":        # todo: find out why nounChoice sometimes is blank and fix it
-                        for i in range(len(sentence)):
-                            if i < len(sentence) - count:
-                                chunksCountingForward = sentence[count + i]
-                                if chunksCountingForward[1] in utilities.verbCodes:
-                                    if chunksCountingForward[0] != "be":
-                                        print Fore.MAGENTA + u"Found association: %s HAS-ABILITY-TO %s." % (nounChoice, chunksCountingForward[0])
-                                        add_association(nounChoice, chunksCountingForward[0], "HAS-ABILITY-TO")
-                                        break
-                                    else: break
 
             # Type 10
             if "OBJ" in word[3] and word[1] in utilities.nounCodes:
@@ -129,8 +109,7 @@ def calculate_weight(isUpdate, currentWeight):
     if isUpdate == True:
         if currentWeight == 1: currentWeight = 0.9999999999999      # todo: this is a bad fix and we should do something better
         currentWeight = np.log(currentWeight/(1-currentWeight))+rankingConstant
-    else:
-        currentWeight = 0
+    else: currentWeight = 0
     currentWeight += 1
     weight = 1/(1+e**-(currentWeight-rankingConstant))
     return weight
