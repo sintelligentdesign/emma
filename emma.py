@@ -56,8 +56,7 @@ class stack(list):
 print Fore.BLUE + "Checking if mood values file exists at %s..." % files['moodPath']
 if os.path.isfile(files['moodPath']):
     print Fore.GREEN + "File exists! Loading mood values..."
-    with open(files['moodPath'],'r') as moodFile:
-        moodValues = stack(pickle.load(moodFile))
+    with open(files['moodPath'],'r') as moodFile: moodValues = stack(pickle.load(moodFile))
 else:   
     print Fore.YELLOW + "File not found! Creating file with randomized moods at %s..." % files['moodPath']
     moodValues = []
@@ -73,6 +72,7 @@ def update_mood(text):
         valTotal += val / (count + 1)
     mood = valTotal / 10
     if console['verboseLogging']: print "Mood values: %s\nCalculated mood: %d" % (str(moodValues), mood)
+    with open(files['moodPath'],'r') as moodFile: pickle.dump(moodValues, moodFile)
     return mood
 
 # "Emma" banner
