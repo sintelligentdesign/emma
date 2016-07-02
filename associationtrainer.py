@@ -56,7 +56,7 @@ def find_associations(sentence):
 
             # Types 4 & 5
             if word[1] in utilities.verbCodes:
-                if wordsBack[-1][1] in utilities.adverbCodes:       # Type 4
+                if wordsBack != [] and wordsBack[-1][1] in utilities.adverbCodes:       # Type 4
                     for prevWord in reversed(wordsBack):
                         if prevWord[1] in utilities.adverbCodes:
                             print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (prevWord[0], word[0])
