@@ -61,7 +61,7 @@ def find_associations(sentence):
                         if prevWord[1] in utilities.adverbCodes:
                             print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (prevWord[0], word[0])
                             add_association(prevWord[0], word[0], "IS-PROPERTY-OF")
-                if "VP" in wordsFore[0][1]:     # Type 5
+                if wordSandwich and "VP" in wordsFore[0][1]:     # Type 5
                     for nextWord in wordsFore:
                         if nextWord[1] in utilities.adverbCodes or nextWord[1] in utilities.verbCodes:
                             print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (prevWord[0], word[0])
