@@ -41,10 +41,11 @@ cursor = connection.cursor()
 
 print "Checking for concept database and mood values..."
 if console['verboseLogging']: print "Checking for concept database at %s..." % files['dbPath']
-if os.path.isfile(files['dbPath']): print Fore.GREEN + "Database found!"
-else:
-    print Fore.YELLOW + "Concept database not found. Creating database at %s..." % files['dbPath']
-    with connection:
+with connection:
+    cursor.execute("SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'associationmodel\';")
+    if cursor.fetchone() == (u'associationmodel',): print Fore.GREEN + "Database found!"
+    else:
+        print Fore.YELLOW + "Concept database not found. Creating database at %s..." % files['dbPath']
         cursor.executescript("""
         DROP TABLE IF EXISTS associationmodel;
         DROP TABLE IF EXISTS dictionary;
