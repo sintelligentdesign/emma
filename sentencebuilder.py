@@ -10,9 +10,9 @@ from colorama import init, Fore
 init(autoreset = True)
 
 import utilities
-from config import console, database
+from config import console, files
 
-connection = sql.connect(database["path"])
+connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 
 intents = [['=DECLARATIVE'], ['=DECLARATIVE', u'like', '=DECLARATIVE'], ['=DECLARATIVE', u'and', '=DECLARATIVE'], ['=DECLARATIVE', u',', u'but', '=DECLARATIVE'], ['=IMPERATIVE'], ['=IMPERATIVE', u'like', '=DECLARATIVE']]

@@ -3,9 +3,9 @@
 # Section:          REPLY
 import pattern.graph
 import sqlite3 as sql
-from config import database
+from config import files
 
-connection = sql.connect(database['path'])
+connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 
 graph = pattern.graph.Graph()

@@ -8,9 +8,9 @@ from colorama import init, Fore
 init(autoreset = True)
 
 import utilities
-from config import database
+from config import files
 
-connection = sql.connect(database['path'])
+connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 def find_associations(sentence):
     # todo: check for "not" after word, give negative association

@@ -29,14 +29,14 @@ import pronouns
 import associationtrainer
 import sentencebuilder
 import utilities
-from config import debug, console, database, tumblr
+from config import debug, console, files, tumblr
 
-connection = sql.connect(database['path'])
+connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
-print Fore.BLUE + "Checking if concept database exists at %s..." % database['path']
-if os.path.isfile(database['path']): print Fore.GREEN + "Database exists! Continuing..."
+print Fore.BLUE + "Checking if concept database exists at %s..." % files['dbPath']
+if os.path.isfile(files['dbPath']): print Fore.GREEN + "Database exists! Continuing..."
 else:
-    print Fore.YELLOW + "Database not found. Creating database at %s..." % database['path']
+    print Fore.YELLOW + "Database not found. Creating database at %s..." % files['dbPath']
     with connection:
         cursor.executescript("""
         DROP TABLE IF EXISTS associationmodel;
@@ -46,22 +46,22 @@ else:
         CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, is_new INTEGER DEFAULT 1, is_banned INTEGER DEFAULT 0);
         CREATE TABLE friends(username TEXT, can_reblog_from INTEGER DEFAULT 0);
         """)
-    print Fore.GREEN + "Database created at %s! Continuing..." % database['path']
+    print Fore.GREEN + "Database created at %s! Continuing..." % files['dbPath']
 
 class stack(list):
     def push(self, item):
         self.insert(0, item)
         self.remove(self[10])
 
-print Fore.BLUE + "Checking if mood values file exists at ./moodValues..."
-if os.path.isfile(r'./moodValues'):
+print Fore.BLUE + "Checking if mood values file exists at %s..." % files['moodPath']
+if os.path.isfile(files['moodPath']):
     print Fore.GREEN + "File exists! Loading mood values..."
-    with open('moodValues','r') as moodFile:
+    with open(files['moodPath'],'r') as moodFile:
         moodValues = stack(pickle.load(moodFile))
 else:   
-    print Fore.YELLOW + "File not found! Creating file with randomized moods at ./moodValues..."
+    print Fore.YELLOW + "File not found! Creating file with randomized moods at %s..." % files['moodPath']
     moodValues = []
-    with open('moodValues','wb') as moodFile:
+    with open(files['moodPath'],'wb') as moodFile:
         for i in range(0, 10): moodValues.append(random.uniform(-1, 1))
         moodValues = stack(moodValues)
         pickle.dump(moodValues, moodFile)

@@ -6,7 +6,7 @@ import sqlite3 as sql
 from colorama import init, Fore
 init(autoreset = True)
 
-from config import console, database
+from config import console, files
 
 import re
 
@@ -84,7 +84,7 @@ def tokenize(text):
         parsedMessage.append(parsedSentence)
     return parsedMessage
 
-connection = sql.connect(database['path'])
+connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 def add_new_words(parsedSentence):
     with connection:

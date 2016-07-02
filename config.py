@@ -35,9 +35,12 @@ console = {
     'chatMode': False
 }
 
-database = {
-    # Specify what file Emma stores her information in (For now, this database must be pre-formatted. Emma will support generating new database files in a future update)
-    'path': './emma.db'
+files = {
+    # Specify what file Emma stores her information in
+    'dbPath': r'./emma.db',
+
+    # Specify what file Emma stores mood data in
+    'moodPath': r'./moodValues'
 }
 
 tumblr = {
