@@ -21,7 +21,7 @@ def find_associations(sentence):
     for count, word in enumerate(sentence):
         wordsBack = sentence[0:count]
         wordsFore = sentence[count + 1:-1]
-        if count != 0 and count != len(sentence): wordSandwich = True
+        if count != 0 and count != len(sentence) - 1: wordSandwich = True
         else: wordSandwich = False
 
         if word[0] not in bannedWords and word[1]  not in ["LS", "SYM", "UH", ".", ",", ":", "(", ")", "FW"]:      # Don't associate banned words or unusable parts of speech
@@ -61,7 +61,7 @@ def find_associations(sentence):
                         if prevWord[1] in utilities.adverbCodes:
                             print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (prevWord[0], word[0])
                             add_association(prevWord[0], word[0], "IS-PROPERTY-OF")
-                if wordSandwich and "VP" in wordsFore[0][1]:     # Type 5
+                if wordsFore != [] and "VP" in wordsFore[0][1]:     # Type 5
                     for nextWord in wordsFore:
                         if nextWord[1] in utilities.adverbCodes or nextWord[1] in utilities.verbCodes:
                             print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (prevWord[0], word[0])
