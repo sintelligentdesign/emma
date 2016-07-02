@@ -67,12 +67,12 @@ else:
 
 def update_mood(text):
     moodValues.push(reduce(lambda x, y: x * y, pattern.en.sentiment(text)))
+    with open(files['moodPath'],'r') as moodFile: pickle.dump(moodValues, moodFile)
     valTotal = 0
     for count, val in enumerate(moodValues):
         valTotal += val / (count + 1)
     mood = valTotal / 10
     if console['verboseLogging']: print "Mood values: %s\nCalculated mood: %d" % (str(moodValues), mood)
-    with open(files['moodPath'],'r') as moodFile: pickle.dump(moodValues, moodFile)
     return mood
 
 # "Emma" banner
