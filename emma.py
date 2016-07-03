@@ -201,7 +201,8 @@ def chat():
             consume(sentence)
         # todo: if sentence generation fails, what's a good way to let the user know?
         reply = sentencebuilder.generate_sentence(tokenizedMessage)
-        print Fore.BLUE + u"emma >> " + reply
+        if "%" not in reply: print Fore.BLUE + u"emma >> " + reply
+        else: print Fore.RED + u"Reply generation failed."
 
 while True:
     if console['chatMode']: chat()
