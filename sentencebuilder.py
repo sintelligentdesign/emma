@@ -129,20 +129,26 @@ def expand_domains(importantWords, reply):
     return newReply
 
 def build_phrase(importantWords, isPlural, returnSet=False):
-    queriedWords = []
-    queriedWords.extend(importantWords)
+    csHalo = []
     for word in importantWords:
         with connection:
             cursor.execute("SELECT target FROM associationmodel WHERE word = \"%s\" AND association_type in (\"IS-A\", \"HAS\");" % word)
-            SQLReturn = (cursor.fetchall())
-        for word in SQLReturn: queriedWords.extend(word)
+            for word in cursor.fetchall(): 
+                if word not in csHalo: csHalo.extend(word)
 
     phraseSets = []
-    for word in queriedWords:
+    for word in csHalo:
         with connection:
             cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\" AND part_of_speech IN (\"JJ\", \"JJR\", \"JJS\");" % word)
             SQLReturn = cursor.fetchall()
-        if SQLReturn != []: phraseSets.append([word, choose_association(SQLReturn)[0], choose_association(SQLReturn)[0]])
+            print SQLReturn
+        if SQLReturn != []:
+            if len(SQLReturn) > 1:
+                association1 = choose_association(SQLReturn)
+                SQLReturn.remove(association1)
+                association2 = choose_association(SQLReturn)
+                phraseSets.append([word, association1[0], association2[0]])
+            else: phraseSets.append([word, choose_association(SQLReturn)[0], choose_association(SQLReturn)[0]])
 
     # todo: handle errors correctly lmao
     if phraseSets == []: return ["%", "%"]
