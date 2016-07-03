@@ -91,6 +91,18 @@ def find_common_sense_halo(importantWords, depth=2):
 
     return csHalo
 
+def get_associations(importantWords, csHalo):
+    print "Finding associations..."
+    for word in importantWords:
+        with connection:
+            cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\';" % word)
+            primaryAssociations = cursor.fetchall()
+    for word in csHalo:
+        with connection:
+            cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\';" % word)
+            secondaryAssociations = cursor.fetchall()
+    return primaryAssociations, secondaryAssociations
+
 # Define intents
 intents = ['COMPARATIVE', 'DECLARATIVE', 'IMPERATIVE', 'PHRASE']        # Greeting and Interrogative intents are special
 
