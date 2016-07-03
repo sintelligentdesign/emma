@@ -96,7 +96,7 @@ def consume(parsedSentence, asker=u""):
 
 
 def express_mood(moodNum):
-    if -0.8 > moodNum: moodStr = u"abysmal\ud83d\ude31"
+    if -0.8 > moodNum: moodStr = u"abysmal \ud83d\ude31"
     elif -0.6 > moodNum >= 0.8: moodStr = u"dreadful \ud83d\ude16"
     elif -0.4 > moodNum >= 0.6: moodStr = u"bad \ud83d\ude23"
     elif -0.2 > moodNum >= 0.4: moodStr = u"crummy \ud83d\ude41"
