@@ -29,6 +29,7 @@ def generate_sentence(tokenizedMessage, asker=""):
     if console['verboseLogging']: print Fore.BLUE + u"Important words: " + str(importantWords)
 
     print "Creating reply..."
+    '''
     reply = ['%']
     remainingIntents = [random.choice(intents) for _ in range(len(intents))]
     while '%' in reply:
@@ -41,6 +42,7 @@ def generate_sentence(tokenizedMessage, asker=""):
             newReply = expand_domains(importantWords, reply)
             if reply == newReply: domainsExpanded = True
             reply = newReply
+    '''
     
     reply[-1] += u"."
     reply[0] = reply[0][0].upper + reply[0][1:]
@@ -72,6 +74,8 @@ def choose_association(associations):
             break
 
 # Define intents
+intents = ['COMPARATIVE', 'DECLARATIVE', 'IMPERATIVE', 'PHRASE']        # Greeting and Interrogative intents are special
+
 greetingDomains = []
 comparativeDomains = []
 declarativeDomains = []
