@@ -73,6 +73,24 @@ def choose_association(associations):
             return row
             break
 
+def find_common_sense_halo(importantWords, depth=2):
+    print "Creating common sense halo..."
+    csHalo = importantWords
+    for i in range(0, depth):
+        foundWords = []
+        for word in csHalo:
+            with connection:
+                cursor.execute("SELECT target FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.target = dictionary.word WHERE associationmodel.word = \'%s\' AND part_of_speech IN (\'NN\', \'NNS\', \'NNP\', \'NNPS\');" % word)
+                SQLReturn = cursor.fetchall()
+            for fetchedWord in SQLReturn:
+                if fetchedWord[0] not in csHalo: foundWords.extend(fetchedWord)
+        csHalo.extend(foundWords)
+
+    for word in csHalo:
+        if word in importantWords: csHalo.remove(word)
+
+    return csHalo
+
 # Define intents
 intents = ['COMPARATIVE', 'DECLARATIVE', 'IMPERATIVE', 'PHRASE']        # Greeting and Interrogative intents are special
 
