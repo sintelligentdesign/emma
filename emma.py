@@ -63,7 +63,7 @@ else:
     print Fore.YELLOW + "Mood values file not found! Creating file with randomized moods at %s..." % files['moodPath']
     moodValues = []
     with open(files['moodPath'],'wb') as moodFile:
-        for i in range(0, 10): moodValues.append(random.uniform(-1, 1))
+        for i in range(0, 10): moodValues.append(random.uniform(-0.5, 0.5))
         moodValues = stack(moodValues)
         pickle.dump(moodValues, moodFile)
 
@@ -73,14 +73,14 @@ def update_mood(text):
     with open(files['moodPath'],'wb') as moodFile: pickle.dump(moodValues, moodFile)        # Save to mood values file
     
     weightedMoodValues = []
-    for i in count(0, 3): weightedMoodValues.extend(moodValues[0])
-    for i in count(0, 2): weightedMoodValues.extend(moodValues[1])
-    weightedMoodValues.extend(moodValues[2])
+    for i in range(0, 3): weightedMoodValues.append(moodValues[0])
+    for i in range(0, 2): weightedMoodValues.append(moodValues[1])
+    weightedMoodValues.append(moodValues[2])
 
     weightedMoodValues = weightedMoodValues + moodValues
     mood = sum(weightedMoodValues) / float(len(weightedMoodValues))
-
-    if console['verboseLogging']: print "Mood values: %s\nCalculated mood: %d" % (str(moodValues), mood)
+    
+    if console['verboseLogging']: print "Mood values: %s\nCalculated mood: %d" % (str(moodValues), str(mood))
     with open('moodHistory.txt','a') as roxie: roxie.write(str(mood) + "\n")      # todo: debug stuff. remove this and the corresponding file later
     return mood
 
@@ -97,16 +97,16 @@ def consume(parsedSentence, asker=u""):
 
 
 def express_mood(moodNum):
-    if -0.2 > moodNum: moodStr = u"abysmal \ud83d\ude31"
-    elif -0.15 > moodNum >= -0.2: moodStr = u"dreadful \ud83d\ude16"
-    elif -0.1 > moodNum >= -0.15: moodStr = u"bad \ud83d\ude23"
-    elif -0.05 > moodNum >= -0.1: moodStr = u"crummy \ud83d\ude41"
-    elif 0.0 > moodNum >= -0.05: moodStr = u"blah \ud83d\ude15"
-    elif 0.05 > moodNum >= 0.0: moodStr = u"alright \ud83d\ude10"
-    elif 0.1 > moodNum >= 0.05: moodStr = u"good \ud83d\ude42"
-    elif 0.15 > moodNum >= 0.1: moodStr = u"great \ud83d\ude09"
-    elif 0.2 > moodNum >= 0.15: moodStr = u"fantastic \ud83d\ude00"
-    elif moodNum >= 0.2: moodStr = u"glorious \ud83d\ude1c"
+    if -0.8 > moodNum: moodStr = u"abysmal\ud83d\ude31"
+    elif -0.6 > moodNum >= 0.8: moodStr = u"dreadful \ud83d\ude16"
+    elif -0.4 > moodNum >= 0.6: moodStr = u"bad \ud83d\ude23"
+    elif -0.2 > moodNum >= 0.4: moodStr = u"crummy \ud83d\ude41"
+    elif 0.0 > moodNum >= -0.2: moodStr = u"blah \ud83d\ude15"
+    elif 0.2 > moodNum >= 0.0: moodStr = u"alright \ud83d\ude10"
+    elif 0.4 > moodNum >= 0.2: moodStr = u"good \ud83d\ude42"
+    elif 0.6 > moodNum >= 0.4: moodStr = u"great \ud83d\ude09"
+    elif 0.8 > moodNum >= 0.6: moodStr = u"fantastic \ud83d\ude00"
+    elif 1.0 > moodNum >= 0.8: moodStr = u"glorious \ud83d\ude1c"
     return moodStr
 
 def reply_to_asks(askList):
