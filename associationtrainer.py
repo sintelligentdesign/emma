@@ -31,8 +31,8 @@ def find_associations(sentence):
                     if "NP" in wordsBack[-1][2] and "ADJP" in wordsFore[0][2] or "NP" in wordsFore[0][2]:
                         for nextWord in wordsFore:
                             if nextWord[1] in utilities.adjectiveCodes:     # Type 1
-                                print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (wordsBack[-1][0], nextWord[0])
-                                add_association(wordsBack[-1][0], nextWord[0], "IS-PROPERTY-OF")
+                                print Fore.MAGENTA + u"Found association: %s IS-PROPERTY-OF %s." % (nextWord[0], wordsBack[-1][0])
+                                add_association(nextWord[0], wordsBack[-1][0], "IS-PROPERTY-OF")
                             elif nextWord[1] in utilities.nounCodes:        # Type 2
                                 print Fore.MAGENTA + u"Found association: %s IS-A %s." % (wordsBack[-1][0], nextWord[0])
                                 add_association(wordsBack[-1][0], nextWord[0], "IS-A")
