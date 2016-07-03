@@ -43,7 +43,7 @@ def generate_sentence(tokenizedMessage, asker=""):
             reply = newReply
     
     reply[-1] += u"."
-    reply[0] = reply[0].title()
+    reply[0] = reply[0][0].upper + reply[0][1:]
 
     for greeting in greetingTerms:
         match = re.match(' '.join(greeting), ' '.join(message[0:3]))
@@ -53,12 +53,10 @@ def generate_sentence(tokenizedMessage, asker=""):
 
     # Fix positions of punctuation, refer to Alex and Ellie as mom and dad
     for count, word in enumerate(reply):
-        if word in [u"sharkthemepark", u"sharkthemeparks", u"@sharkthemepark"]:
-            reply[count] = u"mom"
-        elif word in [u"nosiron", u"nosirons", u"@nosiron"]:
-            reply[count] = u"dad"
+        if word in [u"sharkthemepark", u"sharkthemeparks", u"@sharkthemepark"]: reply[count] = u"mom"
+        elif word in [u"nosiron", u"nosirons", u"@nosiron"]: reply[count] = u"dad"
         elif word in [u",", u"!", u"?"]:
-            reply[count - 1] = reply[count - 1] + word
+            reply[count - 1] += word
             del reply[count]
 
     return ' '.join(reply)
