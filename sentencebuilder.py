@@ -19,6 +19,8 @@ cursor = connection.cursor()
 greetingTerms = [[u'what\'s', u'up'], [u'hi'], [u'hello'], [u'what', u'up'], [u'wassup'], [u'what', u'is', u'up'], [u'what\'s', u'going', u'on'], [u'how', u'are', u'you'], [u'howdy'], [u'hey']]
 
 def generate_sentence(tokenizedMessage, asker=""):
+    print "Creating reply..."
+    print "Determining important words..."
     importantWords = []
     message = []
     for sentence in tokenizedMessage:
@@ -26,9 +28,9 @@ def generate_sentence(tokenizedMessage, asker=""):
             message.append(word[0])
             if word[1] in utilities.nounCodes and word[3] and word[0] not in importantWords:
                 importantWords.append(word[0])
-    if console['verboseLogging']: print Fore.BLUE + u"Important words: " + str(importantWords)
 
-    print "Creating reply..."
+    primaryHalo, secondaryHalo = make_common_sense_halo(importantWords)
+
     '''
     reply = ['%']
     remainingIntents = [random.choice(intents) for _ in range(len(intents))]
@@ -63,17 +65,7 @@ def generate_sentence(tokenizedMessage, asker=""):
 
     return ' '.join(reply)
 
-def choose_association(associations):
-    dieSeed = 0
-    for row in associations: dieSeed += row[3]
-    dieResult = random.uniform(0, dieSeed)
-    for row in associations:
-        dieResult -= row[3]
-        if dieResult <= 0:
-            return row
-            break
-
-def find_common_sense_halo(importantWords, depth=2):
+def make_common_sense_halo(importantWords, depth=2):
     print "Creating common sense halo..."
     csHalo = importantWords
     for i in range(0, depth):
@@ -102,6 +94,16 @@ def get_associations(importantWords, csHalo):
             cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\';" % word)
             secondaryAssociations = cursor.fetchall()
     return primaryAssociations, secondaryAssociations
+
+def choose_association(associations):
+    dieSeed = 0
+    for row in associations: dieSeed += row[3]
+    dieResult = random.uniform(0, dieSeed)
+    for row in associations:
+        dieResult -= row[3]
+        if dieResult <= 0:
+            return row
+            break
 
 # Define intents
 intents = ['COMPARATIVE', 'DECLARATIVE', 'IMPERATIVE', 'PHRASE']        # Greeting and Interrogative intents are special
