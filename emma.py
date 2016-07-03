@@ -68,12 +68,18 @@ else:
         pickle.dump(moodValues, moodFile)
 
 def update_mood(text):
-    moodValues.push(reduce(lambda x, y: x * y, pattern.en.sentiment(text)))
-    with open(files['moodPath'],'wb') as moodFile: pickle.dump(moodValues, moodFile)
-    valTotal = 0
-    for count, val in enumerate(moodValues):
-        valTotal += val / (count + 1)
-    mood = valTotal / 10
+    sentiment = pattern.en.sentiment(text)      # Get the average mood from the moods of sentences in the text
+    moodValues.push(sum(sentiment) / float(len(sentiment)))     # Add the mood to the list of mood values
+    with open(files['moodPath'],'wb') as moodFile: pickle.dump(moodValues, moodFile)        # Save to mood values file
+    
+    weightedMoodValues = []
+    for i in count(0, 3): weightedMoodValues.extend(moodValues[0])
+    for i in count(0, 2): weightedMoodValues.extend(moodValues[1])
+    weightedMoodValues.extend(moodValues[2])
+
+    weightedMoodValues = weightedMoodValues + moodValues
+    mood = sum(weightedMoodValues) / float(len(weightedMoodValues))
+
     if console['verboseLogging']: print "Mood values: %s\nCalculated mood: %d" % (str(moodValues), mood)
     with open('moodHistory.txt','a') as roxie: roxie.write(str(mood) + "\n")      # todo: debug stuff. remove this and the corresponding file later
     return mood
