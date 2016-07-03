@@ -15,12 +15,6 @@ from config import console, files
 connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 
-intents = [['=DECLARATIVE'], ['=DECLARATIVE', u'like', '=DECLARATIVE'], ['=DECLARATIVE', u'and', '=DECLARATIVE'], ['=DECLARATIVE', u',', u'but', '=DECLARATIVE'], ['=IMPERATIVE'], ['=IMPERATIVE', u'like', '=DECLARATIVE']]
-
-declaratives = [['=PHRASE', u'is', '=ADJECTIVE'], ['=PLURPHRASE', u'are', '=ADJECTIVE'], ['=PHRASE', '=IMPERATIVE']] #['=PHRASE', u'has/have', '=PHRASE']  todo: this would be a special case. Should we have a few special case domains that get their own special code?
-imperatives = [['=VERB', '=PHRASE'], ['=VERB', u'a', '=PHRASE'], ['=VERB', u'the', '=PHRASE'], ['=VERB', u'the', '=PLURPHRASE'], ['=VERB', u'at', '=PLURPHRASE'], [u'always', '=VERB', '=PHRASE'], [u'never', '=VERB', '=PHRASE']] #['=VERB', u'a', '=PHRASE', u'with', '=PLURPHRASE']
-phrases = [['=NOUN'], ['=ADJECTIVE', '=NOUN'], ['=ADJECTIVE', u',', '=ADJECTIVE', '=NOUN']]
-
 # Note: do not use greeting terms longer than 3 words
 greetingTerms = [[u'what\'s', u'up'], [u'hi'], [u'hello'], [u'what', u'up'], [u'wassup'], [u'what', u'is', u'up'], [u'what\'s', u'going', u'on'], [u'how', u'are', u'you'], [u'howdy'], [u'hey']]
 
@@ -63,7 +57,7 @@ def generate_sentence(tokenizedMessage, asker=""):
             reply[count] = u"mom"
         elif word in [u"nosiron", u"nosirons", u"@nosiron"]:
             reply[count] = u"dad"
-        elif word in [u",", u"!"]:
+        elif word in [u",", u"!", u"?"]:
             reply[count - 1] = reply[count - 1] + word
             del reply[count]
 
@@ -79,105 +73,35 @@ def choose_association(associations):
             return row
             break
 
-def expand_domains(importantWords, reply):
-    newReply = []
-    for count, word in enumerate(reply):
-        if word == "=DECLARATIVE":
-            newReply.extend(build_declarative(importantWords))
-            print newReply + reply[count + 1:len(reply)]
-        elif word == "=IMPERATIVE":
-            newReply.extend(build_imperative(importantWords))
-            print newReply + reply[count + 1:len(reply)]
-        elif word in ["=PHRASE", "=PLURPHRASE"]:
-            if word == "=PHRASE":
-                newReply.extend(build_phrase(importantWords, False))
-            elif word == "=PLURPHRASE":
-                newReply.extend(build_phrase(importantWords, True))
-            print newReply + reply[count + 1:len(reply)]
-        elif type(word) == list:
-            newReply.append(expand_domains(importantWords, word))
-        else:
-            newReply.append(word)
-    return newReply
+# Define intents
+greetingDomains = []
+comparativeDomains = []
+declarativeDomains = []
+imperativeDomains = []
+interrogativeDomains = []
+phraseDomains = []
 
-def build_phrase(importantWords, isPlural, returnSet=False):
-    csHalo = []
-    for word in importantWords:
-        with connection:
-            cursor.execute("SELECT target FROM associationmodel WHERE word = \"%s\" AND association_type in (\"IS-A\", \"HAS\");" % word)
-            for word in cursor.fetchall(): 
-                if word not in csHalo: csHalo.extend(word)
+allowGreeting = False
+allowComparative = False
+allowDeclarative = False
+allowImperative = False
+allowInterrogative = False
+allowPhrase = False
 
-    phraseSets = []
-    for word in csHalo:
-        with connection:
-            cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\" AND part_of_speech IN (\"JJ\", \"JJR\", \"JJS\");" % word)
-            SQLReturn = cursor.fetchall()
-            print SQLReturn
-        if SQLReturn != []:
-            if len(SQLReturn) > 1:
-                association1 = choose_association(SQLReturn)
-                SQLReturn.remove(association1)
-                association2 = choose_association(SQLReturn)
-                phraseSets.append([word, association1[0], association2[0]])
-            else: phraseSets.append([word, choose_association(SQLReturn)[0], choose_association(SQLReturn)[0]])
+def makeGreeting():
+    pass
 
-    # todo: handle errors correctly lmao
-    if phraseSets == []: return ["%", "%"]
+def makeComparative():
+    pass
 
-    phrase = []
-    domain = random.choice(phrases)
-    phraseSet = random.choice(phraseSets)
-    for word in domain:
-        if word == "=NOUN":
-            if isPlural: phrase.append(pattern.en.pluralize(phraseSet[0]))
-            else: phrase.append(phraseSet[0])
-        elif word == "=ADJECTIVE":
-            phrase.append(phraseSet[1])
-            del phraseSet[1]
-        else: phrase.append(word)
-    if returnSet: return phrase, phraseSet
-    else: return phrase
+def makeDeclarative():
+    pass
 
-def build_imperative(importantWords):
-    domain = random.choice(imperatives)
-    pluralPhrase = True if "=PLURPHRASE" in domain else False
-    phrase, phraseSet = build_phrase(importantWords, pluralPhrase, True)
-    if phrase == "%": return "%"
+def makeImperative():
+    pass
 
-    # Using the noun from our phrase, find matching verbs and adverbs
-    with connection:
-        cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type IN (\"IS-PROPERTY-OF\", \"IS-OBJECT-OF\") AND part_of_speech IN (\'VB\', \'VBD\', \'VBG\', \'VBN\', \'VBP\', \'VBZ\', \'RB\', \'RBR\', \'RBS\', \'RP\');" % phraseSet[0])
-        verbAssociations = cursor.fetchall()
+def makeInterrogative():
+    pass
 
-    if verbAssociations == []: return "%"
-
-    verb = choose_association(verbAssociations)[0]
-
-    imperative = []
-    for word in domain:
-        if word in ["=PHRASE", "=PLURPHRASE"]: imperative.extend(phrase)
-        elif word == "=VERB": imperative.append(verb)
-        else: imperative.append(word)
-    return imperative
-
-def build_declarative(importantWords):
-    domain = random.choice(declaratives)
-    pluralPhrase = True if "=PLURPHRASE" in domain else False
-    phrase, phraseSet = build_phrase(importantWords, pluralPhrase, True)
-    if phrase == "%": return "%"
-    imperative = build_imperative([phraseSet[0]])
-
-    with connection:
-        cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\" AND part_of_speech IN (\"JJ\", \"JJR\", \"JJS\");" % phraseSet[0])
-        adjectiveAssociations = cursor.fetchall()
-
-    adjective = choose_association(adjectiveAssociations)[0]
-
-    declarative = []
-    for word in domain:
-        if word in ["=PHRASE", "=PLURPHRASE"]: declarative.extend(phrase)
-        elif word == "=IMPERATIVE": declarative.extend(imperative)
-        elif word == "=ADJECTIVE": declarative.append(adjective)
-        else: declarative.append(word)
-        return declarative
+def makePhrase():
+    pass
