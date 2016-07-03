@@ -37,7 +37,6 @@ def generate_sentence(tokenizedMessage, asker=""):
     print "Creating reply..."
     reply = ['%']
     remainingIntents = [random.choice(intents) for _ in range(len(intents))]
-    # todo: sentence generation sometimes doesn't trigger. like at all. we've gotta figure out why that happens and fix it
     while '%' in reply:
         if remainingIntents == []: return ['%']
         reply = random.choice(remainingIntents)
@@ -79,33 +78,6 @@ def choose_association(associations):
         if dieResult <= 0:
             return row
             break
-
-def create_reply(importantWords):
-    reply = ['%']
-    remainingIntents = intents
-    while '%' in reply:
-        if remainingIntents == []: return ['%']
-        reply = random.choice(remainingIntents)
-        remainingIntents.remove(reply)
-        domainsExpanded = False
-        while not domainsExpanded:
-            print reply
-            newReply = expand_domains(importantWords, reply)
-            if reply == newReply: domainsExpanded = True
-            reply = newReply
-
-    for count, word in enumerate(reply):
-        # having to fix the position of commas ANYWAY gives us the ability to throw in a cute little easter egg when referencing Alex or Ellie's Tumblr usernames
-        if word in [u"sharkthemepark", u"sharkthemeparks"]:
-            reply[count] = u"mom"
-        elif word in [u"nosiron", u"nosirons"]:
-            reply[count] = u"dad"
-        elif word == u",":
-            reply[count - 1] = reply[count - 1] + u","
-            del reply[count]
-    reply[-1] += u"."
-    reply[0] = reply[0].title()
-    return reply
 
 def expand_domains(importantWords, reply):
     newReply = []
