@@ -81,7 +81,6 @@ def update_mood(text):
     mood = sum(weightedMoodValues) / float(len(weightedMoodValues))
     
     if console['verboseLogging']: print "Mood values: %s\nCalculated mood: %d" % (str(moodValues), str(mood))
-    with open('moodHistory.txt','a') as roxie: roxie.write(str(mood) + "\n")      # todo: debug stuff. remove this and the corresponding file later
     return mood
 
 # "Emma" banner
