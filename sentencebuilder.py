@@ -18,7 +18,7 @@ cursor = connection.cursor()
 # Note: do not use greeting terms longer than 3 words
 greetingTerms = [[u'what\'s', u'up'], [u'hi'], [u'hello'], [u'what', u'up'], [u'wassup'], [u'what', u'is', u'up'], [u'what\'s', u'going', u'on'], [u'how', u'are', u'you'], [u'howdy'], [u'hey']]
 
-def generate_sentence(tokenizedMessage, asker=""):
+def generate_sentence(tokenizedMessage, asker="", mood):
     print "Creating reply..."
     print "Determining important words..."
     importantWords = []
@@ -51,6 +51,9 @@ def generate_sentence(tokenizedMessage, asker=""):
     print "Determining valid intents..."
     primaryIntents = determine_valid_intents(primaryPackage)
     secondaryIntents = determine_valid_intents(secondaryPackage)
+
+    # Begin generating our reply
+    build_reply(primaryIntents, primaryPackage, mood)
 
     '''
     reply = ['%']
@@ -147,7 +150,7 @@ def determine_valid_intents(package):
         allowDeclarative = True
         allowImperative = True
         allowPhrase = True
-        
+
     return {'allowGreeting': allowGreeting, 'allowComparative': allowComparative, 'allowDeclarative': allowDeclarative, 'allowImperative': allowImperative, 'allowPhrase': allowPhrase}
 
 def choose_association(associations):
@@ -160,18 +163,23 @@ def choose_association(associations):
             return row
             break
 
-# Define intents
-intents = ['COMPARATIVE', 'DECLARATIVE', 'IMPERATIVE', 'PHRASE']        # Greeting and Interrogative intents are special
+def build_reply(validIntents, associationPackage, mood):
+    reply = []
+    sentencesToGenerate = random.randint(1, 4)      # Decide how many sentences we want to generate for our reply
 
-greetingDomains = []
-comparativeDomains = []
-declarativeDomains = []
-imperativeDomains = []
-interrogativeDomains = []
-phraseDomains = []
+    for sentence in range(0, sentencesToGenerate):
+        # Greeting
+        if sentencesToGenerate > 1 and sentence = 1 and mood >= 0.2 and validIntents['allowGreeting']:      # todo: add dice roll?
+            reply.extend(makeGreeting(associationPackage[0]['asker']))
+    
+        for associationBundle in associationPackage:
+            if validIntents['allowComparative']:
+                pass
 
-def makeGreeting():
-    pass
+def makeGreeting(asker):
+    greetingDomains = [[u"hi", asker], [u"hello", asker]]
+    sentence = random.choice(greetingDomains) + u"!"
+    return sentence
 
 def makeComparative():
     pass
@@ -188,4 +196,4 @@ def makeInterrogative():
 def makePhrase():
     pass
     
-generate_sentence([[[u'hi', u'UH', u'O', u'O'], [u'emma', u'NNP', u'B-NP', u'O'], [u'!', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'hope', u'VBP', u'B-VP', u'VP-1'], [u'emma', 'NNP', u'B-NP', u'NP-OBJ-1*NP-SBJ-2'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'do', u'VBG', u'I-VP', u'VP-2'], [u'well', u'RB', u'B-ADVP', u'O'], [u'.', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'like', u'VBP', u'B-VP', u'VP-1'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'because', u'IN', u'B-PP', u'O'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'gay', u'JJ', u'B-ADJP', u'O'], [u'.', u'.', u'O', u'O']]], u"sharkthemepark")
+generate_sentence([[[u'hi', u'UH', u'O', u'O'], [u'emma', u'NNP', u'B-NP', u'O'], [u'!', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'hope', u'VBP', u'B-VP', u'VP-1'], [u'emma', 'NNP', u'B-NP', u'NP-OBJ-1*NP-SBJ-2'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'do', u'VBG', u'I-VP', u'VP-2'], [u'well', u'RB', u'B-ADVP', u'O'], [u'.', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'like', u'VBP', u'B-VP', u'VP-1'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'because', u'IN', u'B-PP', u'O'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'gay', u'JJ', u'B-ADJP', u'O'], [u'.', u'.', u'O', u'O']]], u"sharkthemepark", 0.2983478546283)
