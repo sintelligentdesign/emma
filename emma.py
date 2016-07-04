@@ -142,6 +142,7 @@ def reply_to_asks(askList):
             understanding = u"Emma interpreted this message as: \'%s\'" % understanding
             print Fore.BLUE + understanding
 
+            print Fore.BLUE + "Intents: " + str(intents)
             reply = sentencebuilder.generate_sentence(parsedAsk, update_mood(ask['message']), intents, ask['asker'])
 
             if "%" not in reply:
