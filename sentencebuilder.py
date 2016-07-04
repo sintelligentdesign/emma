@@ -19,6 +19,7 @@ cursor = connection.cursor()
 greetingTerms = [[u'what\'s', u'up'], [u'hi'], [u'hello'], [u'what', u'up'], [u'wassup'], [u'what', u'is', u'up'], [u'what\'s', u'going', u'on'], [u'how', u'are', u'you'], [u'howdy'], [u'hey']]
 
 def generate_sentence(tokenizedMessage, mood, asker=""):
+    # todo: optimize sentence generation
     print "Creating reply..."
     print "Determining important words..."
     importantWords = []
@@ -40,7 +41,7 @@ def generate_sentence(tokenizedMessage, mood, asker=""):
     # Association package (information about bundle and the bundle itself) > Association bundle (a word and its corresponding association group) > Association group (a collection of associations without their word) > association (association type, target, weight)
     print "Creating association bundles..."
     primaryBundle = bundle_associations(importantWords)
-    secondaryBundle = bundle_associations(halo)      # todo: create halo and get associations in one 
+    secondaryBundle = bundle_associations(halo)
 
     # Create packages which include the association package and information about its contents so that the generator knows what domains can be used
     print "Packaging associations and related information..."
@@ -48,41 +49,8 @@ def generate_sentence(tokenizedMessage, mood, asker=""):
     secondaryPackage = make_association_package(secondaryBundle, asker)
 
     # Begin generating our reply
-    build_reply(primaryPackage, mood)
-
-    '''
-    reply = ['%']
-    remainingIntents = [random.choice(intents) for _ in range(len(intents))]
-    while '%' in reply:
-        if remainingIntents == []: return ['%']
-        reply = random.choice(remainingIntents)
-        remainingIntents.remove(reply)
-        domainsExpanded = False
-        while not domainsExpanded:
-            print reply
-            newReply = expand_domains(importantWords, reply)
-            if reply == newReply: domainsExpanded = True
-            reply = newReply
-    
-    reply[-1] += u"."
-    reply[0] = reply[0][0].upper + reply[0][1:]
-
-    for greeting in greetingTerms:
-        match = re.match(' '.join(greeting), ' '.join(message[0:3]))
-        if match:
-            reply = [random.choice([u"Hi", u"Hello"]) + u",", u"@" + asker, u"!"] + reply
-            break
-
-    # Fix positions of punctuation, refer to Alex and Ellie as mom and dad
-    for count, word in enumerate(reply):
-        if word in [u"sharkthemepark", u"sharkthemeparks", u"@sharkthemepark"]: reply[count] = u"mom"
-        elif word in [u"nosiron", u"nosirons", u"@nosiron"]: reply[count] = u"dad"
-        elif word in [u",", u"!", u"?"]:
-            reply[count - 1] += word
-            del reply[count]
-
-    return ' '.join(reply)
-    '''
+    reply = build_reply(primaryPackage, mood)
+    return reply
 
 def make_halo(words):
     halo = []
@@ -136,12 +104,15 @@ def make_association_package(associationBundle, asker):
     associationPackage = ({'asker': asker, 'numObjects': numObjects}, associationPackage)
     return associationPackage
 
-def determine_valid_intents(package):
-    # This function doesn't include interrogatives, since those are Association Bundle-specific
-    validIntents = []
-    if package[0]['asker'] != "": validIntents.append('GREETING')
-    if package[0]['numObjects'] >= 2: validIntents.append('COMPARATIVE')
-    if package[0]['numObjects'] >= 1: validIntents.extend(['DECLARATIVE', 'IMPERATIVE', 'PHRASE'])
+def determine_valid_intents(associationPackage):
+    # This function doesn't include interrogatives or greetings, since those are Association Bundle-specific
+    validIntents = {}
+    for associationBundle in associationPackage[1]:
+        intents = []
+        if associationBundle['hasIsPropertyOf']: intents.append('DECLARATIVE')
+        if associationPackage[0]['numObjects'] >= 2 and 'DECLARATIVE' in intents: intents.append('COMPARATIVE')
+        if associationPackage[0]['numObjects'] >= 1: intents.extend(['IMPERATIVE', 'PHRASE'])
+        validIntents[associationBundle['word']] = intents
     return validIntents
 
 def choose_association(associationGroup):
@@ -156,43 +127,45 @@ def choose_association(associationGroup):
             break
 
 def build_reply(associationPackage, mood):
-    print associationPackage
     reply = []
     sentencesToGenerate = random.randint(1, 4)      # Decide how many sentences we want to generate for our reply
 
-    for sentenceIterator in range(0, sentencesToGenerate):
-        print "Generating sentence %d of %d..." % (sentenceIterator + 1, sentencesToGenerate)
 
-        # Create list of intents to choose from (this is seperate from validIntents because it can change)
-        intents = determine_valid_intents(associationPackage)
-        if sentencesToGenerate > 1 and sentenceIterator == 1 and mood >= 0.2 and validIntents['allowGreeting']: intents.append('GREETING')
-        intent = random.choice(intents)
+    #for sentenceIterator in range(0, sentencesToGenerate):
+        #print "Generating sentence %d of %d..." % (sentenceIterator + 1, sentencesToGenerate)
 
-        # Decide whether to make objects in the sentence plural
-        if random.randint(0, 1) == 0: pluralizeObjects = True
-        else: pluralizeObjects = False
+    # Create list of words and intents to choose from
+    validIntents = determine_valid_intents(associationPackage)
+    print "Valid intents: " + str(validIntents)
+    # If conditions are right, add "GREETING" intent to the list of intents
+    #if sentencesToGenerate > 1 and sentenceIterator == 1 and mood >= 0.2 and associationPackage[0]['asker'] != "": 
+    #    for word, intents in validIntents.iteritems(): validIntents[word] = intents + ['GREETING']
 
-        # Fill in our chosen intent
-        if intent == 'GREETING': sentence = make_greeting(associationPackage[0]['asker']) + [u"!"]
+    word = random.choice(validIntents.keys())
+    intent = random.choice(validIntents[word])
 
-        elif intent == 'PHRASE':
-            validBundles = []
-            for associationBundle in associationPackage[1]:
-                if associationBundle['hasIsPropertyOf']: validBundles.append(associationBundle)
-            
-            bundleChoice = random.choice(validBundles)
-            sentence = make_phrase(bundleChoice['word'], bundleChoice['associations'], pluralizeObjects) + [u"."]
+    for associationBundle in associationPackage[1]:
+        if associationBundle['word'] == word: associationBundle = associationBundle
 
-        elif intent == 'DECLARATIVE':
-            validBundles = []
-            for associationBundle in associationPackage[1]:
-                if associationBundle['hasIsPropertyOf'] or associationBundle['hasHas'] or associationBundle['hasIsA'] or associationBundle['hasHasAbilityTo']: validBundles.append(associationBundle)
-            
-            bundleChoice = random.choice(validBundles)
-            bundleInfo = {'hasHas': associationPackage[1]['hasHas'], 'hasIsA': associationPackage[1]['hasIsA'], 'hasIsPropertyOf': associationPackage[1]['hasIsPropertyOf']}
-            sentence = make_declarative(bundleChoice['word'], bundleChoice['associations'], pluralizeObjects, bundleInfo) + [u"."]
+    # Decide whether to make objects in the sentence plural
+    if random.randint(0, 1) == 0: pluralizeObjects = True
+    else: pluralizeObjects = False
 
-        reply.append(sentence)
+    # Fill in our chosen intent
+    if intent == 'GREETING': sentence = make_greeting(associationPackage[0]['asker']) + [u"!"]
+
+    elif intent == 'PHRASE': sentence = make_phrase(associationBundle['word'], associationBundle['associations'], pluralizeObjects) + [u"."]
+
+    elif intent == 'DECLARATIVE':
+        bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasIsPropertyOf': associationBundle['hasIsPropertyOf']}
+        sentence = make_declarative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, bundleInfo) + [u"."]
+
+    else: sentence = [intent]
+    sentence[0] = sentence[0][0].upper() + sentence[0][1:]
+    reply.extend(sentence)
+
+    
+    return finalize_reply(reply)
 
 def make_greeting(asker):
     print "Generating a greeting..."
@@ -268,7 +241,7 @@ def make_interrogative():
 def make_phrase(word, associationGroup, pluralizeObjects):
     print "Generating a phrase for \'%s\'..." % word
     
-    print "Finding adjectives..."
+    print "Looking for adjective associations..."
     adjectiveAssociations = []
     for association in associationGroup:
         if association['type'] == "IS-PROPERTY-OF":
@@ -290,7 +263,7 @@ def make_phrase(word, associationGroup, pluralizeObjects):
     )
     domain = random.choice(phraseDomains)
 
-    print "Building phrase..."
+    print "Building sentence..."
     # Decide if we want to precede the phrase with a determiner ("the", "a"), create a special domain which includes determiners to add to the phrase
     if random.randint(0, 1) == 0: 
         leaderDomains = [[u"the"]]
@@ -298,14 +271,27 @@ def make_phrase(word, associationGroup, pluralizeObjects):
         else: leaderDomains.append([u"a"])
         sentence = random.choice(leaderDomains)
     else: sentence = []
+    print sentence
 
     # Iterate through the objects in the domain and fill them in to create the phrase
     for slot in domain:
+        print sentence
         if slot == u"=OBJECT":
-            if pluralizeObjects: sentence.extend(pattern.en.pluralize(word))
-            else: sentence.extend(word)
+            if pluralizeObjects: sentence.append(pattern.en.pluralize(word))
+            else: sentence.append(word)
         elif slot == u"=ADJECTIVE": sentence.extend(choose_association(random.choice(adjectiveAssociations)))
 
     return sentence
+
+def finalize_reply(reply):
+    print reply
+    # Fix positions of punctuation, refer to Ellie and Alex as mom and dad
+    for count, word in enumerate(reply):
+        if u"sharkthemepark" in word: reply[count] = u"mom"
+        elif u"nosiron" in word: reply[count] = u"dad"
+        elif word in [u",", u".", u"!", u"?"]:
+            reply[count - 1] += word
+            del reply[count]
+    return ' '.join(reply)
     
-generate_sentence([[[u'hi', u'UH', u'O', u'O'], [u'emma', u'NNP', u'B-NP', u'O'], [u'!', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'hope', u'VBP', u'B-VP', u'VP-1'], [u'emma', 'NNP', u'B-NP', u'NP-OBJ-1*NP-SBJ-2'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'do', u'VBG', u'I-VP', u'VP-2'], [u'well', u'RB', u'B-ADVP', u'O'], [u'.', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'like', u'VBP', u'B-VP', u'VP-1'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'because', u'IN', u'B-PP', u'O'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'gay', u'JJ', u'B-ADJP', u'O'], [u'.', u'.', u'O', u'O']]], u"sharkthemepark", 0.2983478546283)
+generate_sentence([[[u'hi', u'UH', u'O', u'O'], [u'emma', u'NNP', u'B-NP', u'O'], [u'!', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'hope', u'VBP', u'B-VP', u'VP-1'], [u'emma', 'NNP', u'B-NP', u'NP-OBJ-1*NP-SBJ-2'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'do', u'VBG', u'I-VP', u'VP-2'], [u'well', u'RB', u'B-ADVP', u'O'], [u'.', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'like', u'VBP', u'B-VP', u'VP-1'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'because', u'IN', u'B-PP', u'O'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'gay', u'JJ', u'B-ADJP', u'O'], [u'.', u'.', u'O', u'O']]], 0.2983478546283, u"sharkthemepark",)
