@@ -22,10 +22,11 @@ posessivePronouns = [
 def determine_references(sentence):
     # todo: work differently with proper nouns?
     # todo: How should this work for references that refer to words in previous sentences?
+    lastUsedNoun = ""
     for count, word in enumerate(sentence):
         if word[1] in utilities.nounCodes: lastUsedNoun = word
         elif word[0] in subordinatePronouns + posessivePronouns:
-            if lastUsedNoun:
+            if lastUsedNoun != "":
                 print Fore.GREEN + u"Replacing pronoun \'%s\' with \'%s\'..." % (word[0], lastUsedNoun[0])
                 sentence[count] = lastUsedNoun
             else: print Fore.YELLOW + u"No nouns found for pronoun \'%s\'!" % word[0]

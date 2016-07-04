@@ -108,3 +108,17 @@ def add_new_words(parsedSentence):
             addedWords.append(lemma)
             with connection:
                 cursor.execute("INSERT INTO dictionary VALUES (\"%s\", \"%s\", 1, 0);" % (lemma, pos))
+
+greetingTerms = [[u'what\'s', u'up'], [u'hi'], [u'hello'], [u'what', u'up'], [u'wassup'], [u'what', u'is', u'up'], [u'what\'s', u'going', u'on'], [u'how', u'are', u'you'], [u'howdy'], [u'hey']]
+def determine_intent(parsedSentence):
+    message = []
+    for sentence in parsedSentence:
+        for word in sentence:
+            message.append(word[0])
+
+    for greeting in greetingTerms:
+        match = re.match(' '.join(greeting), ' '.join(message[0:3]))
+        if match: intent = "GREETING"
+        else: intent = ""
+        
+    return intent

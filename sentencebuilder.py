@@ -15,10 +15,7 @@ from config import console, files
 connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 
-# Note: do not use greeting terms longer than 3 words
-greetingTerms = [[u'what\'s', u'up'], [u'hi'], [u'hello'], [u'what', u'up'], [u'wassup'], [u'what', u'is', u'up'], [u'what\'s', u'going', u'on'], [u'how', u'are', u'you'], [u'howdy'], [u'hey']]
-
-def generate_sentence(tokenizedMessage, mood, asker=""):
+def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], asker=""):
     # todo: optimize sentence generation
     print "Creating reply..."
     print "Determining important words..."
@@ -46,14 +43,14 @@ def generate_sentence(tokenizedMessage, mood, asker=""):
     secondaryPackage = make_association_package(secondaryBundle, asker)
 
     # Begin generating our reply
-    reply = build_reply(primaryPackage, mood)
+    reply = build_reply(primaryPackage, mood, askerIntents)
     return finalize_reply(reply)
 
 def make_halo(words):
     halo = []
     for word in words:
         with connection:
-            cursor.execute("SELECT target FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.target = dictionary.word WHERE associationmodel.word = \'%s\' AND part_of_speech IN (\'NN\', \'NNS\', \'NNP\', \'NNPS\');" % word)
+            cursor.execute("SELECT target FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.target = dictionary.word WHERE associationmodel.word = \"%s\" AND part_of_speech IN (\'NN\', \'NNS\', \'NNP\', \'NNPS\');" % word)
             for fetchedWord in cursor.fetchall():
                 if fetchedWord not in words: halo.extend(fetchedWord)
     return halo
@@ -125,15 +122,14 @@ def choose_association(associationGroup):
             return association
             break
 
-def build_reply(associationPackage, mood):
+def build_reply(associationPackage, mood, askerIntents):
     reply = []
     sentencesToGenerate = random.randint(1, 3)
 
     usedWords = []
 
     # If conditions are right, add a greeting
-    # todo: add if statement for user using greeting
-    if mood >= 0.2 and associationPackage[0]['asker'] != "": reply = make_greeting(associationPackage[0]['asker']) + [u"!"]
+    if mood >= 0.2 and 'GREETING' in askerIntents and associationPackage[0]['asker'] != "": reply = make_greeting(associationPackage[0]['asker']) + [u"!"]
   
     for sentenceIterator in range(0, sentencesToGenerate):
         print "Generating sentence %d of %d..." % (sentenceIterator + 1, sentencesToGenerate)

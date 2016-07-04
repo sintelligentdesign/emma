@@ -92,7 +92,9 @@ def consume(parsedSentence, asker=u""):
     pronouns.flip_posessive_references(parsedSentence, asker)
     parse.add_new_words(parsedSentence)
     associationtrainer.find_associations(parsedSentence)
+    intent = parse.determine_intent(parsedSentence)
     if console['verboseLogging']: print "Sentence consumed."
+    return intent
 
 
 def express_mood(moodNum):
@@ -123,14 +125,13 @@ def reply_to_asks(askList):
                     print Fore.BLUE + "Adding @%s to friends list..." % ask['asker']
                     cursor.execute("INSERT INTO friends(username) VALUES(\'%s\');" % ask['asker'])
 
-            update_mood(ask['message'])
-
             parsedAsk = parse.tokenize(ask['message'])
 
             understanding = u""
+            intents = []
             for sentenceCount, sentence in enumerate(parsedAsk):
                 if console['verboseLogging']: print "Reading sentence no. %d of ask no. %d..." % ((sentenceCount + 1), (askCount + 1))
-                consume(sentence, ask['asker'])
+                intents.append(consume(sentence, ask['asker']))
             
                 for wordCount, word in enumerate(sentence):
                     if wordCount == 0 and sentenceCount != 0:
@@ -141,7 +142,7 @@ def reply_to_asks(askList):
             understanding = u"Emma interpreted this message as: \'%s\'" % understanding
             print Fore.BLUE + understanding
 
-            reply = sentencebuilder.generate_sentence(parsedAsk, ask['asker'])
+            reply = sentencebuilder.generate_sentence(parsedAsk, update_mood(ask['message']), intents, ask['asker'])
 
             if "%" not in reply:
                 print Fore.BLUE + u"emma >> %s" % reply
@@ -171,7 +172,7 @@ def reblog_post():
         post = random.choice(posts)
         posts.remove(post)
         print "Attempting to reply to @%s\'s post (attempt %d of 5)..." % (post['blogName'], 5 - len(posts))
-        comment = sentencebuilder.generate_sentence(pattern.en.parse(post['body'], True, True, True, True, True).split())
+        comment = sentencebuilder.generate_sentence(pattern.en.parse(post['body'], True, True, True, True, True).split(), mood)
         
         if "%" not in comment:
             print Fore.BLUE + u"Emma >> " + comment
@@ -187,7 +188,7 @@ def dream():
     for word in SQLReturn:
         dreamSeed += word[0] + " "
     print "Dream seed: " + dreamSeed
-    dream = sentencebuilder.generate_sentence(pattern.en.parse(dreamSeed, True, True, True, True, True).split())
+    dream = sentencebuilder.generate_sentence(pattern.en.parse(dreamSeed, True, True, True, True, True).split(), mood)
     if "%" not in dream:
         print Fore.BLUE + u"dream >> " + dream
         tumblrclient.post(dream.encode('utf-8'), ["dreams", "feeling " + express_mood(update_mood(dream)).encode('utf-8')])
@@ -197,9 +198,10 @@ def chat():
     print Fore.YELLOW + "!!! Chat mode enabled in config file. Press Control-C to exit."
     while True:
         tokenizedMessage = parse.tokenize(raw_input(Fore.BLUE + 'You >> ').decode('utf-8'))
-        for sentence in tokenizedMessage: consume(sentence)
+        intents = []
+        for sentence in tokenizedMessage: intents.append(consume(sentence))
         
-        reply = sentencebuilder.generate_sentence(tokenizedMessage)
+        reply = sentencebuilder.generate_sentence(tokenizedMessage, mood, intents)
         if "%" not in reply: print Fore.BLUE + u"emma >> " + reply
         else: print Fore.RED + u"Reply generation failed."
 
