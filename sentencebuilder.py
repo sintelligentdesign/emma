@@ -30,16 +30,16 @@ def generate_sentence(tokenizedMessage, asker=""):
                 importantWords.append(word[0])
     
     # Make common sense halo
-    print "Creating primary halo..."
-    primaryHalo = make_halo(importantWords)
-    print "Creating secondary halo..."
-    secondaryHalo = make_halo(primaryHalo)
-    for word in secondaryHalo:
-        if word in importantWords: primaryHalo.remove(word)
+    print "Creating common sense halo..."
+    halo = make_halo(make_halo(importantWords))
 
-    print importantWords
-    print primaryHalo
-    print secondaryHalo
+    print "important words: " + str(importantWords)
+    print "halo: " + str(halo)
+
+    # Find associations
+    print "Finding associations..."
+    primaryAssociations = get_associations(importantWords)
+    secondaryAssociations = get_associations(halo)
 
     '''
     reply = ['%']
@@ -84,17 +84,12 @@ def make_halo(words):
                 if fetchedWord not in words: halo.extend(fetchedWord)
     return halo
 
-def get_associations(importantWords, csHalo):
-    print "Finding associations..."
-    for word in importantWords:
+def get_associations(words):
+    for word in words:
         with connection:
             cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\';" % word)
-            primaryAssociations = cursor.fetchall()
-    for word in csHalo:
-        with connection:
-            cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\';" % word)
-            secondaryAssociations = cursor.fetchall()
-    return primaryAssociations, secondaryAssociations
+            associations = cursor.fetchall()
+    return associations
 
 def choose_association(associations):
     dieSeed = 0
