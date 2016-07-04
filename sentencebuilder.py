@@ -34,9 +34,6 @@ def generate_sentence(tokenizedMessage, mood, asker=""):
     print "Creating common sense halo..."
     halo = make_halo(make_halo(importantWords))
 
-    print "important words: " + str(importantWords)
-    print "halo: " + str(halo)
-
     # Find associations
     # Association package (information about bundle and the bundle itself) > Association bundle (a word and its corresponding association group) > Association group (a collection of associations without their word) > association (association type, target, weight)
     print "Creating association bundles..."
@@ -50,7 +47,7 @@ def generate_sentence(tokenizedMessage, mood, asker=""):
 
     # Begin generating our reply
     reply = build_reply(primaryPackage, mood)
-    return reply
+    return finalize_reply(reply)
 
 def make_halo(words):
     halo = []
@@ -132,58 +129,59 @@ def build_reply(associationPackage, mood):
     reply = []
     sentencesToGenerate = random.randint(1, 4)      # Decide how many sentences we want to generate for our reply
 
-    #for sentenceIterator in range(0, sentencesToGenerate):
-        #print "Generating sentence %d of %d..." % (sentenceIterator + 1, sentencesToGenerate)
+    for sentenceIterator in range(0, sentencesToGenerate):
+        print "Generating sentence %d of %d..." % (sentenceIterator + 1, sentencesToGenerate)
 
-    # Create list of words and intents to choose from
-    validIntents = determine_valid_intents(associationPackage)
-    #print "Valid intents: " + str(validIntents)
-    # If conditions are right, add "GREETING" intent to the list of intents
-    #if sentencesToGenerate > 1 and sentenceIterator == 1 and mood >= 0.2 and associationPackage[0]['asker'] != "": 
-    #    for word, intents in validIntents.iteritems(): validIntents[word] = intents + ['GREETING']
+        # Create list of words and intents to choose from
+        validIntents = determine_valid_intents(associationPackage)
+        print "Valid intents: " + str(validIntents)
 
-    word = random.choice(validIntents.keys())
-    intent = random.choice(validIntents[word])
+        # If conditions are right, add "GREETING" intent to the list of intents
+        if sentencesToGenerate > 1 and sentenceIterator == 1 and mood >= 0.2 and associationPackage[0]['asker'] != "": 
+            for word, intents in validIntents.iteritems(): validIntents[word] = intents + ['GREETING']
 
-    for associationBundle in associationPackage[1]:
-        if associationBundle['word'] == word: associationBundle = associationBundle
+        word = random.choice(validIntents.keys())
+        intent = random.choice(validIntents[word])
 
-    # Decide whether to make objects in the sentence plural
-    if random.randint(0, 1) == 0: pluralizeObjects = True
-    else: pluralizeObjects = False
+        for associationBundle in associationPackage[1]:
+            if associationBundle['word'] == word: associationBundle = associationBundle
 
-    print "Intent: " + intent
+        # Decide whether to make objects in the sentence plural
+        if random.randint(0, 1) == 0: pluralizeObjects = True
+        else: pluralizeObjects = False
 
-    # Fill in our chosen intent
-    if intent == 'GREETING': sentence = make_greeting(associationPackage[0]['asker']) + [u"!"]
+        print "Intent: " + intent
 
-    elif intent == 'PHRASE': sentence = make_phrase(associationBundle['word'], associationBundle['associations'], pluralizeObjects) + [u"."]
+        # Fill in our chosen intent
+        if intent == 'GREETING': sentence = make_greeting(associationPackage[0]['asker']) + [u"!"]
 
-    elif intent == 'DECLARATIVE':
-        bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty']}
-        sentence = make_declarative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, bundleInfo) + [u"."]
+        elif intent == 'PHRASE': sentence = make_phrase(associationBundle['word'], associationBundle['associations'], pluralizeObjects) + [u"."]
 
-    elif intent == 'COMPARATIVE':
-        wordsToCompare = []
-        for word in validIntents.keys():
-            if 'COMPARATIVE' in validIntents[word]:
-                wordsToCompare.append(word)
-        comparisonChoices = []
-        for word in wordsToCompare:
-            for associationBundle in associationPackage[1]:
-                if associationBundle['word'] == word: comparisonChoices.append(associationBundle)
-        sentence = make_comparative(associationBundle, random.choice(comparisonChoices), pluralizeObjects)
+        elif intent == 'DECLARATIVE':
+            bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty']}
+            sentence = make_declarative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, bundleInfo) + [u"."]
 
-    elif intent == 'IMPERATIVE':
-        bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty']}
-        sentence = make_imperative(associationBundle['word'], associationBundle['associations'], pluralizeObjects) + [u"."]
+        elif intent == 'COMPARATIVE':
+            wordsToCompare = []
+            for word in validIntents.keys():
+                if 'COMPARATIVE' in validIntents[word]:
+                    wordsToCompare.append(word)
+            comparisonChoices = []
+            for word in wordsToCompare:
+                for associationBundle in associationPackage[1]:
+                    if associationBundle['word'] == word: comparisonChoices.append(associationBundle)
+            sentence = make_comparative(associationBundle, random.choice(comparisonChoices), pluralizeObjects)
 
-    else: sentence = [intent]
-    sentence[0] = sentence[0][0].upper() + sentence[0][1:]
-    print sentence
-    reply.extend(sentence)
+        elif intent == 'IMPERATIVE':
+            bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty'], 'hasHasAbilityTo': associationBundle['hasHasAbilityTo']}
+            sentence = make_imperative(associationBundle['word'], associationBundle['associations'], pluralizeObjects) + [u"."]
+
+        else: sentence = [intent]
+        sentence[0] = sentence[0][0].upper() + sentence[0][1:]
+        print sentence
+        reply.extend(sentence)
     
-    return finalize_reply(reply)
+    return reply
 
 def make_greeting(asker):
     print "Generating a greeting..."
@@ -223,24 +221,26 @@ def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo):
     
     hasAssociations = []
     isaAssociations = []
+    ispropertyofAssociations = []
     if bundleInfo['hasHas']:
         for association in associationGroup:
             if association['type'] == "HAS": hasAssociations.append(association)
     if bundleInfo['hasIsA']:
         for association in associationGroup:
             if association['type'] == "IS-A": isaAssociations.append(association)
-    ispropertyofAssociations = []
     for association in associationGroup:
         if association['type'] == "HAS-PROPERTY": ispropertyofAssociations.append(association)
 
     print "Choosing domain..."
     declarativeDomains = [
-        [u"=OBJECT", u"=ISARE", u"=ADJECTIVE"],
-        [u"=OBJECT", u"=ACTION"],
-        [u"=OBJECT", u"can", u"=ACTION"]
+        [u"=OBJECT", u"=ISARE", u"=ADJECTIVE"]
     ]
     if len(ispropertyofAssociations) > 1: declarativeDomains.append(
         [u"=OBJECT", u"=ISARE", u"=ADJECTIVE", u"and", u"=ADJECTIVE"]
+    )
+    if bundleInfo['hasHasAbilityTo']: declarativeDomains.append(
+        [u"=OBJECT", u"=ACTION"],
+        [u"=OBJECT", u"can", u"=ACTION"]
     )
     if hasAssociations != []: declarativeDomains.append(
         [u"=OBJECT", u"=HAVEHAS", u"=OBJHAS"]
