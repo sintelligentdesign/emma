@@ -48,7 +48,7 @@ def generate_sentence(tokenizedMessage, asker=""):
     secondaryPackage = make_association_package(secondaryBundle, asker)
 
     # Use our association packages to decide what intents are allowed to be used for generation
-    
+    determine_valid_intents(primaryPackage)
 
     '''
     reply = ['%']
@@ -112,8 +112,6 @@ def bundle_associations(words):
     return associationBundle
 
 def make_association_package(associationBundle, asker):
-    numObjects = len(associationBundle)
-
     associationPackage = []
     for associationGroup in associationBundle:
         for association in associationGroup[1]:
@@ -129,8 +127,13 @@ def make_association_package(associationBundle, asker):
             'hasIsA': hasIsA, 
             'associations': associationGroup[1]
             })
-    associationPackage = [{'asker': asker, 'numObjects': numObjects}, associationPackage]
+    numObjects = len(associationBundle)
+    associationPackage = ({'asker': asker, 'numObjects': numObjects}, associationPackage)
+    print associationPackage
     return associationPackage
+
+def determine_valid_intents(associationPackage):
+    pass
 
 def choose_association(associations):
     dieSeed = 0
