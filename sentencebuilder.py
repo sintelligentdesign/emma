@@ -37,17 +37,18 @@ def generate_sentence(tokenizedMessage, asker=""):
     print "halo: " + str(halo)
 
     # Find associations
-    # Association package (information about bundle and the bundle itself) > Association bundle (word, all of its associations) > association (association type, target, weight)
+    # Association package (information about bundle and the bundle itself) > Association bundle (a word and its corresponding association group) > Association group (a collection of associations without their word) > association (association type, target, weight)
     print "Creating association bundles..."
-    primaryAssociations = bundle_associations(importantWords)
-    secondaryAssociations = bundle_associations(halo)      # todo: create halo and get associations in one 
-    
-    #print primaryAssociations
-    #print secondaryAssociations
+    primaryBundle = bundle_associations(importantWords)
+    secondaryBundle = bundle_associations(halo)      # todo: create halo and get associations in one 
 
     # Create packages which include the association package and information about its contents so that the generator knows what domains can be used
     print "Packaging associations and related information..."
-    primaryPackage = make_association_package(primaryAssociations, asker)
+    primaryPackage = make_association_package(primaryBundle, asker)
+    secondaryPackage = make_association_package(secondaryBundle, asker)
+
+    # Use our association packages to decide what intents are allowed to be used for generation
+    
 
     '''
     reply = ['%']
@@ -93,18 +94,42 @@ def make_halo(words):
     return halo
 
 def bundle_associations(words):
-    # Associations are bundled as tuples. The first object is the word, and the second object is an array containing the association type, target, and weight.
-    associationPackage = []
+    associationBundle = []
     for word in words:
         print "Finding associations for \'%s\'..." % word
         with connection:
             cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\';" % word)
             SQLReturn = cursor.fetchall()
         if SQLReturn:
-            associationBundle = []
+            associationGroup = []
             for row in SQLReturn:
-                associationBundle.append([row[1], row[2], row[3]])
-            associationPackage.append([word, associationBundle])
+                associationGroup.append({
+                    'type': row[1], 
+                    'target': row[2], 
+                    'weight': row[3]
+                    })
+            associationBundle.append((word, associationGroup))
+    return associationBundle
+
+def make_association_package(associationBundle, asker):
+    numObjects = len(associationBundle)
+
+    associationPackage = []
+    for associationGroup in associationBundle:
+        for association in associationGroup[1]:
+            if association['type'] == "HAS": hasHas = True
+            else: hasHas = False
+
+            if association['type'] == "IS-A": hasIsA = True
+            else: hasIsA = False
+
+        associationPackage.append({
+            'word': associationGroup[0], 
+            'hasHas': hasHas, 
+            'hasIsA': hasIsA, 
+            'associations': associationGroup[1]
+            })
+    associationPackage = [{'asker': asker, 'numObjects': numObjects}, associationPackage]
     return associationPackage
 
 def choose_association(associations):
@@ -116,27 +141,6 @@ def choose_association(associations):
         if dieResult <= 0:
             return row
             break
-
-def make_association_package(associationBundle, asker):
-    numObjects = 0
-    hasAsker = False
-    hasHas = False
-    hasIsA = False
-    
-    numObjects = len(associationBundle)
-    if asker != "": hasAsker = True
-
-    associationPackage = []
-    for associationGroup in associationBundle:
-        for association in associationGroup[1]:
-            if "HAS" in association[0]: hasHas = True
-            if "IS-A" in association[0]: hasIsA = True
-        associationPackage.append([hasHas, hasIsA, associationGroup])
-    associationPackage = [{'numObjects': numObjects, 'hasAsker': hasAsker}, associationPackage]
-    #print associationPackage
-    return associationPackage
-
-make_association_package([(u'blog', [[u'IS-A', u'blog', 0.0999999999997]]), (u'side', [[u'HAS-ABILITY-TO', u'know', 0.0999999999997], [u'HAS-ABILITY-TO', u'breathe', 0.0999999999997]]), (u'species', [[u'IS-OBJECT-OF', u'associate', 0.0999999999997], [u'IS-OBJECT-OF', u'be', 0.0999999999997], [u'IS-OBJECT-OF', u'live', 0.0999999999997], [u'HAS-ABILITY-TO', u'inhabit', 0.0999999999997]]), (u'matthew', [[u'HAS-ABILITY-TO', u'do', 0.0999999999997]]), (u'answer', [[u'HAS-ABILITY-TO', u'skip', 0.231969316683], [u'IS-OBJECT-OF', u'know', 0.0999999999997], [u'IS-OBJECT-OF', u'have', 0.231969316683], [u'IS-OBJECT-OF', u'come', 0.0999999999997], [u'IS-OBJECT-OF', u'inquire', 0.0999999999997], [u'IS-OBJECT-OF', u'find', 0.0999999999997], [u'IS-OBJECT-OF', u'validate', 0.0999999999997], [u'IS-OBJECT-OF', u'mean', 0.0999999999997], [u'IS-OBJECT-OF', u'die', 0.0999999999997], [u'IS-OBJECT-OF', u'name', 0.0999999999997]])], "sharkthemepark")
 
 # Define intents
 intents = ['COMPARATIVE', 'DECLARATIVE', 'IMPERATIVE', 'PHRASE']        # Greeting and Interrogative intents are special
