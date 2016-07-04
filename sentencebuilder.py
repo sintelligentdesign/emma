@@ -137,21 +137,12 @@ def make_association_package(associationBundle, asker):
     return associationPackage
 
 def determine_valid_intents(package):
-    # This function doesn't include interrogatives, since those are association bundle specific
-    allowGreeting = False
-    allowComparative = False
-    allowDeclarative = False
-    allowImperative = False
-    allowPhrase = False
-
-    if package[0]['asker'] != "": allowGreeting = True
-    if package[0]['numObjects'] >= 2: allowComparative = True
-    if package[0]['numObjects'] >= 1:
-        allowDeclarative = True
-        allowImperative = True
-        allowPhrase = True
-
-    return {'allowGreeting': allowGreeting, 'allowComparative': allowComparative, 'allowDeclarative': allowDeclarative, 'allowImperative': allowImperative, 'allowPhrase': allowPhrase}
+    # This function doesn't include interrogatives, since those are Association Bundle-specific
+    validIntents = []
+    if package[0]['asker'] != "": validIntents.append('allowGreeting')
+    if package[0]['numObjects'] >= 2: validIntents.append('allowComparative')
+    if package[0]['numObjects'] >= 1: validIntents.extend(['allowDeclarative', 'allowImperative', 'allowPhrase'])
+    return validIntents
 
 def choose_association(associations):
     dieSeed = 0
@@ -167,16 +158,17 @@ def build_reply(validIntents, associationPackage, mood):
     reply = []
     sentencesToGenerate = random.randint(1, 4)      # Decide how many sentences we want to generate for our reply
 
-    for sentence in range(0, sentencesToGenerate):
+    for sentenceIterator in range(0, sentencesToGenerate):
         # Greeting
-        if sentencesToGenerate > 1 and sentence = 1 and mood >= 0.2 and validIntents['allowGreeting']:      # todo: add dice roll?
-            reply.extend(makeGreeting(associationPackage[0]['asker']))
+        if sentencesToGenerate > 1 and sentenceIterator = 1 and mood >= 0.2 and validIntents['allowGreeting']:      # todo: add dice roll?
+            sentence = make_greeting(associationPackage[0]['asker'])
     
-        for associationBundle in associationPackage:
-            if validIntents['allowComparative']:
-                pass
+        if not sentence:
+            for associationBundle in associationPackage:
+                if validIntents['allowComparative']:
+                    pass
 
-def makeGreeting(asker):
+def make_greeting(asker):
     greetingDomains = [[u"hi", asker], [u"hello", asker]]
     sentence = random.choice(greetingDomains) + u"!"
     return sentence
