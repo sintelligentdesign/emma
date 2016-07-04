@@ -85,8 +85,8 @@ def find_associations(sentence):
             if "OBJ" in word[3] and word[1] in utilities.nounCodes:
                 for otherWord in sentence:
                     if otherWord[1] in utilities.verbCodes:
-                        print Fore.MAGENTA + u"Found association: %s IS-OBJECT-OF %s." % (word[0], otherWord[0])
-                        add_association(word[0], otherWord[0], "IS-OBJECT-OF")
+                        print Fore.MAGENTA + u"Found association: %s HAS-OBJECT %s." % (otherWord[0], word[0])
+                        add_association(otherWord[0], word[0], "HAS-OBJECT")
 
 def add_association(word, target, associationType):
     with connection:
