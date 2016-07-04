@@ -257,7 +257,7 @@ def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo):
         print sentence + domain[count:]
         if slot == u"=OBJECT": sentence.extend(make_phrase(word, associationGroup, pluralizeObjects))
         elif slot == u"=ADJECTIVE": sentence.append(choose_association(ispropertyofAssociations)['target'])
-        elif slot == u"=ACTION": sentence.append(slot)      # todo: update when make_imperative is written
+        elif slot == u"=ACTION": sentence.append(make_imperative(word, associationGroup, pluralizeObjects))
         elif slot == u"=OBJHAS": sentence.append(choose_association(hasAssociations)['target'])
         elif slot == u"=OBJISA": sentence.append(choose_association(isaAssociations)['target'])
         elif slot == u"=ISARE":
@@ -287,6 +287,21 @@ def make_imperative(word, associationGroup, pluralizeObjects):
         [u"always", u"=VERB", u"=OBJECT"],
         [u"never", u"=VERB", u="OBJECT"]
     ]
+    if not pluralizeObjects: imperativeDomains.append(
+        [u"=VERB", u"a", u"=OBJECT"]
+    )
+    # todo: VERB a/an/the OBJECT with its (THING OBJECT HAS / a/an/the OTHER OBJECT)
+    domain = random.choice(imperativeDomains)
+    
+    print "Building sentence..."
+    sentence = []
+    for count, slot in enumerate(sentence):
+        print sentence + domain[count:]
+        if slot = "=OBJECT": sentence.extend(make_phrase(word, associationGroup, pluralizeObjects))
+        elif slot = "=VERB": sentence.append(choose_association(verbAssociations)['target'])
+        else: sentence.append(slot)
+
+    return sentence
 
 def make_interrogative():
     pass
