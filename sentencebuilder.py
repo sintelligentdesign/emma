@@ -47,7 +47,7 @@ def generate_sentence(tokenizedMessage, asker=""):
 
     # Create packages which include the association package and information about its contents so that the generator knows what domains can be used
     print "Packaging associations and related information..."
-    primaryPackage = package_associations(primaryAssociations, asker)
+    primaryPackage = make_association_package(primaryAssociations, asker)
 
     '''
     reply = ['%']
@@ -117,7 +117,7 @@ def choose_association(associations):
             return row
             break
 
-def package_associations(associationBundle, asker):
+def make_association_package(associationBundle, asker):
     numObjects = 0
     hasAsker = False
     hasHas = False
@@ -136,7 +136,7 @@ def package_associations(associationBundle, asker):
     #print associationPackage
     return associationPackage
 
-package_associations([(u'blog', [[u'IS-A', u'blog', 0.0999999999997]]), (u'side', [[u'HAS-ABILITY-TO', u'know', 0.0999999999997], [u'HAS-ABILITY-TO', u'breathe', 0.0999999999997]]), (u'species', [[u'IS-OBJECT-OF', u'associate', 0.0999999999997], [u'IS-OBJECT-OF', u'be', 0.0999999999997], [u'IS-OBJECT-OF', u'live', 0.0999999999997], [u'HAS-ABILITY-TO', u'inhabit', 0.0999999999997]]), (u'matthew', [[u'HAS-ABILITY-TO', u'do', 0.0999999999997]]), (u'answer', [[u'HAS-ABILITY-TO', u'skip', 0.231969316683], [u'IS-OBJECT-OF', u'know', 0.0999999999997], [u'IS-OBJECT-OF', u'have', 0.231969316683], [u'IS-OBJECT-OF', u'come', 0.0999999999997], [u'IS-OBJECT-OF', u'inquire', 0.0999999999997], [u'IS-OBJECT-OF', u'find', 0.0999999999997], [u'IS-OBJECT-OF', u'validate', 0.0999999999997], [u'IS-OBJECT-OF', u'mean', 0.0999999999997], [u'IS-OBJECT-OF', u'die', 0.0999999999997], [u'IS-OBJECT-OF', u'name', 0.0999999999997]])], "sharkthemepark")
+make_association_package([(u'blog', [[u'IS-A', u'blog', 0.0999999999997]]), (u'side', [[u'HAS-ABILITY-TO', u'know', 0.0999999999997], [u'HAS-ABILITY-TO', u'breathe', 0.0999999999997]]), (u'species', [[u'IS-OBJECT-OF', u'associate', 0.0999999999997], [u'IS-OBJECT-OF', u'be', 0.0999999999997], [u'IS-OBJECT-OF', u'live', 0.0999999999997], [u'HAS-ABILITY-TO', u'inhabit', 0.0999999999997]]), (u'matthew', [[u'HAS-ABILITY-TO', u'do', 0.0999999999997]]), (u'answer', [[u'HAS-ABILITY-TO', u'skip', 0.231969316683], [u'IS-OBJECT-OF', u'know', 0.0999999999997], [u'IS-OBJECT-OF', u'have', 0.231969316683], [u'IS-OBJECT-OF', u'come', 0.0999999999997], [u'IS-OBJECT-OF', u'inquire', 0.0999999999997], [u'IS-OBJECT-OF', u'find', 0.0999999999997], [u'IS-OBJECT-OF', u'validate', 0.0999999999997], [u'IS-OBJECT-OF', u'mean', 0.0999999999997], [u'IS-OBJECT-OF', u'die', 0.0999999999997], [u'IS-OBJECT-OF', u'name', 0.0999999999997]])], "sharkthemepark")
 
 # Define intents
 intents = ['COMPARATIVE', 'DECLARATIVE', 'IMPERATIVE', 'PHRASE']        # Greeting and Interrogative intents are special
