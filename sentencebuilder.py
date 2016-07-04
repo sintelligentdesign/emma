@@ -39,7 +39,10 @@ def generate_sentence(tokenizedMessage, asker=""):
     # Find associations
     print "Finding associations..."
     primaryAssociations = get_associations(importantWords)
-    secondaryAssociations = get_associations(halo)
+    secondaryAssociations = get_associations(halo)      # todo: create halo and get associations in one 
+    
+    print primaryAssociations
+    print secondaryAssociations
 
     '''
     reply = ['%']
@@ -85,10 +88,17 @@ def make_halo(words):
     return halo
 
 def get_associations(words):
+    # Associations are packaged as tuples. The first object is the word, and the second object is an array containing the association type, target, and weight.
+    associations = []
     for word in words:
         with connection:
             cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\';" % word)
-            associations = cursor.fetchall()
+            SQLReturn = cursor.fetchall()
+        if SQLReturn:
+            associationPackage = []
+            for row in SQLReturn:
+                associationPackage.append([row[1], row[2], row[3]])
+            associations.append((word, associationPackage))
     return associations
 
 def choose_association(associations):
@@ -100,6 +110,12 @@ def choose_association(associations):
         if dieResult <= 0:
             return row
             break
+
+def check_requirements(associations):
+    numObjects = 0
+    hasAsker = False
+    hasHas = False
+    hasIsA = False
 
 # Define intents
 intents = ['COMPARATIVE', 'DECLARATIVE', 'IMPERATIVE', 'PHRASE']        # Greeting and Interrogative intents are special
