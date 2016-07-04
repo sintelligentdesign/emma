@@ -169,14 +169,14 @@ def build_reply(associationPackage, mood):
         else: pluralizeObjects = False
 
         # Fill in our chosen intent
-        if intent == 'GREETING': sentence = make_greeting(associationPackage[0]['asker'])
+        if intent == 'GREETING': sentence = make_greeting(associationPackage[0]['asker']) + u"!"
         elif intent == 'PHRASE':
             validBundles = []
             for associationBundle in associationPackage[1]:
                 if associationBundle['hasIsPropertyOf']: validBundles.append(associationBundle)
             
             bundleChoice = random.choice(validBundles)
-            sentence = make_phrase(random.choice(bundleChoice['word'], bundleChoice['associations'], pluralizeObjects))
+            sentence = make_phrase(random.choice(bundleChoice['word'], bundleChoice['associations'], pluralizeObjects)) + u"."
 
 def make_greeting(asker):
     print "Generating a greeting..."
@@ -184,8 +184,7 @@ def make_greeting(asker):
         [u"hi", asker], 
         [u"hello", asker]
         ]
-    sentence = random.choice(greetingDomains) + u"!"
-    return sentence
+    return random.choice(greetingDomains)
 
 def makeComparative():
     pass
@@ -217,17 +216,24 @@ def make_phrase(word, associationGroup, pluralizeObjects):
     phraseDomains = [
         [u"=OBJECT"]
     ]
-    if len(adjectiveAssociations) >= 1: phraseDomains.append([
+    if len(adjectiveAssociations) >= 1: phraseDomains.append(
         [u"=ADJECTIVE", u"=OBJECT"]
-    ])
-    if len(adjectiveAssociations) > 1: phraseDomains.append([
-        u"=ADJECTIVE", u"=ADJECTIVE", u"=OBJECT"
-    ])
+    )
+    if len(adjectiveAssociations) > 1: phraseDomains.append(
+        [u"=ADJECTIVE", u"=ADJECTIVE", u"=OBJECT"]
+    )
     domain = random.choice(phraseDomains)
 
     print "Building phrase..."
+    # Decide if we want to precede the phrase with a determiner ("the", "a"), create a special domain which includes determiners to add to the phrase
+    if random.randint(0, 1) == 0: 
+        leaderDomains = [[u"the"]]
+        if pluralizeObjects: leaderDomains.append([u"some"])
+        else: leaderDomains.append([u"a"])
+        phrase = random.choice(leaderDomains)
+    else: phrase = []
+
     # Iterate through the objects in the domain and fill them in to create the phrase
-    phrase = []
     for slot in domain:
         if slot == u"=OBJECT":
             if pluralizeObjects: phrase.append(pattern.en.pluralize(word))
