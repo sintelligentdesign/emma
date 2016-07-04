@@ -15,16 +15,13 @@ from config import console, files
 connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 
-intents = [['=DECLARATIVE'], ['=DECLARATIVE', u'like', '=DECLARATIVE'], ['=DECLARATIVE', u'and', '=DECLARATIVE'], ['=DECLARATIVE', u',', u'but', '=DECLARATIVE'], ['=IMPERATIVE'], ['=IMPERATIVE', u'like', '=DECLARATIVE']]
-
-declaratives = [['=PHRASE', u'is', '=ADJECTIVE'], ['=PLURPHRASE', u'are', '=ADJECTIVE'], ['=PHRASE', '=IMPERATIVE']] #['=PHRASE', u'has/have', '=PHRASE']  todo: this would be a special case. Should we have a few special case domains that get their own special code?
-imperatives = [['=VERB', '=PHRASE'], ['=VERB', u'a', '=PHRASE'], ['=VERB', u'the', '=PHRASE'], ['=VERB', u'the', '=PLURPHRASE'], ['=VERB', u'at', '=PLURPHRASE'], [u'always', '=VERB', '=PHRASE'], [u'never', '=VERB', '=PHRASE']] #['=VERB', u'a', '=PHRASE', u'with', '=PLURPHRASE']
-phrases = [['=NOUN'], ['=ADJECTIVE', '=NOUN'], ['=ADJECTIVE', u',', '=ADJECTIVE', '=NOUN']]
-
 # Note: do not use greeting terms longer than 3 words
 greetingTerms = [[u'what\'s', u'up'], [u'hi'], [u'hello'], [u'what', u'up'], [u'wassup'], [u'what', u'is', u'up'], [u'what\'s', u'going', u'on'], [u'how', u'are', u'you'], [u'howdy'], [u'hey']]
 
-def generate_sentence(tokenizedMessage, asker=""):
+def generate_sentence(tokenizedMessage, mood, asker=""):
+    # todo: optimize sentence generation
+    print "Creating reply..."
+    print "Determining important words..."
     importantWords = []
     message = []
     for sentence in tokenizedMessage:
@@ -32,152 +29,341 @@ def generate_sentence(tokenizedMessage, asker=""):
             message.append(word[0])
             if word[1] in utilities.nounCodes and word[3] and word[0] not in importantWords:
                 importantWords.append(word[0])
-    if console['verboseLogging']: print Fore.BLUE + u"Important words: " + str(importantWords)
-
-    print "Creating reply..."
-    reply = ['%']
-    remainingIntents = [random.choice(intents) for _ in range(len(intents))]
-    while '%' in reply:
-        if remainingIntents == []: return ['%']
-        reply = random.choice(remainingIntents)
-        remainingIntents.remove(reply)
-        domainsExpanded = False
-        while not domainsExpanded:
-            print reply
-            newReply = expand_domains(importantWords, reply)
-            if reply == newReply: domainsExpanded = True
-            reply = newReply
     
-    reply[-1] += u"."
-    reply[0] = reply[0].title()
+    # Make common sense halo
+    print "Creating common sense halo..."
+    halo = make_halo(make_halo(importantWords))
 
-    for greeting in greetingTerms:
-        match = re.match(' '.join(greeting), ' '.join(message[0:3]))
-        if match:
-            reply = [random.choice([u"Hi", u"Hello"]) + u",", u"@" + asker, u"!"] + reply
-            break
+    # Find associations
+    # Association package (information about bundle and the bundle itself) > Association bundle (a word and its corresponding association group) > Association group (a collection of associations without their word) > association (association type, target, weight)
+    print "Creating association bundles..."
+    primaryBundle = bundle_associations(importantWords)
+    secondaryBundle = bundle_associations(halo)
 
-    # Fix positions of punctuation, refer to Alex and Ellie as mom and dad
-    for count, word in enumerate(reply):
-        if word in [u"sharkthemepark", u"sharkthemeparks", u"@sharkthemepark"]:
-            reply[count] = u"mom"
-        elif word in [u"nosiron", u"nosirons", u"@nosiron"]:
-            reply[count] = u"dad"
-        elif word in [u",", u"!"]:
-            reply[count - 1] = reply[count - 1] + word
-            del reply[count]
+    # Create packages which include the association package and information about its contents so that the generator knows what domains can be used
+    print "Packaging associations and related information..."
+    primaryPackage = make_association_package(primaryBundle, asker)
+    secondaryPackage = make_association_package(secondaryBundle, asker)
 
-    return ' '.join(reply)
+    # Begin generating our reply
+    reply = build_reply(primaryPackage, mood)
+    return finalize_reply(reply)
 
-def choose_association(associations):
-    dieSeed = 0
-    for row in associations: dieSeed += row[3]
-    dieResult = random.uniform(0, dieSeed)
-    for row in associations:
-        dieResult -= row[3]
-        if dieResult <= 0:
-            return row
-            break
-
-def expand_domains(importantWords, reply):
-    newReply = []
-    for count, word in enumerate(reply):
-        if word == "=DECLARATIVE":
-            newReply.extend(build_declarative(importantWords))
-            print newReply + reply[count + 1:len(reply)]
-        elif word == "=IMPERATIVE":
-            newReply.extend(build_imperative(importantWords))
-            print newReply + reply[count + 1:len(reply)]
-        elif word in ["=PHRASE", "=PLURPHRASE"]:
-            if word == "=PHRASE":
-                newReply.extend(build_phrase(importantWords, False))
-            elif word == "=PLURPHRASE":
-                newReply.extend(build_phrase(importantWords, True))
-            print newReply + reply[count + 1:len(reply)]
-        elif type(word) == list:
-            newReply.append(expand_domains(importantWords, word))
-        else:
-            newReply.append(word)
-    return newReply
-
-def build_phrase(importantWords, isPlural, returnSet=False):
-    csHalo = []
-    for word in importantWords:
+def make_halo(words):
+    halo = []
+    for word in words:
         with connection:
-            cursor.execute("SELECT target FROM associationmodel WHERE word = \"%s\" AND association_type in (\"IS-A\", \"HAS\");" % word)
-            for word in cursor.fetchall(): 
-                if word not in csHalo: csHalo.extend(word)
+            cursor.execute("SELECT target FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.target = dictionary.word WHERE associationmodel.word = \'%s\' AND part_of_speech IN (\'NN\', \'NNS\', \'NNP\', \'NNPS\');" % word)
+            for fetchedWord in cursor.fetchall():
+                if fetchedWord not in words: halo.extend(fetchedWord)
+    return halo
 
-    phraseSets = []
-    for word in csHalo:
+def bundle_associations(words):
+    associationBundle = []
+    for word in words:
+        print "Finding associations for \'%s\'..." % word
         with connection:
-            cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\" AND part_of_speech IN (\"JJ\", \"JJR\", \"JJS\");" % word)
+            cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\';" % word)
             SQLReturn = cursor.fetchall()
-            print SQLReturn
-        if SQLReturn != []:
-            if len(SQLReturn) > 1:
-                association1 = choose_association(SQLReturn)
-                SQLReturn.remove(association1)
-                association2 = choose_association(SQLReturn)
-                phraseSets.append([word, association1[0], association2[0]])
-            else: phraseSets.append([word, choose_association(SQLReturn)[0], choose_association(SQLReturn)[0]])
+        if SQLReturn:
+            associationGroup = []
+            for row in SQLReturn:
+                associationGroup.append({
+                    'type': row[1], 
+                    'target': row[2], 
+                    'weight': row[3]
+                    })
+            associationBundle.append((word, associationGroup))
+    return associationBundle
 
-    # todo: handle errors correctly lmao
-    if phraseSets == []: return ["%", "%"]
+def make_association_package(associationBundle, asker):
+    associationPackage = []
+    for associationGroup in associationBundle:
+        for association in associationGroup[1]:
+            if association['type'] == "HAS": hasHas = True
+            else: hasHas = False
+            if association['type'] == "IS-A": hasIsA = True
+            else: hasIsA = False
+            if association['type'] == "HAS-PROPERTY": hasHasProperty = True
+            else: hasHasProperty = False
+            if association['type'] == "HAS-ABILITY-TO": hasHasAbilityTo = True
+            else: hasHasAbilityTo = False
 
-    phrase = []
-    domain = random.choice(phrases)
-    phraseSet = random.choice(phraseSets)
-    for word in domain:
-        if word == "=NOUN":
-            if isPlural: phrase.append(pattern.en.pluralize(phraseSet[0]))
-            else: phrase.append(phraseSet[0])
-        elif word == "=ADJECTIVE":
-            phrase.append(phraseSet[1])
-            del phraseSet[1]
-        else: phrase.append(word)
-    if returnSet: return phrase, phraseSet
-    else: return phrase
+        associationPackage.append({
+            'word': associationGroup[0], 
+            'hasHas': hasHas, 
+            'hasIsA': hasIsA, 
+            'hasHasProperty': hasHasProperty,
+            'hasHasAbilityTo': hasHasAbilityTo,
+            'associations': associationGroup[1]
+            })
+    numObjects = len(associationBundle)
+    associationPackage = ({'asker': asker, 'numObjects': numObjects}, associationPackage)
+    return associationPackage
 
-def build_imperative(importantWords):
-    domain = random.choice(imperatives)
-    pluralPhrase = True if "=PLURPHRASE" in domain else False
-    phrase, phraseSet = build_phrase(importantWords, pluralPhrase, True)
-    if phrase == "%": return "%"
+def determine_valid_intents(associationPackage):
+    # This function doesn't include interrogatives or greetings, since those are Association Bundle-specific
+    validIntents = {}
+    for associationBundle in associationPackage[1]:
+        intents = []
+        if associationBundle['hasHasProperty']: intents.append('DECLARATIVE')
+        if associationPackage[0]['numObjects'] >= 2 and 'DECLARATIVE' in intents: intents.append('COMPARATIVE')
+        if associationBundle['hasHasAbilityTo']: intents.append('IMPERATIVE')
+        if associationPackage[0]['numObjects'] >= 1: intents.append('PHRASE')
+        validIntents[associationBundle['word']] = intents
+    return validIntents
 
-    # Using the noun from our phrase, find matching verbs and adverbs
-    with connection:
-        cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type IN (\"IS-PROPERTY-OF\", \"HAS-OBJECT\") AND part_of_speech IN (\'VB\', \'VBD\', \'VBG\', \'VBN\', \'VBP\', \'VBZ\', \'RB\', \'RBR\', \'RBS\', \'RP\');" % phraseSet[0])
-        verbAssociations = cursor.fetchall()
+def choose_association(associationGroup):
+    dieSeed = 0
+    for association in associationGroup:
+        dieSeed += association['weight']
+    dieResult = random.uniform(0, dieSeed)
 
-    if verbAssociations == []: return "%"
+    for association in associationGroup:
+        dieResult -= association['weight']
+        if dieResult <= 0:
+            return association
+            break
 
-    verb = choose_association(verbAssociations)[0]
+def build_reply(associationPackage, mood):
+    reply = []
+    sentencesToGenerate = random.randint(1, 3)
 
-    imperative = []
-    for word in domain:
-        if word in ["=PHRASE", "=PLURPHRASE"]: imperative.extend(phrase)
-        elif word == "=VERB": imperative.append(verb)
-        else: imperative.append(word)
-    return imperative
+    usedWords = []
 
-def build_declarative(importantWords):
-    domain = random.choice(declaratives)
-    pluralPhrase = True if "=PLURPHRASE" in domain else False
-    phrase, phraseSet = build_phrase(importantWords, pluralPhrase, True)
-    if phrase == "%": return "%"
-    imperative = build_imperative([phraseSet[0]])
+    # If conditions are right, add a greeting
+    # todo: add if statement for user using greeting
+    if mood >= 0.2 and associationPackage[0]['asker'] != "": reply = make_greeting(associationPackage[0]['asker']) + [u"!"]
+  
+    for sentenceIterator in range(0, sentencesToGenerate):
+        print "Generating sentence %d of %d..." % (sentenceIterator + 1, sentencesToGenerate)
 
-    with connection:
-        cursor.execute("SELECT * FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.word = dictionary.word WHERE target = \"%s\" AND association_type = \"IS-PROPERTY-OF\" AND part_of_speech IN (\"JJ\", \"JJR\", \"JJS\");" % phraseSet[0])
-        adjectiveAssociations = cursor.fetchall()
+        # Create list of words and intents to choose from
+        validIntents = determine_valid_intents(associationPackage)
+        if console['verboseLogging']: print "Valid intents: " + str(validIntents)
 
-    adjective = choose_association(adjectiveAssociations)[0]
+        word = random.choice(validIntents.keys())
+        intent = random.choice(validIntents[word])
 
-    declarative = []
-    for word in domain:
-        if word in ["=PHRASE", "=PLURPHRASE"]: declarative.extend(phrase)
-        elif word == "=IMPERATIVE": declarative.extend(imperative)
-        elif word == "=ADJECTIVE": declarative.append(adjective)
-        else: declarative.append(word)
-        return declarative
+        # todo: figure out a way to decrease the likelihood of words in usedWords being used again
+        usedWords.append(word)
+
+        for associationBundle in associationPackage[1]:
+            if associationBundle['word'] == word: associationBundle = associationBundle
+
+        # Decide whether to make objects in the sentence plural
+        if random.randint(0, 1) == 0: pluralizeObjects = True
+        else: pluralizeObjects = False
+
+        if console['verboseLogging']: print "Intent: " + intent
+
+        # Fill in our chosen intent
+        elif intent == 'PHRASE': sentence = make_phrase(associationBundle['word'], associationBundle['associations'], pluralizeObjects) + [u"."]
+
+        elif intent == 'DECLARATIVE':
+            bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty'], 'hasHasAbilityTo': associationBundle['hasHasAbilityTo']}
+            sentence = make_declarative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, bundleInfo, mood) + [u"."]
+
+        elif intent == 'COMPARATIVE':
+            wordsToCompare = []
+            for word in validIntents.keys():
+                if 'COMPARATIVE' in validIntents[word]:
+                    wordsToCompare.append(word)
+            comparisonChoices = []
+            for word in wordsToCompare:
+                for associationBundle in associationPackage[1]:
+                    if associationBundle['word'] == word: comparisonChoices.append(associationBundle)
+            sentence = make_comparative(associationBundle, random.choice(comparisonChoices), pluralizeObjects, mood) + [u"."]
+
+        elif intent == 'IMPERATIVE':
+            bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty'], 'hasHasAbilityTo': associationBundle['hasHasAbilityTo']}
+            sentence = make_imperative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, mood) + [u"."]
+
+        else: sentence = [intent]
+        sentence[0] = sentence[0][0].upper() + sentence[0][1:]
+        print sentence
+        reply.extend(sentence)
+    
+    return reply
+
+def make_greeting(asker):
+    if console['verboseLogging']: print "Generating a greeting..."
+    greetingDomains = [
+        [u"hi", asker], 
+        [u"hello", asker]
+    ]
+    return random.choice(greetingDomains)
+
+def make_comparative(associationBundle, comparisonBundle, pluralizeObjects, mood):
+    if console['verboseLogging']: print "Generating a comparative statement for \'%s\' and \'%s\'..." % (associationBundle['word'], comparisonBundle['word'])
+
+    if console['verboseLogging']: print "Choosing domain..."
+    comparativeDomains = [
+        [u"=DECLARATIVE", u"like", u"=COMPARISON"],
+        [u"=DECLARATIVE", u",", u"and", u"=COMPARISON"],
+        [u"=DECLARATIVE", u",", u"but", u"=COMPARISON"]
+    ]
+    domain = random.choice(comparativeDomains)
+
+    if console['verboseLogging']: print "Building comparative statement..."
+    sentence = []
+    for count, slot in enumerate(domain):
+        print sentence + domain[count:]
+        if slot == u"=DECLARATIVE":
+            bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty'], 'hasHasAbilityTo': associationBundle['hasHasAbilityTo']}
+            sentence.extend(make_declarative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, bundleInfo, mood))
+        elif slot == u"=COMPARISON":
+            bundleInfo = {'hasHas': comparisonBundle['hasHas'], 'hasIsA': comparisonBundle['hasIsA'], 'hasHasProperty': comparisonBundle['hasHasProperty'], 'hasHasAbilityTo': associationBundle['hasHasAbilityTo']}
+            sentence.extend(make_declarative(comparisonBundle['word'], comparisonBundle['associations'], pluralizeObjects, bundleInfo, mood))
+        else: sentence.append(slot)
+
+    return sentence
+
+def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo, mood):
+    if console['verboseLogging']: print "Generating a declarative statement for \'%s\'..." % word
+    
+    hasAssociations = []
+    isaAssociations = []
+    ispropertyofAssociations = []
+    if bundleInfo['hasHas']:
+        for association in associationGroup:
+            if association['type'] == "HAS": hasAssociations.append(association)
+    if bundleInfo['hasIsA']:
+        for association in associationGroup:
+            if association['type'] == "IS-A": isaAssociations.append(association)
+    for association in associationGroup:
+        if association['type'] == "HAS-PROPERTY": ispropertyofAssociations.append(association)
+
+    if console['verboseLogging']: print "Choosing domain..."
+    declarativeDomains = [
+        [u"=OBJECT", u"=ISARE", u"=ADJECTIVE"]
+    ]
+    if len(ispropertyofAssociations) > 1: declarativeDomains.append(
+        [u"=OBJECT", u"=ISARE", u"=ADJECTIVE", u"and", u"=ADJECTIVE"]
+    )
+    if bundleInfo['hasHasAbilityTo']: declarativeDomains.append(
+        [u"=OBJECT", u"=ACTION"],
+        [u"=OBJECT", u"can", u"=ACTION"]
+    )
+    if hasAssociations != []: declarativeDomains.append(
+        [u"=OBJECT", u"=HAVEHAS", u"=OBJHAS"]
+    )
+    if isaAssociations != []: declarativeDomains.append(
+        [u"=OBJECT", u"=ISARE", u"=OBJISA"]
+    )
+    domain = random.choice(declarativeDomains)
+
+    if console['verboseLogging']: print "Building declarative statement..."
+    sentence = []
+    # Iterate through the objects in the domain and fill them in to create the declarative statement
+    for count, slot in enumerate(domain):
+        print sentence + domain[count:]
+        if slot == u"=OBJECT": sentence.extend(make_phrase(word, associationGroup, pluralizeObjects))
+        elif slot == u"=ADJECTIVE": sentence.append(choose_association(ispropertyofAssociations)['target'])
+        elif slot == u"=ACTION": sentence.append(make_imperative(word, associationGroup, pluralizeObjects, mood))
+        elif slot == u"=OBJHAS": sentence.append(choose_association(hasAssociations)['target'])
+        elif slot == u"=OBJISA": sentence.append(choose_association(isaAssociations)['target'])
+        elif slot == u"=ISARE":
+            if pluralizeObjects: sentence.append(u"are")
+            else: sentence.append(u"is")
+        elif slot == u"=HAVEHAS":
+            if pluralizeObjects: sentence.append(u"have")
+            else: sentence.append(u"has")
+        else: sentence.append(slot)
+
+    return sentence
+
+def make_imperative(word, associationGroup, pluralizeObjects, mood):
+    if console['verboseLogging']: print "Generating an imperative statement for \'%s\'..." % word
+
+    if console['verboseLogging']: print "Looking for verb associations..."
+    verbAssociations = []
+    for association in associationGroup:
+        if association['type'] == "HAS-ABILITY-TO": verbAssociations.append(association)
+
+    if len(verbAssociations) == 0: print Fore.YELLOW + "No verbs available for \'%s\'!" % word
+
+    if console['verboseLogging']: print "Choosing domain..."
+    imperativeDomains = [
+        [u"=VERB", u"=OBJECT"],
+        [u"=VERB", u"the", u"=OBJECT"],
+        [u"always", u"=VERB", u"=OBJECT"],
+        [u"never", u"=VERB", u"=OBJECT"]
+    ]
+    if not pluralizeObjects: imperativeDomains.append(
+        [u"=VERB", u"a", u"=OBJECT"]
+    )
+    # todo: VERB a/an/the OBJECT with its (THING OBJECT HAS / a/an/the OTHER OBJECT)
+    domain = random.choice(imperativeDomains)
+    
+    if console['verboseLogging']: print "Building imperative statement..."
+    if mood > 0.4: sentence = [u"please"]
+    else: sentence = []
+    for count, slot in enumerate(sentence):
+        print sentence + domain[count:]
+        if slot == "=OBJECT": sentence.extend(make_phrase(word, associationGroup, pluralizeObjects))
+        elif slot == "=VERB": sentence.append(choose_association(verbAssociations)['target'])
+        else: sentence.append(slot)
+
+    return sentence
+
+def make_interrogative():
+    pass
+
+def make_phrase(word, associationGroup, pluralizeObjects):
+    if console['verboseLogging']: print "Generating a phrase for \'%s\'..." % word
+    
+    if console['verboseLogging']: print "Looking for adjective associations..."
+    adjectiveAssociations = []
+    for association in associationGroup:
+        if association['type'] == "HAS-PROPERTY":
+            with connection:
+                cursor.execute("SELECT * FROM dictionary WHERE word = \'%s\' AND part_of_speech IN (\'JJ\', \'JJR\', \'JJS\');" % association['target'])
+                if cursor.fetchall() != []: adjectiveAssociations.append(association)
+    
+    if len(adjectiveAssociations) == 0: 
+        if console['verboseLogging']: print Fore.YELLOW + "No adjectives available for \'%s\'!" % word
+
+    if console['verboseLogging']: print "Choosing domain..."
+    phraseDomains = [
+        [u"=OBJECT"]
+    ]
+    if len(adjectiveAssociations) >= 1: phraseDomains.append(
+        [u"=ADJECTIVE", u"=OBJECT"]
+    )
+    if len(adjectiveAssociations) > 1: phraseDomains.append(
+        [u"=ADJECTIVE", u"=ADJECTIVE", u"=OBJECT"]
+    )
+    domain = random.choice(phraseDomains)
+
+    if console['verboseLogging']: print "Building phrase..."
+    # Decide if we want to precede the phrase with a determiner ("the", "a"), create a special domain which includes determiners to add to the phrase
+    if random.randint(0, 1) == 0: 
+        leaderDomains = [[u"the"]]
+        if pluralizeObjects: leaderDomains.append([u"some"])
+        else: leaderDomains.append([u"a"])
+        sentence = random.choice(leaderDomains)
+    else: sentence = []
+
+    # Iterate through the objects in the domain and fill them in to create the phrase
+    for count, slot in enumerate(domain):
+        print sentence + domain[count:]
+        if slot == u"=OBJECT":
+            if pluralizeObjects: sentence.append(pattern.en.pluralize(word))
+            else: sentence.append(word)
+        elif slot == u"=ADJECTIVE": sentence.append(choose_association(adjectiveAssociations)['target'])
+    
+    return sentence
+
+def finalize_reply(reply):
+    print "Finalizing reply..."
+    # Fix positions of punctuation, refer to Ellie and Alex as mom and dad
+    for count, word in enumerate(reply):
+        if u"sharkthemepark" in word: reply[count] = u"mom"
+        elif u"nosiron" in word: reply[count] = u"dad"
+        elif word in [u",", u".", u"!", u"?"]:
+            reply[count - 1] += word
+            del reply[count]
+        if word == []: del reply[count]
+            
+    return ' '.join(reply)
