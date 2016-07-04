@@ -58,7 +58,7 @@ def make_halo(words):
 def bundle_associations(words):
     associationBundle = []
     for word in words:
-        print "Finding associations for \'%s\'..." % word
+        print Fore.GREEN + "Finding associations for \'%s\'..." % word
         with connection:
             cursor.execute("SELECT * FROM associationmodel WHERE word = \"%s\";" % re.escape(word))
             SQLReturn = cursor.fetchall()
@@ -132,7 +132,7 @@ def build_reply(associationPackage, mood, askerIntents):
     if mood >= 0.2 and 'GREETING' in askerIntents and associationPackage[0]['asker'] != "": reply = make_greeting(associationPackage[0]['asker']) + [u"!"]
   
     for sentenceIterator in range(0, sentencesToGenerate):
-        print "Generating sentence %d of %d..." % (sentenceIterator + 1, sentencesToGenerate)
+        print Fore.MAGENTA + "Generating sentence %d of %d..." % (sentenceIterator + 1, sentencesToGenerate)
 
         # Create list of words and intents to choose from
         validIntents = determine_valid_intents(associationPackage)
