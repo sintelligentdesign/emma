@@ -159,7 +159,7 @@ def build_reply(associationPackage, mood):
 
         elif intent == 'DECLARATIVE':
             bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty']}
-            sentence = make_declarative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, bundleInfo) + [u"."]
+            sentence = make_declarative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, bundleInfo, mood) + [u"."]
 
         elif intent == 'COMPARATIVE':
             wordsToCompare = []
@@ -170,11 +170,11 @@ def build_reply(associationPackage, mood):
             for word in wordsToCompare:
                 for associationBundle in associationPackage[1]:
                     if associationBundle['word'] == word: comparisonChoices.append(associationBundle)
-            sentence = make_comparative(associationBundle, random.choice(comparisonChoices), pluralizeObjects) + [u"."]
+            sentence = make_comparative(associationBundle, random.choice(comparisonChoices), pluralizeObjects, mood) + [u"."]
 
         elif intent == 'IMPERATIVE':
             bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty'], 'hasHasAbilityTo': associationBundle['hasHasAbilityTo']}
-            sentence = make_imperative(associationBundle['word'], associationBundle['associations'], pluralizeObjects) + [u"."]
+            sentence = make_imperative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, mood) + [u"."]
 
         else: sentence = [intent]
         sentence[0] = sentence[0][0].upper() + sentence[0][1:]
@@ -191,7 +191,7 @@ def make_greeting(asker):
         ]
     return random.choice(greetingDomains)
 
-def make_comparative(associationBundle, comparisonBundle, pluralizeObjects):
+def make_comparative(associationBundle, comparisonBundle, pluralizeObjects, mood):
     if console['verboseLogging']: print "Generating a comparative statement for \'%s\' and \'%s\'..." % (associationBundle['word'], comparisonBundle['word'])
 
     if console['verboseLogging']: print "Choosing domain..."
@@ -208,15 +208,15 @@ def make_comparative(associationBundle, comparisonBundle, pluralizeObjects):
         print sentence + domain[count:]
         if slot == u"=DECLARATIVE":
             bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty']}
-            sentence.extend(make_declarative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, bundleInfo))
+            sentence.extend(make_declarative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, bundleInfo, mood))
         elif slot == u"=COMPARISON":
             bundleInfo = {'hasHas': comparisonBundle['hasHas'], 'hasIsA': comparisonBundle['hasIsA'], 'hasHasProperty': comparisonBundle['hasHasProperty']}
-            sentence.extend(make_declarative(comparisonBundle['word'], comparisonBundle['associations'], pluralizeObjects, bundleInfo))
+            sentence.extend(make_declarative(comparisonBundle['word'], comparisonBundle['associations'], pluralizeObjects, bundleInfo, mood))
         else: sentence.append(slot)
 
     return sentence
 
-def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo):
+def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo, mood):
     if console['verboseLogging']: print "Generating a declarative statement for \'%s\'..." % word
     
     hasAssociations = []
@@ -257,7 +257,7 @@ def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo):
         print sentence + domain[count:]
         if slot == u"=OBJECT": sentence.extend(make_phrase(word, associationGroup, pluralizeObjects))
         elif slot == u"=ADJECTIVE": sentence.append(choose_association(ispropertyofAssociations)['target'])
-        elif slot == u"=ACTION": sentence.append(make_imperative(word, associationGroup, pluralizeObjects))
+        elif slot == u"=ACTION": sentence.append(make_imperative(word, associationGroup, pluralizeObjects, mood))
         elif slot == u"=OBJHAS": sentence.append(choose_association(hasAssociations)['target'])
         elif slot == u"=OBJISA": sentence.append(choose_association(isaAssociations)['target'])
         elif slot == u"=ISARE":
@@ -270,7 +270,7 @@ def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo):
 
     return sentence
 
-def make_imperative(word, associationGroup, pluralizeObjects):
+def make_imperative(word, associationGroup, pluralizeObjects, mood):
     if console['verboseLogging']: print "Generating an imperative statement for \'%s\'..." % word
 
     if console['verboseLogging']: print "Looking for verb associations..."
@@ -294,7 +294,8 @@ def make_imperative(word, associationGroup, pluralizeObjects):
     domain = random.choice(imperativeDomains)
     
     if console['verboseLogging']: print "Building imperative statement..."
-    sentence = []
+    if mood > 0.4: sentence = [u"please"]
+    else sentence = []
     for count, slot in enumerate(sentence):
         print sentence + domain[count:]
         if slot == "=OBJECT": sentence.extend(make_phrase(word, associationGroup, pluralizeObjects))
