@@ -18,7 +18,7 @@ cursor = connection.cursor()
 # Note: do not use greeting terms longer than 3 words
 greetingTerms = [[u'what\'s', u'up'], [u'hi'], [u'hello'], [u'what', u'up'], [u'wassup'], [u'what', u'is', u'up'], [u'what\'s', u'going', u'on'], [u'how', u'are', u'you'], [u'howdy'], [u'hey']]
 
-def generate_sentence(tokenizedMessage, asker="", mood):
+def generate_sentence(tokenizedMessage, mood, asker=""):
     print "Creating reply..."
     print "Determining important words..."
     importantWords = []
@@ -126,7 +126,7 @@ def make_association_package(associationBundle, asker):
             'word': associationGroup[0], 
             'hasHas': hasHas, 
             'hasIsA': hasIsA, 
-            'hasIsPropertyOf': hasisPropertyOf
+            'hasIsPropertyOf': hasisPropertyOf,
             'associations': associationGroup[1]
             })
     numObjects = len(associationBundle)
@@ -159,12 +159,12 @@ def build_reply(associationPackage, mood):
     for sentenceIterator in range(0, sentencesToGenerate):
         # Create list of intents to choose from (this is seperate from validIntents because it can change)
         intents = determine_valid_intents(associationPackage)
-        if sentencesToGenerate > 1 and sentenceIterator = 1 and mood >= 0.2 and validIntents['allowGreeting']: intents.append('GREETING')
+        if sentencesToGenerate > 1 and sentenceIterator == 1 and mood >= 0.2 and validIntents['allowGreeting']: intents.append('GREETING')
 
         intent = random.choice(intents)
 
-        if intent = 'GREETING': sentence = make_greeting(associationPackage[0]['asker'])
-        elif intent = 'PHRASE':
+        if intent == 'GREETING': sentence = make_greeting(associationPackage[0]['asker'])
+        elif intent == 'PHRASE':
             validBundles = []
             for associationBundle in associationPackage[1]:
                 if associationBundle['hasIsPropertyOf']: validBundles.append(associationBundle)
@@ -194,32 +194,38 @@ def makeInterrogative():
     pass
 
 def make_phrase(word, associationGroup):
-    print "Generating a phrase..."
+    print "Generating a phrase for \'%s\'..." % word
     
     print "Finding adjectives..."
-    adjectiveAssociations
+    adjectiveAssociations = []
     for association in associationGroup:
         if association['type'] == "IS-PROPERTY-OF":
             with connection:
                 cursor.execute("SELECT * FROM dictionary WHERE word = \'%s\' AND part_of_speech IN (\'JJ\', \'JJR\', \'JJS\');" % association['target'])
                 if cursor.fetchall() != []: adjectiveAssociations.append(association)
     
-    if len(adjectiveAssociations) = 0: print Fore.RED + "No adjectives available for word \'%s\'." % word
+    if len(adjectiveAssociations) == 0: print Fore.YELLOW + "No adjectives available for \'%s\'." % word
 
     # Decide what domains are available and choose from one of them
+    print "Choosing domain..."
     phraseDomains = [
-        [u"=OBJECT"],
-        [u"=ADJECTIVE", u"=OBJECT"],
+        [u"=OBJECT"]
     ]
+    if len(adjectiveAssociations) >= 1: phraseDomains.append([
+        [u"=ADJECTIVE", u"=OBJECT"]
+    ])
     if len(adjectiveAssociations) > 1: phraseDomains.append([
         u"=ADJECTIVE", u"=ADJECTIVE", u"=OBJECT"
     ])
     domain = random.choice(phraseDomains)
 
+    print "Building phrase..."
     # Iterate through the objects in the domain and fill them in to create the phrase
     phrase = []
     for slot in domain:
         if slot == u"=OBJECT": phrase.append(word)
-        elif slot == u"=ADJECTIVE": 
+        elif slot == u"=ADJECTIVE": phrase.append(choose_association(random.choice(adjectiveAssociations)))
+
+    return phrase
     
-generate_sentence([[[u'hi', u'UH', u'O', u'O'], [u'emma', u'NNP', u'B-NP', u'O'], [u'!', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'hope', u'VBP', u'B-VP', u'VP-1'], [u'emma', 'NNP', u'B-NP', u'NP-OBJ-1*NP-SBJ-2'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'do', u'VBG', u'I-VP', u'VP-2'], [u'well', u'RB', u'B-ADVP', u'O'], [u'.', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'like', u'VBP', u'B-VP', u'VP-1'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'because', u'IN', u'B-PP', u'O'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'gay', u'JJ', u'B-ADJP', u'O'], [u'.', u'.', u'O', u'O']]], u"sharkthemepark", 0.2983478546283)
+#generate_sentence([[[u'hi', u'UH', u'O', u'O'], [u'emma', u'NNP', u'B-NP', u'O'], [u'!', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'hope', u'VBP', u'B-VP', u'VP-1'], [u'emma', 'NNP', u'B-NP', u'NP-OBJ-1*NP-SBJ-2'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'do', u'VBG', u'I-VP', u'VP-2'], [u'well', u'RB', u'B-ADVP', u'O'], [u'.', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'like', u'VBP', u'B-VP', u'VP-1'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'because', u'IN', u'B-PP', u'O'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'gay', u'JJ', u'B-ADJP', u'O'], [u'.', u'.', u'O', u'O']]], u"sharkthemepark", 0.2983478546283)
