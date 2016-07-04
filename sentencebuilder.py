@@ -129,7 +129,7 @@ def build_reply(associationPackage, mood, askerIntents):
     usedWords = []
 
     # If conditions are right, add a greeting
-    if mood >= 0.2 and 'GREETING' in askerIntents and associationPackage[0]['asker'] != "": reply = make_greeting(associationPackage[0]['asker']) + [u"!"]
+    if mood >= 0.1 and 'GREETING' in askerIntents and associationPackage[0]['asker'] != "": reply = make_greeting(associationPackage[0]['asker']) + [u"!"]
   
     for sentenceIterator in range(0, sentencesToGenerate):
         print Fore.MAGENTA + "Generating sentence %d of %d..." % (sentenceIterator + 1, sentencesToGenerate)
