@@ -87,8 +87,8 @@ def make_association_package(associationBundle, asker):
             else: hasHas = False
             if association['type'] == "IS-A": hasIsA = True
             else: hasIsA = False
-            if association['type'] == "IS-PROPERTY-OF": hasIsPropertyOf = True
-            else: hasIsPropertyOf = False
+            if association['type'] == "HAS-PROPERTY": hasHasProperty = True
+            else: hasHasProperty = False
             if association['type'] == "HAS-ABILITY-TO": hasHasAbilityTo = True
             else: hasHasAbilityTo = False
 
@@ -96,7 +96,7 @@ def make_association_package(associationBundle, asker):
             'word': associationGroup[0], 
             'hasHas': hasHas, 
             'hasIsA': hasIsA, 
-            'hasIsPropertyOf': hasIsPropertyOf,
+            'hasHasProperty': hasHasProperty,
             'hasHasAbilityTo': hasHasAbilityTo,
             'associations': associationGroup[1]
             })
@@ -109,7 +109,7 @@ def determine_valid_intents(associationPackage):
     validIntents = {}
     for associationBundle in associationPackage[1]:
         intents = []
-        if associationBundle['hasIsPropertyOf']: intents.append('DECLARATIVE')
+        if associationBundle['hasHasProperty']: intents.append('DECLARATIVE')
         if associationPackage[0]['numObjects'] >= 2 and 'DECLARATIVE' in intents: intents.append('COMPARATIVE')
         if associationPackage[0]['numObjects'] >= 1: intents.extend(['IMPERATIVE', 'PHRASE'])
         validIntents[associationBundle['word']] = intents
@@ -156,7 +156,7 @@ def build_reply(associationPackage, mood):
     elif intent == 'PHRASE': sentence = make_phrase(associationBundle['word'], associationBundle['associations'], pluralizeObjects) + [u"."]
 
     elif intent == 'DECLARATIVE':
-        bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasIsPropertyOf': associationBundle['hasIsPropertyOf']}
+        bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty']}
         sentence = make_declarative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, bundleInfo) + [u"."]
 
     else: sentence = [intent]
@@ -190,7 +190,7 @@ def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo):
             if association['type'] == "IS-A": isaAssociations.append(association)
     ispropertyofAssociations = []
     for association in associationGroup:
-        if association['type'] == "IS-PROPERTY-OF": ispropertyofAssociations.append(association)
+        if association['type'] == "HAS-PROPERTY": ispropertyofAssociations.append(association)
 
     print "Choosing domain..."
     declarativeDomains = [
@@ -243,7 +243,7 @@ def make_phrase(word, associationGroup, pluralizeObjects):
     print "Looking for adjective associations..."
     adjectiveAssociations = []
     for association in associationGroup:
-        if association['type'] == "IS-PROPERTY-OF":
+        if association['type'] == "HAS-PROPERTY":
             with connection:
                 cursor.execute("SELECT * FROM dictionary WHERE word = \'%s\' AND part_of_speech IN (\'JJ\', \'JJR\', \'JJS\');" % association['target'])
                 if cursor.fetchall() != []: adjectiveAssociations.append(association)
