@@ -306,7 +306,7 @@ def make_imperative(word, associationGroup, pluralizeObjects, mood):
     if console['verboseLogging']: print "Building imperative statement..."
     if mood > 0.4: sentence = [u"please"]
     else: sentence = []
-    for count, slot in enumerate(sentence):
+    for count, slot in enumerate(domain):
         print sentence + domain[count:]
         if slot == "=OBJECT": sentence.extend(make_phrase(word, associationGroup, pluralizeObjects))
         elif slot == "=VERB": sentence.append(choose_association(verbAssociations)['target'])
