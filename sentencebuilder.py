@@ -26,24 +26,24 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], aske
             message.append(word[0])
             if word[1] in utilities.nounCodes and word[3] and word[0] not in importantWords:
                 importantWords.append(word[0])
-    
-    # Make common sense halo
-    print "Creating common sense halo..."
-    halo = make_halo(make_halo(importantWords))
 
     # Find associations
-    # Association package (information about bundle and the bundle itself) > Association bundle (a word and its corresponding association group) > Association group (a collection of associations without their word) > association (association type, target, weight)
+    # Association package (information about bundle and the bundle itself) > Association bundle (a collection of words and their corresponding association groups) > Association group (a collection of associations without their word) > association (association type, target, weight)
     print "Creating association bundles..."
-    primaryBundle = bundle_associations(importantWords)
-    secondaryBundle = bundle_associations(halo)
+    associationBundle = bundle_associations(importantWords)
+
+    if len(associationBundle) < 3:
+        print Fore.YELLOW + "The number of associations in the primary bundle is small. Adding associations from common sense halo..."
+        print "Creating common sense halo..."
+        halo = make_halo(make_halo(importantWords))
+        associationBundle = bundle_associations(halo)
 
     # Create packages which include the association package and information about its contents so that the generator knows what domains can be used
-    print "Packaging associations and related information..."
-    primaryPackage = make_association_package(primaryBundle, asker)
-    secondaryPackage = make_association_package(secondaryBundle, asker)
+    print "Packaging association bundles and related information..."
+    associationPackage = make_association_package(associationBundle, asker)
 
-    # Begin generating our reply
-    reply = build_reply(primaryPackage, mood, askerIntents)
+    # Generate the reply
+    reply = build_reply(associationPackage, mood, askerIntents)
     return finalize_reply(reply)
 
 def make_halo(words):
@@ -51,8 +51,7 @@ def make_halo(words):
     for word in words:
         with connection:
             cursor.execute("SELECT target FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.target = dictionary.word WHERE associationmodel.word = \"%s\" AND part_of_speech IN (\'NN\', \'NNS\', \'NNP\', \'NNPS\');" % re.escape(word))
-            for fetchedWord in cursor.fetchall():
-                if fetchedWord not in words: halo.extend(fetchedWord)
+            for fetchedWord in cursor.fetchall(): halo.extend(fetchedWord)
     return halo
 
 def bundle_associations(words):
