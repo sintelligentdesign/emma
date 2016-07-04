@@ -158,7 +158,7 @@ def build_reply(associationPackage, mood):
         elif intent == 'PHRASE': sentence = make_phrase(associationBundle['word'], associationBundle['associations'], pluralizeObjects) + [u"."]
 
         elif intent == 'DECLARATIVE':
-            bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty']}
+            bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty'], 'hasHasAbilityTo': associationBundle['hasHasAbilityTo']}
             sentence = make_declarative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, bundleInfo, mood) + [u"."]
 
         elif intent == 'COMPARATIVE':
@@ -188,7 +188,7 @@ def make_greeting(asker):
     greetingDomains = [
         [u"hi", asker], 
         [u"hello", asker]
-        ]
+    ]
     return random.choice(greetingDomains)
 
 def make_comparative(associationBundle, comparisonBundle, pluralizeObjects, mood):
@@ -207,10 +207,10 @@ def make_comparative(associationBundle, comparisonBundle, pluralizeObjects, mood
     for count, slot in enumerate(domain):
         print sentence + domain[count:]
         if slot == u"=DECLARATIVE":
-            bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty']}
+            bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty'], 'hasHasAbilityTo': associationBundle['hasHasAbilityTo']}
             sentence.extend(make_declarative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, bundleInfo, mood))
         elif slot == u"=COMPARISON":
-            bundleInfo = {'hasHas': comparisonBundle['hasHas'], 'hasIsA': comparisonBundle['hasIsA'], 'hasHasProperty': comparisonBundle['hasHasProperty']}
+            bundleInfo = {'hasHas': comparisonBundle['hasHas'], 'hasIsA': comparisonBundle['hasIsA'], 'hasHasProperty': comparisonBundle['hasHasProperty'], 'hasHasAbilityTo': associationBundle['hasHasAbilityTo']}
             sentence.extend(make_declarative(comparisonBundle['word'], comparisonBundle['associations'], pluralizeObjects, bundleInfo, mood))
         else: sentence.append(slot)
 
@@ -295,7 +295,7 @@ def make_imperative(word, associationGroup, pluralizeObjects, mood):
     
     if console['verboseLogging']: print "Building imperative statement..."
     if mood > 0.4: sentence = [u"please"]
-    else sentence = []
+    else: sentence = []
     for count, slot in enumerate(sentence):
         print sentence + domain[count:]
         if slot == "=OBJECT": sentence.extend(make_phrase(word, associationGroup, pluralizeObjects))
