@@ -163,7 +163,7 @@ def build_reply(associationPackage, mood, askerIntents, unknownWords):
         if console['verboseLogging']: print "Intent: " + intent
 
         # Fill in our chosen intent
-        elif intent == 'PHRASE': sentence = make_phrase(associationBundle['word'], associationBundle['associations'], pluralizeObjects) + [u"."]
+        if intent == 'PHRASE': sentence = make_phrase(associationBundle['word'], associationBundle['associations'], pluralizeObjects) + [u"."]
 
         elif intent == 'DECLARATIVE':
             bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty'], 'hasHasAbilityTo': associationBundle['hasHasAbilityTo']}
