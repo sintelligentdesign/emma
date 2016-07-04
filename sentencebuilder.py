@@ -111,7 +111,8 @@ def determine_valid_intents(associationPackage):
         intents = []
         if associationBundle['hasHasProperty']: intents.append('DECLARATIVE')
         if associationPackage[0]['numObjects'] >= 2 and 'DECLARATIVE' in intents: intents.append('COMPARATIVE')
-        if associationPackage[0]['numObjects'] >= 1: intents.extend(['IMPERATIVE', 'PHRASE'])
+        if associationBundle['hasHasAbilityTo']: intents.append('IMPERATIVE')
+        if associationPackage[0]['numObjects'] >= 1: intents.extend('PHRASE')
         validIntents[associationBundle['word']] = intents
     return validIntents
 
@@ -172,6 +173,10 @@ def build_reply(associationPackage, mood):
             for associationBundle in associationPackage[1]:
                 if associationBundle['word'] == word: comparisonChoices.append(associationBundle)
         sentence = make_comparative(associationBundle, random.choice(comparisonChoices), pluralizeObjects)
+
+    elif intent == 'IMPERATIVE':
+        bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty']}
+        sentence = make_imperative(associationBundle['word'], associationBundle['associations'], pluralizeObjects) + [u"."]
 
     else: sentence = [intent]
     sentence[0] = sentence[0][0].upper() + sentence[0][1:]
@@ -265,8 +270,23 @@ def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo):
 
     return sentence
 
-def make_imperative():
-    pass
+def make_imperative(word, associationGroup, pluralizeObjects):
+    print "Generating an imperative statement for \'%s\'..." % word
+
+    print "Looking for verb associations..."
+    verbAssociations = []
+    for association in associationGroup:
+        if association['type'] == "HAS-ABILITY-TO": verbAssociations.append(association)
+
+    if len(verbAssociations) == 0: Print Fore.YELLOW + "No verbs available for \'%s\'!" % word
+
+    print "Choosing domain..."
+    imperativeDomains = [
+        [u"=VERB", u"=OBJECT"],
+        [u"=VERB", u"the", u"=OBJECT"],
+        [u"always", u"=VERB", u"=OBJECT"],
+        [u"never", u"=VERB", u="OBJECT"]
+    ]
 
 def make_interrogative():
     pass
@@ -282,7 +302,7 @@ def make_phrase(word, associationGroup, pluralizeObjects):
                 cursor.execute("SELECT * FROM dictionary WHERE word = \'%s\' AND part_of_speech IN (\'JJ\', \'JJR\', \'JJS\');" % association['target'])
                 if cursor.fetchall() != []: adjectiveAssociations.append(association)
     
-    if len(adjectiveAssociations) == 0: print Fore.YELLOW + "No adjectives available for \'%s\'." % word
+    if len(adjectiveAssociations) == 0: print Fore.YELLOW + "No adjectives available for \'%s\'!" % word
 
     print "Choosing domain..."
     phraseDomains = [
