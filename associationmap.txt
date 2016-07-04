@@ -1,17 +1,17 @@
-1. NP + 'be' + ADJP >> JJ IS-PROPERTY-OF NN
-  milk is white >> white IS-PROPERTY-OF milk
+1. NP + 'be' + ADJP >> NN HAS-PROPERTY JJ
+  milk is white >> milk HAS-PROPERTY white
 
 2. NP + 'be' + NP >> NN IS-A NN
   a dog is an animal >> dog IS-A animal
 
-3. NP containing JJ + NN >> JJ IS-PROPERTY-OF NN
-  the big house >> big IS-PROPERTY-OF house
+3. NP containing JJ + NN >> NN HAS-PROPERTY JJ
+  the big house >> house HAS-PROPERTY big
 
-4. VP containing RB + VB >> RB IS-PROPERTY-OF VB
-  It quickly moves >> quickly IS-PROPERTY-OF moves
+4. VP containing RB + VB >> RB HAS-PROPERTY VB
+  It quickly moves >> quickly HAS-PROPERTY moves
 
-5. VP + ADJP >> RB IS-PROPERTY-OF VB
-  Cats can run fast >> fast IS-PROPERTY-OF run
+5. VP + ADJP >> VB HAS-PROPERTY RB
+  Cats can run fast >> run HAS-PROPERTY fast
 
 6. NP + ‘has' + NP >> NN HAS NN
   People have two hands >> People HAS hands
