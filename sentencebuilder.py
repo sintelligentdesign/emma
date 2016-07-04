@@ -151,7 +151,7 @@ def build_reply(associationPackage, mood):
     if random.randint(0, 1) == 0: pluralizeObjects = True
     else: pluralizeObjects = False
 
-    print intent
+    print "Intent: " intent
 
     # Fill in our chosen intent
     if intent == 'GREETING': sentence = make_greeting(associationPackage[0]['asker']) + [u"!"]
@@ -161,6 +161,17 @@ def build_reply(associationPackage, mood):
     elif intent == 'DECLARATIVE':
         bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty']}
         sentence = make_declarative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, bundleInfo) + [u"."]
+
+    elif intent == 'COMPARATIVE':
+        wordsToCompare = []
+        for word in validIntents.keys():
+            if 'COMPARATIVE' in validIntents[word]:
+                wordsToCompare.append(word)
+        comparisonChoices = []
+        for word in wordsToCompare:
+            for associationBundle in associationPackage[1]:
+                if associationBundle['word'] == word: comparisonChoices.append(associationBundle)
+        sentence = make_comparative(associationBundle, random.choice(comparisonChoices), pluralizeObjects)
 
     else: sentence = [intent]
     #sentence[0] = sentence[0][0].upper() + sentence[0][1:]
@@ -176,8 +187,29 @@ def make_greeting(asker):
         ]
     return random.choice(greetingDomains)
 
-def make_comparative():
-    pass
+def make_comparative(associationBundle, comparisonBundle, pluralizeObjects):
+    print "Generating a comparative statement for \'%s\' and \'%s\'..." % (associationBundle['word'], comparisonBundle['word'])
+
+    print "Choosing domain..."
+    comparativeDomains = [
+        [u"=DECLARATIVE", u"like", u"=COMPARISON"],
+        [u"=DECLARATIVE", u",", u"and", u"=COMPARISON"],
+        [u"=DECLARATIVE", u",", u"but", u"=COMPARISON"]
+    ]
+    domain = random.choice(comparativeDomains)
+
+    print "Building comparative statement..."
+    sentence = []
+    for slot in domain:
+        if slot == u"=DECLARATIVE":
+            bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty']}
+            sentence.extend(make_declarative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, bundleInfo))
+        elif slot == u"=COMPARISON":
+            bundleInfo = {'hasHas': comparisonBundle['hasHas'], 'hasIsA': comparisonBundle['hasIsA'], 'hasHasProperty': comparisonBundle['hasHasProperty']}
+            sentence.extend(make_declarative(comparisonBundle['word'], comparisonBundle['associations'], pluralizeObjects, bundleInfo))
+        else: sentence.append(word)
+
+    return sentence
 
 def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo):
     print "Generating a declarative statement for \'%s\'..." % word
@@ -210,13 +242,11 @@ def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo):
         [u"=OBJECT", u"=ISARE", u"=OBJISA"]
     )
     domain = random.choice(declarativeDomains)
-    print domain
 
     print "Building declarative statement..."
     sentence = []
     # Iterate through the objects in the domain and fill them in to create the declarative statement
     for slot in domain:
-        print domain
         if slot == u"=OBJECT": sentence.extend(make_phrase(word, associationGroup, pluralizeObjects))
         elif slot == u"=ADJECTIVE": sentence.extend(choose_association(ispropertyofAssociations))
         elif slot == u"=ACTION": sentence.append(slot)      # todo: update when make_imperative is written
@@ -228,6 +258,7 @@ def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo):
         elif slot == u"=HAVEHAS":
             if pluralizeObjects: sentence.append(u"have")
             else: sentence.append(u"has")
+        else: sentence.append(word)
 
     return sentence
 
@@ -270,11 +301,9 @@ def make_phrase(word, associationGroup, pluralizeObjects):
         else: leaderDomains.append([u"a"])
         sentence = random.choice(leaderDomains)
     else: sentence = []
-    print sentence
 
     # Iterate through the objects in the domain and fill them in to create the phrase
     for slot in domain:
-        print sentence
         if slot == u"=OBJECT":
             if pluralizeObjects: sentence.append(pattern.en.pluralize(word))
             else: sentence.append(word)
@@ -284,7 +313,6 @@ def make_phrase(word, associationGroup, pluralizeObjects):
 
 def finalize_reply(reply):
     print "Finalizing reply..."
-    print reply
     # Fix positions of punctuation, refer to Ellie and Alex as mom and dad
     for count, word in enumerate(reply):
         if u"sharkthemepark" in word: reply[count] = u"mom"
