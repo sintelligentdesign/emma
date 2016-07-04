@@ -30,20 +30,20 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], aske
     # Find associations
     # Association package (information about bundle and the bundle itself) > Association bundle (a collection of words and their corresponding association groups) > Association group (a collection of associations without their word) > association (association type, target, weight)
     print "Creating association bundles..."
-    associationBundle = bundle_associations(importantWords)
+    associationBundle, unknownWords = bundle_associations(importantWords)
 
     if len(associationBundle) < 3:
         print Fore.YELLOW + "The number of associations in the primary bundle is small. Adding associations from common sense halo..."
         print "Creating common sense halo..."
         halo = make_halo(make_halo(importantWords))
-        associationBundle = bundle_associations(halo)
+        associationBundle, unknownWords = bundle_associations(halo)
 
     # Create packages which include the association package and information about its contents so that the generator knows what domains can be used
     print "Packaging association bundles and related information..."
     associationPackage = make_association_package(associationBundle, asker)
 
     # Generate the reply
-    reply = build_reply(associationPackage, mood, askerIntents)
+    reply = build_reply(associationPackage, mood, askerIntents, unknownWords)
     return finalize_reply(reply)
 
 def make_halo(words):
@@ -56,6 +56,7 @@ def make_halo(words):
 
 def bundle_associations(words):
     associationBundle = []
+    unknownWords = []
     for word in words:
         print Fore.GREEN + "Finding associations for \'%s\'..." % word
         with connection:
@@ -70,7 +71,8 @@ def bundle_associations(words):
                     'weight': row[3]
                     })
             associationBundle.append((word, associationGroup))
-    return associationBundle
+        else: unknownWords.append(word)
+    return associationBundle, unknownWords
 
 def make_association_package(associationBundle, asker):
     associationPackage = []
@@ -97,7 +99,7 @@ def make_association_package(associationBundle, asker):
     associationPackage = ({'asker': asker, 'numObjects': numObjects}, associationPackage)
     return associationPackage
 
-def determine_valid_intents(associationPackage):
+def determine_valid_intents(associationPackage, unknownWords):
     # This function doesn't include interrogatives or greetings, since those are Association Bundle-specific
     validIntents = {}
     for associationBundle in associationPackage[1]:
@@ -107,6 +109,7 @@ def determine_valid_intents(associationPackage):
         if associationBundle['hasHasAbilityTo']: intents.append('IMPERATIVE')
         if associationPackage[0]['numObjects'] >= 1: intents.append('PHRASE')
         validIntents[associationBundle['word']] = intents
+    for word in unknownWords: validIntents[word] = 'INTERROGATIVE'
     return validIntents
 
 def choose_association(associationGroup):
@@ -121,7 +124,7 @@ def choose_association(associationGroup):
             return association
             break
 
-def build_reply(associationPackage, mood, askerIntents):
+def build_reply(associationPackage, mood, askerIntents, unknownWords):
     reply = []
     sentencesToGenerate = random.randint(1, 3)
 
@@ -134,7 +137,7 @@ def build_reply(associationPackage, mood, askerIntents):
         print Fore.MAGENTA + "Generating sentence %d of %d..." % (sentenceIterator + 1, sentencesToGenerate)
 
         # Create list of words and intents to choose from
-        validIntents = determine_valid_intents(associationPackage)
+        validIntents = determine_valid_intents(associationPackage, unknownWords)
         if console['verboseLogging']: print "Valid intents: " + str(validIntents)
 
         word = random.choice(validIntents.keys())
@@ -174,7 +177,9 @@ def build_reply(associationPackage, mood, askerIntents):
             bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty'], 'hasHasAbilityTo': associationBundle['hasHasAbilityTo']}
             sentence = make_imperative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, mood) + [u"."]
 
-        else: sentence = [intent]
+        elif intent == 'INTERROGATIVE':
+            sentence = make_interrogative(word, pluralizeObjects) + [u"?"]
+            
         sentence[0] = sentence[0][0].upper() + sentence[0][1:]
         print sentence
         reply.extend(sentence)
@@ -302,8 +307,31 @@ def make_imperative(word, associationGroup, pluralizeObjects, mood):
 
     return sentence
 
-def make_interrogative():
-    pass
+def make_interrogative(word, pluralizeObjects):
+    if console['verboseLogging']: print "Generating an interrogative phrase for \'%s\'..." % word
+
+    if console['verboseLogging']: print "Choosing domain..."
+    interrogativeDomains = [
+        [u"what\'s", u"=WORD"]
+    ]
+    if pluralizeObjects: interrogativeDomains.append(
+        [u"what", u"are", u"=WORD"]
+    )
+    else: interrogativeDomains.append(
+        [u"what", u"is", u"=WORD"]
+    )
+    domain = random.choice(interrogativeDomains)
+
+    if console['verboseLogging']: print "Building interrogative phrase..."
+    sentence = []
+    for count, slot in enumerate(domain):
+        print sentence + domain[count:]
+        if slot == u"=WORD":
+        	if pluralizeObjects: sentence.append(pattern.en.pluralize(word))
+            else: sentence.append(word)
+        else: sentence.append(slot)
+
+    return sentence
 
 def make_phrase(word, associationGroup, pluralizeObjects):
     if console['verboseLogging']: print "Generating a phrase for \'%s\'..." % word
