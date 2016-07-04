@@ -130,7 +130,6 @@ def build_reply(associationPackage, mood):
     reply = []
     sentencesToGenerate = random.randint(1, 4)      # Decide how many sentences we want to generate for our reply
 
-
     #for sentenceIterator in range(0, sentencesToGenerate):
         #print "Generating sentence %d of %d..." % (sentenceIterator + 1, sentencesToGenerate)
 
