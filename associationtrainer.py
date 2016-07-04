@@ -2,6 +2,7 @@
 # Description:      Finds and adds associations to Emma's association model
 # Section:          LEARNING
 import numpy as np
+import re
 
 import sqlite3 as sql
 from colorama import init, Fore
@@ -89,6 +90,7 @@ def find_associations(sentence):
                         add_association(otherWord[0], word[0], "HAS-OBJECT")
 
 def add_association(word, target, associationType):
+    word = re.escape(word)
     with connection:
         cursor.execute('SELECT * FROM associationmodel WHERE word = \"%s\" AND target = \"%s\" AND association_type = \"%s\";' % (word.encode('utf-8'), target.encode('utf-8'), associationType))
         SQLReturn = cursor.fetchone()

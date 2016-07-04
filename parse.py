@@ -1,6 +1,8 @@
 # Name:             Input Parser
 # Description:      Tokenizes input and adds new words and their information into brain.db/dictionary
 # Section:          LEARNING
+import re
+
 import pattern.en
 import sqlite3 as sql
 from colorama import init, Fore
@@ -107,7 +109,7 @@ def add_new_words(parsedSentence):
             print Fore.MAGENTA + u"Learned new word: \'%s\'!" % lemma
             addedWords.append(lemma)
             with connection:
-                cursor.execute("INSERT INTO dictionary VALUES (\"%s\", \"%s\", 1, 0);" % (lemma, pos))
+                cursor.execute("INSERT INTO dictionary VALUES (\"%s\", \"%s\", 1, 0);" % (re.escape(lemma), pos))
 
 greetingTerms = [[u'what\'s', u'up'], [u'hi'], [u'hello'], [u'what', u'up'], [u'wassup'], [u'what', u'is', u'up'], [u'what\'s', u'going', u'on'], [u'how', u'are', u'you'], [u'howdy'], [u'hey']]
 def determine_intent(parsedSentence):
