@@ -127,8 +127,9 @@ def choose_association(associationGroup):
 
 def build_reply(associationPackage, mood):
     reply = []
-    sentencesToGenerate = random.randint(1, 4)      # Decide how many sentences we want to generate for our reply
+    sentencesToGenerate = random.randint(1, 3)
 
+    usedWords = []
     for sentenceIterator in range(0, sentencesToGenerate):
         print "Generating sentence %d of %d..." % (sentenceIterator + 1, sentencesToGenerate)
 
@@ -142,6 +143,9 @@ def build_reply(associationPackage, mood):
 
         word = random.choice(validIntents.keys())
         intent = random.choice(validIntents[word])
+
+        # todo: figure out a way to decrease the likelihood of words in usedWords being used again
+        usedWords.append(word)
 
         for associationBundle in associationPackage[1]:
             if associationBundle['word'] == word: associationBundle = associationBundle
