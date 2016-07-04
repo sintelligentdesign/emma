@@ -197,9 +197,8 @@ def chat():
     print Fore.YELLOW + "!!! Chat mode enabled in config file. Press Control-C to exit."
     while True:
         tokenizedMessage = parse.tokenize(raw_input(Fore.BLUE + 'You >> ').decode('utf-8'))
-        for sentence in tokenizedMessage:
-            consume(sentence)
-        # todo: if sentence generation fails, what's a good way to let the user know?
+        for sentence in tokenizedMessage: consume(sentence)
+        
         reply = sentencebuilder.generate_sentence(tokenizedMessage)
         if "%" not in reply: print Fore.BLUE + u"emma >> " + reply
         else: print Fore.RED + u"Reply generation failed."
