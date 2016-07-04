@@ -166,9 +166,17 @@ def build_reply(associationPackage, mood):
         elif intent = 'PHRASE':
             validBundles = []
             for associationBundle in associationPackage[1]:
+                if associationBundle['hasIsPropertyOf']: validBundles.append(associationBundle)
+            
+            bundleChoice = random.choice(validBundles)
+            sentence = make_phrase(random.choice(bundleChoice['word'], bundleChoice['associations']))
 
 def make_greeting(asker):
-    greetingDomains = [[u"hi", asker], [u"hello", asker]]
+    print "Generating a greeting..."
+    greetingDomains = [
+        [u"hi", asker], 
+        [u"hello", asker]
+        ]
     sentence = random.choice(greetingDomains) + u"!"
     return sentence
 
@@ -184,7 +192,33 @@ def makeImperative():
 def makeInterrogative():
     pass
 
-def makePhrase():
-    pass
+def make_phrase(word, associationGroup):
+    print "Generating a phrase..."
+    
+    print "Finding adjectives..."
+    adjectiveAssociations
+    for association in associationGroup:
+        if association['type'] == "IS-PROPERTY-OF":
+            with connection:
+                cursor.execute("SELECT * FROM dictionary WHERE word = \'%s\' AND part_of_speech IN (\'JJ\', \'JJR\', \'JJS\');" % association['target'])
+                if cursor.fetchall() != []: adjectiveAssociations.append(association)
+    
+    if len(adjectiveAssociations) = 0: print Fore.RED + "No adjectives available for word \'%s\'." % word
+
+    # Decide what domains are available and choose from one of them
+    phraseDomains = [
+        [u"=OBJECT"],
+        [u"=ADJECTIVE", u"=OBJECT"],
+    ]
+    if len(adjectiveAssociations) > 1: phraseDomains.append([
+        u"=ADJECTIVE", u"=ADJECTIVE", u"=OBJECT"
+    ])
+    domain = random.choice(phraseDomains)
+
+    # Iterate through the objects in the domain and fill them in to create the phrase
+    phrase = []
+    for slot in domain:
+        if slot == u"=OBJECT": phrase.append(word)
+        elif slot == u"=ADJECTIVE": 
     
 generate_sentence([[[u'hi', u'UH', u'O', u'O'], [u'emma', u'NNP', u'B-NP', u'O'], [u'!', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'hope', u'VBP', u'B-VP', u'VP-1'], [u'emma', 'NNP', u'B-NP', u'NP-OBJ-1*NP-SBJ-2'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'do', u'VBG', u'I-VP', u'VP-2'], [u'well', u'RB', u'B-ADVP', u'O'], [u'.', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'like', u'VBP', u'B-VP', u'VP-1'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'because', u'IN', u'B-PP', u'O'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'gay', u'JJ', u'B-ADJP', u'O'], [u'.', u'.', u'O', u'O']]], u"sharkthemepark", 0.2983478546283)
