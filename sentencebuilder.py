@@ -141,14 +141,15 @@ def determine_valid_intents(package):
     if package[0]['numObjects'] >= 1: validIntents.extend(['DECLARATIVE', 'IMPERATIVE', 'PHRASE'])
     return validIntents
 
-def choose_association(associations):
+def choose_association(associationGroup):
     dieSeed = 0
-    for row in associations: dieSeed += row[3]
+    for association in associationGroup: dieSeed += association['weight']
     dieResult = random.uniform(0, dieSeed)
-    for row in associations:
-        dieResult -= row[3]
+
+    for association in associationGroup:
+        dieResult -= association['weight']
         if dieResult <= 0:
-            return row
+            return association
             break
 
 def build_reply(associationPackage, mood):
