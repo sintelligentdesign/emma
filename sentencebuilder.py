@@ -19,9 +19,9 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], inte
     # todo: optimize sentence generation
     print "Creating reply..."
     for intent in askerIntents:
-        print intent
-        if 'INTERROGATIVE' in intent:
-            reply = answer_question(intent[1])
+        if intent == 'INTERROGATIVE':
+            print Fore.YELLOW + "Question detected. Answering..."
+            reply = answer_question(intentDetails)
             return finalize_reply(reply)
 
     print "Determining important words..."
@@ -59,6 +59,9 @@ def answer_question(intentDetails):
             featureAssociations = cursor.fetchall()
             cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' OR target = \'%s\' AND association_type != \'HAS-OBJECT\';" % (intentDetails[2], intentDetails[2]))
             targetAssociations = cursor.fetchall()
+
+            print featureAssociations
+            print targetAssociations
         
         if featureAssociations and targetAssociations:
             possibleAnswers = []

@@ -90,9 +90,10 @@ def consume(parsedSentence, asker=u""):
     if console['verboseLogging']: print "Consuming sentence..."
     pronouns.determine_references(parsedSentence)
     pronouns.flip_posessive_references(parsedSentence, asker)
-    parse.add_new_words(parsedSentence)
-    associationtrainer.find_associations(parsedSentence)
     intent, details = parse.determine_intent(parsedSentence)
+    if intent != "INTERROGATIVE":
+        parse.add_new_words(parsedSentence)
+        associationtrainer.find_associations(parsedSentence)
     if console['verboseLogging']: print "Sentence consumed."
     return intent, details
 
@@ -131,7 +132,7 @@ def reply_to_asks(askList):
             intents = []
             for sentenceCount, sentence in enumerate(parsedAsk):
                 if console['verboseLogging']: print "Reading sentence no. %d of ask no. %d..." % ((sentenceCount + 1), (askCount + 1))
-                intent, details = consume(sentence, ask['asker'])
+                intent, intentDetails = consume(sentence, ask['asker'])
                 intents.append(intent)
             
                 for wordCount, word in enumerate(sentence):
@@ -143,7 +144,6 @@ def reply_to_asks(askList):
             understanding = u"Emma interpreted this message as: \'%s\' %s" % (understanding, str(intents))
             print Fore.BLUE + understanding
 
-            print Fore.BLUE + "Intents: " + str(intents)
             reply = sentencebuilder.generate_sentence(parsedAsk, update_mood(ask['message']), intents, intentDetails, ask['asker'])
 
             if "%" not in reply:
