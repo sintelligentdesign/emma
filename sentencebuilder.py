@@ -130,16 +130,17 @@ def build_reply(associationPackage, mood):
     sentencesToGenerate = random.randint(1, 3)
 
     usedWords = []
+
+    # If conditions are right, add a greeting
+    # todo: add if statement for user using greeting
+    if mood >= 0.2 and associationPackage[0]['asker'] != "": reply = make_greeting(associationPackage[0]['asker']) + [u"!"]
+  
     for sentenceIterator in range(0, sentencesToGenerate):
         print "Generating sentence %d of %d..." % (sentenceIterator + 1, sentencesToGenerate)
 
         # Create list of words and intents to choose from
         validIntents = determine_valid_intents(associationPackage)
         if console['verboseLogging']: print "Valid intents: " + str(validIntents)
-
-        # If conditions are right, add "GREETING" intent to the list of intents
-        if sentencesToGenerate > 1 and sentenceIterator == 1 and mood >= 0.2 and associationPackage[0]['asker'] != "": 
-            for word, intents in validIntents.iteritems(): validIntents[word] = intents + ['GREETING']
 
         word = random.choice(validIntents.keys())
         intent = random.choice(validIntents[word])
@@ -157,8 +158,6 @@ def build_reply(associationPackage, mood):
         if console['verboseLogging']: print "Intent: " + intent
 
         # Fill in our chosen intent
-        if intent == 'GREETING': sentence = make_greeting(associationPackage[0]['asker']) + [u"!"]
-
         elif intent == 'PHRASE': sentence = make_phrase(associationBundle['word'], associationBundle['associations'], pluralizeObjects) + [u"."]
 
         elif intent == 'DECLARATIVE':
