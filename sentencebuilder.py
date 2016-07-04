@@ -327,7 +327,7 @@ def make_interrogative(word, pluralizeObjects):
     for count, slot in enumerate(domain):
         print sentence + domain[count:]
         if slot == u"=WORD":
-        	if pluralizeObjects: sentence.append(pattern.en.pluralize(word))
+            if pluralizeObjects: sentence.append(pattern.en.pluralize(word))
             else: sentence.append(word)
         else: sentence.append(slot)
 
