@@ -122,6 +122,6 @@ def determine_intent(parsedSentence):
         match = re.match(' '.join(greeting), ' '.join(message[0:3]))
         if match: return "GREETING"
 
-    if parsedSentence[0][1] in ("WDT", "WP", "WP$", "WRB") or parsedSentence[-1][0] == "?": return "INTERROGATIVE"
+    if parsedSentence[0][1] in ("WDT", "WP", "WP$", "WRB") or parsedSentence[1][1] in (u'be') or parsedSentence[-1][0] == "?": return "INTERROGATIVE"
 
     else: return "DECLARATIVE"
