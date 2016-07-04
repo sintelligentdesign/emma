@@ -139,7 +139,7 @@ def reply_to_asks(askList):
                     understanding += word[0]
                     if wordCount < len(sentence) - 2:
                         understanding += u" "
-            understanding = u"Emma interpreted this message as: \'%s\'" % understanding
+            understanding = u"Emma interpreted this message as: \'%s\' %s" % (understanding, str(intents))
             print Fore.BLUE + understanding
 
             print Fore.BLUE + "Intents: " + str(intents)

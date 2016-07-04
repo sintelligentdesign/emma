@@ -49,6 +49,7 @@ def tokenize(text):
             if count != 0: prevWord = taggedSentence[count - 1]
             if count != len(taggedSentence) - 1: nextWord = taggedSentence[count + 1]
             
+            # todo: this splits up the word "can't" incorrectly. Fix
             if taggedWord[5] in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
                 print Fore.GREEN + "Replacing \"n\'t\" with \"not\"..."
                 taggedWord[5] = u"not"
