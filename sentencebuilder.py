@@ -117,7 +117,8 @@ def determine_valid_intents(associationPackage):
 
 def choose_association(associationGroup):
     dieSeed = 0
-    for association in associationGroup: dieSeed += association['weight']
+    for association in associationGroup:
+        dieSeed += association['weight']
     dieResult = random.uniform(0, dieSeed)
 
     for association in associationGroup:
@@ -150,6 +151,8 @@ def build_reply(associationPackage, mood):
     if random.randint(0, 1) == 0: pluralizeObjects = True
     else: pluralizeObjects = False
 
+    print intent
+
     # Fill in our chosen intent
     if intent == 'GREETING': sentence = make_greeting(associationPackage[0]['asker']) + [u"!"]
 
@@ -160,9 +163,8 @@ def build_reply(associationPackage, mood):
         sentence = make_declarative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, bundleInfo) + [u"."]
 
     else: sentence = [intent]
-    sentence[0] = sentence[0][0].upper() + sentence[0][1:]
+    #sentence[0] = sentence[0][0].upper() + sentence[0][1:]
     reply.extend(sentence)
-
     
     return finalize_reply(reply)
 
@@ -180,12 +182,12 @@ def make_comparative():
 def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo):
     print "Generating a declarative statement for \'%s\'..." % word
     
+    hasAssociations = []
+    isaAssociations = []
     if bundleInfo['hasHas']:
-        hasAssociations = []        # This is absolutely the worst name for this element lmao
         for association in associationGroup:
             if association['type'] == "HAS": hasAssociations.append(association)
     if bundleInfo['hasIsA']:
-        isaAssociations = []
         for association in associationGroup:
             if association['type'] == "IS-A": isaAssociations.append(association)
     ispropertyofAssociations = []
@@ -195,39 +197,37 @@ def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo):
     print "Choosing domain..."
     declarativeDomains = [
         [u"=OBJECT", u"=ISARE", u"=ADJECTIVE"],
-        [u"=OBJECT" u"=ACTION"],
+        [u"=OBJECT", u"=ACTION"],
         [u"=OBJECT", u"can", u"=ACTION"]
     ]
     if len(ispropertyofAssociations) > 1: declarativeDomains.append(
         [u"=OBJECT", u"=ISARE", u"=ADJECTIVE", u"and", u"=ADJECTIVE"]
     )
-    if hasAssociations:
-        if pluralizeObjects: declarativeDomains.append(
-            [u"=OBJECT", u"=HAVEHAS", u"=OBJHAS"]
-        )
-        else: declarativeDomains.append(
-            [u"=OBJECT", u"=HAVEHAS", u"=OBJHAS"]
-        )
-    if isaAssociations: declarativeDomains.append(
+    if hasAssociations != []: declarativeDomains.append(
+        [u"=OBJECT", u"=HAVEHAS", u"=OBJHAS"]
+    )
+    if isaAssociations != []: declarativeDomains.append(
         [u"=OBJECT", u"=ISARE", u"=OBJISA"]
     )
     domain = random.choice(declarativeDomains)
+    print domain
 
     print "Building declarative statement..."
     sentence = []
     # Iterate through the objects in the domain and fill them in to create the declarative statement
     for slot in domain:
+        print domain
         if slot == u"=OBJECT": sentence.extend(make_phrase(word, associationGroup, pluralizeObjects))
         elif slot == u"=ADJECTIVE": sentence.extend(choose_association(ispropertyofAssociations))
-        elif slot == u"=ACTION": sentence.extend(slot)      # todo: update when make_imperative is written
+        elif slot == u"=ACTION": sentence.append(slot)      # todo: update when make_imperative is written
         elif slot == u"=OBJHAS": sentence.extend(choose_association(hasAssociations))
         elif slot == u"=OBJISA": sentence.extend(choose_association(isaAssociations))
         elif slot == u"=ISARE":
-            if pluralizeObjects: sentence.extend(u"are")
-            else: sentence.extend(u"is")
+            if pluralizeObjects: sentence.append(u"are")
+            else: sentence.append(u"is")
         elif slot == u"=HAVEHAS":
-            if pluralizeObjects: sentence.extend(u"have")
-            else: sentence.extend(u"has")
+            if pluralizeObjects: sentence.append(u"have")
+            else: sentence.append(u"has")
 
     return sentence
 
@@ -278,11 +278,12 @@ def make_phrase(word, associationGroup, pluralizeObjects):
         if slot == u"=OBJECT":
             if pluralizeObjects: sentence.append(pattern.en.pluralize(word))
             else: sentence.append(word)
-        elif slot == u"=ADJECTIVE": sentence.extend(choose_association(random.choice(adjectiveAssociations)))
+        elif slot == u"=ADJECTIVE": sentence.append(choose_association(adjectiveAssociations)['target'])
 
     return sentence
 
 def finalize_reply(reply):
+    print "Finalizing reply..."
     print reply
     # Fix positions of punctuation, refer to Ellie and Alex as mom and dad
     for count, word in enumerate(reply):
