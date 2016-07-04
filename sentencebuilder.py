@@ -136,7 +136,7 @@ def build_reply(associationPackage, mood):
 
     # Create list of words and intents to choose from
     validIntents = determine_valid_intents(associationPackage)
-    print "Valid intents: " + str(validIntents)
+    #print "Valid intents: " + str(validIntents)
     # If conditions are right, add "GREETING" intent to the list of intents
     #if sentencesToGenerate > 1 and sentenceIterator == 1 and mood >= 0.2 and associationPackage[0]['asker'] != "": 
     #    for word, intents in validIntents.iteritems(): validIntents[word] = intents + ['GREETING']
@@ -151,7 +151,7 @@ def build_reply(associationPackage, mood):
     if random.randint(0, 1) == 0: pluralizeObjects = True
     else: pluralizeObjects = False
 
-    print "Intent: " intent
+    print "Intent: " + intent
 
     # Fill in our chosen intent
     if intent == 'GREETING': sentence = make_greeting(associationPackage[0]['asker']) + [u"!"]
@@ -174,7 +174,8 @@ def build_reply(associationPackage, mood):
         sentence = make_comparative(associationBundle, random.choice(comparisonChoices), pluralizeObjects)
 
     else: sentence = [intent]
-    #sentence[0] = sentence[0][0].upper() + sentence[0][1:]
+    sentence[0] = sentence[0][0].upper() + sentence[0][1:]
+    print sentence
     reply.extend(sentence)
     
     return finalize_reply(reply)
@@ -200,14 +201,15 @@ def make_comparative(associationBundle, comparisonBundle, pluralizeObjects):
 
     print "Building comparative statement..."
     sentence = []
-    for slot in domain:
+    for count, slot in enumerate(domain):
+        print sentence + domain[count:]
         if slot == u"=DECLARATIVE":
             bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty']}
             sentence.extend(make_declarative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, bundleInfo))
         elif slot == u"=COMPARISON":
             bundleInfo = {'hasHas': comparisonBundle['hasHas'], 'hasIsA': comparisonBundle['hasIsA'], 'hasHasProperty': comparisonBundle['hasHasProperty']}
             sentence.extend(make_declarative(comparisonBundle['word'], comparisonBundle['associations'], pluralizeObjects, bundleInfo))
-        else: sentence.append(word)
+        else: sentence.append(slot)
 
     return sentence
 
@@ -246,19 +248,20 @@ def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo):
     print "Building declarative statement..."
     sentence = []
     # Iterate through the objects in the domain and fill them in to create the declarative statement
-    for slot in domain:
+    for count, slot in enumerate(domain):
+        print sentence + domain[count:]
         if slot == u"=OBJECT": sentence.extend(make_phrase(word, associationGroup, pluralizeObjects))
-        elif slot == u"=ADJECTIVE": sentence.extend(choose_association(ispropertyofAssociations))
+        elif slot == u"=ADJECTIVE": sentence.append(choose_association(ispropertyofAssociations)['target'])
         elif slot == u"=ACTION": sentence.append(slot)      # todo: update when make_imperative is written
-        elif slot == u"=OBJHAS": sentence.extend(choose_association(hasAssociations))
-        elif slot == u"=OBJISA": sentence.extend(choose_association(isaAssociations))
+        elif slot == u"=OBJHAS": sentence.append(choose_association(hasAssociations)['target'])
+        elif slot == u"=OBJISA": sentence.append(choose_association(isaAssociations)['target'])
         elif slot == u"=ISARE":
             if pluralizeObjects: sentence.append(u"are")
             else: sentence.append(u"is")
         elif slot == u"=HAVEHAS":
             if pluralizeObjects: sentence.append(u"have")
             else: sentence.append(u"has")
-        else: sentence.append(word)
+        else: sentence.append(slot)
 
     return sentence
 
@@ -303,12 +306,13 @@ def make_phrase(word, associationGroup, pluralizeObjects):
     else: sentence = []
 
     # Iterate through the objects in the domain and fill them in to create the phrase
-    for slot in domain:
+    for count, slot in enumerate(domain):
+        print sentence + domain[count:]
         if slot == u"=OBJECT":
             if pluralizeObjects: sentence.append(pattern.en.pluralize(word))
             else: sentence.append(word)
         elif slot == u"=ADJECTIVE": sentence.append(choose_association(adjectiveAssociations)['target'])
-
+    
     return sentence
 
 def finalize_reply(reply):
@@ -322,4 +326,4 @@ def finalize_reply(reply):
             del reply[count]
     return ' '.join(reply)
     
-generate_sentence([[[u'hi', u'UH', u'O', u'O'], [u'emma', u'NNP', u'B-NP', u'O'], [u'!', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'hope', u'VBP', u'B-VP', u'VP-1'], [u'emma', 'NNP', u'B-NP', u'NP-OBJ-1*NP-SBJ-2'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'do', u'VBG', u'I-VP', u'VP-2'], [u'well', u'RB', u'B-ADVP', u'O'], [u'.', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'like', u'VBP', u'B-VP', u'VP-1'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'because', u'IN', u'B-PP', u'O'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'gay', u'JJ', u'B-ADJP', u'O'], [u'.', u'.', u'O', u'O']]], 0.2983478546283, u"sharkthemepark",)
+print generate_sentence([[[u'hi', u'UH', u'O', u'O'], [u'emma', u'NNP', u'B-NP', u'O'], [u'!', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'hope', u'VBP', u'B-VP', u'VP-1'], [u'emma', 'NNP', u'B-NP', u'NP-OBJ-1*NP-SBJ-2'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'do', u'VBG', u'I-VP', u'VP-2'], [u'well', u'RB', u'B-ADVP', u'O'], [u'.', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'like', u'VBP', u'B-VP', u'VP-1'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'because', u'IN', u'B-PP', u'O'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'gay', u'JJ', u'B-ADJP', u'O'], [u'.', u'.', u'O', u'O']]], 0.2983478546283, u"sharkthemepark",)
