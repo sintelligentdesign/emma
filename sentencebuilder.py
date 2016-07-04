@@ -195,8 +195,8 @@ def build_reply(associationPackage, mood, askerIntents, unknownWords):
 def make_greeting(asker):
     if console['verboseLogging']: print "Generating a greeting..."
     greetingDomains = [
-        [u"hi", asker], 
-        [u"hello", asker]
+        [u"Hi", asker], 
+        [u"Hello", asker]
     ]
     return random.choice(greetingDomains)
 
