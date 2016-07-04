@@ -80,7 +80,7 @@ def update_mood(text):
     weightedMoodValues = weightedMoodValues + moodValues
     mood = sum(weightedMoodValues) / float(len(weightedMoodValues))
     
-    if console['verboseLogging']: print "Mood values: %s\nCalculated mood: %d" % (str(moodValues), str(mood))
+    if console['verboseLogging']: print "Mood values: %s\nCalculated mood: %d" % (str(moodValues), mood)
     return mood
 
 # "Emma" banner

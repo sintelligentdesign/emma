@@ -15,9 +15,15 @@ from config import console, files
 connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 
-def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], intentDetails=[] asker=""):
+def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], intentDetails=[], asker=""):
     # todo: optimize sentence generation
     print "Creating reply..."
+    for intent in askerIntents:
+        print intent
+        if 'INTERROGATIVE' in intent:
+            reply = answer_question(intent[1])
+            return finalize_reply(reply)
+
     print "Determining important words..."
     importantWords = []
     message = []
@@ -45,6 +51,31 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], inte
     # Generate the reply
     reply = build_reply(associationPackage, mood, askerIntents, unknownWords)
     return finalize_reply(reply)
+
+def answer_question(intentDetails):
+    if intentDetails[0] == "whatBe":
+        with connection:
+            cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' OR target = \'%s\' AND association_type != \'HAS-OBJECT\';" % (intentDetails[1], intentDetails[1]))
+            featureAssociations = cursor.fetchall()
+            cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' OR target = \'%s\' AND association_type != \'HAS-OBJECT\';" % (intentDetails[2], intentDetails[2]))
+            targetAssociations = cursor.fetchall()
+        
+        if featureAssociations and targetAssociations:
+            possibleAnswers = []
+            for featureAssociation in featureAssociations:
+                for targetAssociation in targetAssociations:
+                    if featureAssociation[0] in [targetAssociation[0], targetAssociation[2]]: possibleAnswers.append((featureAssociation[0], featureAssociation[3] + targetAssociation[3]))
+                    elif featureAssociation[2] in [targetAssociation[0], targetAssociation[2]]: possibleAnswers.append((featureAssociation[2], featureAssociation[3] + targetAssociation[3]))
+                    elif targetAssociation[0] in [featureAssociation[0], featureAssociation[2]]: possibleAnswers.append((targetAssociation[0], featureAssociation[3] + targetAssociation[3]))
+                    elif targetAssociation[2] in [featureAssociation[0], featureAssociation[2]]: possibleAnswers.append((targetAssociation[2], featureAssociation[3] + targetAssociation[3]))
+            print possibleAnswers
+
+            # todo: use weighted die roll
+            answer = random.choice(possibleAnswers)[0]
+            
+            # todo: make the output prettier
+            reply = [intentDetails[1], u"of", intentDetails[2], u"is", answer]
+            return reply
 
 def make_halo(words):
     halo = []
