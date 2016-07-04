@@ -47,8 +47,10 @@ def generate_sentence(tokenizedMessage, asker=""):
     primaryPackage = make_association_package(primaryBundle, asker)
     secondaryPackage = make_association_package(secondaryBundle, asker)
 
-    # Use our association packages to decide what intents are allowed to be used for generation
-    determine_valid_intents(primaryPackage)
+    # Use our association packages to decide what intents are allowed to be used for 
+    print "Determining valid intents..."
+    primaryIntents = determine_valid_intents(primaryPackage)
+    secondaryIntents = determine_valid_intents(secondaryPackage)
 
     '''
     reply = ['%']
@@ -129,11 +131,24 @@ def make_association_package(associationBundle, asker):
             })
     numObjects = len(associationBundle)
     associationPackage = ({'asker': asker, 'numObjects': numObjects}, associationPackage)
-    print associationPackage
     return associationPackage
 
-def determine_valid_intents(associationPackage):
-    pass
+def determine_valid_intents(package):
+    # This function doesn't include interrogatives, since those are association bundle specific
+    allowGreeting = False
+    allowComparative = False
+    allowDeclarative = False
+    allowImperative = False
+    allowPhrase = False
+
+    if package[0]['asker'] != "": allowGreeting = True
+    if package[0]['numObjects'] >= 2: allowComparative = True
+    if package[0]['numObjects'] >= 1:
+        allowDeclarative = True
+        allowImperative = True
+        allowPhrase = True
+        
+    return {'allowGreeting': allowGreeting, 'allowComparative': allowComparative, 'allowDeclarative': allowDeclarative, 'allowImperative': allowImperative, 'allowPhrase': allowPhrase}
 
 def choose_association(associations):
     dieSeed = 0
@@ -154,13 +169,6 @@ declarativeDomains = []
 imperativeDomains = []
 interrogativeDomains = []
 phraseDomains = []
-
-allowGreeting = False
-allowComparative = False
-allowDeclarative = False
-allowImperative = False
-allowInterrogative = False
-allowPhrase = False
 
 def makeGreeting():
     pass
