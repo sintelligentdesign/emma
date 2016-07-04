@@ -47,13 +47,8 @@ def generate_sentence(tokenizedMessage, asker="", mood):
     primaryPackage = make_association_package(primaryBundle, asker)
     secondaryPackage = make_association_package(secondaryBundle, asker)
 
-    # Use our association packages to decide what intents are allowed to be used for 
-    print "Determining valid intents..."
-    primaryIntents = determine_valid_intents(primaryPackage)
-    secondaryIntents = determine_valid_intents(secondaryPackage)
-
     # Begin generating our reply
-    build_reply(primaryIntents, primaryPackage, mood)
+    build_reply(primaryPackage, mood)
 
     '''
     reply = ['%']
@@ -122,14 +117,16 @@ def make_association_package(associationBundle, asker):
         for association in associationGroup[1]:
             if association['type'] == "HAS": hasHas = True
             else: hasHas = False
-
             if association['type'] == "IS-A": hasIsA = True
             else: hasIsA = False
+            if association['type'] == "IS-PROPERTY-OF": hasIsPropertyOf = True
+            else: hasIsPropertyOf = False
 
         associationPackage.append({
             'word': associationGroup[0], 
             'hasHas': hasHas, 
             'hasIsA': hasIsA, 
+            'hasIsPropertyOf': hasisPropertyOf
             'associations': associationGroup[1]
             })
     numObjects = len(associationBundle)
@@ -139,9 +136,9 @@ def make_association_package(associationBundle, asker):
 def determine_valid_intents(package):
     # This function doesn't include interrogatives, since those are Association Bundle-specific
     validIntents = []
-    if package[0]['asker'] != "": validIntents.append('allowGreeting')
-    if package[0]['numObjects'] >= 2: validIntents.append('allowComparative')
-    if package[0]['numObjects'] >= 1: validIntents.extend(['allowDeclarative', 'allowImperative', 'allowPhrase'])
+    if package[0]['asker'] != "": validIntents.append('GREETING')
+    if package[0]['numObjects'] >= 2: validIntents.append('COMPARATIVE')
+    if package[0]['numObjects'] >= 1: validIntents.extend(['DECLARATIVE', 'IMPERATIVE', 'PHRASE'])
     return validIntents
 
 def choose_association(associations):
@@ -154,19 +151,21 @@ def choose_association(associations):
             return row
             break
 
-def build_reply(validIntents, associationPackage, mood):
+def build_reply(associationPackage, mood):
     reply = []
     sentencesToGenerate = random.randint(1, 4)      # Decide how many sentences we want to generate for our reply
 
     for sentenceIterator in range(0, sentencesToGenerate):
-        # Greeting
-        if sentencesToGenerate > 1 and sentenceIterator = 1 and mood >= 0.2 and validIntents['allowGreeting']:      # todo: add dice roll?
-            sentence = make_greeting(associationPackage[0]['asker'])
-    
-        if not sentence:
-            for associationBundle in associationPackage:
-                if validIntents['allowComparative']:
-                    pass
+        # Create list of intents to choose from (this is seperate from validIntents because it can change)
+        intents = determine_valid_intents(associationPackage)
+        if sentencesToGenerate > 1 and sentenceIterator = 1 and mood >= 0.2 and validIntents['allowGreeting']: intents.append('GREETING')
+
+        intent = random.choice(intents)
+
+        if intent = 'GREETING': sentence = make_greeting(associationPackage[0]['asker'])
+        elif intent = 'PHRASE':
+            validBundles = []
+            for associationBundle in associationPackage[1]:
 
 def make_greeting(asker):
     greetingDomains = [[u"hi", asker], [u"hello", asker]]
