@@ -112,7 +112,7 @@ def determine_valid_intents(associationPackage):
         if associationBundle['hasHasProperty']: intents.append('DECLARATIVE')
         if associationPackage[0]['numObjects'] >= 2 and 'DECLARATIVE' in intents: intents.append('COMPARATIVE')
         if associationBundle['hasHasAbilityTo']: intents.append('IMPERATIVE')
-        if associationPackage[0]['numObjects'] >= 1: intents.extend('PHRASE')
+        if associationPackage[0]['numObjects'] >= 1: intents.append('PHRASE')
         validIntents[associationBundle['word']] = intents
     return validIntents
 
@@ -278,14 +278,14 @@ def make_imperative(word, associationGroup, pluralizeObjects):
     for association in associationGroup:
         if association['type'] == "HAS-ABILITY-TO": verbAssociations.append(association)
 
-    if len(verbAssociations) == 0: Print Fore.YELLOW + "No verbs available for \'%s\'!" % word
+    if len(verbAssociations) == 0: print Fore.YELLOW + "No verbs available for \'%s\'!" % word
 
     print "Choosing domain..."
     imperativeDomains = [
         [u"=VERB", u"=OBJECT"],
         [u"=VERB", u"the", u"=OBJECT"],
         [u"always", u"=VERB", u"=OBJECT"],
-        [u"never", u"=VERB", u="OBJECT"]
+        [u"never", u"=VERB", u"=OBJECT"]
     ]
     if not pluralizeObjects: imperativeDomains.append(
         [u"=VERB", u"a", u"=OBJECT"]
@@ -297,8 +297,8 @@ def make_imperative(word, associationGroup, pluralizeObjects):
     sentence = []
     for count, slot in enumerate(sentence):
         print sentence + domain[count:]
-        if slot = "=OBJECT": sentence.extend(make_phrase(word, associationGroup, pluralizeObjects))
-        elif slot = "=VERB": sentence.append(choose_association(verbAssociations)['target'])
+        if slot == "=OBJECT": sentence.extend(make_phrase(word, associationGroup, pluralizeObjects))
+        elif slot == "=VERB": sentence.append(choose_association(verbAssociations)['target'])
         else: sentence.append(slot)
 
     return sentence
@@ -359,6 +359,8 @@ def finalize_reply(reply):
         elif word in [u",", u".", u"!", u"?"]:
             reply[count - 1] += word
             del reply[count]
+        if word == []: del reply[count]
+            
     return ' '.join(reply)
     
 print generate_sentence([[[u'hi', u'UH', u'O', u'O'], [u'emma', u'NNP', u'B-NP', u'O'], [u'!', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'hope', u'VBP', u'B-VP', u'VP-1'], [u'emma', 'NNP', u'B-NP', u'NP-OBJ-1*NP-SBJ-2'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'do', u'VBG', u'I-VP', u'VP-2'], [u'well', u'RB', u'B-ADVP', u'O'], [u'.', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'like', u'VBP', u'B-VP', u'VP-1'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'because', u'IN', u'B-PP', u'O'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'gay', u'JJ', u'B-ADJP', u'O'], [u'.', u'.', u'O', u'O']]], 0.2983478546283, u"sharkthemepark",)
