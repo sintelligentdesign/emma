@@ -189,7 +189,7 @@ def dream():
     for word in SQLReturn:
         dreamSeed += word[0] + " "
     print "Dream seed: " + dreamSeed
-    dream = sentencebuilder.generate_sentence(pattern.en.parse(dreamSeed, True, True, True, True, True).split(), mood)
+    dream = sentencebuilder.generate_sentence(pattern.en.parse(dreamSeed, True, True, True, True, True).split(), update_mood(dreamSeed))
     if "%" not in dream:
         print Fore.BLUE + u"dream >> " + dream
         tumblrclient.post(dream.encode('utf-8'), ["dreams", "feeling " + express_mood(update_mood(dream)).encode('utf-8')])
@@ -198,11 +198,12 @@ def dream():
 def chat():
     print Fore.YELLOW + "!!! Chat mode enabled in config file. Press Control-C to exit."
     while True:
-        tokenizedMessage = parse.tokenize(raw_input(Fore.BLUE + 'You >> ').decode('utf-8'))
+        input = raw_input(Fore.BLUE + 'You >> ').decode('utf-8')
+        tokenizedMessage = parse.tokenize(input)
         intents = []
         for sentence in tokenizedMessage: intents.append(consume(sentence))
         
-        reply = sentencebuilder.generate_sentence(tokenizedMessage, mood, intents)
+        reply = sentencebuilder.generate_sentence(tokenizedMessage, update_mood(input), intents)
         if "%" not in reply: print Fore.BLUE + u"emma >> " + reply
         else: print Fore.RED + u"Reply generation failed."
 
