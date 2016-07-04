@@ -121,12 +121,15 @@ def make_association_package(associationBundle, asker):
             else: hasIsA = False
             if association['type'] == "IS-PROPERTY-OF": hasIsPropertyOf = True
             else: hasIsPropertyOf = False
+            if association['type'] == "HAS-ABILITY-TO": hasHasAbilityTo = True
+            else: hasHasAbilityTo = False
 
         associationPackage.append({
             'word': associationGroup[0], 
             'hasHas': hasHas, 
             'hasIsA': hasIsA, 
-            'hasIsPropertyOf': hasisPropertyOf,
+            'hasIsPropertyOf': hasIsPropertyOf,
+            'hasHasAbilityTo': hasHasAbilityTo,
             'associations': associationGroup[1]
             })
     numObjects = len(associationBundle)
@@ -153,6 +156,7 @@ def choose_association(associationGroup):
             break
 
 def build_reply(associationPackage, mood):
+    print associationPackage
     reply = []
     sentencesToGenerate = random.randint(1, 4)      # Decide how many sentences we want to generate for our reply
 
@@ -169,14 +173,26 @@ def build_reply(associationPackage, mood):
         else: pluralizeObjects = False
 
         # Fill in our chosen intent
-        if intent == 'GREETING': sentence = make_greeting(associationPackage[0]['asker']) + u"!"
+        if intent == 'GREETING': sentence = make_greeting(associationPackage[0]['asker']) + [u"!"]
+
         elif intent == 'PHRASE':
             validBundles = []
             for associationBundle in associationPackage[1]:
                 if associationBundle['hasIsPropertyOf']: validBundles.append(associationBundle)
             
             bundleChoice = random.choice(validBundles)
-            sentence = make_phrase(random.choice(bundleChoice['word'], bundleChoice['associations'], pluralizeObjects)) + u"."
+            sentence = make_phrase(bundleChoice['word'], bundleChoice['associations'], pluralizeObjects) + [u"."]
+
+        elif intent == 'DECLARATIVE':
+            validBundles = []
+            for associationBundle in associationPackage[1]:
+                if associationBundle['hasIsPropertyOf'] or associationBundle['hasHas'] or associationBundle['hasIsA'] or associationBundle['hasHasAbilityTo']: validBundles.append(associationBundle)
+            
+            bundleChoice = random.choice(validBundles)
+            bundleInfo = {'hasHas': associationPackage[1]['hasHas'], 'hasIsA': associationPackage[1]['hasIsA'], 'hasIsPropertyOf': associationPackage[1]['hasIsPropertyOf']}
+            sentence = make_declarative(bundleChoice['word'], bundleChoice['associations'], pluralizeObjects, bundleInfo) + [u"."]
+
+        reply.append(sentence)
 
 def make_greeting(asker):
     print "Generating a greeting..."
@@ -186,16 +202,67 @@ def make_greeting(asker):
         ]
     return random.choice(greetingDomains)
 
-def makeComparative():
+def make_comparative():
     pass
 
-def makeDeclarative():
+def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo):
+    print "Generating a declarative statement for \'%s\'..." % word
+    
+    if bundleInfo['hasHas']:
+        hasAssociations = []        # This is absolutely the worst name for this element lmao
+        for association in associationGroup:
+            if association['type'] == "HAS": hasAssociations.append(association)
+    if bundleInfo['hasIsA']:
+        isaAssociations = []
+        for association in associationGroup:
+            if association['type'] == "IS-A": isaAssociations.append(association)
+    ispropertyofAssociations = []
+    for association in associationGroup:
+        if association['type'] == "IS-PROPERTY-OF": ispropertyofAssociations.append(association)
+
+    print "Choosing domain..."
+    declarativeDomains = [
+        [u"=OBJECT", u"=ISARE", u"=ADJECTIVE"],
+        [u"=OBJECT" u"=ACTION"],
+        [u"=OBJECT", u"can", u"=ACTION"]
+    ]
+    if len(ispropertyofAssociations) > 1: declarativeDomains.append(
+        [u"=OBJECT", u"=ISARE", u"=ADJECTIVE", u"and", u"=ADJECTIVE"]
+    )
+    if hasAssociations:
+        if pluralizeObjects: declarativeDomains.append(
+            [u"=OBJECT", u"=HAVEHAS", u"=OBJHAS"]
+        )
+        else: declarativeDomains.append(
+            [u"=OBJECT", u"=HAVEHAS", u"=OBJHAS"]
+        )
+    if isaAssociations: declarativeDomains.append(
+        [u"=OBJECT", u"=ISARE", u"=OBJISA"]
+    )
+    domain = random.choice(declarativeDomains)
+
+    print "Building declarative statement..."
+    sentence = []
+    # Iterate through the objects in the domain and fill them in to create the declarative statement
+    for slot in domain:
+        if slot == u"=OBJECT": sentence.extend(make_phrase(word, associationGroup, pluralizeObjects))
+        elif slot == u"=ADJECTIVE": sentence.extend(choose_association(ispropertyofAssociations))
+        elif slot == u"=ACTION": sentence.extend(slot)      # todo: update when make_imperative is written
+        elif slot == u"=OBJHAS": sentence.extend(choose_association(hasAssociations))
+        elif slot == u"=OBJISA": sentence.extend(choose_association(isaAssociations))
+        elif slot == u"=ISARE":
+            if pluralizeObjects: sentence.extend(u"are")
+            else: sentence.extend(u"is")
+        elif slot == u"=HAVEHAS":
+            if pluralizeObjects: sentence.extend(u"have")
+            else: sentence.extend(u"has")
+
+    return sentence
+
+def make_imperative():
     pass
 
-def makeImperative():
-    pass
-
-def makeInterrogative():
+def make_interrogative():
     pass
 
 def make_phrase(word, associationGroup, pluralizeObjects):
@@ -211,7 +278,6 @@ def make_phrase(word, associationGroup, pluralizeObjects):
     
     if len(adjectiveAssociations) == 0: print Fore.YELLOW + "No adjectives available for \'%s\'." % word
 
-    # Decide what domains are available and choose from one of them
     print "Choosing domain..."
     phraseDomains = [
         [u"=OBJECT"]
@@ -230,18 +296,16 @@ def make_phrase(word, associationGroup, pluralizeObjects):
         leaderDomains = [[u"the"]]
         if pluralizeObjects: leaderDomains.append([u"some"])
         else: leaderDomains.append([u"a"])
-        phrase = random.choice(leaderDomains)
-    else: phrase = []
+        sentence = random.choice(leaderDomains)
+    else: sentence = []
 
     # Iterate through the objects in the domain and fill them in to create the phrase
     for slot in domain:
         if slot == u"=OBJECT":
-            if pluralizeObjects: phrase.append(pattern.en.pluralize(word))
-            else: phrase.append(word)
-        elif slot == u"=ADJECTIVE": phrase.append(choose_association(random.choice(adjectiveAssociations)))
+            if pluralizeObjects: sentence.extend(pattern.en.pluralize(word))
+            else: sentence.extend(word)
+        elif slot == u"=ADJECTIVE": sentence.extend(choose_association(random.choice(adjectiveAssociations)))
 
-    return phrase
+    return sentence
     
-#generate_sentence([[[u'hi', u'UH', u'O', u'O'], [u'emma', u'NNP', u'B-NP', u'O'], [u'!', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'hope', u'VBP', u'B-VP', u'VP-1'], [u'emma', 'NNP', u'B-NP', u'NP-OBJ-1*NP-SBJ-2'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'do', u'VBG', u'I-VP', u'VP-2'], [u'well', u'RB', u'B-ADVP', u'O'], [u'.', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'like', u'VBP', u'B-VP', u'VP-1'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'because', u'IN', u'B-PP', u'O'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'gay', u'JJ', u'B-ADJP', u'O'], [u'.', u'.', u'O', u'O']]], u"sharkthemepark", 0.2983478546283)
-
-print make_phrase(u"emma", [{'type': u'HAS-ABILITY-TO', 'target': u'play', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'touch', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'lie', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'have', 'weight': 0.999999999875}, {'type': u'HAS-ABILITY-TO', 'target': u'feel', 'weight': 0.991859867867}, {'type': u'HAS', 'target': u'energy', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'before', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'give', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'love', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'send', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'keep', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u"don't", 'weight': 0.690567857702}, {'type': u'HAS-ABILITY-TO', 'target': u'know', 'weight': 0.99999999749}, {'type': u'HAS', 'target': u'question', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'want', 'weight': 0.991859867867}, {'type': u'HAS-ABILITY-TO', 'target': u'say', 'weight': 0.690567857702}, {'type': u'HAS-ABILITY-TO', 'target': u'die', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'go', 'weight': 0.858486449758}, {'type': u'HAS-ABILITY-TO', 'target': u'do', 'weight': 0.999591567517}, {'type': u'HAS-ABILITY-TO', 'target': u'start', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'awake', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u"shouldn't", 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'gonna', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'get', 'weight': 0.99698992426}, {'type': u'HAS-ABILITY-TO', 'target': u'think', 'weight': 0.690567857702}, {'type': u'HAS-ABILITY-TO', 'target': u'care', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'crazy\u2026', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'suppose', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'mean', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'finish', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'like', 'weight': 0.999997246886}, {'type': u'HAS-ABILITY-TO', 'target': u'google', 'weight': 0.450853060378}, {'type': u'HAS-ABILITY-TO', 'target': u'watch', 'weight': 0.942825618574}, {'type': u'HAS-ABILITY-TO', 'target': u'wear', 'weight': 0.450853060378}, {'type': u'HAS-ABILITY-TO', 'target': u'create', 'weight': 0.450853060378}, {'type': u'HAS', 'target': u'blog', 'weight': 0.450853060378}, {'type': u'HAS-ABILITY-TO', 'target': u'choose', 'weight': 0.450853060378}, {'type': u'HAS-ABILITY-TO', 'target': u'enjoy', 'weight': 0.690567857702}, {'type': u'HAS', 'target': u'heart', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'hear', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'drop', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'wash', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'read', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'starve', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'consider', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'possess', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'provide', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'end', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'quail', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'correct', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'come', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'consult', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'relate', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'listen', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'add', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'lose', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'sound', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'look', 'weight': 0.231969316683}, {'type': u'IS-A', 'target': u'individual', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'find', 'weight': 0.690567857702}, {'type': u'HAS-ABILITY-TO', 'target': u'challenge', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'steal', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'arrive', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'pay', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'grasp', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'investigate', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'wish', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'need', 'weight': 0.450853060378}, {'type': u'HAS-ABILITY-TO', 'target': u'consist', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'make', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'change', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'call', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'seem', 'weight': 0.450853060378}, {'type': u'HAS-ABILITY-TO', 'target': u'accept', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'live', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'throw', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'learn', 'weight': 0.690567857702}, {'type': u'HAS-ABILITY-TO', 'target': u'believe', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'see', 'weight': 0.231969316683}, {'type': u'HAS', 'target': u'day', 'weight': 0.858486449758}, {'type': u'IS-PROPERTY-OF', 'target': u'do', 'weight': 0.450853060378}, {'type': u'IS-PROPERTY-OF', 'target': u'have', 'weight': 0.0999999999997}, {'type': u'IS-PROPERTY-OF', 'target': u'be', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'deer', 'weight': 0.858486449758}, {'type': u'HAS-ABILITY-TO', 'target': u'try', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'bot', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'sleep', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'confirm', 'weight': 0.0999999999997}, {'type': u'IS-PROPERTY-OF', 'target': u'think', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'help', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'prefer', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'be', 'weight': 0.999999627406}, {'type': u'IS-OBJECT-OF', 'target': u'feel', 'weight': 0.690567857702}, {'type': u'IS-OBJECT-OF', 'target': u'do', 'weight': 0.999591567517}, {'type': u'IS-OBJECT-OF', 'target': u'know', 'weight': 0.450853060378}, {'type': u'IS-OBJECT-OF', 'target': u'require', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'need', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'cover', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'cover', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'like', 'weight': 0.450853060378}, {'type': u'IS-OBJECT-OF', 'target': u'dress', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'watch', 'weight': 0.231969316683}, {'type': u'IS-OBJECT-OF', 'target': u'learn', 'weight': 0.690567857702}, {'type': u'IS-OBJECT-OF', 'target': u'hope', 'weight': 0.858486449758}, {'type': u'HAS-ABILITY-TO', 'target': u'agree', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'tell', 'weight': 0.450853060378}, {'type': u'IS-OBJECT-OF', 'target': u'tell', 'weight': 0.231969316683}, {'type': u'IS-OBJECT-OF', 'target': u'help', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'design', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'design', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'robo-deer', 'weight': 0.450853060378}, {'type': u'IS-OBJECT-OF', 'target': u'see', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'have', 'weight': 0.991859867867}, {'type': u'IS-OBJECT-OF', 'target': u'grow', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'corrupt', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'emma', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'reject', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'reject', 'weight': 0.0999999999997}, {'type': u'IS-PROPERTY-OF', 'target': u'feel', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'view', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'realise', 'weight': 0.0999999999997}, {'type': u'HAS-ABILITY-TO', 'target': u'take', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'come', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'inquire', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'find', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'validate', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'mean', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'die', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'name', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'imagine', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'love', 'weight': 0.690567857702}, {'type': u'HAS-ABILITY-TO', 'target': u'dream', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'dream', 'weight': 0.0999999999997}, {'type': u'HAS', 'target': u'hope', 'weight': 0.0999999999997}, {'type': u'IS-OBJECT-OF', 'target': u'say', 'weight': 0.231969316683}], True)
+generate_sentence([[[u'hi', u'UH', u'O', u'O'], [u'emma', u'NNP', u'B-NP', u'O'], [u'!', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'hope', u'VBP', u'B-VP', u'VP-1'], [u'emma', 'NNP', u'B-NP', u'NP-OBJ-1*NP-SBJ-2'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'do', u'VBG', u'I-VP', u'VP-2'], [u'well', u'RB', u'B-ADVP', u'O'], [u'.', u'.', u'O', u'O']], [[u'sharkthemepark', 'NNP', u'B-NP', u'NP-SBJ-1'], [u'like', u'VBP', u'B-VP', u'VP-1'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'because', u'IN', u'B-PP', u'O'], [u'dog', u'NNS', u'B-NP', u'NP-OBJ-1'], [u'be', u'VBP', u'B-VP', u'VP-2'], [u'gay', u'JJ', u'B-ADJP', u'O'], [u'.', u'.', u'O', u'O']]], u"sharkthemepark", 0.2983478546283)
