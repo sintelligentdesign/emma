@@ -92,9 +92,9 @@ def consume(parsedSentence, asker=u""):
     pronouns.flip_posessive_references(parsedSentence, asker)
     parse.add_new_words(parsedSentence)
     associationtrainer.find_associations(parsedSentence)
-    intent = parse.determine_intent(parsedSentence)
+    intent, details = parse.determine_intent(parsedSentence)
     if console['verboseLogging']: print "Sentence consumed."
-    return intent
+    return intent, details
 
 
 def express_mood(moodNum):
@@ -131,7 +131,8 @@ def reply_to_asks(askList):
             intents = []
             for sentenceCount, sentence in enumerate(parsedAsk):
                 if console['verboseLogging']: print "Reading sentence no. %d of ask no. %d..." % ((sentenceCount + 1), (askCount + 1))
-                intents.append(consume(sentence, ask['asker']))
+                intent, details = consume(sentence, ask['asker'])
+                intents.append(intent)
             
                 for wordCount, word in enumerate(sentence):
                     if wordCount == 0 and sentenceCount != 0:
@@ -143,7 +144,7 @@ def reply_to_asks(askList):
             print Fore.BLUE + understanding
 
             print Fore.BLUE + "Intents: " + str(intents)
-            reply = sentencebuilder.generate_sentence(parsedAsk, update_mood(ask['message']), intents, ask['asker'])
+            reply = sentencebuilder.generate_sentence(parsedAsk, update_mood(ask['message']), intents, intentDetails, ask['asker'])
 
             if "%" not in reply:
                 print Fore.BLUE + u"emma >> %s" % reply

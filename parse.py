@@ -8,9 +8,8 @@ import sqlite3 as sql
 from colorama import init, Fore
 init(autoreset = True)
 
+import utilities
 from config import console, files
-
-import re
 
 def tokenize(text):
     # todo: for other simple "internet mispellings" of conjunctions like this, and the function after it that breaks conjunctions into words after parsing, should we have a separate function?
@@ -120,8 +119,21 @@ def determine_intent(parsedSentence):
 
     for greeting in greetingTerms:
         match = re.match(' '.join(greeting), ' '.join(message[0:3]))
-        if match: return "GREETING"
+        if match: return "GREETING", []
 
-    if parsedSentence[0][1] in ("WDT", "WP", "WP$", "WRB") or parsedSentence[1][1] in (u'be') or parsedSentence[-1][0] == "?": return "INTERROGATIVE"
+    if parsedSentence[0][1] in ("WDT", "WP", "WP$", "WRB") or parsedSentence[1][1] in (u'be') or parsedSentence[-1][0] == "?":
+        # Supported domains for INTERROGATIVE intent:
+        # whatBe feature (of) object
 
-    else: return "DECLARATIVE"
+        if parsedSentence[0][0] == u"what":
+            interrogativeType = 'whatBe'
+        
+        if interrogativeType == 'whatBe':
+            for word in parsedSentence:
+                if word[1] in utilities.nounCodes and "SBJ" in word[3]: feature = word[0]
+                elif word[1] in utilities.nounCodes and "OBJ" in word[3]: target = word[0]
+
+            if feature and target: return "INTERROGATIVE", ["whatBe", feature, target]
+            else: return "DECLARATIVE", []
+
+    else: return "DECLARATIVE", []

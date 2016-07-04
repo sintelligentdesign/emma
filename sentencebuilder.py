@@ -15,7 +15,7 @@ from config import console, files
 connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 
-def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], asker=""):
+def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], intentDetails=[] asker=""):
     # todo: optimize sentence generation
     print "Creating reply..."
     print "Determining important words..."
