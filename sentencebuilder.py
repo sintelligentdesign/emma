@@ -85,7 +85,12 @@ def make_association_package(associationBundle, asker):
             if association['type'] == "HAS-PROPERTY": hasHasProperty = True
             else: hasHasProperty = False
             if association['type'] == "HAS-ABILITY-TO": hasHasAbilityTo = True
-            else: hasHasAbilityTo = False
+            else: 
+                # todo: This is a bad fix and we should find a better thing to do with objects of things
+                if association['type'] == "HAS-OBJECT":
+                    hasHasAbilityTo = True
+                    association['type'] = "HAS-ABILITY-TO"
+                else: hasHasAbilityTo = False
 
         associationPackage.append({
             'word': associationGroup[0], 
