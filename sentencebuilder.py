@@ -88,7 +88,7 @@ def make_association_package(associationBundle, asker):
             else: 
                 # todo: This is a bad fix and we should find a better thing to do with objects of things
                 if association['type'] == "HAS-OBJECT":
-                    print Fore.YELLOW + "Using HAS-OBJECT in place of HAS-ABILITY-TO for \'%s\'" % association['word']
+                    print Fore.YELLOW + "Using HAS-OBJECT in place of HAS-ABILITY-TO for \'%s\'" % associationGroup[0]
                     hasHasAbilityTo = True
                     association['type'] = "HAS-ABILITY-TO"
                 else: hasHasAbilityTo = False
