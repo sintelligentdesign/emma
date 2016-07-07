@@ -35,5 +35,11 @@ for row in SQLReturn:
     
 print "Emma >> Please enter the name of a directory where I can dump the visualization of my association model"
 exportFolder = raw_input('Directory name: ./').replace("/", "")
-graph.export(exportFolder, directed=True, weighted=True)
+graph.export(
+    exportFolder, 
+    directed=True, 
+    weighted=True, 
+    width=1500, 
+    height=1000
+    )
 print "Graph exported under ./%s/" % exportFolder
