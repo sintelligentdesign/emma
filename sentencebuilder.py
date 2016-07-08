@@ -148,6 +148,10 @@ def build_reply(associationPackage, mood, askerIntents):
         word = random.choice(validIntents.keys())
         intent = random.choice(validIntents[word])
 
+        print word
+        print validIntents[word]
+        print intent
+
         # todo: figure out a way to decrease the likelihood of words in usedWords being used again
         usedWords.append(word)
 
@@ -229,7 +233,7 @@ def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo, mood)
     
     hasAssociations = []
     isaAssociations = []
-    ispropertyofAssociations = []
+    haspropertyAssociations = []
     if bundleInfo['hasHas']:
         for association in associationGroup:
             if association['type'] == "HAS": hasAssociations.append(association)
@@ -237,19 +241,19 @@ def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo, mood)
         for association in associationGroup:
             if association['type'] == "IS-A": isaAssociations.append(association)
     for association in associationGroup:
-        if association['type'] == "HAS-PROPERTY": ispropertyofAssociations.append(association)
+        if association['type'] == "HAS-PROPERTY": haspropertyAssociations.append(association)
 
     if console['verboseLogging']: print "Choosing domain..."
-    declarativeDomains = [
+    if len(haspropertyAssociations) >= 1: declarativeDomains.append(
         [u"=OBJECT", u"=ISARE", u"=ADJECTIVE"]
-    ]
-    if len(ispropertyofAssociations) > 1: declarativeDomains.append(
+    )
+    if len(haspropertyAssociations) > 1: declarativeDomains.append(
         [u"=OBJECT", u"=ISARE", u"=ADJECTIVE", u"and", u"=ADJECTIVE"]
     )
-    if bundleInfo['hasHasAbilityTo']: declarativeDomains.append(
+    if bundleInfo['hasHasAbilityTo']: declarativeDomains.extend([
         [u"=OBJECT", u"=ACTION"],
         [u"=OBJECT", u"can", u"=ACTION"]
-    )
+    ])
     if hasAssociations != []: declarativeDomains.append(
         [u"=OBJECT", u"=HAVEHAS", u"=OBJHAS"]
     )
@@ -264,8 +268,8 @@ def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo, mood)
     for count, slot in enumerate(domain):
         print sentence + domain[count:]
         if slot == u"=OBJECT": sentence.extend(make_phrase(word, associationGroup, pluralizeObjects))
-        elif slot == u"=ADJECTIVE": sentence.append(choose_association(ispropertyofAssociations)['target'])
-        elif slot == u"=ACTION": sentence.append(make_imperative(word, associationGroup, pluralizeObjects, mood))
+        elif slot == u"=ADJECTIVE": sentence.append(choose_association(haspropertyAssociations)['target'])
+        elif slot == u"=ACTION": sentence.extend(make_imperative(word, associationGroup, pluralizeObjects, mood))
         elif slot == u"=OBJHAS": sentence.append(choose_association(hasAssociations)['target'])
         elif slot == u"=OBJISA": sentence.append(choose_association(isaAssociations)['target'])
         elif slot == u"=ISARE":
