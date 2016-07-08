@@ -27,6 +27,7 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], aske
             message.append(word[0])
             if word[1] in utilities.nounCodes and word[3] and word[0] not in importantWords:
                 importantWords.append(word[0])
+    if len(importantWords) = 0: Print Fore.RED + "No important words were found in the input. Sentence generation failed."      # Fail state
 
     # Find associations
     # Association package (information about bundle and the bundle itself) > Association bundle (a collection of words and their corresponding association groups) > Association group (a collection of associations without their word) > association (association type, target, weight)
@@ -34,14 +35,18 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], aske
     associationBundle = bundle_associations(importantWords)
 
     if len(associationBundle) < 3:
-        print Fore.YELLOW + "The number of associations in the primary bundle is small. Adding associations from common sense halo..."
-        print "Creating common sense halo..."
+        if len(associationBundle) = 0: print Fore.RED + "There are no associations in the primary bundle. Creating common sense halo..."
+        else: print Fore.YELLOW + "The number of associations in the primary bundle is small. Creating common sense halo..."
         halo = make_halo(make_halo(importantWords))     # We call make_halo() twice to get associations two steps out
-        associationBundle = bundle_associations(halo)
+        if len(halo) != 0: 
+            print "Adding associations from common sense halo..."
+            associationBundle = bundle_associations(halo)
+        else: print Fore.RED + "There are no words in the common sense halo. Sentence generation failed."       # Fail state
 
     # Create packages which include the association package and information about its contents so that the generator knows what domains can be used
     print "Packaging association bundles and related information..."
     associationPackage = make_association_package(associationBundle, asker)
+    if len(associationPackage[1]) = 0: print Fore.RED + "There are no associations available to generate a reply. Sentence generation failed."      # Fail state
 
     # Generate the reply
     reply = build_reply(associationPackage, mood, askerIntents)
