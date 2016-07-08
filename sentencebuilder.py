@@ -40,6 +40,7 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], aske
     if len(associationBundle) < 3:
         if len(associationBundle) = 0: print Fore.RED + "There are no associations in the primary bundle. Creating common sense halo..."
         else: print Fore.YELLOW + "The number of associations in the primary bundle is small. Creating common sense halo..."
+
         halo = make_halo(make_halo(importantWords))     # We call make_halo() twice to get associations two steps out
         if len(halo) != 0: 
             print "Adding associations from common sense halo..."
@@ -58,8 +59,7 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], aske
         return "%"
 
     # Generate the reply
-    reply = build_reply(associationPackage, mood, askerIntents)
-    return finalize_reply(reply)
+    return build_reply(associationPackage, mood, askerIntents)
 
 def make_halo(words):
     # todo: check for and remove duplicates
@@ -162,10 +162,6 @@ def build_reply(associationPackage, mood, askerIntents):
         word = random.choice(validIntents.keys())
         intent = random.choice(validIntents[word])
 
-        print word
-        print validIntents[word]
-        print intent
-
         # todo: figure out a way to decrease the likelihood of words in usedWords being used again
         usedWords.append(word)
 
@@ -207,7 +203,7 @@ def build_reply(associationPackage, mood, askerIntents):
         print sentence
         reply.extend(sentence)
     
-    return reply
+    return finalize_reply(reply)
 
 def make_greeting(asker):
     if console['verboseLogging']: print "Generating a greeting..."
