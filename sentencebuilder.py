@@ -27,7 +27,10 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], aske
             message.append(word[0])
             if word[1] in utilities.nounCodes and word[3] and word[0] not in importantWords:
                 importantWords.append(word[0])
-    if len(importantWords) = 0: Print Fore.RED + "No important words were found in the input. Sentence generation failed."      # Fail state
+    if len(importantWords) = 0: 
+        # Fail state
+        Print Fore.RED + "No important words were found in the input. Sentence generation failed."
+        return "%"
 
     # Find associations
     # Association package (information about bundle and the bundle itself) > Association bundle (a collection of words and their corresponding association groups) > Association group (a collection of associations without their word) > association (association type, target, weight)
@@ -41,12 +44,18 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], aske
         if len(halo) != 0: 
             print "Adding associations from common sense halo..."
             associationBundle = bundle_associations(halo)
-        else: print Fore.RED + "There are no words in the common sense halo. Sentence generation failed."       # Fail state
+        else: 
+            # Fail state
+            print Fore.RED + "There are no words in the common sense halo. Sentence generation failed."
+            return "%"
 
     # Create packages which include the association package and information about its contents so that the generator knows what domains can be used
     print "Packaging association bundles and related information..."
     associationPackage = make_association_package(associationBundle, asker)
-    if len(associationPackage[1]) = 0: print Fore.RED + "There are no associations available to generate a reply. Sentence generation failed."      # Fail state
+    if len(associationPackage[1]) = 0: 
+        # Fail state
+        print Fore.RED + "There are no associations available to generate a reply. Sentence generation failed."
+        return "%"
 
     # Generate the reply
     reply = build_reply(associationPackage, mood, askerIntents)
