@@ -254,6 +254,7 @@ def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo, mood)
     for association in associationGroup:
         if association['type'] == "HAS-PROPERTY": haspropertyAssociations.append(association)
 
+    declarativeDomains = []
     if console['verboseLogging']: print "Choosing domain..."
     if len(haspropertyAssociations) >= 1: declarativeDomains.append(
         [u"=OBJECT", u"=ISARE", u"=ADJECTIVE"]
