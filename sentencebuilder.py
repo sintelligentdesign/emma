@@ -100,6 +100,7 @@ def make_association_package(associationBundle, asker):
             if association['type'] == "HAS-PROPERTY": hasHasProperty = True
             else: hasHasProperty = False
             if association['type'] == "HAS-ABILITY-TO": hasHasAbilityTo = True
+            else: hasHasAbilityTo = False
             
             # todo: what can we do with HAS-OBJECT?
 
@@ -295,12 +296,9 @@ def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo, mood)
 def make_imperative(word, associationGroup, pluralizeObjects, mood):
     if console['verboseLogging']: print "Generating an imperative statement for \'%s\'..." % word
 
-    if console['verboseLogging']: print "Looking for verb associations..."
     verbAssociations = []
     for association in associationGroup:
         if association['type'] == "HAS-ABILITY-TO": verbAssociations.append(association)
-
-    if len(verbAssociations) == 0: print Fore.YELLOW + "No verbs available for \'%s\'!" % word
 
     if console['verboseLogging']: print "Choosing domain..."
     imperativeDomains = [
