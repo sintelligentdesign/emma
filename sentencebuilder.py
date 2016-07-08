@@ -93,14 +93,15 @@ def make_association_package(associationBundle, asker):
     associationPackage = []
     for associationGroup in associationBundle:
         for association in associationGroup[1]:
+            hasHas = False
+            hasIsA = False
+            hasHasProperty = False
+            hasHasAbilityTo = False
+            
             if association['type'] == "HAS": hasHas = True
-            else: hasHas = False
             if association['type'] == "IS-A": hasIsA = True
-            else: hasIsA = False
             if association['type'] == "HAS-PROPERTY": hasHasProperty = True
-            else: hasHasProperty = False
             if association['type'] == "HAS-ABILITY-TO": hasHasAbilityTo = True
-            else: hasHasAbilityTo = False
             
             # todo: what can we do with HAS-OBJECT?
 
