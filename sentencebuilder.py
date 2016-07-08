@@ -27,9 +27,9 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], aske
             message.append(word[0])
             if word[1] in utilities.nounCodes and word[3] and word[0] not in importantWords:
                 importantWords.append(word[0])
-    if len(importantWords) = 0: 
+    if len(importantWords) == 0: 
         # Fail state
-        Print Fore.RED + "No important words were found in the input. Sentence generation failed."
+        print Fore.RED + "No important words were found in the input. Sentence generation failed."
         return "%"
 
     # Find associations
@@ -38,7 +38,7 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], aske
     associationBundle = bundle_associations(importantWords)
 
     if len(associationBundle) < 3:
-        if len(associationBundle) = 0: print Fore.RED + "There are no associations in the primary bundle. Creating common sense halo..."
+        if len(associationBundle) == 0: print Fore.RED + "There are no associations in the primary bundle. Creating common sense halo..."
         else: print Fore.YELLOW + "The number of associations in the primary bundle is small. Creating common sense halo..."
 
         halo = make_halo(make_halo(importantWords))     # We call make_halo() twice to get associations two steps out
@@ -53,7 +53,7 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], aske
     # Create packages which include the association package and information about its contents so that the generator knows what domains can be used
     print "Packaging association bundles and related information..."
     associationPackage = make_association_package(associationBundle, asker)
-    if len(associationPackage[1]) = 0: 
+    if len(associationPackage[1]) == 0: 
         # Fail state
         print Fore.RED + "There are no associations available to generate a reply. Sentence generation failed."
         return "%"
