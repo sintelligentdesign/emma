@@ -62,12 +62,12 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], aske
     return build_reply(associationPackage, mood, askerIntents)
 
 def make_halo(words):
-    # todo: check for and remove duplicates
     halo = words
     for word in words:
         with connection:
             cursor.execute("SELECT target FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.target = dictionary.word WHERE associationmodel.word = \"%s\" AND part_of_speech IN (\'NN\', \'NNS\', \'NNP\', \'NNPS\');" % re.escape(word))
-            for fetchedWord in cursor.fetchall(): halo.extend(fetchedWord)
+            for fetchedWord in cursor.fetchall(): 
+                if fetchedWord not in halo: halo.extend(fetchedWord)
     return halo
 
 def bundle_associations(words):
