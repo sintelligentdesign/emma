@@ -31,24 +31,25 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], aske
     # Find associations
     # Association package (information about bundle and the bundle itself) > Association bundle (a collection of words and their corresponding association groups) > Association group (a collection of associations without their word) > association (association type, target, weight)
     print "Creating association bundles..."
-    associationBundle, unknownWords = bundle_associations(importantWords)
+    associationBundle = bundle_associations(importantWords)
 
     if len(associationBundle) < 3:
         print Fore.YELLOW + "The number of associations in the primary bundle is small. Adding associations from common sense halo..."
         print "Creating common sense halo..."
-        halo = make_halo(make_halo(importantWords))
-        associationBundle, unknownWords = bundle_associations(halo)
+        halo = make_halo(make_halo(importantWords))     # We call make_halo() twice to get associations two steps out
+        associationBundle = bundle_associations(halo)
 
     # Create packages which include the association package and information about its contents so that the generator knows what domains can be used
     print "Packaging association bundles and related information..."
     associationPackage = make_association_package(associationBundle, asker)
 
     # Generate the reply
-    reply = build_reply(associationPackage, mood, askerIntents, unknownWords)
+    reply = build_reply(associationPackage, mood, askerIntents)
     return finalize_reply(reply)
 
 def make_halo(words):
-    halo = []
+    # todo: check for and remove duplicates
+    halo = words
     for word in words:
         with connection:
             cursor.execute("SELECT target FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.target = dictionary.word WHERE associationmodel.word = \"%s\" AND part_of_speech IN (\'NN\', \'NNS\', \'NNP\', \'NNPS\');" % re.escape(word))
@@ -57,7 +58,6 @@ def make_halo(words):
 
 def bundle_associations(words):
     associationBundle = []
-    unknownWords = []
     for word in words:
         print Fore.GREEN + "Finding associations for \'%s\'..." % word
         with connection:
@@ -72,9 +72,9 @@ def bundle_associations(words):
                     'weight': row[3]
                     })
             associationBundle.append((word, associationGroup))
-        else: unknownWords.append(word)
-    return associationBundle, unknownWords
-
+        else: associationBundle.append((word, []))
+    return associationBundle
+    
 def make_association_package(associationBundle, asker):
     associationPackage = []
     for associationGroup in associationBundle:
@@ -86,13 +86,8 @@ def make_association_package(associationBundle, asker):
             if association['type'] == "HAS-PROPERTY": hasHasProperty = True
             else: hasHasProperty = False
             if association['type'] == "HAS-ABILITY-TO": hasHasAbilityTo = True
-            else: 
-                # todo: This is a bad fix and we should find a better thing to do with objects of things
-                if association['type'] == "HAS-OBJECT":
-                    print Fore.YELLOW + "Using HAS-OBJECT in place of HAS-ABILITY-TO for \'%s\'" % associationGroup[0]
-                    hasHasAbilityTo = True
-                    association['type'] = "HAS-ABILITY-TO"
-                else: hasHasAbilityTo = False
+            
+            # todo: what can we do with HAS-OBJECT?
 
         associationPackage.append({
             'word': associationGroup[0], 
@@ -106,17 +101,20 @@ def make_association_package(associationBundle, asker):
     associationPackage = ({'asker': asker, 'numObjects': numObjects}, associationPackage)
     return associationPackage
 
-def determine_valid_intents(associationPackage, unknownWords):
+def determine_valid_intents(associationPackage):
     # This function doesn't include interrogatives or greetings, since those are Association Bundle-specific
     validIntents = {}
     for associationBundle in associationPackage[1]:
         intents = []
         if associationBundle['hasHasProperty']: intents.append('DECLARATIVE')
-        if associationPackage[0]['numObjects'] >= 2 and 'DECLARATIVE' in intents: intents.append('COMPARATIVE')
+        if len(associationBundle['associations']) < 3: intents.append('INTERROGATIVE')
         if associationBundle['hasHasAbilityTo']: intents.append('IMPERATIVE')
+
+        if associationPackage[0]['numObjects'] >= 2 and 'DECLARATIVE' in intents: intents.append('COMPARATIVE')
         if associationPackage[0]['numObjects'] >= 1: intents.append('PHRASE')
+
+        if console['verboseLogging']: print Fore.GREEN + u"Intents for \'" + associationBundle['word'] + u"\': " + u', '.join(intents)
         validIntents[associationBundle['word']] = intents
-    for word in unknownWords: validIntents[word] = 'INTERROGATIVE'
     return validIntents
 
 def choose_association(associationGroup):
@@ -131,7 +129,7 @@ def choose_association(associationGroup):
             return association
             break
 
-def build_reply(associationPackage, mood, askerIntents, unknownWords):
+def build_reply(associationPackage, mood, askerIntents):
     reply = []
     sentencesToGenerate = random.randint(1, 3)
 
@@ -144,8 +142,8 @@ def build_reply(associationPackage, mood, askerIntents, unknownWords):
         print Fore.MAGENTA + "Generating sentence %d of %d..." % (sentenceIterator + 1, sentencesToGenerate)
 
         # Create list of words and intents to choose from
-        validIntents = determine_valid_intents(associationPackage, unknownWords)
-        if console['verboseLogging']: print "Valid intents: " + str(validIntents)
+        print "Determining valid intents for associated words..."
+        validIntents = determine_valid_intents(associationPackage)
 
         word = random.choice(validIntents.keys())
         intent = random.choice(validIntents[word])
