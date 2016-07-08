@@ -67,8 +67,9 @@ def make_halo(words):
         with connection:
             cursor.execute("SELECT target FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.target = dictionary.word WHERE associationmodel.word = \"%s\" AND part_of_speech IN (\'NN\', \'NNS\', \'NNP\', \'NNPS\');" % re.escape(word))
             for fetchedWord in cursor.fetchall(): 
-                print fetchedWord
-                if fetchedWord not in halo: halo.extend(fetchedWord)
+                if fetchedWord[0] not in halo:
+                    print fetchedWord[0]
+                    halo.extend(fetchedWord[0])
     return halo
 
 def bundle_associations(words):
