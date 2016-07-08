@@ -69,7 +69,7 @@ def make_halo(words):
             for fetchedWord in cursor.fetchall(): 
                 if fetchedWord[0] not in halo:
                     print fetchedWord[0]
-                    halo.extend(fetchedWord[0])
+                    halo.append(fetchedWord[0])
     return halo
 
 def bundle_associations(words):
