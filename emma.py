@@ -152,7 +152,7 @@ def reply_to_asks(askList):
                 body = "@%s >> %s\n(%s)\n\nemma >> %s" % (ask['asker'], ask['message'], understanding, reply)
                 tumblrclient.post(body.encode('utf-8'), ["dialogue", ask['asker'].encode('utf-8'), "feeling " + express_mood(update_mood(reply)).encode('utf-8')])
             else:
-                print Fore.YELLOW + "Sentence generation failed."
+                print Fore.YELLOW + "Reply generation failed."
 
             tumblrclient.delete_ask(ask['id'])
 
