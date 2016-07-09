@@ -96,12 +96,11 @@ def bundle_associations(words):
 def make_association_package(associationBundle, asker):
     associationPackage = []
     for associationGroup in associationBundle:
+        hasHas = False
+        hasIsA = False
+        hasHasProperty = False
+        hasHasAbilityTo = FalseF
         for association in associationGroup[1]:
-            hasHas = False
-            hasIsA = False
-            hasHasProperty = False
-            hasHasAbilityTo = False
-            
             if association['type'] == "HAS": hasHas = True
             if association['type'] == "IS-A": hasIsA = True
             if association['type'] == "HAS-PROPERTY": hasHasProperty = True
