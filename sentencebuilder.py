@@ -99,7 +99,7 @@ def make_association_package(associationBundle, asker):
         hasHas = False
         hasIsA = False
         hasHasProperty = False
-        hasHasAbilityTo = FalseF
+        hasHasAbilityTo = False
         for association in associationGroup[1]:
             if association['type'] == "HAS": hasHas = True
             if association['type'] == "IS-A": hasIsA = True
