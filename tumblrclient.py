@@ -32,19 +32,13 @@ def delete_ask(askid):
     else: print Fore.YELLOW + "!!! Ask deletion disabled in config file."
 
 def get_recent_posts(user):
-    print "Fetching @%s\'s 5 most recent text posts..." % user
-    posts = client.posts(user + '.tumblr.com', type='text', limit=5, filter='text')[u'posts']
-    
+    print "Fetching @%s\'s most recent text posts..." % user
+    posts = client.posts(user, type='text', filter='text')[u'posts']
+
     postList = []
-    for post in posts: 
-        body = post['body'].split(' ')
-        # todo: remove posts that are over some arbitrary word number limit
-        for count, word in enumerate(body):
-            if u':' in word or word == u"" or len(word) > 10: leftBound = count + 1
-            else:
-                body = ' '.join(body[leftBound:])
-                break
-        postList.append({'id': int(post['id']), 'reblogKey': post['reblog_key'], 'blogName': cgi.escape(post['blog_name']), 'body': body})
+    for post in posts:
+        # Limit posts we're allowed to reblog to ones that were posted by the blog owner and are also under 800 characters
+        if u'is_root_item' in post['trail'][0].keys() and len(post['body']) < 800: postList.append({'id': int(post['id']), 'reblogKey': post['reblog_key'], 'blogName': cgi.escape(post['blog_name']), 'body': post['body']})
     return postList
 
 def post(body, tags=[]):
