@@ -59,7 +59,7 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], aske
         return "%"
 
     # Generate the reply
-    return build_reply(associationPackage, mood, askerIntents)
+    return build_reply(associationPackage, mood, askerIntents, asker)
 
 def make_halo(words):
     halo = words
@@ -120,13 +120,13 @@ def make_association_package(associationBundle, asker):
     associationPackage = ({'asker': asker, 'numObjects': numObjects}, associationPackage)
     return associationPackage
 
-def determine_valid_intents(associationPackage):
+def determine_valid_intents(associationPackage, asker):
     # This function doesn't include interrogatives or greetings, since those are Association Bundle-specific
     validIntents = {}
     for associationBundle in associationPackage[1]:
         intents = []
         if associationBundle['hasHasProperty']: intents.append('DECLARATIVE')
-        if len(associationBundle['associations']) < 3: intents.append('INTERROGATIVE')
+        if len(associationBundle['associations']) < 3 and associationBundle['word'] != asker: intents.append('INTERROGATIVE')
         if associationBundle['hasHasAbilityTo']: intents.append('IMPERATIVE')
 
         if associationPackage[0]['numObjects'] >= 2 and 'DECLARATIVE' in intents: intents.append('COMPARATIVE')
@@ -148,7 +148,7 @@ def choose_association(associationGroup):
             return association
             break
 
-def build_reply(associationPackage, mood, askerIntents):
+def build_reply(associationPackage, mood, askerIntents, asker):
     reply = []
     sentencesToGenerate = random.randint(1, 3)
 
@@ -162,7 +162,7 @@ def build_reply(associationPackage, mood, askerIntents):
 
         # Create list of words and intents to choose from
         print "Determining valid intents for associated words..."
-        validIntents = determine_valid_intents(associationPackage)
+        validIntents = determine_valid_intents(associationPackage, asker)
 
         word = random.choice(validIntents.keys())
         intent = random.choice(validIntents[word])
