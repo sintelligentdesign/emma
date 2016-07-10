@@ -308,10 +308,14 @@ def make_imperative(word, associationGroup, pluralizeObjects, mood):
     if console['verboseLogging']: print "Choosing domain..."
     imperativeDomains = [
         [u"=VERB", u"=OBJECT"],
-        [u"=VERB", u"the", u"=OBJECT"],
-        [u"always", u"=VERB", u"=OBJECT"],
-        [u"never", u"=VERB", u"=OBJECT"]
+        [u"=VERB", u"the", u"=OBJECT"]
     ]
+    if mood > 0: imperativeDomains.append(
+        [u"always", u"=VERB", u"=OBJECT"]
+    )
+    else: imperativeDomains.append(
+        [u"never", u"=VERB", u"=OBJECT"]
+    )
     if not pluralizeObjects: imperativeDomains.append(
         [u"=VERB", u"a", u"=OBJECT"]
     )
