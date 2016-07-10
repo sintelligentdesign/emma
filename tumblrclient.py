@@ -37,8 +37,13 @@ def get_recent_posts(user):
 
     postList = []
     for post in posts:
-        # Limit posts we're allowed to reblog to ones that were posted by the blog owner and are also under 800 characters
-        if u'is_root_item' in post['trail'][0].keys() and len(post['body']) < 800: postList.append({'id': int(post['id']), 'reblogKey': post['reblog_key'], 'blogName': cgi.escape(post['blog_name']), 'body': post['body']})
+        # Only allow posts that were posted by the blog owner and are also under 800 characters...
+        if u'is_root_item' in post['trail'][0].keys() and len(post['body']) < 800:
+            # ...But don't allow posts with tags in the realm of 'personal' or 'do not reblog'
+            # todo: use string comprehension to read tags in case the user obfuscated the 'do not reblog' tag
+            taggedDoNotReblog = False
+            for tag in set([u"personal", u"do not reblog", u"don't reblog"]) & set(post['tags']): taggedDoNotReblog = True
+            if not taggedDoNotReblog: postList.append({'id': int(post['id']), 'reblogKey': post['reblog_key'], 'blogName': cgi.escape(post['blog_name']), 'body': post['body']})
     return postList
 
 def post(body, tags=[]):
