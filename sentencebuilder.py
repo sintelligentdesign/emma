@@ -69,15 +69,16 @@ def make_halo(words):
             cursor.execute("SELECT target FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.target = dictionary.word WHERE associationmodel.word = \"%s\" AND part_of_speech IN (\'NN\', \'NNS\', \'NNP\', \'NNPS\');" % re.escape(word))
             for fetchedWord in cursor.fetchall(): 
                 if fetchedWord[0] not in halo:
-                    print(u", " + fetchedWord[0]),
+                    print(fetchedWord[0]),
                     halo.append(fetchedWord[0])
-    print Fore.GREEN + " [Done]"
+    print Fore.GREEN + "[Done]"
     return halo
 
 def bundle_associations(words):
     associationBundle = []
+    print Fore.GREEN + "Finding associations for: ",
     for word in words:
-        print Fore.GREEN + "Finding associations for \'%s\'..." % word
+        print word,
         with connection:
             cursor.execute("SELECT * FROM associationmodel WHERE word = \"%s\";" % re.escape(word))
             SQLReturn = cursor.fetchall()
@@ -91,6 +92,7 @@ def bundle_associations(words):
                     })
             associationBundle.append((word, associationGroup))
         else: associationBundle.append((word, []))
+    print Fore.GREEN + "[Done]"
     return associationBundle
     
 def make_association_package(associationBundle, asker):
