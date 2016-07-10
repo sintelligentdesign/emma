@@ -41,14 +41,21 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], aske
         if len(associationBundle) == 0: print Fore.RED + "There are no associations in the primary bundle. Creating common sense halo..."
         else: print Fore.YELLOW + "The number of associations in the primary bundle is small. Creating common sense halo..."
 
-        halo = make_halo(make_halo(importantWords))     # We call make_halo() twice to get associations two steps out
+        halo = make_halo(importantWords)     # todo: is there a more efficient way to handle common sense halos?
         if len(halo) != 0: 
             print "Adding associations from common sense halo..."
             associationBundle = bundle_associations(halo)
         else: 
-            # Fail state
-            print Fore.RED + "There are no words in the common sense halo. Sentence generation failed."
-            return "%"
+            # Warning state
+            print Fore.YELLOW + "There are no words in the common sense halo. Widening halo..."
+            halo = make_halo(halo)
+            if len(halo) != 0:
+                print "Adding associations from common sense halo..."
+                associationBundle = bundle_associations(halo)
+            else:
+                # Fail state
+                print Fore.RED + "There are no words in the common sense halo. Reply generation failed."
+                return "%"
 
     # Create packages which include the association package and information about its contents so that the generator knows what domains can be used
     print "Packaging association bundles and related information..."
@@ -67,16 +74,16 @@ def make_halo(words):
     for word in words:
         with connection:
             cursor.execute("SELECT target FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.target = dictionary.word WHERE associationmodel.word = \"%s\" AND part_of_speech IN (\'NN\', \'NNS\', \'NNP\', \'NNPS\');" % re.escape(word))
-            for fetchedWord in cursor.fetchall(): 
+            for fetchedWord in cursor.fetchall():
                 if fetchedWord[0] not in halo:
                     print(fetchedWord[0]),
                     halo.append(fetchedWord[0])
-    print Fore.GREEN + "[Done]"
+    print Fore.GREEN + u"[Done]"
     return halo
 
 def bundle_associations(words):
     associationBundle = []
-    print Fore.GREEN + "Finding associations for: ",
+    print Fore.GREEN + u"Finding associations for: ",
     for word in words:
         print word,
         with connection:
@@ -92,7 +99,7 @@ def bundle_associations(words):
                     })
             associationBundle.append((word, associationGroup))
         else: associationBundle.append((word, []))
-    print Fore.GREEN + "[Done]"
+    print Fore.GREEN + u"[Done]"
     return associationBundle
     
 def make_association_package(associationBundle, asker):
