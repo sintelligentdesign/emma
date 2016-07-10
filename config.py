@@ -21,7 +21,7 @@ debug = {
     'enableReplies': True,
 
     # Enable or disable reblogging posts
-    'enableReblogs': False,
+    'enableReblogs': True,
 
     # Enable or disable dreaming
     'enableDreams': True
