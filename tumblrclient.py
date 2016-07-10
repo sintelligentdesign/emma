@@ -3,6 +3,7 @@
 # Section:          LEARNING, REPLY
 import pytumblr
 import cgi
+import re
 from colorama import init, Fore
 init(autoreset = True)
 
