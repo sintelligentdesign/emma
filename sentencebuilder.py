@@ -16,7 +16,6 @@ connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 
 def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], asker=""):
-    # todo: optimize sentence generation
     print "Creating reply..."
 
     print "Determining important words..."
@@ -25,15 +24,13 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], aske
     for sentence in tokenizedMessage:
         for word in sentence:
             message.append(word[0])
-            if word[1] in utilities.nounCodes and word[3] and word[0] not in importantWords:
-                importantWords.append(word[0])
+            if word[1] in utilities.nounCodes and word[3] and word[0] not in importantWords: importantWords.append(word[0])
     if len(importantWords) == 0: 
         # Fail state
         print Fore.RED + "No important words were found in the input. Sentence generation failed."
         return "%"
 
     # Find associations
-    # Association package (information about bundle and the bundle itself) > Association bundle (a collection of words and their corresponding association groups) > Association group (a collection of associations without their word) > association (association type, target, weight)
     print "Creating association bundles..."
     associationBundle = bundle_associations(importantWords)
 
@@ -114,7 +111,6 @@ def make_association_package(associationBundle, asker):
             if association['type'] == "IS-A": hasIsA = True
             if association['type'] == "HAS-PROPERTY": hasHasProperty = True
             if association['type'] == "HAS-ABILITY-TO": hasHasAbilityTo = True
-            
             # todo: what can we do with HAS-OBJECT?
 
         associationPackage.append({
