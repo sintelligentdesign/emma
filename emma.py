@@ -169,17 +169,20 @@ def reblog_post():
         SQLReturn = cursor.fetchall()
     posts = tumblrclient.get_recent_posts(random.choice(SQLReturn)[0])
 
-    while posts:
-        post = random.choice(posts)
-        posts.remove(post)
-        print "Attempting to reply to @%s\'s post (attempt %d of 5)..." % (post['blogName'], 5 - len(posts))
-        comment = sentencebuilder.generate_sentence(pattern.en.parse(post['body'], True, True, True, True, True).split(), mood)
-        
-        if "%" not in comment:
-            print Fore.BLUE + u"Emma >> " + comment
-            tumblrclient.reblog(post['id'], post['reblogKey'], comment.encode('utf-8'), ["reblog", post['blogName'].encode('utf-8'), "feeling " + express_mood(update_mood(post['body'])).encode('utf-8')])
-            break
-        else: print Fore.YELLOW + "Reply generation failed."
+    if len(posts) > 0:
+        print "Found %d rebloggable posts." % len(posts)
+        while posts:
+            post = random.choice(posts)
+            posts.remove(post)
+
+            comment = sentencebuilder.generate_sentence(pattern.en.parse(post['body'], True, True, True, True, True).split(), mood)
+            
+            if "%" not in comment:
+                print Fore.BLUE + u"Emma >> " + comment
+                tumblrclient.reblog(post['id'], post['reblogKey'], comment.encode('utf-8'), ["reblog", post['blogName'].encode('utf-8'), "feeling " + express_mood(update_mood(post['body'])).encode('utf-8')])
+                break
+            else: print Fore.YELLOW + "Reply generation failed."
+    else: print Fore.YELLOW + "No rebloggable posts found."
 
 def dream():
     with connection:
