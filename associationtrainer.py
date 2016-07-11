@@ -97,20 +97,20 @@ def add_association(word, target, associationType):
         SQLReturn = cursor.fetchone()
     if SQLReturn:
         # update record
-        newWeight = calculate_weight(True, SQLReturn[3])
+        newWeight = calculate_new_weight(SQLReturn[3])
         with connection: cursor.execute('UPDATE associationmodel SET weight = \'%s\' WHERE word = \"%s\" AND target = \"%s\" AND association_type = \'%s\';' % (newWeight, word.encode('utf-8'), target.encode('utf-8'), associationType))
     else:
         # add record
-        weight = calculate_weight(False, None)
+        weight = 0.0999999999997        # This is what the weight calculates to for all new associations, so why waste cycles calculating
         with connection: cursor.execute('INSERT INTO associationmodel(word, association_type, target, weight) VALUES (\"%s\", \'%s\', \"%s\", \'%s\');' % (word.encode('utf-8'), associationType, target.encode('utf-8'), weight))
 
 e = np.exp(1)
-def calculate_weight(isUpdate, currentWeight):
+def calculate_new_weight(currentWeight):
     rankingConstant = 3.19722457734
-    if isUpdate == True:
-        if currentWeight == 1: currentWeight = 0.9999999999999      # todo: this is a bad fix and we should do something better
-        currentWeight = np.log(currentWeight/(1-currentWeight))+rankingConstant
-    else: currentWeight = 0
-    currentWeight += 1
-    weight = 1/(1+e**-(currentWeight-rankingConstant))
+
+    if currentWeight == 1: currentWeight = 0.999999999994
+    occurances = np.log(currentWeight/(1-currentWeight))+rankingConstant     # turn the weight back into the number of occurances of the association
+    occurances += 1
+
+    weight = 1/(1+e**-(occurances-rankingConstant))      # re-calculate weight
     return weight

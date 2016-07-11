@@ -323,7 +323,7 @@ def make_imperative(word, associationGroup, pluralizeObjects, mood):
     if not pluralizeObjects: imperativeDomains.append(
         [u"=VERB", u"a", u"=OBJECT"]
     )
-    # todo: VERB a/an/the OBJECT with its (THING OBJECT HAS / a/an/the OTHER OBJECT)
+    # todo: VERB a/an/the OBJECT with (its THING OBJECT HAS / a/an/the OTHER OBJECT)
     domain = random.choice(imperativeDomains)
     
     if console['verboseLogging']: print "Building imperative statement..."
