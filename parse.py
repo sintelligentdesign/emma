@@ -11,7 +11,16 @@ init(autoreset = True)
 import utilities
 from config import console, files
 
+connection = sql.connect(files['dbPath'])
+cursor = connection.cursor()
+
 def tokenize(text):
+    bannedWords = []
+    with connection:
+        cursor.execute('SELECT word FROM dictionary WHERE is_banned = 1')
+        for word in cursor.fetchall():
+            bannedWords.append(word[0])
+
     # todo: for other simple "internet mispellings" of conjunctions like this, and the function after it that breaks conjunctions into words after parsing, should we have a separate function?
     text = text.split(' ')
     for count, word in enumerate(text):
@@ -63,6 +72,8 @@ def tokenize(text):
                 rowsToRemove.append(taggedWord)
             elif taggedWord[1] == u"\"" or taggedWord[5] in [u",", u"\u007c", u"\u2015", u"#", u"[", u"]", u"(", u")", u"{", u"}" u"\u2026", u"<", u">"]:
                 rowsToRemove.append(taggedWord)
+            elif taggedWord[5] in pattern.en.wordlist.PROFANITY or taggedWord[5] in bannedWords:
+                rowsToRemove.append(taggedWord)
 
         if rowsToRemove:
             print Fore.GREEN + "Tidying up..."
@@ -86,8 +97,6 @@ def tokenize(text):
         parsedMessage.append(parsedSentence)
     return parsedMessage
 
-connection = sql.connect(files['dbPath'])
-cursor = connection.cursor()
 def add_new_words(parsedSentence):
     with connection:
         cursor.execute('SELECT * FROM dictionary;')

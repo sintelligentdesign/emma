@@ -15,9 +15,6 @@ connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 def find_associations(sentence):
     # todo: check for "not" after word, give negative association
-    with connection:
-        cursor.execute('SELECT word FROM dictionary WHERE is_banned = 1')
-        bannedWords = cursor.fetchall()
 
     for count, word in enumerate(sentence):
         wordsBack = sentence[0:count]
@@ -25,7 +22,7 @@ def find_associations(sentence):
         if count != 0 and count != len(sentence) - 1: wordSandwich = True
         else: wordSandwich = False
 
-        if word[0] not in bannedWords and word[1]  not in ["LS", "SYM", "UH", ".", ",", ":", "(", ")", "FW"]:      # Don't associate banned words or unusable parts of speech
+        if word[1]  not in ["LS", "SYM", "UH", ".", ",", ":", "(", ")", "FW"]:      # Don't associate unusable parts of speech
             # Types 1 & 2
             if wordSandwich:
                 if word[0] == "be":
