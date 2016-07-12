@@ -418,10 +418,11 @@ def finalize_reply(reply):
     lastUsedNouns = []
     for count, word in enumerate(reply):
         # If we repeat proper nouns, refer back to them with "they"
-        if word[1] in utilities.nounCodes and reply[count + 1][1] != ".":
-            if word[2] in lastUsedNouns[:3]:
-                reply[count][0] = u"they"
-            else: lastUsedNouns.append(word[2])
+        if word[1] in utilities.nounCodes:
+            lastUsedNouns.append(word[2])
+            if reply[count - 1][1] = u"." or reply[count - 1][2] == u"and":
+                if word[2] in lastUsedNouns[:3]:
+                    reply[count][0] = u"they"
 
         # Refer to Ellie and Alex as mom and dad
         if u"sharkthemepark" in word[0]: reply[count][0] = u"mom"
