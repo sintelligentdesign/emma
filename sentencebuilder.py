@@ -430,7 +430,7 @@ def finalize_reply(reply):
     
     # Correct positions of punctuation, capitalize first letter of first word in new sentences
     for count, word in enumerate(reply):
-        if word[0] in [u".", u","]:
+        if word[0] in [u".", u",", "!", "?"]:
             reply[count - 1][0] += word[0]
             if count + 1 != len(reply):
                 reply[count + 1][0] = reply[count + 1][0][0].upper() + reply[count + 1][0][1:]
