@@ -156,7 +156,9 @@ def choose_association(associationGroup):
 
 def build_reply(associationPackage, mood, askerIntents, asker):
     reply = []
-    sentencesToGenerate = random.randint(1, 3)
+    maxSentences = len(associationPackage[1])
+    if maxSentences > 3: sentencesToGenerate = random.randint(1, 3)
+    else: sentencesToGenerate = random.randint(1, maxSentences)
 
     usedWords = []
 
