@@ -14,8 +14,6 @@ from config import files
 connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 def find_associations(sentence):
-    # todo: check for "not" after word, give negative association
-
     for count, word in enumerate(sentence):
         wordsBack = sentence[0:count]
         wordsFore = sentence[count + 1:-1]

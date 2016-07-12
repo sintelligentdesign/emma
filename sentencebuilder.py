@@ -4,6 +4,7 @@
 import random
 import re
 
+import pattern.en
 import sqlite3 as sql
 import pattern.en
 from colorama import init, Fore
@@ -209,10 +210,10 @@ def build_reply(associationPackage, mood, askerIntents, asker):
         elif intent == 'INTERROGATIVE':
             sentence = make_interrogative(word, pluralizeObjects) + [u"?"]
             
-        sentence[0] = sentence[0][0].upper() + sentence[0][1:]
         print sentence
         reply.extend(sentence)
     
+    print "Finalizing reply..."
     return finalize_reply(reply)
 
 def make_greeting(asker):
@@ -409,14 +410,33 @@ def make_phrase(word, associationGroup, pluralizeObjects):
     return sentence
 
 def finalize_reply(reply):
-    print "Finalizing reply..."
-    # Fix positions of punctuation, refer to Ellie and Alex as mom and dad
+    tokenizedReply = pattern.en.parse(' '.join(reply), True, True, False, False, True).split()
+    reply = []
+    for sentence in tokenizedReply:
+        reply.extend(sentence)
+    
+    lastUsedNouns = []
     for count, word in enumerate(reply):
-        if u"sharkthemepark" in word: reply[count] = u"mom"
-        elif u"nosiron" in word: reply[count] = u"dad"
-        elif word in [u",", u".", u"!", u"?"]:
-            reply[count - 1] += word
+        # If we repeat proper nouns, refer back to them with "they"
+        if word[1] in utilities.nounCodes:
+            if word[2] in lastUsedNouns[:3]:
+                reply[count][0] = u"they"
+            else: lastUsedNouns.append(word[2])
+
+        # Refer to Ellie and Alex as mom and dad
+        if u"sharkthemepark" in word[0]: reply[count][0] = u"mom"
+        elif u"nosiron" in word[0]: reply[count][0] = u"dad"
+    
+    # Correct positions of punctuation, capitalize first letter of first word in new sentences
+    for count, word in enumerate(reply):
+        if word[1] == u".":
+            reply[count - 1][0] += word[0]
+            if count + 1 != len(reply):
+                reply[count + 1][0] = reply[count + 1][0][0].upper() + reply[count + 1][0][1:]
             del reply[count]
-        if word == []: del reply[count]
+
+    finalizedReply = []
+    for word in reply:
+        finalizedReply.append(word[0])
             
-    return ' '.join(reply)
+    return ' '.join(finalizedReply)
