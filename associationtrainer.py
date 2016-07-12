@@ -63,7 +63,7 @@ def find_associations(sentence):
                             print Fore.MAGENTA + u"Found association: %s HAS-PROPERTY %s." % (word[0], prevWord[0])
                             add_association(word[0], nextWord[0], "HAS-PROPERTY")
 
-            # NP + ‘has' + NP >> NN HAS NN (People have two hands >> People HAS hands)
+            # NP + 'has' + NP >> NN HAS NN (People have two hands >> People HAS hands)
             if wordSandwich and word[0] == "have" and "NP" in wordsBack[-1][2] and "NP" in wordsFore[0][2]:
                 for word in reversed(wordsBack):
                     if word[1] in utilities.nounCodes:

@@ -39,13 +39,12 @@ class stack(list):
 connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 
-print "Checking for concept database and mood values..."
-if console['verboseLogging']: print "Checking for concept database at %s..." % files['dbPath']
+print ("Checking for concept database at %s..." % files['dbPath']),
 with connection:
     cursor.execute("SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'associationmodel\';")
-    if cursor.fetchone() == (u'associationmodel',): print Fore.GREEN + "Database found!"
+    if cursor.fetchone() == (u'associationmodel',): print Fore.GREEN + "[Done]"
     else:
-        print Fore.YELLOW + "Concept database not found. Creating database at %s..." % files['dbPath']
+        print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating new database at %s..." % files['dbPath']
         cursor.executescript("""
         DROP TABLE IF EXISTS associationmodel;
         DROP TABLE IF EXISTS dictionary;
@@ -55,12 +54,12 @@ with connection:
         CREATE TABLE friends(username TEXT, can_reblog_from INTEGER DEFAULT 0);
         """)
 
-if console['verboseLogging']: print "Checking if mood values file exists at %s..." % files['moodPath']
+print ("Checking for mood file at %s..." % files['moodPath']),
 if os.path.isfile(files['moodPath']):
-    print Fore.GREEN + "Mood values file found! Loading values..."
+    print Fore.GREEN + "[Done]"
     with open(files['moodPath'],'r') as moodFile: moodValues = stack(pickle.load(moodFile))
 else:   
-    print Fore.YELLOW + "Mood values file not found! Creating file with randomized moods at %s..." % files['moodPath']
+    print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating file with randomized moods..." % files['moodPath']
     moodValues = []
     with open(files['moodPath'],'wb') as moodFile:
         for i in range(0, 10): moodValues.append(random.uniform(-0.5, 0.5))
@@ -84,7 +83,14 @@ def update_mood(text):
     return mood
 
 # "Emma" banner
-print Fore.MAGENTA + u" .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .oooo.\nd88' `88b `888P\"Y88bP\"Y88b  `888P\"Y88bP\"Y88b  `P  )88b\n888ooo888  888   888   888   888   888   888   .oP\"888\n888    .,  888   888   888   888   888   888  d8(  888\n`Y8bod8P' o888o o888o o888o o888o o888o o888o `Y888\"\"8o\n\n·~-.¸¸,.-~*'¯¨'*·~-.¸,.-~*'¯¨'*·~-.¸¸,.-~*'¯¨'*·~-.¸¸,.\n\n        EXPANDING MODEL of MAPPED ASSOCIATIONS\n                     Alpha v0.0.1"
+print Fore.MAGENTA + u"\n .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .oooo.\nd88' `88b `888P\"Y88bP\"Y88b  `888P\"Y88bP\"Y88b  `P  )88b\n888ooo888  888   888   888   888   888   888   .oP\"888\n888    .,  888   888   888   888   888   888  d8(  888\n`Y8bod8P' o888o o888o o888o o888o o888o o888o `Y888\"\"8o\n\n·~-.¸¸,.-~*'¯¨'*·~-.¸,.-~*'¯¨'*·~-.¸¸,.-~*'¯¨'*·~-.¸¸,.\n\n        EXPANDING MODEL of MAPPED ASSOCIATIONS\n                     Alpha v0.0.1\n"
+
+with connection:
+    cursor.execute("SELECT * FROM associationmodel")
+    associationModelItems = "{:,d}".format(len(cursor.fetchall()))
+    cursor.execute("SELECT * FROM dictionary")
+    dictionaryItems = "{:,d}".format(len(cursor.fetchall()))
+print Fore.MAGENTA + "Database contains %s associations and %s words." % (associationModelItems, dictionaryItems)
     
 def consume(parsedSentence, asker=u""):
     if console['verboseLogging']: print "Consuming sentence..."
