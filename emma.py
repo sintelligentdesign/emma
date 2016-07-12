@@ -57,29 +57,29 @@ with connection:
 print ("Checking for mood file at %s..." % files['moodPath']),
 if os.path.isfile(files['moodPath']):
     print Fore.GREEN + "[Done]"
-    with open(files['moodPath'],'r') as moodFile: moodValues = stack(pickle.load(moodFile))
+    with open(files['moodPath'],'r') as moodFile: moodHistory = stack(pickle.load(moodFile))
 else:   
     print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating file with randomized moods..." % files['moodPath']
-    moodValues = []
+    moodHistory = []
     with open(files['moodPath'],'wb') as moodFile:
-        for i in range(0, 10): moodValues.append(random.uniform(-0.5, 0.5))
-        moodValues = stack(moodValues)
-        pickle.dump(moodValues, moodFile)
+        for i in range(0, 10): moodHistory.append(random.uniform(-0.5, 0.5))
+        moodHistory = stack(moodHistory)
+        pickle.dump(moodHistory, moodFile)
 
 def update_mood(text):
     sentiment = pattern.en.sentiment(text)      # Get the average mood from the moods of sentences in the text
-    moodValues.push(sum(sentiment) / float(len(sentiment)))     # Add the mood to the list of mood values
-    with open(files['moodPath'],'wb') as moodFile: pickle.dump(moodValues, moodFile)        # Save to mood values file
+    moodHistory.push(sum(sentiment) / float(len(sentiment)))     # Add the mood to the list of mood values
+    with open(files['moodPath'],'wb') as moodFile: pickle.dump(moodHistory, moodFile)        # Save to mood values file
     
-    weightedMoodValues = []
-    for i in range(0, 3): weightedMoodValues.append(moodValues[0])
-    for i in range(0, 2): weightedMoodValues.append(moodValues[1])
-    weightedMoodValues.append(moodValues[2])
+    weightedmoodHistory = []
+    for i in range(0, 3): weightedmoodHistory.append(moodHistory[0])
+    for i in range(0, 2): weightedmoodHistory.append(moodHistory[1])
+    weightedmoodHistory.append(moodHistory[2])
 
-    weightedMoodValues = weightedMoodValues + moodValues
-    mood = sum(weightedMoodValues) / float(len(weightedMoodValues))
+    weightedmoodHistory = weightedmoodHistory + moodHistory
+    mood = sum(weightedmoodHistory) / float(len(weightedmoodHistory))
     
-    if console['verboseLogging']: print "Mood values: %s\nCalculated mood: %d" % (str(moodValues), mood)
+    if console['verboseLogging']: print "Mood values: %s\nCalculated mood: %d" % (str(moodHistory), mood)
     return mood
 
 # "Emma" banner

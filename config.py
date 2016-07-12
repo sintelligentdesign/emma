@@ -40,7 +40,7 @@ files = {
     'dbPath': r'./emma.db',
 
     # Specify what file Emma stores mood data in
-    'moodPath': r'./moodValues'
+    'moodPath': r'./moodHistory.p'
 }
 
 tumblr = {
