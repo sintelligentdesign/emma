@@ -418,7 +418,7 @@ def finalize_reply(reply):
     lastUsedNouns = []
     for count, word in enumerate(reply):
         # If we repeat proper nouns, refer back to them with "they"
-        if word[1] in utilities.nounCodes:
+        if word[1] in utilities.nounCodes and reply[count + 1][1] != ".":
             if word[2] in lastUsedNouns[:3]:
                 reply[count][0] = u"they"
             else: lastUsedNouns.append(word[2])
