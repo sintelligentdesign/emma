@@ -32,7 +32,7 @@ def find_associations(sentence):
                                 print Fore.MAGENTA + u"Found association: %s IS-A %s." % (wordsBack[-1][0], nextWord[0])
                                 add_association(wordsBack[-1][0], nextWord[0], "IS-A")
                                 break
-                            elif "NP" in nextWord[2]: pass
+                            elif "NP" in nextWord[2] or nextWord[0] == "and": pass
                             # catch us if we go over because of incorrect sentence parsing
                             else: break
 
