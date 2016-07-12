@@ -23,15 +23,14 @@ def find_associations(sentence):
         else: wordSandwich = False
 
         if word[1]  not in ["LS", "SYM", "UH", ".", ",", ":", "(", ")", "FW"]:      # Don't associate unusable parts of speech
-            # Types 1 & 2
             if wordSandwich:
                 if word[0] == "be":
                     if "NP" in wordsBack[-1][2] and "ADJP" in wordsFore[0][2] or "NP" in wordsFore[0][2]:
                         for nextWord in wordsFore:
-                            if nextWord[1] in utilities.adjectiveCodes:     # Type 1
+                            if nextWord[1] in utilities.adjectiveCodes:     # NP + 'be' + ADJP >> NN HAS-PROPERTY JJ (milk is white >> milk HAS-PROPERTY white)
                                 print Fore.MAGENTA + u"Found association: %s HAS-PROPERTY %s." % (wordsBack[-1][0], nextWord[0])
                                 add_association(wordsBack[-1][0], nextWord[0], "HAS-PROPERTY")
-                            elif nextWord[1] in utilities.nounCodes:        # Type 2
+                            elif nextWord[1] in utilities.nounCodes:        # NP + 'be' + NP >> NN IS-A NN (a dog is an animal >> dog IS-A animal)
                                 print Fore.MAGENTA + u"Found association: %s IS-A %s." % (wordsBack[-1][0], nextWord[0])
                                 add_association(wordsBack[-1][0], nextWord[0], "IS-A")
                                 break
@@ -39,34 +38,32 @@ def find_associations(sentence):
                             # catch us if we go over because of incorrect sentence parsing
                             else: break
 
-            # Types 3 & 7
             if "NP" in word[2] and word[1] in utilities.nounCodes:
-                for prevWord in reversed(wordsBack):        # Type 3
+                for prevWord in reversed(wordsBack):        # NP containing JJ + NN >> NN HAS-PROPERTY JJ (the big house >> house HAS-PROPERTY big)
                     if prevWord[1] in utilities.adjectiveCodes:
                         print Fore.MAGENTA + u"Found association: %s HAS-PROPERTY %s." % (word[0], prevWord[0])
                         add_association(word[0], prevWord[0], "HAS-PROPERTY")
                     else: break
-                for nextWord in wordsFore:      # Type 7
+                for nextWord in wordsFore:      # NP + VP >> NN HAS-ABILITY-TO VB (Cats can run fast >> cat HAS-ABILITY-TO run)
                     if "VP" in nextWord[2] and nextWord[1] in utilities.verbCodes and nextWord[0] != "be":
                         print Fore.MAGENTA + u"Found association: %s HAS-ABILITY-TO %s." % (word[0], nextWord[0])
                         add_association(word[0], nextWord[0], "HAS-ABILITY-TO")
                     elif "NP" not in nextWord[2]:
                         break
 
-            # Types 4 & 5
             if word[1] in utilities.verbCodes:
-                if wordsBack != [] and wordsBack[-1][1] in utilities.adverbCodes:       # Type 4
+                if wordsBack != [] and wordsBack[-1][1] in utilities.adverbCodes:       # VP containing RB + VB >> RB HAS-PROPERTY VB (It quickly moves >> quickly HAS-PROPERTY moves)
                     for prevWord in reversed(wordsBack):
                         if prevWord[1] in utilities.adverbCodes:
                             print Fore.MAGENTA + u"Found association: %s HAS-PROPERTY %s." % (word[0], prevWord[0])
                             add_association(word[0], prevWord[0], "HAS-PROPERTY")
-                if wordsFore != [] and "VP" in wordsFore[0][1]:     # Type 5
+                if wordsFore != [] and "VP" in wordsFore[0][1]:     # VP + ADJP >> VB HAS-PROPERTY RB (Cats can run fast >> run HAS-PROPERTY fast)
                     for nextWord in wordsFore:
                         if nextWord[1] in utilities.adverbCodes or nextWord[1] in utilities.verbCodes:
                             print Fore.MAGENTA + u"Found association: %s HAS-PROPERTY %s." % (word[0], prevWord[0])
                             add_association(word[0], nextWord[0], "HAS-PROPERTY")
 
-            # Type 6
+            # NP + ‘has' + NP >> NN HAS NN (People have two hands >> People HAS hands)
             if wordSandwich and word[0] == "have" and "NP" in wordsBack[-1][2] and "NP" in wordsFore[0][2]:
                 for word in reversed(wordsBack):
                     if word[1] in utilities.nounCodes:
@@ -80,7 +77,7 @@ def find_associations(sentence):
                     print Fore.MAGENTA + u"Found association: %s HAS %s." % (subjectNoun, targetNoun)
                     add_association(subjectNoun, targetNoun, "HAS")
 
-            # Type 10
+            # VB + obj >> VB HAS-OBJECT NN (This button releases the hounds. >> release HAS-OBJECT hound)
             if "OBJ" in word[3] and word[1] in utilities.nounCodes:
                 for otherWord in sentence:
                     if otherWord[1] in utilities.verbCodes:
