@@ -22,7 +22,7 @@ def determine_references(sentence):
         if word[1] in ['NN', 'NNS']: lastUsedNoun = word
         elif word[1] in ['NNP', 'NNPS']: 
             lastUsedProperNoun = word
-            if lastUsedNoun = "": lastUsedNoun = word
+            if lastUsedNoun == "": lastUsedNoun = word
 
         if word[0] in properPronouns and lastUsedProperNoun != "":
             print Fore.GREEN + u"Replacing proper pronoun \'%s\' with \'%s\'..." % (word[0], lastUsedProperNoun[0])
