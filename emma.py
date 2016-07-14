@@ -103,7 +103,6 @@ def consume(parsedSentence, asker=u""):
     if console['verboseLogging']: print "Sentence consumed."
     return intent
 
-
 def express_mood(moodNum):
     if -0.8 > moodNum: moodStr = u"abysmal \ud83d\ude31"
     elif -0.6 > moodNum >= 0.8: moodStr = u"dreadful \ud83d\ude16"

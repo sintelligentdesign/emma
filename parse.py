@@ -122,14 +122,17 @@ def add_new_words(parsedSentence):
 
 greetingTerms = [[u'what\'s', u'up'], [u'hi'], [u'hiya'], [u'hello'], [u'what', u'up'], [u'wassup'], [u'what', u'is', u'up'], [u'what\'s', u'going', u'on'], [u'how', u'are', u'you'], [u'howdy'], [u'hey'], [u'good', u'morning'], [u'good', u'evening'], [u'good', u'afternoon']]
 def determine_intent(parsedSentence):
+    intent = ""
     message = []
-    for word in parsedSentence:
-        message.append(word[0])
+    for word in parsedSentence: message.append(word[0])
 
+    # If a sentence starts with a greeting, then a comma, then an interrogative, discard the greeting
+    # todo: have greeting intent be returned as a bool
     for greeting in greetingTerms:
         match = re.match(' '.join(greeting), ' '.join(message[0:3]))
-        if match: return "GREETING"
+        if match: intent = "GREETING"
+    if parsedSentence[0][1] in ("WDT", "WP", "WP$", "WRB") or parsedSentence[1][1] in (u'be') or parsedSentence[-1][0] == "?": intent = "INTERROGATIVE"
 
-    if parsedSentence[0][1] in ("WDT", "WP", "WP$", "WRB") or parsedSentence[1][1] in (u'be') or parsedSentence[-1][0] == "?": return "INTERROGATIVE"
+    if intent not in ["GREETING", "INTERROGATIVE"]: intent = "DECLARATIVE"
 
-    else: return "DECLARATIVE"
+    return intent
