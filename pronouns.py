@@ -16,8 +16,6 @@ otherPronouns = [
 ]
 
 def determine_references(sentence):
-    # todo: work differently with proper nouns?
-    # todo: How should this work for references that refer to words in previous sentences?
     lastUsedProperNoun = ""
     lastUsedNoun = ""
     for count, word in enumerate(sentence):
