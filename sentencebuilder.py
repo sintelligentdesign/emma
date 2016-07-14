@@ -372,7 +372,7 @@ def make_phrase(word, associationGroup, pluralizeObjects):
     for association in associationGroup:
         if association['type'] == "HAS-PROPERTY":
             with connection:
-                cursor.execute("SELECT * FROM dictionary WHERE word = \'%s\' AND part_of_speech IN (\'JJ\', \'JJR\', \'JJS\');" % association['target'])
+                cursor.execute("SELECT * FROM dictionary WHERE word = \"%s\" AND part_of_speech IN (\'JJ\', \'JJR\', \'JJS\');" % association['target'])
                 if cursor.fetchall() != []: adjectiveAssociations.append(association)
     
     if len(adjectiveAssociations) == 0: 
