@@ -14,13 +14,13 @@ from config import console, files
 connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 
+bannedWords = []
+with connection:
+    cursor.execute('SELECT word FROM dictionary WHERE is_banned = 1')
+    for word in cursor.fetchall(): bannedWords.append(word[0])
+translate_leetspeek(text)
+
 def tokenize(text):
-    # Set things up for the tokenizer
-    bannedWords = []
-    with connection:
-        cursor.execute('SELECT word FROM dictionary WHERE is_banned = 1')
-        for word in cursor.fetchall(): bannedWords.append(word[0])
-    translate_leetspeek(text)
     if text[-1] not in [u"!", u"?", "."]: text += u"."
 
     print "Tokenizing message..."
