@@ -18,10 +18,10 @@ bannedWords = []
 with connection:
     cursor.execute('SELECT word FROM dictionary WHERE is_banned = 1')
     for word in cursor.fetchall(): bannedWords.append(word[0])
-translate_leetspeek(text)
 
 def tokenize(text):
     if text[-1] not in [u"!", u"?", "."]: text += u"."
+    text = translate_leetspeek(text)
 
     print "Tokenizing message..."
     if console['verboseLogging']: pattern.en.pprint(pattern.en.parse(text, True, True, True, True, True))
