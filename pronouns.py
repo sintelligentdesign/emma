@@ -6,30 +6,34 @@ from config import console
 from colorama import init, Fore
 init(autoreset = True)
 
-subordinatePronouns = [
-    "he", "him", "himself",
-    "she", "herself",
-    "it", "itself",
-    "they", "them", "themself", "themselves"
-    ]
-posessivePronouns = [
-    "his", 
-    "her", "hers",
-    "its",
-    "their", "theirs"
-    ]
+properPronouns = [
+    "he", "him", "his", "himself",
+    "she", "her", "hers", "herself",
+    "they", "them", "their", "theirs", "themself", "themselves"
+]
+otherPronouns = [
+    "it", "its", "itself"
+]
 
 def determine_references(sentence):
     # todo: work differently with proper nouns?
     # todo: How should this work for references that refer to words in previous sentences?
+    lastUsedProperNoun = ""
     lastUsedNoun = ""
     for count, word in enumerate(sentence):
-        if word[1] in utilities.nounCodes: lastUsedNoun = word
-        elif word[0] in subordinatePronouns + posessivePronouns:
-            if lastUsedNoun != "":
-                print Fore.GREEN + u"Replacing pronoun \'%s\' with \'%s\'..." % (word[0], lastUsedNoun[0])
-                sentence[count] = lastUsedNoun
-            else: print Fore.YELLOW + u"No nouns found for pronoun \'%s\'!" % word[0]
+        if word[1] in ['NN', 'NNS']: lastUsedNoun = word
+        elif word[1] in ['NNP', 'NNPS']: 
+            lastUsedProperNoun = word
+            if lastUsedNoun = "": lastUsedNoun = word
+
+        if word[0] in properPronouns and lastUsedProperNoun != "":
+            print Fore.GREEN + u"Replacing proper pronoun \'%s\' with \'%s\'..." % (word[0], lastUsedProperNoun[0])
+            sentence[count] = lastUsedProperNoun
+        elif word[0] in otherPronouns and lastUsedNoun != "":
+            print Fore.GREEN + u"Replacing pronoun \'%s\' with \'%s\'..." % (word[0], lastUsedNoun[0])
+            sentence[count] = lastUsedNoun
+
+    return sentence
 
 posessiveReferences = {u"you": u"emma", u"your": u"emma", u"yours": u"emma", u"myself": u"emma"}      # todo: add apostrophe + s when we're able to handle it
 
