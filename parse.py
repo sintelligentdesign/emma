@@ -15,33 +15,13 @@ connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 
 def tokenize(text):
+    # Set things up for the tokenizer
     bannedWords = []
     with connection:
         cursor.execute('SELECT word FROM dictionary WHERE is_banned = 1')
-        for word in cursor.fetchall():
-            bannedWords.append(word[0])
-
-    # todo: for other simple "internet mispellings" of conjunctions like this, and the function after it that breaks conjunctions into words after parsing, should we have a separate function?
-    text = text.split(' ')
-    for count, word in enumerate(text):
-        if word in [u"im", u"Im"]:
-            print Fore.GREEN + "Replacing \"im\" with \"I\'m\"..."
-            text[count] = u"I'm"
-        elif word == u"u":
-            print Fore.GREEN + "Replacing \"u\" with \"you\"..."
-            text[count] = u"you"
-        elif word == u"r":
-            print Fore.GREEN + "Replacing \"r\" with \"are\"..."
-            text[count] = u"are"
-        elif word == u"ur":
-            # todo: be able to tell whether we should replace ur with "your" or "you're"
-            print Fore.GREEN + "Replacing \"ur\" with \"your\"..."
-            text[count] = u"your"
-    text = ' '.join(text)
-
-    # todo: be smarter about what punctuation mark to append
-    if text[-1] not in [u"!", u"?", "."]:
-        text += u"."
+        for word in cursor.fetchall(): bannedWords.append(word[0])
+    translate_leetspeek(text)
+    if text[-1] not in [u"!", u"?", "."]: text += u"."
 
     print "Tokenizing message..."
     if console['verboseLogging']: pattern.en.pprint(pattern.en.parse(text, True, True, True, True, True))
@@ -49,38 +29,9 @@ def tokenize(text):
     
     parsedMessage = []
     for count, taggedSentence in enumerate(taggedText):
-        if console['verboseLogging']: print "Reading sentence no. %d..." % (count + 1)
+        if console['verboseLogging']: print "Packaging sentence no. %d..." % (count + 1)
 
-        rowsToRemove = []
-        for count, taggedWord in enumerate(taggedSentence):
-            if console['verboseLogging']: print "Checking for conjunctions and illegal characters..."
-            if count != 0: prevWord = taggedSentence[count - 1]
-            if count != len(taggedSentence) - 1: nextWord = taggedSentence[count + 1]
-            
-            # todo: this splits up the word "can't" incorrectly. Fix
-            if taggedWord[5] in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
-                print Fore.GREEN + "Replacing \"n\'t\" with \"not\"..."
-                taggedWord[5] = u"not"
-            elif taggedWord[5] in [u"\'", u"\u2019", u"\u2018"] and prevWord and nextWord:
-                print Fore.GREEN + "Joining \"%s\" and \"%s\"..." % (prevWord[5], nextWord[0])
-                prevWord[5] = prevWord[5] + "\'" + nextWord[0]
-                rowsToRemove.append(taggedWord)
-                rowsToRemove.append(nextWord)
-            elif taggedWord[5] in [u"\'s'", u"\u2019s", u"\u2018s"] or taggedWord[1] == "POS" and prevWord:
-                print Fore.GREEN + "Appending \"\'s\" to \"%s\"..." % prevWord[5]
-                prevWord[5] = prevWord[5] + u"\'s"
-                rowsToRemove.append(taggedWord)
-            elif taggedWord[1] == u"\"" or taggedWord[5] in [u",", u"\u007c", u"\u2015", u"#", u"[", u"]", u"(", u")", u"{", u"}" u"\u2026", u"<", u">"]:
-                rowsToRemove.append(taggedWord)
-            elif taggedWord[5] in pattern.en.wordlist.PROFANITY or taggedWord[5] in bannedWords:
-                rowsToRemove.append(taggedWord)
-
-        if rowsToRemove:
-            print Fore.GREEN + "Tidying up..."
-            for row in rowsToRemove:
-                if row in taggedSentence:
-                    taggedSentence.remove(row)
-                    print Fore.GREEN + u"Removed %s." % row[0]
+        finalize_sentence(taggedSentence)
 
         posSentence = []
         chunkSeries = []
@@ -96,6 +47,55 @@ def tokenize(text):
             parsedSentence[count] = list(word)
         parsedMessage.append(parsedSentence)
     return parsedMessage
+
+def translate_leetspeek(text):
+    text = text.split(' ')
+    for count, word in enumerate(text):
+        if word in [u"im", u"Im"]:
+            print Fore.GREEN + "Replacing \"im\" with \"I\'m\"..."
+            text[count] = u"I'm"
+        elif word == u"u":
+            print Fore.GREEN + "Replacing \"u\" with \"you\"..."
+            text[count] = u"you"
+        elif word == u"r":
+            print Fore.GREEN + "Replacing \"r\" with \"are\"..."
+            text[count] = u"are"
+        elif word == u"ur":
+            print Fore.GREEN + "Replacing \"ur\" with \"your\"..."
+            text[count] = u"your"
+    return ' '.join(text)
+
+def finalize_sentence(taggedSentence):
+    rowsToRemove = []
+    for count, taggedWord in enumerate(taggedSentence):
+        if console['verboseLogging']: print "Checking for conjunctions and illegal characters..."
+        if count != 0: prevWord = taggedSentence[count - 1]
+        if count != len(taggedSentence) - 1: nextWord = taggedSentence[count + 1]
+        
+        # todo: this splits up the word "can't" incorrectly. Fix
+        if taggedWord[5] in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
+            print Fore.GREEN + "Replacing \"n\'t\" with \"not\"..."
+            taggedWord[5] = u"not"
+        elif taggedWord[5] in [u"\'", u"\u2019", u"\u2018"] and prevWord and nextWord:
+            print Fore.GREEN + "Joining \"%s\" and \"%s\"..." % (prevWord[5], nextWord[0])
+            prevWord[5] = prevWord[5] + "\'" + nextWord[0]
+            rowsToRemove.append(taggedWord)
+            rowsToRemove.append(nextWord)
+        elif taggedWord[5] in [u"\'s'", u"\u2019s", u"\u2018s"] or taggedWord[1] == "POS" and prevWord:
+            print Fore.GREEN + "Appending \"\'s\" to \"%s\"..." % prevWord[5]
+            prevWord[5] = prevWord[5] + u"\'s"
+            rowsToRemove.append(taggedWord)
+        elif taggedWord[1] == u"\"" or taggedWord[5] in [u",", u"\u007c", u"\u2015", u"#", u"[", u"]", u"(", u")", u"{", u"}" u"\u2026", u"<", u">"]:
+            rowsToRemove.append(taggedWord)
+        elif taggedWord[5] in pattern.en.wordlist.PROFANITY or taggedWord[5] in bannedWords:
+            rowsToRemove.append(taggedWord)
+
+    if rowsToRemove:
+        print Fore.GREEN + "Tidying up..."
+        for row in rowsToRemove:
+            if row in taggedSentence: taggedSentence.remove(row)
+
+    return taggedSentence
 
 def add_new_words(parsedSentence):
     with connection:
