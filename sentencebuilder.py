@@ -16,7 +16,7 @@ from config import console, files
 connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 
-def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], asker=""):
+def generate_sentence(tokenizedMessage, mood, askerIntents=[{'declarative': True, 'interrogative': False, 'greeting', False}], asker=""):
     print "Creating reply..."
 
     print "Determining important words..."
@@ -63,8 +63,14 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=['DECLARATIVE'], aske
         print Fore.RED + "There are no associations available to generate a reply. Sentence generation failed."
         return "%"
 
+    # Disposable code to be rewritten later once we do more things with asker intents
+    # todo: do more with asker intents
+    hasGreeting = False
+    for intent in askerIntents:
+        if intent['greeting'] == True: hasGreeting = True
+
     # Generate the reply
-    return build_reply(associationPackage, mood, askerIntents, asker)
+    return build_reply(associationPackage, mood, hasGreeting, asker)
 
 def make_halo(words):
     halo = words
@@ -154,14 +160,14 @@ def choose_association(associationGroup):
             return association
             break
 
-def build_reply(associationPackage, mood, askerIntents, asker):
+def build_reply(associationPackage, mood, hasGreeting, asker):
     reply = []
     sentencesToGenerate = random.randint(1, 3)
 
     usedWords = []
 
     # If conditions are right, add a greeting
-    if mood >= 0.1 and 'GREETING' in askerIntents and associationPackage[0]['asker'] != "": reply = make_greeting(associationPackage[0]['asker']) + [u"!"]
+    if mood >= 0.1 and hasGreeting = True and associationPackage[0]['asker'] != "": reply = make_greeting(associationPackage[0]['asker']) + [u"!"]
   
     for sentenceIterator in range(0, sentencesToGenerate):
         print Fore.MAGENTA + "Generating sentence %d of %d..." % (sentenceIterator + 1, sentencesToGenerate)
