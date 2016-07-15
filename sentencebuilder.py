@@ -312,17 +312,17 @@ def make_declarative(associationGroup, pluralizeObjects):
 
     return sentence
 
-def make_imperative(word, associationGroup, pluralizeObjects):
-    if console['verboseLogging']: print "Generating an imperative statement for \'%s\'..." % word
+def make_imperative(associationGroup, pluralizeObjects):
+    # todo: when make_imperative() is called from make_declarative(), add a possible domain [u"=VERB"]
+    if console['verboseLogging']: print "Generating an imperative statement for \'%s\'..." % associationGroup['word']
 
     verbAssociations = []
-    for association in associationGroup:
+    for association in associationGroup['associations']:
         if association['type'] == "HAS-ABILITY-TO": verbAssociations.append(association)
 
     if console['verboseLogging']: print "Choosing domain..."
     imperativeDomains = [
-        [u"=VERB", u"=PHRASE"],
-        [u"=VERB", u"the", u"=PHRASE"]
+        [u"=VERB", u"=PHRASE"]
     ]
     if mood > 0: imperativeDomains.append(
         [u"always", u"=VERB", u"=PHRASE"]
@@ -331,17 +331,19 @@ def make_imperative(word, associationGroup, pluralizeObjects):
         [u"never", u"=VERB", u"=PHRASE"]
     )
     if not pluralizeObjects: imperativeDomains.append(
-        [u"=VERB", u"a", u"=PHRASE"]
+        [u"=VERB", u"=PHRASE"]
     )
-    # todo: VERB a/an/the OBJECT with (its THING OBJECT HAS / a/an/the OTHER OBJECT)
+    # todo: new domain: VERB a/an/the OBJECT with (its THING OBJECT HAS / a/an/the OTHER OBJECT)
     domain = random.choice(imperativeDomains)
     
     if console['verboseLogging']: print "Building imperative statement..."
-    if mood > 0.4: sentence = [u"please"]
+    if mood > 0.4: 
+        if random.randint(0, 1) == 0: sentence = [u"please"]
     else: sentence = []
+
     for count, slot in enumerate(domain):
         print sentence + domain[count:]
-        if slot == "=PHRASE": sentence.extend(make_phrase(word, associationGroup, pluralizeObjects))
+        if slot == "=PHRASE": sentence.extend(make_phrase(associationGroup, pluralizeObjects))
         elif slot == "=VERB": sentence.append(choose_association(verbAssociations)['target'])
         else: sentence.append(slot)
 
@@ -412,7 +414,7 @@ def make_phrase(associationGroup, pluralizeObjects):
     
     return sentence
 
-print make_interrogative({'associations': [{'type': u'HAS-ABILITY-TO', 'target': u'leave', 'weight': 0.231969316683}, {'type': u'IS-A', 'target': u'creature', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'travel', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'know', 'weight': 0.991859867867}, {'type': u'HAS-ABILITY-TO', 'target': u'grow', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'emma', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'species', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'soft-spoken', 'weight': 0.231969316683}, {'type': u'HAS-PROPERTY', 'target': u'more', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'fallow', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'western', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'male', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'chinese', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'many', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'large', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'other', 'weight': 0.0999999999997}], 'word': 'deer', 'hasHasAbilityTo': True, 'hasHasProperty': True, 'hasHas': False, 'hasIsA': True}, False)
+print make_imperative({'associations': [{'type': u'HAS-ABILITY-TO', 'target': u'leave', 'weight': 0.231969316683}, {'type': u'IS-A', 'target': u'creature', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'travel', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'know', 'weight': 0.991859867867}, {'type': u'HAS-ABILITY-TO', 'target': u'grow', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'emma', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'species', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'soft-spoken', 'weight': 0.231969316683}, {'type': u'HAS-PROPERTY', 'target': u'more', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'fallow', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'western', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'male', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'chinese', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'many', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'large', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'other', 'weight': 0.0999999999997}], 'word': 'deer', 'hasHasAbilityTo': True, 'hasHasProperty': True, 'hasHas': False, 'hasIsA': True}, False)
 
 def finalize_reply(reply):
     splitReply = pattern.en.parse(' '.join(reply), True, True, False, False, True).split()
