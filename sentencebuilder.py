@@ -70,7 +70,7 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=[{'declarative': True
         if intent['greeting'] == True: hasGreeting = True
 
     # Generate the reply
-    return build_reply(associationPackage, mood, hasGreeting, asker)
+    return build_reply(associationPackage, mood, hasGreeting)
 
 def make_halo(words):
     halo = words
@@ -132,13 +132,13 @@ def make_association_package(associationBundle, asker):
     associationPackage = ({'asker': asker, 'numObjects': numObjects}, associationPackage)
     return associationPackage
 
-def determine_valid_intents(associationPackage, asker):
+def determine_valid_intents(associationPackage):
     # This function doesn't include interrogatives or greetings, since those are Association Bundle-specific
     validIntents = {}
     for associationBundle in associationPackage[1]:
         intents = []
         if associationBundle['hasHasProperty']: intents.append('DECLARATIVE')
-        if len(associationBundle['associations']) < 3 and associationBundle['word'] != asker: intents.append('INTERROGATIVE')
+        if len(associationBundle['associations']) < 3 and associationBundle['word'] != associationPackage[0]['asker']: intents.append('INTERROGATIVE')
         if associationBundle['hasHasAbilityTo']: intents.append('IMPERATIVE')
 
         if associationPackage[0]['numObjects'] >= 2 and 'DECLARATIVE' in intents: intents.append('COMPARATIVE')
@@ -148,55 +148,49 @@ def determine_valid_intents(associationPackage, asker):
         validIntents[associationBundle['word']] = intents
     return validIntents
 
-def choose_association(associationGroup):
-    dieSeed = 0
-    for association in associationGroup:
-        dieSeed += association['weight']
-    dieResult = random.uniform(0, dieSeed)
-
-    for association in associationGroup:
-        dieResult -= association['weight']
-        if dieResult <= 0:
-            return association
-            break
-
-def build_reply(associationPackage, mood, hasGreeting, asker):
+def build_reply(associationPackage, mood, hasGreeting):
     reply = []
-    sentencesToGenerate = random.randint(1, 3)
-
-    usedWords = []
+    if associationPackage[0]['numObjects'] <= 3: sentencesToGenerate = random.randint(1, associationPackage[0]['numObjects'])
+    else: sentencesToGenerate = random.randint(1, 3)
 
     # If conditions are right, add a greeting
     if mood >= 0.1 and hasGreeting == True and associationPackage[0]['asker'] != "": reply = make_greeting(associationPackage[0]['asker']) + [u"!"]
   
+    # All words start with an equal chance (2) of being chosen for sentence generation. If the word is used, its chance of being chosen decreases by 1 each time it's used until it reaches 0
+    wordList = {}
+    for associationBundle in associationPackage[1]: wordList[associationBundle['word']] = 2
+    
     for sentenceIterator in range(0, sentencesToGenerate):
         print Fore.MAGENTA + "Generating sentence %d of %d..." % (sentenceIterator + 1, sentencesToGenerate)
 
-        # Create list of words and intents to choose from
-        print "Determining valid intents for associated words..."
-        validIntents = determine_valid_intents(associationPackage, asker)
+        # Choose the word to use as the seed for our sentence based on weighted random chance
+        wordDistribution = []
+        for word in wordList.keys(): wordDistribution.extend([word] * wordList[word])
+        word = random.choice(wordDistribution)
+        wordList[word] -= 1     # Decrease the chance of this word being chosen again
+        print Fore.MAGENTA + "Sentence subject: \'%s\'" % word
 
-        word = random.choice(validIntents.keys())
+        # Create list intents to choose from, and choose an intent from it
+        print "Determining valid intents for words in association package..."
+        validIntents = determine_valid_intents(associationPackage)
         intent = random.choice(validIntents[word])
+        print Fore.MAGENTA + "Sentence intent: \'%s\'" % intent
 
-        # todo: figure out a way to decrease the likelihood of words in usedWords being used again
-        usedWords.append(word)
-
-        for associationBundle in associationPackage[1]:
-            if associationBundle['word'] == word: associationBundle = associationBundle
+        # Retrieve our chosen word's association group
+        for associationGroup in associationPackage[1]:
+            if associationGroup['word'] == word: associationGroup = associationGroup
 
         # Decide whether to make objects in the sentence plural
+        # todo: check dictionary to see if the word is plural or singular so that we don't pluralize plurals or vice versa
         if random.randint(0, 1) == 0: pluralizeObjects = True
         else: pluralizeObjects = False
 
-        if console['verboseLogging']: print "Intent: " + intent
-
-        # Fill in our chosen intent
-        if intent == 'PHRASE': sentence = make_phrase(associationBundle['word'], associationBundle['associations'], pluralizeObjects) + [u"."]
+        # Decide how to proceed with sentence generation based on our intent
+        if intent == 'PHRASE': sentence = make_phrase(associationGroup, pluralizeObjects) + [u"."]
 
         elif intent == 'DECLARATIVE':
             bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty'], 'hasHasAbilityTo': associationBundle['hasHasAbilityTo']}
-            sentence = make_declarative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, bundleInfo, mood) + [u"."]
+            sentence = make_declarative(associationBundle, pluralizeObjects, bundleInfo, mood) + [u"."]
 
         elif intent == 'COMPARATIVE':
             wordsToCompare = []
@@ -221,6 +215,15 @@ def build_reply(associationPackage, mood, hasGreeting, asker):
     
     print "Finalizing reply..."
     return finalize_reply(reply)
+
+def choose_association(associationGroup):
+    dieSeed = 0
+    for association in associationGroup: dieSeed += association['weight']
+    dieResult = random.uniform(0, dieSeed)
+
+    for association in associationGroup:
+        dieResult -= association['weight']
+        if dieResult <= 0: return association
 
 def make_greeting(asker):
     if console['verboseLogging']: print "Generating a greeting..."
@@ -370,19 +373,13 @@ def make_interrogative(word, pluralizeObjects):
 
     return sentence
 
-def make_phrase(word, associationGroup, pluralizeObjects):
-    if console['verboseLogging']: print "Generating a phrase for \'%s\'..." % word
+def make_phrase(associationGroup, pluralizeObjects):
+    if console['verboseLogging']: print "Generating a phrase for \'%s\'..." % associationGroup['word']
     
     if console['verboseLogging']: print "Looking for adjective associations..."
     adjectiveAssociations = []
-    for association in associationGroup:
-        if association['type'] == "HAS-PROPERTY":
-            with connection:
-                cursor.execute("SELECT * FROM dictionary WHERE word = \"%s\" AND part_of_speech IN (\'JJ\', \'JJR\', \'JJS\');" % association['target'])
-                if cursor.fetchall() != []: adjectiveAssociations.append(association)
-    
-    if len(adjectiveAssociations) == 0: 
-        if console['verboseLogging']: print Fore.YELLOW + "No adjectives available for \'%s\'!" % word
+    for association in associationGroup['associations']:
+        if association['type'] == "HAS-PROPERTY": adjectiveAssociations.append(association)
 
     if console['verboseLogging']: print "Choosing domain..."
     phraseDomains = [
@@ -397,23 +394,25 @@ def make_phrase(word, associationGroup, pluralizeObjects):
     domain = random.choice(phraseDomains)
 
     if console['verboseLogging']: print "Building phrase..."
-    # Decide if we want to precede the phrase with a determiner ("the", "a"), create a special domain which includes determiners to add to the phrase
+    # Decide if we want to precede the phrase with a determiner ("the", "a")
     if random.randint(0, 1) == 0: 
-        leaderDomains = [[u"the"]]
-        if pluralizeObjects: leaderDomains.append([u"some"])
-        else: leaderDomains.append([u"a"])
-        sentence = random.choice(leaderDomains)
+        determiners = [[u"the"]]
+        if pluralizeObjects: determiners.extend([[u"some"], [u"many"]])
+        else: determiners.append([u"a"])
+        sentence = random.choice(determiners)
     else: sentence = []
 
     # Iterate through the objects in the domain and fill them in to create the phrase
     for count, slot in enumerate(domain):
         print sentence + domain[count:]
         if slot == u"=OBJECT":
-            if pluralizeObjects: sentence.append(pattern.en.pluralize(word))
-            else: sentence.append(word)
+            if pluralizeObjects: sentence.append(pattern.en.pluralize(associationGroup['word']))
+            else: sentence.append(associationGroup['word'])
         elif slot == u"=ADJECTIVE": sentence.append(choose_association(adjectiveAssociations)['target'])
     
     return sentence
+
+print make_phrase({'associations': [{'type': u'HAS-ABILITY-TO', 'target': u'leave', 'weight': 0.231969316683}, {'type': u'IS-A', 'target': u'creature', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'travel', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'know', 'weight': 0.991859867867}, {'type': u'HAS-ABILITY-TO', 'target': u'grow', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'emma', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'species', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'soft-spoken', 'weight': 0.231969316683}, {'type': u'HAS-PROPERTY', 'target': u'more', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'fallow', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'western', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'male', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'chinese', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'many', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'large', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'other', 'weight': 0.0999999999997}], 'word': 'deer', 'hasHasAbilityTo': True, 'hasHasProperty': True, 'hasHas': False, 'hasIsA': True}, True)
 
 def finalize_reply(reply):
     splitReply = pattern.en.parse(' '.join(reply), True, True, False, False, True).split()
@@ -450,3 +449,5 @@ def finalize_reply(reply):
     reply[:] = [word for word in reply if word not in [u".", u",", u"!", u"?", u"\'s"]]
 
     return ' '.join(reply)
+
+#print build_reply(({'asker': 'sharkthemepark', 'numObjects': 2}, [{'associations': [{'type': u'HAS-ABILITY-TO', 'target': u'spend', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'cool', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'gay', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'meaning', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'golden', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'pure', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'great', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'cute', 'weight': 0.0999999999997}], 'word': 'dog', 'hasHasAbilityTo': True, 'hasHasProperty': True, 'hasHas': False, 'hasIsA': False}, {'associations': [{'type': u'HAS-ABILITY-TO', 'target': u'leave', 'weight': 0.231969316683}, {'type': u'IS-A', 'target': u'creature', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'travel', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'know', 'weight': 0.991859867867}, {'type': u'HAS-ABILITY-TO', 'target': u'grow', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'emma', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'species', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'soft-spoken', 'weight': 0.231969316683}, {'type': u'HAS-PROPERTY', 'target': u'more', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'fallow', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'western', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'male', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'chinese', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'many', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'large', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'other', 'weight': 0.0999999999997}], 'word': 'deer', 'hasHasAbilityTo': True, 'hasHasProperty': True, 'hasHas': False, 'hasIsA': True}]), 0, False)

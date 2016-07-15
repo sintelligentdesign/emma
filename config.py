@@ -29,10 +29,10 @@ debug = {
 
 console = {
     # Enable or disable verbose logging to the console while Emma is running
-    'verboseLogging': False,
+    'verboseLogging': True,
 
     # Enable or disable a mode where you can directly chat with Emma without going through Tumblr
-    'chatMode': False
+    'chatMode': True
 }
 
 files = {
