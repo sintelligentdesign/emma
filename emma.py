@@ -69,21 +69,39 @@ else:
         pickle.dump(moodHistory, moodFile)
     print Fore.GREEN + "[Done]"
 
-def update_mood(text):
-    sentiment = pattern.en.sentiment(text)      # Get the average mood from the moods of sentences in the text
-    moodHistory.push(sum(sentiment) / float(len(sentiment)))     # Add the mood to the list of mood values
-    with open(files['moodPath'],'wb') as moodFile: pickle.dump(moodHistory, moodFile)        # Save to mood values file
-    
+def get_mood(update=False, text="", expressAsText=True):
+    global moodHistory
+    # If update is set to true, use text to add new mood value. Otherwise, just return the mood without touching it
+    # By default, this function does nothing and just returns Emma's mood in human-readable form (as opposed to numbers)
+    if update == True: 
+        sentiment = pattern.en.sentiment(text)       # Get the average mood from the moods of sentences in the text
+        moodHistory.push(sum(sentiment) / float(len(sentiment)))        # Add the mood to the list of mood values
+        with open(files['moodPath'],'wb') as moodFile: pickle.dump(moodHistory, moodFile)       # Save to mood values file
+    else: 
+        with open(files['moodPath'], 'r') as moodFile: moodHistory = stack(pickle.load(moodFile))
+
+    # More recent mood values have a higher weight when calculating Emma's overall mood
     weightedmoodHistory = []
     for i in range(0, 3): weightedmoodHistory.append(moodHistory[0])
     for i in range(0, 2): weightedmoodHistory.append(moodHistory[1])
     weightedmoodHistory.append(moodHistory[2])
-
     weightedmoodHistory = weightedmoodHistory + moodHistory
     mood = sum(weightedmoodHistory) / float(len(weightedmoodHistory))
-    
-    if console['verboseLogging']: print "Mood values: %s\nCalculated mood: %d" % (str(moodHistory), mood)
-    return mood
+    if console['verboseLogging']: print Fore.MAGENTA + "Mood values: %s\nCalculated mood: %s" % (str(moodHistory), str(mood))
+
+    if not expressAsText: return mood
+    else:
+        if -0.8 > mood: moodStr = u"abysmal \ud83d\ude31"
+        elif -0.6 > mood >= -0.8: moodStr = u"dreadful \ud83d\ude16"
+        elif -0.4 > mood >= -0.6: moodStr = u"bad \ud83d\ude23"
+        elif -0.2 > mood >= -0.4: moodStr = u"crummy \ud83d\ude41"
+        elif 0.0 > mood >= -0.2: moodStr = u"blah \ud83d\ude15"
+        elif 0.2 > mood >= 0.0: moodStr = u"alright \ud83d\ude10"
+        elif 0.4 > mood >= 0.2: moodStr = u"good \ud83d\ude42"
+        elif 0.6 > mood >= 0.4: moodStr = u"great \ud83d\ude09"
+        elif 0.8 > mood >= 0.6: moodStr = u"fantastic \ud83d\ude00"
+        elif 1.0 > mood >= 0.8: moodStr = u"glorious \ud83d\ude1c"
+        return u"feeling " + moodStr
 
 # "Emma" banner
 print Fore.MAGENTA + u"\n .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .oooo.\nd88' `88b `888P\"Y88bP\"Y88b  `888P\"Y88bP\"Y88b  `P  )88b\n888ooo888  888   888   888   888   888   888   .oP\"888\n888    .,  888   888   888   888   888   888  d8(  888\n`Y8bod8P' o888o o888o o888o o888o o888o o888o `Y888\"\"8o\n\n·~-.¸¸,.-~*'¯¨'*·~-.¸,.-~*'¯¨'*·~-.¸¸,.-~*'¯¨'*·~-.¸¸,.\n\n        EXPANDING MODEL of MAPPED ASSOCIATIONS\n                     Alpha v0.0.1\n"
@@ -110,19 +128,6 @@ def consume(parsedMessage, asker=u""):
         print "Sentence consumed."
     return intents
 
-def express_mood(moodNum):
-    if -0.8 > moodNum: moodStr = u"abysmal \ud83d\ude31"
-    elif -0.6 > moodNum >= 0.8: moodStr = u"dreadful \ud83d\ude16"
-    elif -0.4 > moodNum >= 0.6: moodStr = u"bad \ud83d\ude23"
-    elif -0.2 > moodNum >= 0.4: moodStr = u"crummy \ud83d\ude41"
-    elif 0.0 > moodNum >= -0.2: moodStr = u"blah \ud83d\ude15"
-    elif 0.2 > moodNum >= 0.0: moodStr = u"alright \ud83d\ude10"
-    elif 0.4 > moodNum >= 0.2: moodStr = u"good \ud83d\ude42"
-    elif 0.6 > moodNum >= 0.4: moodStr = u"great \ud83d\ude09"
-    elif 0.8 > moodNum >= 0.6: moodStr = u"fantastic \ud83d\ude00"
-    elif 1.0 > moodNum >= 0.8: moodStr = u"glorious \ud83d\ude1c"
-    return moodStr
-
 def reply_to_asks(askList):
     if len(askList) > 0:
         print "Fetched %d new asks." % len(askList)
@@ -141,15 +146,15 @@ def reply_to_asks(askList):
             parsedAsk = parse.tokenize(ask['message'])
             intents = consume(parsedAsk, ask['asker'])
             understanding = utilities.pretty_print_understanding(parsedAsk, intents)
-            reply = sentencebuilder.generate_sentence(parsedAsk, update_mood(ask['message']), intents, ask['asker'])
+            reply = sentencebuilder.generate_sentence(parsedAsk, get_mood(update=True, text=ask['message'], expressAsText=False), intents, ask['asker'])
 
             if "%" not in reply:
                 print Fore.BLUE + u"emma >> %s" % reply
 
                 print "Posting reply..."
-                print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + "@" + ask['asker'] + ">> " + ask['message'] + "\n\n" + "emma >> " + reply + "\n\n"
+                print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + "@" + ask['asker'] + " >> " + ask['message'] + "\n\n" + "emma >> " + reply + "\n- - - - - - - - - - -\n" + get_mood(update=False, expressAsText=True) + "\n\n"
                 body = "<a href=" + ask['asker'] + ".tumblr.com/>@" + ask['asker'] + "</a>" + cgi.escape(" >> ") + cgi.escape(ask['message']) + "\n\n" + cgi.escape("emma >> ") + cgi.escape(reply) + "\n<!-- more -->\n" + cgi.escape(understanding)
-                tumblrclient.post(body.encode('utf-8'), ["dialogue", ask['asker'].encode('utf-8'), "feeling " + express_mood(update_mood(reply)).encode('utf-8')])
+                tumblrclient.post(body.encode('utf-8'), ["dialogue", ask['asker'].encode('utf-8'), get_mood().encode('utf-8')])
             else:
                 print Fore.YELLOW + "Reply generation failed."
 
@@ -174,12 +179,12 @@ def reblog_post():
             post = random.choice(posts)
             posts.remove(post)
 
-            mood = express_mood(update_mood(post['body']))
+            mood = get_mood(update=True, text=post['body'])
             comment = sentencebuilder.generate_sentence(pattern.en.parse(post['body'], True, True, True, True, True).split(), mood)
             
             if "%" not in comment:
                 print Fore.BLUE + u"Emma >> " + comment
-                tumblrclient.reblog(post['id'], post['reblogKey'], comment.encode('utf-8'), ["reblog", post['blogName'].encode('utf-8'), "feeling " + mood.encode('utf-8')])
+                tumblrclient.reblog(post['id'], post['reblogKey'], comment.encode('utf-8'), ["reblog", post['blogName'].encode('utf-8'), mood.encode('utf-8')])
                 break
             else: print Fore.YELLOW + "Reply generation failed."
     else: print Fore.YELLOW + "No rebloggable posts found."
@@ -192,10 +197,10 @@ def dream():
     for word in SQLReturn:
         dreamSeed += word[0] + " "
     print "Dream seed: " + dreamSeed
-    dream = sentencebuilder.generate_sentence(pattern.en.parse(dreamSeed, True, True, True, True, True).split(), update_mood(dreamSeed))
+    dream = sentencebuilder.generate_sentence(pattern.en.parse(dreamSeed, True, True, True, True, True).split(), get_mood(expressAsText=False))
     if "%" not in dream:
         print Fore.BLUE + u"dream >> " + dream
-        tumblrclient.post(cgi.escape(dream.encode('utf-8')), ["dreams", "feeling " + express_mood(update_mood(dream)).encode('utf-8')])
+        tumblrclient.post(cgi.escape(dream.encode('utf-8')), ["dreams", get_mood(update=True, text=dream).encode('utf-8')])
     else: print Fore.YELLOW + "Dreamless sleep..."
 
 def chat():
@@ -205,7 +210,7 @@ def chat():
         tokenizedMessage = parse.tokenize(input)
         intents = consume(tokenizedMessage)
         
-        reply = sentencebuilder.generate_sentence(tokenizedMessage, update_mood(input), intents)
+        reply = sentencebuilder.generate_sentence(tokenizedMessage, get_mood(update=True, text=input, expressAsText=False), intents)
         if "%" not in reply: print Fore.BLUE + u"emma >> " + reply
         else: print Fore.RED + u"Reply generation failed."
 
