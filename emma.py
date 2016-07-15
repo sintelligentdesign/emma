@@ -237,7 +237,7 @@ while True:
             print "Dreaming..."
             dream()
         elif activity == 'replyToAsks':
-            print "Replying to asks in queue (%d)..." % len(askList)
+            print "Replying to asks in queue..."
             reply_to_asks(askList)
         
         if debug['enableSleep']:
