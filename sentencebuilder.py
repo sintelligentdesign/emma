@@ -74,7 +74,7 @@ def generate_sentence(tokenizedMessage, mood, askerIntents=[{'declarative': True
 
 def make_halo(words):
     halo = words
-    print u"Common sense halo: ",
+    print u"Common sense halo:",
     for word in words:
         with connection:
             cursor.execute("SELECT target FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.target = dictionary.word WHERE associationmodel.word = \"%s\" AND part_of_speech IN (\'NN\', \'NNS\', \'NNP\', \'NNPS\');" % re.escape(word))
@@ -87,7 +87,7 @@ def make_halo(words):
 
 def bundle_associations(words):
     associationBundle = []
-    print Fore.GREEN + u"Finding associations for: ",
+    print Fore.GREEN + u"Finding associations for:",
     for word in words:
         print word,
         with connection:
@@ -444,9 +444,9 @@ def finalize_reply(reply):
             reply[count - 1] += word
             if count + 1 != len(reply):
                 reply[count + 1] = reply[count + 1][0].upper() + reply[count + 1][1:]
-            del reply[count]
         elif word == u"\'s":
             reply[count - 1] += word
-            del reply[count]
+    
+    reply[:] = [word for word in reply if word not in [u".", u",", u"!", u"?", u"\'s"]]
 
     return ' '.join(reply)
