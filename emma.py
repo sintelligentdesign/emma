@@ -94,19 +94,18 @@ print Fore.MAGENTA + "Database contains %s associations and %s words." % (associ
     
 def consume(parsedMessage, asker=u""):
     intents = []
-    hasGreeting = False
     for count, sentence in emumerate(parsedMessage):
         print "Consuming sentence %d of %d..." % (count + 1, len(parsedMessage))
 
         pronouns.determine_references(parsedMessage)
         pronouns.flip_posessive_references(parsedMessage, asker)
         intent = parse.determine_intent(parsedMessage)
-        if intent[0] != "INTERROGATIVE":
+        if intent['interrogative'] == False
             parse.add_new_words(parsedMessage)
             associationtrainer.find_associations(parsedMessage)
-        if intent[1] == True: hasGreeting = True
+        intents.append(intent)
         print "Sentence consumed."
-    return (intents, hasGreeting)
+    return intents
 
 def express_mood(moodNum):
     if -0.8 > moodNum: moodStr = u"abysmal \ud83d\ude31"
