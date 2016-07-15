@@ -187,10 +187,7 @@ def build_reply(associationPackage, mood, hasGreeting):
 
         # Decide how to proceed with sentence generation based on our intent
         if intent == 'PHRASE': sentence = make_phrase(associationGroup, pluralizeObjects) + [u"."]
-
-        elif intent == 'DECLARATIVE':
-            bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty'], 'hasHasAbilityTo': associationBundle['hasHasAbilityTo']}
-            sentence = make_declarative(associationBundle, pluralizeObjects, bundleInfo, mood) + [u"."]
+        elif intent == 'DECLARATIVE': sentence = make_declarative(associationBundle, pluralizeObjects, mood) + [u"."]
 
         elif intent == 'COMPARATIVE':
             wordsToCompare = []
@@ -258,37 +255,38 @@ def make_comparative(associationBundle, comparisonBundle, pluralizeObjects, mood
 
     return sentence
 
-def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo, mood):
-    if console['verboseLogging']: print "Generating a declarative statement for \'%s\'..." % word
+def make_declarative(associationGroup, pluralizeObjects, mood):
+    if console['verboseLogging']: print "Generating a declarative statement for \'%s\'..." % associationGroup['word']
     
+    # Gather information about what associations we have to help us decide what domains we're allowed to use
     hasAssociations = []
     isaAssociations = []
     haspropertyAssociations = []
-    if bundleInfo['hasHas']:
-        for association in associationGroup:
+    if associationGroup['hasHas']:
+        for association in associationGroup['associations']:
             if association['type'] == "HAS": hasAssociations.append(association)
-    if bundleInfo['hasIsA']:
-        for association in associationGroup:
+    if associationGroup['hasIsA']:
+        for association in associationGroup['associations']:
             if association['type'] == "IS-A": isaAssociations.append(association)
-    for association in associationGroup:
+    for association in associationGroup['associations']:
         if association['type'] == "HAS-PROPERTY": haspropertyAssociations.append(association)
 
     if console['verboseLogging']: print "Choosing domain..."
     declarativeDomains = [
-        [u"=OBJECT", u"=ISARE", u"=ADJECTIVE"]
+        [u"=PHRASE", u"=ISARE", u"=ADJECTIVE"]
     ]
     if len(haspropertyAssociations) > 1: declarativeDomains.append(
-        [u"=OBJECT", u"=ISARE", u"=ADJECTIVE", u"and", u"=ADJECTIVE"]
+        [u"=PHRASE", u"=ISARE", u"=ADJECTIVE", u"and", u"=ADJECTIVE"]
     )
-    if bundleInfo['hasHasAbilityTo']: declarativeDomains.extend([
-        [u"=OBJECT", u"=ACTION"],
-        [u"=OBJECT", u"can", u"=ACTION"]
+    if associationGroup['hasHasAbilityTo']: declarativeDomains.extend([
+        [u"=PHRASE", u"=IMPERATIVE"],
+        [u"=PHRASE", u"can", u"=IMPERATIVE"]
     ])
     if hasAssociations != []: declarativeDomains.append(
-        [u"=OBJECT", u"=HAVEHAS", u"=OBJHAS"]
+        [u"=PHRASE", u"=HAVEHAS", u"=OBJ-HAS"]
     )
     if isaAssociations != []: declarativeDomains.append(
-        [u"=OBJECT", u"=ISARE", u"=OBJISA"]
+        [u"=PHRASE", u"=ISARE", u"=OBJ-IS-A"]
     )
     domain = random.choice(declarativeDomains)
 
@@ -297,11 +295,11 @@ def make_declarative(word, associationGroup, pluralizeObjects, bundleInfo, mood)
     # Iterate through the objects in the domain and fill them in to create the declarative statement
     for count, slot in enumerate(domain):
         print sentence + domain[count:]
-        if slot == u"=OBJECT": sentence.extend(make_phrase(word, associationGroup, pluralizeObjects))
+        if slot == u"=PHRASE": sentence.extend(make_phrase(associationGroup, pluralizeObjects))
         elif slot == u"=ADJECTIVE": sentence.append(choose_association(haspropertyAssociations)['target'])
-        elif slot == u"=ACTION": sentence.extend(make_imperative(word, associationGroup, pluralizeObjects, mood))
-        elif slot == u"=OBJHAS": sentence.append(choose_association(hasAssociations)['target'])
-        elif slot == u"=OBJISA": sentence.append(choose_association(isaAssociations)['target'])
+        elif slot == u"=IMPERATIVE": sentence.extend(make_imperative(associationGroup, pluralizeObjects, mood))
+        elif slot == u"=OBJ-HAS": sentence.append(choose_association(hasAssociations)['target'])
+        elif slot == u"=OBJ-IS-A": sentence.append(choose_association(isaAssociations)['target'])
         elif slot == u"=ISARE":
             if pluralizeObjects: sentence.append(u"are")
             else: sentence.append(u"is")
@@ -321,17 +319,17 @@ def make_imperative(word, associationGroup, pluralizeObjects, mood):
 
     if console['verboseLogging']: print "Choosing domain..."
     imperativeDomains = [
-        [u"=VERB", u"=OBJECT"],
-        [u"=VERB", u"the", u"=OBJECT"]
+        [u"=VERB", u"=PHRASE"],
+        [u"=VERB", u"the", u"=PHRASE"]
     ]
     if mood > 0: imperativeDomains.append(
-        [u"always", u"=VERB", u"=OBJECT"]
+        [u"always", u"=VERB", u"=PHRASE"]
     )
     else: imperativeDomains.append(
-        [u"never", u"=VERB", u"=OBJECT"]
+        [u"never", u"=VERB", u"=PHRASE"]
     )
     if not pluralizeObjects: imperativeDomains.append(
-        [u"=VERB", u"a", u"=OBJECT"]
+        [u"=VERB", u"a", u"=PHRASE"]
     )
     # todo: VERB a/an/the OBJECT with (its THING OBJECT HAS / a/an/the OTHER OBJECT)
     domain = random.choice(imperativeDomains)
@@ -341,7 +339,7 @@ def make_imperative(word, associationGroup, pluralizeObjects, mood):
     else: sentence = []
     for count, slot in enumerate(domain):
         print sentence + domain[count:]
-        if slot == "=OBJECT": sentence.extend(make_phrase(word, associationGroup, pluralizeObjects))
+        if slot == "=PHRASE": sentence.extend(make_phrase(word, associationGroup, pluralizeObjects))
         elif slot == "=VERB": sentence.append(choose_association(verbAssociations)['target'])
         else: sentence.append(slot)
 
@@ -412,7 +410,7 @@ def make_phrase(associationGroup, pluralizeObjects):
     
     return sentence
 
-print make_phrase({'associations': [{'type': u'HAS-ABILITY-TO', 'target': u'leave', 'weight': 0.231969316683}, {'type': u'IS-A', 'target': u'creature', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'travel', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'know', 'weight': 0.991859867867}, {'type': u'HAS-ABILITY-TO', 'target': u'grow', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'emma', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'species', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'soft-spoken', 'weight': 0.231969316683}, {'type': u'HAS-PROPERTY', 'target': u'more', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'fallow', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'western', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'male', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'chinese', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'many', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'large', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'other', 'weight': 0.0999999999997}], 'word': 'deer', 'hasHasAbilityTo': True, 'hasHasProperty': True, 'hasHas': False, 'hasIsA': True}, True)
+print make_declarative({'associations': [{'type': u'HAS-ABILITY-TO', 'target': u'leave', 'weight': 0.231969316683}, {'type': u'IS-A', 'target': u'creature', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'travel', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'know', 'weight': 0.991859867867}, {'type': u'HAS-ABILITY-TO', 'target': u'grow', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'emma', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'species', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'soft-spoken', 'weight': 0.231969316683}, {'type': u'HAS-PROPERTY', 'target': u'more', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'fallow', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'western', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'male', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'chinese', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'many', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'large', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'other', 'weight': 0.0999999999997}], 'word': 'deer', 'hasHasAbilityTo': True, 'hasHasProperty': True, 'hasHas': False, 'hasIsA': True}, False, 0)
 
 def finalize_reply(reply):
     splitReply = pattern.en.parse(' '.join(reply), True, True, False, False, True).split()
