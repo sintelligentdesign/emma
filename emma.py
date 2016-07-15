@@ -199,7 +199,7 @@ def dream():
     print "Dream seed: " + dreamSeed
     dream = sentencebuilder.generate_sentence(pattern.en.parse(dreamSeed, True, True, True, True, True).split(), get_mood(expressAsText=False))
     if "%" not in dream:
-        print Fore.BLUE + u"dream >> " + dream
+        print Fore.BLUE + u"emma >> " + dream
         tumblrclient.post(cgi.escape(dream.encode('utf-8')), ["dreams", get_mood(update=True, text=dream).encode('utf-8')])
     else: print Fore.YELLOW + "Dreamless sleep..."
 
