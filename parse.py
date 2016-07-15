@@ -131,7 +131,10 @@ def determine_intent(parsedSentence):
         if match: intent['greeting'] = True
 
     if parsedSentence[0][1] in ("WDT", "WP", "WP$", "WRB") or parsedSentence[1][1] in (u'be') or parsedSentence[-1][0] == "?": intent['interrogative'] = True
-    else: intent['declarative'] = True
+    if intent['interrogative'] == False:
+        if intent['greeting']:
+            if "," not in ' '.join(message[:5]): intent['declarative'] = True
+        else: intent['declarative'] = True
 
     return intent
 
