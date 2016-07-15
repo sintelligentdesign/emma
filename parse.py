@@ -123,6 +123,7 @@ def add_new_words(parsedSentence):
 greetingTerms = [[u'what\'s', u'up'], [u'hi'], [u'hiya'], [u'hello'], [u'what', u'up'], [u'wassup'], [u'what', u'is', u'up'], [u'what\'s', u'going', u'on'], [u'how', u'are', u'you'], [u'howdy'], [u'hey'], [u'good', u'morning'], [u'good', u'evening'], [u'good', u'afternoon']]
 def determine_intent(parsedSentence):
     intent = ""
+    hasGreeting = False
     message = []
     for word in parsedSentence: message.append(word[0])
 
@@ -130,9 +131,9 @@ def determine_intent(parsedSentence):
     # todo: have greeting intent be returned as a bool
     for greeting in greetingTerms:
         match = re.match(' '.join(greeting), ' '.join(message[0:3]))
-        if match: intent = "GREETING"
+        if match: hasGreeting = True
+
     if parsedSentence[0][1] in ("WDT", "WP", "WP$", "WRB") or parsedSentence[1][1] in (u'be') or parsedSentence[-1][0] == "?": intent = "INTERROGATIVE"
+    else: intent = "DECLARATIVE"
 
-    if intent not in ["GREETING", "INTERROGATIVE"]: intent = "DECLARATIVE"
-
-    return intent
+    return (intent, hasGreeting)
