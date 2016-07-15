@@ -97,6 +97,7 @@ def finalize_sentence(taggedSentence):
     return taggedSentence
 
 def add_new_words(parsedSentence):
+    # todo: make use of synonym column in emma's dictionary
     with connection:
         cursor.execute('SELECT * FROM dictionary;')
         SQLReturn = cursor.fetchall()
