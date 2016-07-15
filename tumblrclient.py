@@ -52,7 +52,6 @@ def post(body, tags=[]):
     if tumblr['enablePostPreview']: 
         tagsAsString = ""
         for tag in tags: tagsAsString += "#%s " % tag
-        print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + HTMLParser.HTMLParser().unescape(body).encode('utf-8') + "- - - - - - - - - - - - - - - - - - - - - - - - -\n" + tagsAsString + "\n\n"
     if tumblr['enablePublishing']: client.create_text('emmacanlearn', state="published", body=body, tags=tags)
     else: print Fore.YELLOW + "!!! Posting disabled in config file."
 

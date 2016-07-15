@@ -147,6 +147,7 @@ def reply_to_asks(askList):
                 print Fore.BLUE + u"emma >> %s" % reply
 
                 print "Posting reply..."
+                print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + "@" + ask['asker'] + ">> " + ask['message'] + "\n\n" + "emma >> " + reply + "\n\n"
                 body = "<a href=" + ask['asker'] + ".tumblr.com/>@" + ask['asker'] + "</a>" + cgi.escape(" >> ") + cgi.escape(ask['message']) + "\n\n" + cgi.escape("emma >> ") + cgi.escape(reply) + "\n<!-- more -->\n" + cgi.escape(understanding)
                 tumblrclient.post(body.encode('utf-8'), ["dialogue", ask['asker'].encode('utf-8'), "feeling " + express_mood(update_mood(reply)).encode('utf-8')])
             else:
