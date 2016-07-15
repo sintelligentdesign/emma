@@ -360,7 +360,8 @@ def make_interrogative(word, pluralizeObjects):
         [u"what", u"are", u"=WORD"]
     )
     else: interrogativeDomains.append(
-        [u"what", u"is", u"=WORD"]
+        [u"what", u"is", u"=WORD"],
+        [u"what", u"is", u"a", u"=WORD"]
     )
     domain = random.choice(interrogativeDomains)
 
