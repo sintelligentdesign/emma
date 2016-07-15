@@ -69,6 +69,16 @@ else:
         pickle.dump(moodHistory, moodFile)
     print Fore.GREEN + "[Done]"
 
+# "Emma" banner
+print Fore.MAGENTA + u"\n .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .oooo.\nd88' `88b `888P\"Y88bP\"Y88b  `888P\"Y88bP\"Y88b  `P  )88b\n888ooo888  888   888   888   888   888   888   .oP\"888\n888    .,  888   888   888   888   888   888  d8(  888\n`Y8bod8P' o888o o888o o888o o888o o888o o888o `Y888\"\"8o\n\n·~-.¸¸,.-~*'¯¨'*·~-.¸,.-~*'¯¨'*·~-.¸¸,.-~*'¯¨'*·~-.¸¸,.\n\n        EXPANDING MODEL of MAPPED ASSOCIATIONS\n                     Alpha v0.0.1\n"
+
+with connection:
+    cursor.execute("SELECT * FROM associationmodel")
+    associationModelItems = "{:,d}".format(len(cursor.fetchall()))
+    cursor.execute("SELECT * FROM dictionary")
+    dictionaryItems = "{:,d}".format(len(cursor.fetchall()))
+print Fore.MAGENTA + "Database contains %s associations and %s words." % (associationModelItems, dictionaryItems)
+
 def get_mood(update=False, text="", expressAsText=True):
     global moodHistory
     # If update is set to true, use text to add new mood value. Otherwise, just return the mood without touching it
@@ -102,16 +112,6 @@ def get_mood(update=False, text="", expressAsText=True):
         elif 0.8 > mood >= 0.6: moodStr = u"fantastic \ud83d\ude00"
         elif 1.0 > mood >= 0.8: moodStr = u"glorious \ud83d\ude1c"
         return u"feeling " + moodStr
-
-# "Emma" banner
-print Fore.MAGENTA + u"\n .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .oooo.\nd88' `88b `888P\"Y88bP\"Y88b  `888P\"Y88bP\"Y88b  `P  )88b\n888ooo888  888   888   888   888   888   888   .oP\"888\n888    .,  888   888   888   888   888   888  d8(  888\n`Y8bod8P' o888o o888o o888o o888o o888o o888o `Y888\"\"8o\n\n·~-.¸¸,.-~*'¯¨'*·~-.¸,.-~*'¯¨'*·~-.¸¸,.-~*'¯¨'*·~-.¸¸,.\n\n        EXPANDING MODEL of MAPPED ASSOCIATIONS\n                     Alpha v0.0.1\n"
-
-with connection:
-    cursor.execute("SELECT * FROM associationmodel")
-    associationModelItems = "{:,d}".format(len(cursor.fetchall()))
-    cursor.execute("SELECT * FROM dictionary")
-    dictionaryItems = "{:,d}".format(len(cursor.fetchall()))
-print Fore.MAGENTA + "Database contains %s associations and %s words." % (associationModelItems, dictionaryItems)
     
 def consume(parsedMessage, asker=u""):
     intents = []
@@ -215,29 +215,34 @@ def chat():
         else: print Fore.RED + u"Reply generation failed."
 
 while True:
+    # If we aren't in chat mode, every 15 minutes, try to make a post. Replying to asks is most likely, followed by dreams, and reblogging a post is the least likely
     if console['chatMode']: chat()
     else:
-        print "Choosing activity..."
         if debug['fetchRealAsks']: askList = tumblrclient.get_asks()
         else: 
             print Fore.YELLOW + "!!! Real ask fetching disabled in config file. Using fake asks instead."
             askList = debug['fakeAsks']
 
-        if askList != [] and debug['enableReplies']: 
-            print "Replying to messages..."
+        print "Choosing activity..."
+        activities = []
+        if debug['enableReblogs']: activities.append('reblogPost')
+        if debug['enableDreams']: activities.extend(['dream', 'dream'])
+        if debug['enableReplies'] and askList != []: activities.extend(['replyToAsks', 'replyToAsks', 'replyToAsks'])
+
+        activity = random.choice(activities)
+        if activity == 'reblogPost':
+            print "Reblogging a post..."
+            reblog_post()
+        elif activity == 'dream':
+            print "Dreaming..."
+            dream()
+        elif activity == 'replyToAsks':
+            print "Replying to asks in queue (%d)..." % len(askList)
             reply_to_asks(askList)
-        else:
-            activity = random.choice(['reblog', 'dream'])
-            if activity == 'reblog' and debug['enableReblogs']:
-                print "Reblogging a post..."
-                reblog_post()
-            if activity == 'dream' and debug['enableDreams']:
-                print "Dreaming..."
-                dream()
         
         if debug['enableSleep']:
-            print "Sleeping for 10 minutes..."
-            time.sleep(600)
+            print "Sleeping for 15 minutes..."
+            time.sleep(900)
         else:
             print Fore.YELLOW + "!!! Sleep disabled in config file -- execution will continue normally in 2 seconds..."
             time.sleep(2)
