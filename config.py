@@ -4,7 +4,7 @@
 
 debug = {
     # Enable or disable connecting to tumblr to fetch asks
-    'fetchRealAsks': True,
+    'fetchRealAsks': False,
 
     # If the above is false, supply a list of fake asks for Emma to read for testing and debugging
     'fakeAsks': [
@@ -45,11 +45,11 @@ files = {
 
 tumblr = {
     # Enable or disable posting on Tumblr (this also affects Reblogs)
-    'enablePublishing': True,
+    'enablePublishing': False,
 
     # Enable or disable Tumblr post previews, which give a rough idea of what a tumblr post will look like in the terminal
     'enablePostPreview': True,
 
     # Enable or disable deletion of asks after we're done with them
-    'enableAskDeletion': True
+    'enableAskDeletion': False
 }

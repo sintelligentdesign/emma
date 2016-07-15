@@ -16,7 +16,7 @@ from config import console, files
 connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 
-def generate_sentence(tokenizedMessage, mood, askerIntents=[{'declarative': True, 'interrogative': False, 'greeting', False}], asker=""):
+def generate_sentence(tokenizedMessage, mood, askerIntents=[{'declarative': True, 'interrogative': False, 'greeting': False}], asker=""):
     print "Creating reply..."
 
     print "Determining important words..."
@@ -167,7 +167,7 @@ def build_reply(associationPackage, mood, hasGreeting, asker):
     usedWords = []
 
     # If conditions are right, add a greeting
-    if mood >= 0.1 and hasGreeting = True and associationPackage[0]['asker'] != "": reply = make_greeting(associationPackage[0]['asker']) + [u"!"]
+    if mood >= 0.1 and hasGreeting == True and associationPackage[0]['asker'] != "": reply = make_greeting(associationPackage[0]['asker']) + [u"!"]
   
     for sentenceIterator in range(0, sentencesToGenerate):
         print Fore.MAGENTA + "Generating sentence %d of %d..." % (sentenceIterator + 1, sentencesToGenerate)

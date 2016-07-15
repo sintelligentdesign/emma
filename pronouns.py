@@ -40,7 +40,7 @@ def flip_posessive_references(sentence, asker=""):
     else: posessiveReferences.update({u"me": u"you", u"i": u"you", u"my": u"your", u"mine": u"yours", u"myself": u"yourself"})
     
     for count, word in enumerate(sentence):
-        if word[0] in posessiveReferences:
+        if word[0] in posessiveReferences.keys():
             replacementWord = posessiveReferences[word[0]]
             print Fore.GREEN + u"replacing posessive reference \'%s\' with \'%s\'..." % (word[0], replacementWord)
             word[0] = replacementWord

@@ -91,7 +91,6 @@ def finalize_sentence(taggedSentence):
             rowsToRemove.append(taggedWord)
 
     if rowsToRemove:
-        print Fore.GREEN + "Tidying up..."
         for row in rowsToRemove:
             if row in taggedSentence: taggedSentence.remove(row)
 
@@ -122,7 +121,7 @@ def add_new_words(parsedSentence):
 
 greetingTerms = [[u'what\'s', u'up'], [u'hi'], [u'hiya'], [u'hello'], [u'what', u'up'], [u'wassup'], [u'what', u'is', u'up'], [u'what\'s', u'going', u'on'], [u'how', u'are', u'you'], [u'howdy'], [u'hey'], [u'good', u'morning'], [u'good', u'evening'], [u'good', u'afternoon']]
 def determine_intent(parsedSentence):
-    intent = {'declarative': False, 'interrogative': False, 'greeting', False}      # todo: 'imperative'
+    intent = {'declarative': False, 'interrogative': False, 'greeting': False}      # todo: 'imperative'
     message = []
     for word in parsedSentence: message.append(word[0])
 

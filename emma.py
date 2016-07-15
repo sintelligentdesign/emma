@@ -94,15 +94,15 @@ print Fore.MAGENTA + "Database contains %s associations and %s words." % (associ
     
 def consume(parsedMessage, asker=u""):
     intents = []
-    for count, sentence in emumerate(parsedMessage):
+    for count, parsedSentence in enumerate(parsedMessage):
         print "Consuming sentence %d of %d..." % (count + 1, len(parsedMessage))
 
-        pronouns.determine_references(parsedMessage)
-        pronouns.flip_posessive_references(parsedMessage, asker)
-        intent = parse.determine_intent(parsedMessage)
-        if intent['interrogative'] == False
-            parse.add_new_words(parsedMessage)
-            associationtrainer.find_associations(parsedMessage)
+        pronouns.determine_references(parsedSentence)
+        pronouns.flip_posessive_references(parsedSentence, asker)
+        intent = parse.determine_intent(parsedSentence)
+        if intent['interrogative'] == False:
+            parse.add_new_words(parsedSentence)
+            associationtrainer.find_associations(parsedSentence)
         intents.append(intent)
         print "Sentence consumed."
     return intents
@@ -136,7 +136,7 @@ def reply_to_asks(askList):
                     cursor.execute("INSERT INTO friends(username) VALUES(\'%s\');" % ask['asker'])
 
             parsedAsk = parse.tokenize(ask['message'])
-            intents = consume(parsedAsk)
+            intents = consume(parsedAsk, ask['asker'])
             understanding = utilities.pretty_print_understanding(parsedAsk, intents)
             reply = sentencebuilder.generate_sentence(parsedAsk, update_mood(ask['message']), intents, ask['asker'])
 
@@ -144,7 +144,7 @@ def reply_to_asks(askList):
                 print Fore.BLUE + u"emma >> %s" % reply
 
                 print "Posting reply..."
-                body = "@%s >> %s\n(%s)\n\nemma >> %s" % (ask['asker'], ask['message'], understanding, reply)
+                body = "@%s >> %s\n%s\n\nemma >> %s" % (ask['asker'], ask['message'], understanding, reply)
                 tumblrclient.post(body.encode('utf-8'), ["dialogue", ask['asker'].encode('utf-8'), "feeling " + express_mood(update_mood(reply)).encode('utf-8')])
             else:
                 print Fore.YELLOW + "Reply generation failed."
