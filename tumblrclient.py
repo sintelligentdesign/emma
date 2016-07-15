@@ -4,6 +4,7 @@
 import pytumblr
 import cgi
 import re
+import HTMLParser
 from colorama import init, Fore
 init(autoreset = True)
 
@@ -51,7 +52,7 @@ def post(body, tags=[]):
     if tumblr['enablePostPreview']: 
         tagsAsString = ""
         for tag in tags: tagsAsString += "#%s " % tag
-        print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + "%s\n- - - - - - - - - - - - - - - - - - - - - - - - -\n%s\n\n" % (body, tagsAsString)
+        print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + HTMLParser.HTMLParser().unescape(body) + "\n- - - - - - - - - - - - - - - - - - - - - - - - -\n" + tagsAsString + "\n\n"
     if tumblr['enablePublishing']: client.create_text('emmacanlearn', state="published", body=body, tags=tags)
     else: print Fore.YELLOW + "!!! Posting disabled in config file."
 

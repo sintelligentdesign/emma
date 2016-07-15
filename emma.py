@@ -147,7 +147,7 @@ def reply_to_asks(askList):
                 print Fore.BLUE + u"emma >> %s" % reply
 
                 print "Posting reply..."
-                body = "@" + ask['asker'] + cgi.escape(" >> ") + cgi.escape(ask['message']) + "\n\n" + cgi.escape("emma >> ") + cgi.escape(reply) + "<!-- more -->" + cgi.escape(understanding)
+                body = "@" + ask['asker'] + cgi.escape(" >> ") + cgi.escape(ask['message']) + "\n\n" + cgi.escape("emma >> ") + cgi.escape(reply) + "\n<!-- more -->\n" + cgi.escape(understanding)
                 tumblrclient.post(body.encode('utf-8'), ["dialogue", ask['asker'].encode('utf-8'), "feeling " + express_mood(update_mood(reply)).encode('utf-8')])
             else:
                 print Fore.YELLOW + "Reply generation failed."
