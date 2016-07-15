@@ -92,16 +92,20 @@ with connection:
     dictionaryItems = "{:,d}".format(len(cursor.fetchall()))
 print Fore.MAGENTA + "Database contains %s associations and %s words." % (associationModelItems, dictionaryItems)
     
-def consume(parsedSentence, asker=u""):
-    if console['verboseLogging']: print "Consuming sentence..."
-    pronouns.determine_references(parsedSentence)
-    pronouns.flip_posessive_references(parsedSentence, asker)
-    intent = parse.determine_intent(parsedSentence)
-    if intent != "INTERROGATIVE":
-        parse.add_new_words(parsedSentence)
-        associationtrainer.find_associations(parsedSentence)
-    if console['verboseLogging']: print "Sentence consumed."
-    return intent
+def consume(parsedMessage, asker=u""):
+    intents = []
+    hasGreeting = False
+    for count, sentence in emumerate(parsedMessage):
+        print "Consuming sentence %d of %d..." % (count + 1, len(parsedMessage))
+
+        pronouns.determine_references(parsedMessage)
+        pronouns.flip_posessive_references(parsedMessage, asker)
+        intent = parse.determine_intent(parsedMessage)
+        if intent != "INTERROGATIVE":
+            parse.add_new_words(parsedMessage)
+            associationtrainer.find_associations(parsedMessage)
+        print "Sentence consumed."
+    return intents
 
 def express_mood(moodNum):
     if -0.8 > moodNum: moodStr = u"abysmal \ud83d\ude31"
