@@ -137,20 +137,10 @@ def reply_to_asks(askList):
 
             parsedAsk = parse.tokenize(ask['message'])
 
-            understanding = u""
-            intents = []
-            for sentenceCount, sentence in enumerate(parsedAsk):
-                if console['verboseLogging']: print "Reading sentence no. %d of ask no. %d..." % ((sentenceCount + 1), (askCount + 1))
-                intents.append(consume(sentence, ask['asker']))
-            
-                for wordCount, word in enumerate(sentence):
-                    if wordCount == 0 and sentenceCount != 0:
-                        understanding += u" "
-                    understanding += word[0]
-                    if wordCount < len(sentence) - 2:
-                        understanding += u" "
-            understanding = u"Emma interpreted this message as: \'%s\' %s" % (understanding, str(intents))
-            print Fore.BLUE + understanding
+            intents = consume(parsedAsk)
+
+            #understanding = u"Emma interpreted this message as: \'%s\' %s" % (understanding, str(intents))
+            #print Fore.BLUE + understanding
 
             reply = sentencebuilder.generate_sentence(parsedAsk, update_mood(ask['message']), intents, ask['asker'])
 
@@ -213,8 +203,7 @@ def chat():
     while True:
         input = raw_input(Fore.BLUE + 'You >> ').decode('utf-8')
         tokenizedMessage = parse.tokenize(input)
-        intents = []
-        for sentence in tokenizedMessage: intents.append(consume(sentence))
+        intents = consume(tokenizedMessage)
         
         reply = sentencebuilder.generate_sentence(tokenizedMessage, update_mood(input), intents)
         if "%" not in reply: print Fore.BLUE + u"emma >> " + reply
