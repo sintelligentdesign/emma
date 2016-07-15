@@ -441,6 +441,7 @@ def finalize_reply(reply):
             if count + 1 != len(reply):
                 reply[count + 1][0] = reply[count + 1][0][0].upper() + reply[count + 1][0][1:]
             del reply[count]
+    reply[0][0] = reply[0][0][0].upper() + reply[0][0][1:]
 
     finalizedReply = []
     for word in reply:
