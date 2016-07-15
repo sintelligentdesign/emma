@@ -53,7 +53,7 @@ with connection:
         CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, is_new INTEGER DEFAULT 1, is_banned INTEGER DEFAULT 0);
         CREATE TABLE friends(username TEXT, can_reblog_from INTEGER DEFAULT 0);
         """)
-    print Fore.GREEN + "[Done]"
+        print Fore.GREEN + "[Done]"
 
 print ("Checking for mood file at %s..." % files['moodPath']),
 if os.path.isfile(files['moodPath']):
