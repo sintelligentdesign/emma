@@ -50,6 +50,7 @@ def tokenize(text):
 def translate_netspeak(text):
     # Turn internet abbreviations into proper English
     # todo: add more abbreviations as we think of or encounter them
+    # todo: arrange abbreviations alphabetically?
     text = text.split(' ')
     leetDict = {
         u'im': [u'I\'m'],
