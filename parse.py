@@ -21,7 +21,7 @@ with connection:
 
 def tokenize(text):
     if text[-1] not in [u"!", u"?", "."]: text += u"."
-    text = translate_leetspeek(text)
+    text = translate_netspeak(text)
 
     print "Tokenizing message..."
     if console['verboseLogging']: pattern.en.pprint(pattern.en.parse(text, True, True, True, True, True))
@@ -30,7 +30,6 @@ def tokenize(text):
     parsedMessage = []
     for count, taggedSentence in enumerate(taggedText):
         if console['verboseLogging']: print "Packaging sentence no. %d..." % (count + 1)
-
         finalize_sentence(taggedSentence)
 
         posSentence = []
@@ -48,22 +47,41 @@ def tokenize(text):
         parsedMessage.append(parsedSentence)
     return parsedMessage
 
-def translate_leetspeek(text):
+def translate_netspeak(text):
+    # Turn internet abbreviations into proper English
+    # todo: add more abbreviations as we think of or encounter them
     text = text.split(' ')
-    for count, word in enumerate(text):
-        if word in [u"im", u"Im"]:
-            print Fore.GREEN + "Replacing \"im\" with \"I\'m\"..."
-            text[count] = u"I'm"
-        elif word == u"u":
-            print Fore.GREEN + "Replacing \"u\" with \"you\"..."
-            text[count] = u"you"
-        elif word == u"r":
-            print Fore.GREEN + "Replacing \"r\" with \"are\"..."
-            text[count] = u"are"
-        elif word == u"ur":
-            print Fore.GREEN + "Replacing \"ur\" with \"your\"..."
-            text[count] = u"your"
-    return ' '.join(text)
+    leetDict = {
+        u'im': [u'I\'m'],
+        u'u': [u'you'],
+        u'n': [u'and'],
+        u'cn': [u'can'],
+        u'r': [u'are'],
+        u'ur': [u'your'],
+        u'yea': [u'yeah'],
+        u'lemme': [u'let', u'me'],
+        u'obv': [u'obviously'],
+        u'tbh': [u'to', u'be', u'honest'],
+        u'imo': [u'in', u'my', u'opinion'],
+        u'omg': [u'oh', u'my', u'god'],
+        u'gonna': [u'going', u'to'],
+        u'aight': [u'alright']
+    }
+
+    decodedText = []
+    for word in text:
+        if re.sub(r'[\d\s\W]', "", word.lower()) in leetDict.keys():
+            punctuation = u""
+            if word[-1] in [u'.', u',', u'!', u'?']: punctuation = word[-1]     # Take note of punctuation so that we can put it back in later
+            
+            print Fore.GREEN + u"Translating \"%s\" from txt speak..." % word
+            replacementWord = leetDict[re.sub(r'[\d\s\W]', "", word.lower())]
+
+            if punctuation != "": replacementWord[-1] += punctuation
+
+            decodedText.extend(replacementWord)
+        else: decodedText.append(word)
+    return ' '.join(decodedText)
 
 def finalize_sentence(taggedSentence):
     rowsToRemove = []
