@@ -44,7 +44,7 @@ with connection:
     cursor.execute("SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'associationmodel\';")
     if cursor.fetchone() == (u'associationmodel',): print Fore.GREEN + "[Done]"
     else:
-        print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating new database...", % files['dbPath']
+        print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating new database...",
         cursor.executescript("""
         DROP TABLE IF EXISTS associationmodel;
         DROP TABLE IF EXISTS dictionary;
