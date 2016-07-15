@@ -44,7 +44,7 @@ with connection:
     cursor.execute("SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'associationmodel\';")
     if cursor.fetchone() == (u'associationmodel',): print Fore.GREEN + "[Done]"
     else:
-        print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating new database at %s..." % files['dbPath']
+        print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating new database...", % files['dbPath']
         cursor.executescript("""
         DROP TABLE IF EXISTS associationmodel;
         DROP TABLE IF EXISTS dictionary;
@@ -53,18 +53,20 @@ with connection:
         CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, is_new INTEGER DEFAULT 1, is_banned INTEGER DEFAULT 0);
         CREATE TABLE friends(username TEXT, can_reblog_from INTEGER DEFAULT 0);
         """)
+    print Fore.GREEN + "[Done]"
 
 print ("Checking for mood file at %s..." % files['moodPath']),
 if os.path.isfile(files['moodPath']):
     print Fore.GREEN + "[Done]"
     with open(files['moodPath'],'r') as moodFile: moodHistory = stack(pickle.load(moodFile))
 else:   
-    print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating file with randomized moods..."
+    print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating file with randomized moods...",
     moodHistory = []
     with open(files['moodPath'],'wb') as moodFile:
         for i in range(0, 10): moodHistory.append(random.uniform(-0.5, 0.5))
         moodHistory = stack(moodHistory)
         pickle.dump(moodHistory, moodFile)
+    print Fore.GREEN + "[Done]"
 
 def update_mood(text):
     sentiment = pattern.en.sentiment(text)      # Get the average mood from the moods of sentences in the text
