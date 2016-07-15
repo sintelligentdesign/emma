@@ -17,6 +17,7 @@ import time
 import random
 import os
 import pickle
+import cgi
 
 import pattern.en
 import sqlite3 as sql
@@ -146,7 +147,7 @@ def reply_to_asks(askList):
                 print Fore.BLUE + u"emma >> %s" % reply
 
                 print "Posting reply..."
-                body = "@%s >> %s\n%s\n\nemma >> %s" % (ask['asker'], ask['message'], understanding, reply)
+                body = "@" + ask['asker'] + cgi.escape(" >> ") + cgi.escape(ask['message']) + "\n\n" + cgi.escape("emma >> ") + cgi.escape(reply) + "<!-- more -->" + cgi.escape(understanding)
                 tumblrclient.post(body.encode('utf-8'), ["dialogue", ask['asker'].encode('utf-8'), "feeling " + express_mood(update_mood(reply)).encode('utf-8')])
             else:
                 print Fore.YELLOW + "Reply generation failed."
@@ -193,7 +194,7 @@ def dream():
     dream = sentencebuilder.generate_sentence(pattern.en.parse(dreamSeed, True, True, True, True, True).split(), update_mood(dreamSeed))
     if "%" not in dream:
         print Fore.BLUE + u"dream >> " + dream
-        tumblrclient.post(dream.encode('utf-8'), ["dreams", "feeling " + express_mood(update_mood(dream)).encode('utf-8')])
+        tumblrclient.post(cgi.escape(dream.encode('utf-8')), ["dreams", "feeling " + express_mood(update_mood(dream)).encode('utf-8')])
     else: print Fore.YELLOW + "Dreamless sleep..."
 
 def chat():

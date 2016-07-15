@@ -52,7 +52,7 @@ def post(body, tags=[]):
         tagsAsString = ""
         for tag in tags: tagsAsString += "#%s " % tag
         print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + "%s\n- - - - - - - - - - - - - - - - - - - - - - - - -\n%s\n\n" % (body, tagsAsString)
-    if tumblr['enablePublishing']: client.create_text('emmacanlearn', state="published", body=cgi.escape(body), tags=tags)
+    if tumblr['enablePublishing']: client.create_text('emmacanlearn', state="published", body=body, tags=tags)
     else: print Fore.YELLOW + "!!! Posting disabled in config file."
 
 def reblog(postid, reblogKey, comment, tags):
