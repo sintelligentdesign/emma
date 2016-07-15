@@ -101,11 +101,12 @@ def consume(parsedMessage, asker=u""):
         pronouns.determine_references(parsedMessage)
         pronouns.flip_posessive_references(parsedMessage, asker)
         intent = parse.determine_intent(parsedMessage)
-        if intent != "INTERROGATIVE":
+        if intent[0] != "INTERROGATIVE":
             parse.add_new_words(parsedMessage)
             associationtrainer.find_associations(parsedMessage)
+        if intent[1] == True: hasGreeting = True
         print "Sentence consumed."
-    return intents
+    return (intents, hasGreeting)
 
 def express_mood(moodNum):
     if -0.8 > moodNum: moodStr = u"abysmal \ud83d\ude31"
