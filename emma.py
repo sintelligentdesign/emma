@@ -59,7 +59,7 @@ if os.path.isfile(files['moodPath']):
     print Fore.GREEN + "[Done]"
     with open(files['moodPath'],'r') as moodFile: moodHistory = stack(pickle.load(moodFile))
 else:   
-    print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating file with randomized moods..." % files['moodPath']
+    print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating file with randomized moods..."
     moodHistory = []
     with open(files['moodPath'],'wb') as moodFile:
         for i in range(0, 10): moodHistory.append(random.uniform(-0.5, 0.5))
