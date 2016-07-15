@@ -416,35 +416,37 @@ def make_phrase(word, associationGroup, pluralizeObjects):
     return sentence
 
 def finalize_reply(reply):
-    tokenizedReply = pattern.en.parse(' '.join(reply), True, True, False, False, True).split()
-    reply = []
-    for sentence in tokenizedReply:
-        reply.extend(sentence)
+    splitReply = pattern.en.parse(' '.join(reply), True, True, False, False, True).split()
+    tokenizedReply = []
+    for sentence in splitReply: tokenizedReply.extend(sentence)     # Fix some pattern.en formatting stuff
     
     lastUsedNouns = []
-    for count, word in enumerate(reply):
+    for count, word in enumerate(tokenizedReply):
         # If we repeat proper nouns, refer back to them with "they"
         if word[1] in utilities.nounCodes:
-            if reply[count - 1][0] in [u".", u"!", u"?", u"and", u"but"]:
-                if word[2] in lastUsedNouns[:2] and reply[count + 1][1] != u".":
-                    reply[count][0] = u"they"
+            if tokenizedReply[count - 1][0] in [u".", u"!", u"?", u"and", u"but"]:
+                if word[2] in lastUsedNouns[:2] and tokenizedReply[count + 1][1] != u".":
+                    tokenizedReply[count][0] = u"they"
             lastUsedNouns.append(word[2])
 
         # Refer to Ellie and Alex as mom and dad
-        if u"sharkthemepark" in word[0]: reply[count][0] = u"mom"
-        elif u"nosiron" in word[0]: reply[count][0] = u"dad"
+        if u"sharkthemepark" in word[0]: tokenizedReply[count][0] = u"mom"
+        elif u"nosiron" in word[0]: tokenizedReply[count][0] = u"dad"
+
+    reply = []
+    for word in tokenizedReply:
+        reply.append(word[0])
     
     # Correct positions of punctuation, capitalize first letter of first word in new sentences
+    reply[0] = reply[0][0].upper() + reply[0][1:]
     for count, word in enumerate(reply):
-        if word[0] in [u".", u",", u"!", u"?", u"\'s"]:
-            reply[count - 1][0] += word[0]
+        if word in [u".", u",", u"!", u"?"]:
+            reply[count - 1] += word
             if count + 1 != len(reply):
-                reply[count + 1][0] = reply[count + 1][0][0].upper() + reply[count + 1][0][1:]
+                reply[count + 1] = reply[count + 1][0].upper() + reply[count + 1][1:]
             del reply[count]
-    reply[0][0] = reply[0][0][0].upper() + reply[0][0][1:]
+        elif word == u"\'s":
+            reply[count - 1] += word
+            del reply[count]
 
-    finalizedReply = []
-    for word in reply:
-        finalizedReply.append(word[0])
-            
-    return ' '.join(finalizedReply)
+    return ' '.join(reply)
