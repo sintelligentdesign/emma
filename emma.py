@@ -136,12 +136,8 @@ def reply_to_asks(askList):
                     cursor.execute("INSERT INTO friends(username) VALUES(\'%s\');" % ask['asker'])
 
             parsedAsk = parse.tokenize(ask['message'])
-
             intents = consume(parsedAsk)
-
-            #understanding = u"Emma interpreted this message as: \'%s\' %s" % (understanding, str(intents))
-            #print Fore.BLUE + understanding
-
+            understanding = utilities.pretty_print_understanding(parsedAsk, intents)
             reply = sentencebuilder.generate_sentence(parsedAsk, update_mood(ask['message']), intents, ask['asker'])
 
             if "%" not in reply:
