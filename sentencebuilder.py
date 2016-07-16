@@ -186,14 +186,15 @@ def build_reply(associationPackage, hasGreeting):
 
         # Decide whether to make objects in the sentence plural
         # todo: check dictionary to see if the word is plural or singular so that we don't pluralize plurals or vice versa
+        global pluralizeObjects
         if random.randint(0, 1) == 0: pluralizeObjects = True
         else: pluralizeObjects = False
 
         # Decide how to proceed with sentence generation based on our intent
-        if intent == 'PHRASE': sentence = make_phrase(associationGroup, pluralizeObjects) + [u"."]
-        elif intent == 'DECLARATIVE': sentence = make_declarative(associationGroup, pluralizeObjects) + [u"."]
-        elif intent == 'IMPERATIVE': sentence = make_imperative(associationGroup, pluralizeObjects) + [u"."]
-        elif intent == 'INTERROGATIVE': sentence = make_interrogative(word, pluralizeObjects) + [u"?"]
+        if intent == 'PHRASE': sentence = make_phrase(associationGroup) + [u"."]
+        elif intent == 'DECLARATIVE': sentence = make_declarative(associationGroup) + [u"."]
+        elif intent == 'IMPERATIVE': sentence = make_imperative(associationGroup) + [u"."]
+        elif intent == 'INTERROGATIVE': sentence = make_interrogative(word) + [u"?"]
         elif intent == 'COMPARATIVE':
             # Choose a word to compare our seed word with, similarly to how we chose a seed word for our sentence
             comparisonCandidates = []
@@ -207,7 +208,7 @@ def build_reply(associationPackage, hasGreeting):
 
             for associationGroup in associationPackage[1]:
                 if associationGroup['word'] == comparison: comparisonGroup = associationGroup
-            sentence = make_comparative(associationGroup, comparisonGroup, pluralizeObjects) + [u"."]
+            sentence = make_comparative(associationGroup, comparisonGroup) + [u"."]
             
         print sentence
         reply.extend(sentence)
@@ -232,7 +233,7 @@ def make_greeting(asker):
     ]
     return random.choice(greetingDomains)
 
-def make_comparative(associationGroup, comparisonGroup, pluralizeObjects):
+def make_comparative(associationGroup, comparisonGroup):
     if console['verboseLogging']: print "Generating a comparative statement for \'%s\' and \'%s\'..." % (associationGroup['word'], comparisonGroup['word'])
 
     if console['verboseLogging']: print "Choosing domain..."
@@ -247,13 +248,13 @@ def make_comparative(associationGroup, comparisonGroup, pluralizeObjects):
     sentence = []
     for count, slot in enumerate(domain):
         print sentence + domain[count:]
-        if slot == u"=DECLARATIVE": sentence.extend(make_declarative(associationGroup, pluralizeObjects))
-        elif slot == u"=COMPARISON": sentence.extend(make_declarative(comparisonGroup, pluralizeObjects))
+        if slot == u"=DECLARATIVE": sentence.extend(make_declarative(associationGroup))
+        elif slot == u"=COMPARISON": sentence.extend(make_declarative(comparisonGroup))
         else: sentence.append(slot)
 
     return sentence
 
-def make_declarative(associationGroup, pluralizeObjects):
+def make_declarative(associationGroup):
     if console['verboseLogging']: print "Generating a declarative statement for \'%s\'..." % associationGroup['word']
     
     # Gather information about what associations we have to help us decide what domains we're allowed to use
@@ -293,9 +294,9 @@ def make_declarative(associationGroup, pluralizeObjects):
     # Iterate through the objects in the domain and fill them in to create the declarative statement
     for count, slot in enumerate(domain):
         print sentence + domain[count:]
-        if slot == u"=PHRASE": sentence.extend(make_phrase(associationGroup, pluralizeObjects))
+        if slot == u"=PHRASE": sentence.extend(make_phrase(associationGroup))
         elif slot == u"=ADJECTIVE": sentence.append(choose_association(haspropertyAssociations)['target'])
-        elif slot == u"=IMPERATIVE": sentence.extend(make_imperative(associationGroup, pluralizeObjects))
+        elif slot == u"=IMPERATIVE": sentence.extend(make_imperative(associationGroup))
         elif slot == u"=OBJ-HAS": sentence.append(choose_association(hasAssociations)['target'])
         elif slot == u"=OBJ-IS-A": sentence.append(choose_association(isaAssociations)['target'])
         elif slot == u"=ISARE":
@@ -308,7 +309,7 @@ def make_declarative(associationGroup, pluralizeObjects):
 
     return sentence
 
-def make_imperative(associationGroup, pluralizeObjects):
+def make_imperative(associationGroup):
     # todo: when make_imperative() is called from make_declarative(), add a possible domain [u"=VERB"]
     if console['verboseLogging']: print "Generating an imperative statement for \'%s\'..." % associationGroup['word']
 
@@ -339,13 +340,13 @@ def make_imperative(associationGroup, pluralizeObjects):
 
     for count, slot in enumerate(domain):
         print sentence + domain[count:]
-        if slot == "=PHRASE": sentence.extend(make_phrase(associationGroup, pluralizeObjects))
+        if slot == "=PHRASE": sentence.extend(make_phrase(associationGroup))
         elif slot == "=VERB": sentence.append(choose_association(verbAssociations)['target'])
         else: sentence.append(slot)
 
     return sentence
 
-def make_interrogative(word, pluralizeObjects):
+def make_interrogative(word):
     if console['verboseLogging']: print "Generating an interrogative phrase for \'%s\'..." % word
 
     if console['verboseLogging']: print "Choosing domain..."
@@ -372,7 +373,7 @@ def make_interrogative(word, pluralizeObjects):
 
     return sentence
 
-def make_phrase(associationGroup, pluralizeObjects):
+def make_phrase(associationGroup):
     if console['verboseLogging']: print "Generating a phrase for \'%s\'..." % associationGroup['word']
     
     if console['verboseLogging']: print "Looking for adjective associations..."
@@ -446,5 +447,3 @@ def finalize_reply(reply):
     reply[:] = [word for word in reply if word not in [u".", u",", u"!", u"?", u"\'s"]]
 
     return ' '.join(reply)
-
-print build_reply(({'asker': 'sharkthemepark', 'numObjects': 2}, [{'associations': [{'type': u'HAS-ABILITY-TO', 'target': u'spend', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'cool', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'gay', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'meaning', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'golden', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'pure', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'great', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'cute', 'weight': 0.0999999999997}], 'word': 'dog', 'hasHasAbilityTo': True, 'hasHasProperty': True, 'hasHas': False, 'hasIsA': False}, {'associations': [{'type': u'HAS-ABILITY-TO', 'target': u'leave', 'weight': 0.231969316683}, {'type': u'IS-A', 'target': u'creature', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'travel', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'know', 'weight': 0.991859867867}, {'type': u'HAS-ABILITY-TO', 'target': u'grow', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'emma', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'species', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'soft-spoken', 'weight': 0.231969316683}, {'type': u'HAS-PROPERTY', 'target': u'more', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'fallow', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'western', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'male', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'chinese', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'many', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'large', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'other', 'weight': 0.0999999999997}], 'word': 'deer', 'hasHasAbilityTo': True, 'hasHasProperty': True, 'hasHas': False, 'hasIsA': True}]), False)
