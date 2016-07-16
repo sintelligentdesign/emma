@@ -191,23 +191,23 @@ def build_reply(associationPackage, hasGreeting):
 
         # Decide how to proceed with sentence generation based on our intent
         if intent == 'PHRASE': sentence = make_phrase(associationGroup, pluralizeObjects) + [u"."]
-        elif intent == 'DECLARATIVE': sentence = make_declarative(associationBundle, pluralizeObjects) + [u"."]
-
+        elif intent == 'DECLARATIVE': sentence = make_declarative(associationGroup, pluralizeObjects) + [u"."]
+        elif intent == 'IMPERATIVE': sentence = make_imperative(associationGroup, pluralizeObjects) + [u"."]
+        elif intent == 'INTERROGATIVE': sentence = make_interrogative(word, pluralizeObjects) + [u"?"]
         elif intent == 'COMPARATIVE':
-            wordsToCompare = []
+            # Choose a word to compare our seed word with, similarly to how we chose a seed word for our sentence
+            comparisonCandidates = []
             for word in validIntents.keys():
-                if 'COMPARATIVE' in validIntents[word]:
-                    wordsToCompare.append(word)
-            comparisonChoices = []
-            for word in wordsToCompare:
-                for associationBundle in associationPackage[1]:
-                    if associationBundle['word'] == word: comparisonChoices.append(associationBundle)
-            sentence = make_comparative(associationBundle, random.choice(comparisonChoices), pluralizeObjects) + [u"."]
+                if 'COMPARATIVE' in validIntents[word]: comparisonCandidates.append(word)
 
-        elif intent == 'IMPERATIVE': sentence = make_imperative(associationBundle, pluralizeObjects) + [u"."]
+            comparisonDistribution = []
+            for word in wordList.keys(): comparisonDistribution.extend([word] * wordList[word])
+            comparison = random.choice(comparisonDistribution)
+            wordList[comparison] -= 1       # Decrease the chance of the compared word being chosen again
 
-        elif intent == 'INTERROGATIVE':
-            sentence = make_interrogative(word, pluralizeObjects) + [u"?"]
+            for associationGroup in associationPackage[1]:
+                if associationGroup['word'] == comparison: comparisonGroup = associationGroup
+            sentence = make_comparative(associationGroup, comparisonGroup, pluralizeObjects) + [u"."]
             
         print sentence
         reply.extend(sentence)
@@ -232,8 +232,8 @@ def make_greeting(asker):
     ]
     return random.choice(greetingDomains)
 
-def make_comparative(associationBundle, comparisonBundle, pluralizeObjects):
-    if console['verboseLogging']: print "Generating a comparative statement for \'%s\' and \'%s\'..." % (associationBundle['word'], comparisonBundle['word'])
+def make_comparative(associationGroup, comparisonGroup, pluralizeObjects):
+    if console['verboseLogging']: print "Generating a comparative statement for \'%s\' and \'%s\'..." % (associationGroup['word'], comparisonGroup['word'])
 
     if console['verboseLogging']: print "Choosing domain..."
     comparativeDomains = [
@@ -247,12 +247,8 @@ def make_comparative(associationBundle, comparisonBundle, pluralizeObjects):
     sentence = []
     for count, slot in enumerate(domain):
         print sentence + domain[count:]
-        if slot == u"=DECLARATIVE":
-            bundleInfo = {'hasHas': associationBundle['hasHas'], 'hasIsA': associationBundle['hasIsA'], 'hasHasProperty': associationBundle['hasHasProperty'], 'hasHasAbilityTo': associationBundle['hasHasAbilityTo']}
-            sentence.extend(make_declarative(associationBundle['word'], associationBundle['associations'], pluralizeObjects, bundleInfo))
-        elif slot == u"=COMPARISON":
-            bundleInfo = {'hasHas': comparisonBundle['hasHas'], 'hasIsA': comparisonBundle['hasIsA'], 'hasHasProperty': comparisonBundle['hasHasProperty'], 'hasHasAbilityTo': associationBundle['hasHasAbilityTo']}
-            sentence.extend(make_declarative(comparisonBundle['word'], comparisonBundle['associations'], pluralizeObjects, bundleInfo))
+        if slot == u"=DECLARATIVE": sentence.extend(make_declarative(associationGroup, pluralizeObjects))
+        elif slot == u"=COMPARISON": sentence.extend(make_declarative(comparisonGroup, pluralizeObjects))
         else: sentence.append(slot)
 
     return sentence
@@ -415,8 +411,6 @@ def make_phrase(associationGroup, pluralizeObjects):
     
     return sentence
 
-print make_imperative({'associations': [{'type': u'HAS-ABILITY-TO', 'target': u'leave', 'weight': 0.231969316683}, {'type': u'IS-A', 'target': u'creature', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'travel', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'know', 'weight': 0.991859867867}, {'type': u'HAS-ABILITY-TO', 'target': u'grow', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'emma', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'species', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'soft-spoken', 'weight': 0.231969316683}, {'type': u'HAS-PROPERTY', 'target': u'more', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'fallow', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'western', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'male', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'chinese', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'many', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'large', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'other', 'weight': 0.0999999999997}], 'word': 'deer', 'hasHasAbilityTo': True, 'hasHasProperty': True, 'hasHas': False, 'hasIsA': True}, False)
-
 def finalize_reply(reply):
     splitReply = pattern.en.parse(' '.join(reply), True, True, False, False, True).split()
     tokenizedReply = []
@@ -453,4 +447,4 @@ def finalize_reply(reply):
 
     return ' '.join(reply)
 
-#print build_reply(({'asker': 'sharkthemepark', 'numObjects': 2}, [{'associations': [{'type': u'HAS-ABILITY-TO', 'target': u'spend', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'cool', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'gay', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'meaning', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'golden', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'pure', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'great', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'cute', 'weight': 0.0999999999997}], 'word': 'dog', 'hasHasAbilityTo': True, 'hasHasProperty': True, 'hasHas': False, 'hasIsA': False}, {'associations': [{'type': u'HAS-ABILITY-TO', 'target': u'leave', 'weight': 0.231969316683}, {'type': u'IS-A', 'target': u'creature', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'travel', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'know', 'weight': 0.991859867867}, {'type': u'HAS-ABILITY-TO', 'target': u'grow', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'emma', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'species', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'soft-spoken', 'weight': 0.231969316683}, {'type': u'HAS-PROPERTY', 'target': u'more', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'fallow', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'western', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'male', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'chinese', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'many', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'large', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'other', 'weight': 0.0999999999997}], 'word': 'deer', 'hasHasAbilityTo': True, 'hasHasProperty': True, 'hasHas': False, 'hasIsA': True}]), 0, False)
+print build_reply(({'asker': 'sharkthemepark', 'numObjects': 2}, [{'associations': [{'type': u'HAS-ABILITY-TO', 'target': u'spend', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'cool', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'gay', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'meaning', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'golden', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'pure', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'great', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'cute', 'weight': 0.0999999999997}], 'word': 'dog', 'hasHasAbilityTo': True, 'hasHasProperty': True, 'hasHas': False, 'hasIsA': False}, {'associations': [{'type': u'HAS-ABILITY-TO', 'target': u'leave', 'weight': 0.231969316683}, {'type': u'IS-A', 'target': u'creature', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'travel', 'weight': 0.231969316683}, {'type': u'HAS-ABILITY-TO', 'target': u'know', 'weight': 0.991859867867}, {'type': u'HAS-ABILITY-TO', 'target': u'grow', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'emma', 'weight': 0.0999999999997}, {'type': u'IS-A', 'target': u'species', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'soft-spoken', 'weight': 0.231969316683}, {'type': u'HAS-PROPERTY', 'target': u'more', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'fallow', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'western', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'male', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'chinese', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'many', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'large', 'weight': 0.0999999999997}, {'type': u'HAS-PROPERTY', 'target': u'other', 'weight': 0.0999999999997}], 'word': 'deer', 'hasHasAbilityTo': True, 'hasHasProperty': True, 'hasHas': False, 'hasIsA': True}]), False)
