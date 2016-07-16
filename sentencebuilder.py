@@ -356,10 +356,10 @@ def make_interrogative(word):
     if pluralizeObjects: interrogativeDomains.append(
         [u"what", u"are", u"=WORD"]
     )
-    else: interrogativeDomains.append(
+    else: interrogativeDomains.extend([
         [u"what", u"is", u"=WORD"],
         [u"what", u"is", u"a", u"=WORD"]
-    )
+    ])
     domain = random.choice(interrogativeDomains)
 
     if console['verboseLogging']: print "Building interrogative phrase..."
