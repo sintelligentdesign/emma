@@ -225,9 +225,9 @@ while True:
 
         print "Choosing activity..."
         activities = []
-        if debug['enableReblogs']: activities.append('reblogPost')
-        if debug['enableDreams']: activities.extend(['dream', 'dream'])
-        if debug['enableReplies'] and askList != []: activities.extend(['replyToAsks', 'replyToAsks', 'replyToAsks'])
+        if debug['enableReblogs']: activities.append(reblogPost)
+        if debug['enableDreams']: activities.extend(['dream'] * 2)
+        if debug['enableReplies'] and askList != []: activities.extend(['replyToAsks'] * 3)
 
         activity = random.choice(activities)
         if activity == 'reblogPost':
