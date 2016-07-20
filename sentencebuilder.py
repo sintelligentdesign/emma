@@ -131,13 +131,10 @@ def determine_valid_intents(associationPackage):
     # This function doesn't include interrogatives or greetings, since those are Association Bundle-specific
     validIntents = {}
     for associationBundle in associationPackage[1]:
-        intents = []
-        if associationBundle['hasHasProperty']: intents.append('DECLARATIVE')
+        intents = ['PHRASE']
+        if associationBundle['hasHas'] or associationBundle['hasIsA'] or associationBundle['hasHasProperty'] or associationBundle['hasHasAbilityTo']: intents.extend(['DECLARATIVE', 'COMPARATIVE'])
         if len(associationBundle['associations']) < 3 and associationBundle['word'] != associationPackage[0]['asker']: intents.append('INTERROGATIVE')
         if associationBundle['hasHasAbilityTo']: intents.append('IMPERATIVE')
-
-        if associationPackage[0]['numObjects'] >= 2 and 'DECLARATIVE' in intents: intents.append('COMPARATIVE')
-        if associationPackage[0]['numObjects'] >= 1: intents.append('PHRASE')
 
         if console['verboseLogging']: print Fore.GREEN + u"Intents for \'" + associationBundle['word'] + u"\': " + u', '.join(intents)
         validIntents[associationBundle['word']] = intents
@@ -252,12 +249,12 @@ def make_declarative(associationGroup):
     hasAssociations = []
     isaAssociations = []
     haspropertyAssociations = []
-    hashasabilitytoAssociations = []
+    hasabilitytoAssociations = []
     for association in associationGroup['associations']:
         if association['type'] == "HAS": hasAssociations.append(association)
         if association['type'] == "IS-A": isaAssociations.append(association)
         if association['type'] == "HAS-PROPERTY": haspropertyAssociations.append(association)
-        if association['type'] == "HAS-ABILITY-TO": hashasabilitytoAssociations.append(association)
+        if association['type'] == "HAS-ABILITY-TO": hasabilitytoAssociations.append(association)
 
     if console['verboseLogging']: print "Choosing domain..."
     declarativeDomains = []
@@ -286,7 +283,7 @@ def make_declarative(associationGroup):
         print sentence + domain[count:]
         if slot == u"=PHRASE": sentence.extend(make_phrase(associationGroup))
         elif slot == u"=ADJECTIVE": sentence.append(choose_association(haspropertyAssociations)['target'])
-        elif slot == u"=VERB": sentence.append(choose_association(hashasabilitytoAssociations)['target'])       #todo: add "how" ("the snake moved (how?) quickly")
+        elif slot == u"=VERB": sentence.append(choose_association(hasabilitytoAssociations)['target'])       #todo: add "how" ("the snake moved (how?) quickly")
         elif slot == u"=OBJ-HAS": sentence.append(choose_association(hasAssociations)['target'])
         elif slot == u"=OBJ-IS-A": sentence.append(choose_association(isaAssociations)['target'])
         elif slot == u"=ISARE":
