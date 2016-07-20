@@ -171,7 +171,7 @@ def build_reply(associationPackage, hasGreeting, questionPackages):
                 print SQLReturn
                 if SQLReturn != []: answer = ("does", question[1], question[2], True)       # yes/no, CATS (have) PAWS
                 else: answer = ("does", question[1], question[2], False)
-            questionAnswers.append(answer)
+                questionAnswers.append(answer)
 
     sentencesToGenerate -= len(questionAnswers)
 
