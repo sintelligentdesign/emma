@@ -77,24 +77,26 @@ def make_halo(words):
     print Fore.GREEN + u"[Done]"
     return halo
 
+def group_associations(word):
+    associationGroup = []
+    with connection:
+        cursor.execute("SELECT * FROM associationmodel WHERE word = \"%s\";" % re.escape(word))
+        SQLReturn = cursor.fetchall()
+    if SQLReturn:
+        for row in SQLReturn:
+            associationGroup.append({
+                'type': row[1], 
+                'target': row[2], 
+                'weight': row[3]
+                })
+    return associationGroup
+
 def bundle_associations(words):
     associationBundle = []
     print Fore.GREEN + u"Finding associations for:",
     for word in words:
         print word,
-        with connection:
-            cursor.execute("SELECT * FROM associationmodel WHERE word = \"%s\";" % re.escape(word))
-            SQLReturn = cursor.fetchall()
-        if SQLReturn:
-            associationGroup = []
-            for row in SQLReturn:
-                associationGroup.append({
-                    'type': row[1], 
-                    'target': row[2], 
-                    'weight': row[3]
-                    })
-            associationBundle.append((word, associationGroup))
-        else: associationBundle.append((word, []))
+        associationBundle.append((word, group_associations(word)))
     print Fore.GREEN + u"[Done]"
     return associationBundle
     
