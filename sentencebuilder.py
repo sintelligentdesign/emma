@@ -78,6 +78,7 @@ def make_halo(words):
     return halo
 
 def group_associations(word):
+    # Retrieves and groups the input string's associations
     associationGroup = []
     with connection:
         cursor.execute("SELECT * FROM associationmodel WHERE word = \"%s\";" % re.escape(word))
@@ -251,10 +252,12 @@ def make_declarative(associationGroup):
     hasAssociations = []
     isaAssociations = []
     haspropertyAssociations = []
+    hashasabilitytoAssociations = []
     for association in associationGroup['associations']:
         if association['type'] == "HAS": hasAssociations.append(association)
         if association['type'] == "IS-A": isaAssociations.append(association)
         if association['type'] == "HAS-PROPERTY": haspropertyAssociations.append(association)
+        if association['type'] == "HAS-ABILITY-TO": hashasabilitytoAssociations.append(association)
 
     if console['verboseLogging']: print "Choosing domain..."
     declarativeDomains = [
@@ -264,8 +267,8 @@ def make_declarative(associationGroup):
         [u"=PHRASE", u"=ISARE", u"=ADJECTIVE", u"and", u"=ADJECTIVE"]
     )
     if associationGroup['hasHasAbilityTo']: declarativeDomains.extend([
-        [u"=PHRASE", u"=IMPERATIVE"],
-        [u"=PHRASE", u"can", u"=IMPERATIVE"]
+        [u"=PHRASE", u"=VERB"],
+        [u"=PHRASE", u"can", u"=VERB"]
     ])
     if hasAssociations != []: declarativeDomains.append(
         [u"=PHRASE", u"=HAVEHAS", u"=OBJ-HAS"]
@@ -282,7 +285,7 @@ def make_declarative(associationGroup):
         print sentence + domain[count:]
         if slot == u"=PHRASE": sentence.extend(make_phrase(associationGroup))
         elif slot == u"=ADJECTIVE": sentence.append(choose_association(haspropertyAssociations)['target'])
-        elif slot == u"=IMPERATIVE": sentence.extend(make_imperative(associationGroup))
+        elif slot == u"=VERB": sentence.append(choose_association(hashasabilitytoAssociations)['target'])       #todo: add "how" ("the snake moved (how?) quickly")
         elif slot == u"=OBJ-HAS": sentence.append(choose_association(hasAssociations)['target'])
         elif slot == u"=OBJ-IS-A": sentence.append(choose_association(isaAssociations)['target'])
         elif slot == u"=ISARE":
@@ -296,13 +299,11 @@ def make_declarative(associationGroup):
     return sentence
 
 def make_imperative(associationGroup):
-    # todo: when make_imperative() is called from make_declarative(), add a possible domain [u"=VERB"]
     if console['verboseLogging']: print "Generating an imperative statement for \'%s\'..." % associationGroup['word']
 
     verbAssociations = []
     for association in associationGroup['associations']:
         if association['type'] == "HAS-ABILITY-TO": verbAssociations.append(association)
-        print verbAssociations
 
     if console['verboseLogging']: print "Choosing domain..."
     imperativeDomains = [
