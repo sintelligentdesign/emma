@@ -4,7 +4,7 @@
 
 debug = {
     # Enable or disable connecting to tumblr to fetch asks
-    'fetchRealAsks': False,
+    'fetchRealAsks': True,
 
     # If the above is false, supply a list of fake asks for Emma to read for testing and debugging
     'fakeAsks': [
@@ -15,7 +15,7 @@ debug = {
         {'asker': u'sharkthemepark', 'message': u"I love nanopup they're so perfect so pretty so pure i love that dog", 'id': 00000}],
 
     # Enable or disable sleeping between actions
-    'enableSleep': False,
+    'enableSleep': True,
 
     # Enable or disable replying to asks
     'enableReplies': True,
@@ -29,7 +29,7 @@ debug = {
 
 console = {
     # Enable or disable verbose logging to the console while Emma is running
-    'verboseLogging': True,
+    'verboseLogging': False,
 
     # Enable or disable a mode where you can directly chat with Emma without going through Tumblr
     'chatMode': False
@@ -45,11 +45,11 @@ files = {
 
 tumblr = {
     # Enable or disable posting on Tumblr (this also affects Reblogs)
-    'enablePublishing': False,
+    'enablePublishing': True,
 
     # Enable or disable Tumblr post previews, which give a rough idea of what a tumblr post will look like in the terminal
     'enablePostPreview': True,
 
     # Enable or disable deletion of asks after we're done with them
-    'enableAskDeletion': False
+    'enableAskDeletion': True
 }
