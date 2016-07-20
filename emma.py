@@ -24,6 +24,7 @@ init(autoreset = True)
 
 import tumblrclient
 import parse
+import questionparser
 import pronouns
 import associationtrainer
 import sentencebuilder
@@ -119,12 +120,15 @@ def consume(parsedMessage, asker=u""):
         pronouns.determine_references(parsedSentence)
         pronouns.flip_posessive_references(parsedSentence, asker)
         intent = parse.determine_intent(parsedSentence)
-        if intent['interrogative'] == False:
+        if intent['interrogative'] == True:
+            questionPackage = questionparser.read_question(parsedSentence)
+        else:
             parse.add_new_words(parsedSentence)
             associationtrainer.find_associations(parsedSentence)
+            questionPackage = []
         intents.append(intent)
         print "Sentence consumed."
-    return intents
+    return intents, questionPackage
 
 def reply_to_asks(askList):
     if len(askList) > 0:
@@ -134,7 +138,7 @@ def reply_to_asks(askList):
             print Fore.BLUE + u"@" + ask['asker'] + u" >> " + ask['message']
 
             parsedAsk = parse.tokenize(ask['message'])
-            intents = consume(parsedAsk, ask['asker'])
+            intents, questionPackage = consume(parsedAsk, ask['asker'])
             understanding = utilities.pretty_print_understanding(parsedAsk, intents)
             reply = sentencebuilder.generate_sentence(parsedAsk, get_mood(update=True, text=ask['message'], expressAsText=False), intents, ask['asker'])
 
@@ -198,7 +202,8 @@ def chat():
     while True:
         input = raw_input(Fore.BLUE + 'You >> ').decode('utf-8')
         tokenizedMessage = parse.tokenize(input)
-        intents = consume(tokenizedMessage)
+        intents, questionPackage = consume(tokenizedMessage)
+        # todo: do things with questionPackage in chat()
         
         reply = sentencebuilder.generate_sentence(tokenizedMessage, get_mood(update=True, text=input, expressAsText=False), intents)
         if "%" not in reply: print Fore.BLUE + u"emma >> " + reply
