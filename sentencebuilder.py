@@ -170,7 +170,6 @@ def build_reply(associationPackage, hasGreeting):
         # Retrieve our chosen word's association group
         for associationGroupIter in associationPackage[1]:
             if associationGroupIter['word'] == word: associationGroup = associationGroupIter
-        print Fore.RED + associationGroup['word']
 
         # Decide whether to make objects in the sentence plural
         # todo: check dictionary to see if the word is plural or singular so that we don't pluralize plurals or vice versa
@@ -188,14 +187,11 @@ def build_reply(associationPackage, hasGreeting):
                 # Create a comparative sentence
                 comparisonCandidatesList = {}
                 for word in validIntents.keys():
-                    print word
-                    print validIntents[word]
                     if 'DECLARATIVE' in validIntents[word]: comparisonCandidatesList[word] = wordList[word]
 
                 comparisonDistribution = []
                 for word in comparisonCandidatesList.keys(): comparisonDistribution.extend([word] * comparisonCandidatesList[word])
                 comparison = random.choice(comparisonDistribution)
-                print comparison
                 wordList[comparison] -= 1       # Decrease the chance of the compared word being chosen again
 
                 for comparisonAssociationGroup in associationPackage[1]:
