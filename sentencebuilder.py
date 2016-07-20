@@ -141,19 +141,16 @@ def determine_valid_intents(associationPackage):
     return validIntents
 
 def build_reply(associationPackage, hasGreeting):
-    reply = []
-    if associationPackage[0]['numObjects'] <= 3: sentencesToGenerate = random.randint(1, associationPackage[0]['numObjects'])
-    else: sentencesToGenerate = random.randint(1, 3)
+    sentencesToGenerate = random.randint(1, 3)
 
-    # If conditions are right, add a greeting
-    if mood >= 0.1 and hasGreeting == True and associationPackage[0]['asker'] != "": reply = make_greeting(associationPackage[0]['asker']) + [u"!"]
-  
-    # All words start with an equal chance (2) of being chosen for sentence generation. If the word is used, its chance of being chosen decreases by 1 each time it's used until it reaches 0
+ 	# All words start with an equal chance (2) of being chosen for sentence generation. If the word is used, its chance of being chosen decreases by 1 each time it's used until it reaches 0
     wordList = {}
     for associationBundle in associationPackage[1]: wordList[associationBundle['word']] = 2
-    
-    for sentenceIterator in range(0, sentencesToGenerate):
-        print Fore.MAGENTA + "Generating sentence %d of %d..." % (sentenceIterator + 1, sentencesToGenerate)
+
+    # Choose what domains to include in the sentence and order them correctly
+    domains = []
+    for i in range(0, sentencesToGenerate):
+        if mood >= 0.1 and hasGreeting == True and associationPackage[0]['asker'] != "": domains.append(("=GREETING", associationPackage[0]['asker'], []))
 
         # Choose the word to use as the seed for our sentence based on weighted random chance
         wordDistribution = []
@@ -177,11 +174,34 @@ def build_reply(associationPackage, hasGreeting):
         if random.randint(0, 1) == 0: pluralizeObjects = True
         else: pluralizeObjects = False
 
+        domains.append(("=" + intent, word, associationGroup))
+
+    # Sort the domains
+    sortedDomains = []
+    for domain in domains:
+        if domain == "=GREETING": sortedDomains.append(domain)
+    for domain in domains:
+        if domain == "=DECLARATIVE": sortedDomains.append(domain)
+    for domain in domains:
+        if domain == "=IMPERATIVE": sortedDomains.append(domain)
+    for domain in domains:
+        if domain == "=PHRASE": sortedDomains.append(domain)
+    for domain in domains:
+        if domain == "=INTERROGATIVE": sortedDomains.append(domain)
+    domains = sortedDomains
+
+    # Use our domain template to create the reply
+    reply = []
+    for domain, sentenceIterator in enumerate(domains):
+        sentence = []
+        print Fore.MAGENTA + "Generating sentence %d of %d..." % (sentenceIterator + 1, len(domains))
+
         # Decide how to proceed with sentence generation based on our intent
-        if intent == 'PHRASE': sentence = make_phrase(associationGroup) + [u"."]
-        elif intent == 'IMPERATIVE': sentence = make_imperative(associationGroup) + [u"."]
-        elif intent == 'INTERROGATIVE': sentence = make_interrogative(word) + [u"?"]
-        elif intent == 'DECLARATIVE': 
+        if domain[0] == '=GREETING': sentence = make_greeting(domain[1]) + [u"!"]
+        elif domain[0] == '=PHRASE': sentence = make_phrase(domain[2]) + [u"."]
+        elif domain[0] == '=IMPERATIVE': sentence = make_imperative(domain[2]) + [u"."]
+        elif domain[0] == '=INTERROGATIVE': sentence = make_interrogative(domain[1]) + [u"?"]
+        elif domain[0] == '=DECLARATIVE': 
             if random.randint(0, 1) == 0: sentence = make_declarative(associationGroup) + [u"."]        # Create a declarative sentence
             else:
                 # Create a comparative sentence
