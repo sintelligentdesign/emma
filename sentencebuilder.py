@@ -169,8 +169,8 @@ def build_reply(associationPackage, hasGreeting):
         print Fore.MAGENTA + "Sentence intent: \'%s\'" % intent
 
         # Retrieve our chosen word's association group
-        for associationGroup in associationPackage[1]:
-            if associationGroup['word'] == word: associationGroup = associationGroup
+        for associationGroupIter in associationPackage[1]:
+            if associationGroupIter['word'] == word: associationGroup = associationGroupIter
 
         # Decide whether to make objects in the sentence plural
         # todo: check dictionary to see if the word is plural or singular so that we don't pluralize plurals or vice versa
@@ -249,13 +249,9 @@ def make_declarative(associationGroup):
     hasAssociations = []
     isaAssociations = []
     haspropertyAssociations = []
-    if associationGroup['hasHas']:
-        for association in associationGroup['associations']:
-            if association['type'] == "HAS": hasAssociations.append(association)
-    if associationGroup['hasIsA']:
-        for association in associationGroup['associations']:
-            if association['type'] == "IS-A": isaAssociations.append(association)
     for association in associationGroup['associations']:
+        if association['type'] == "HAS": hasAssociations.append(association)
+        if association['type'] == "IS-A": isaAssociations.append(association)
         if association['type'] == "HAS-PROPERTY": haspropertyAssociations.append(association)
 
     if console['verboseLogging']: print "Choosing domain..."
@@ -304,6 +300,7 @@ def make_imperative(associationGroup):
     verbAssociations = []
     for association in associationGroup['associations']:
         if association['type'] == "HAS-ABILITY-TO": verbAssociations.append(association)
+        print verbAssociations
 
     if console['verboseLogging']: print "Choosing domain..."
     imperativeDomains = [
