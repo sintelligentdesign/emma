@@ -179,22 +179,22 @@ def build_reply(associationPackage, hasGreeting):
     # Sort the domains
     sortedDomains = []
     for domain in domains:
-        if domain == "=GREETING": sortedDomains.append(domain)
+        if domain[0] == "=GREETING": sortedDomains.append(domain)
     for domain in domains:
-        if domain == "=DECLARATIVE": sortedDomains.append(domain)
+        if domain[0] == "=DECLARATIVE": sortedDomains.append(domain)
     for domain in domains:
-        if domain == "=IMPERATIVE": sortedDomains.append(domain)
+        if domain[0] == "=IMPERATIVE": sortedDomains.append(domain)
     for domain in domains:
-        if domain == "=PHRASE": sortedDomains.append(domain)
+        if domain[0] == "=PHRASE": sortedDomains.append(domain)
     for domain in domains:
-        if domain == "=INTERROGATIVE": sortedDomains.append(domain)
+        if domain[0] == "=INTERROGATIVE": sortedDomains.append(domain)
     domains = sortedDomains
 
     # Use our domain template to create the reply
     reply = []
-    for domain, sentenceIterator in enumerate(domains):
+    for count, domain in enumerate(domains):
         sentence = []
-        print Fore.MAGENTA + "Generating sentence %d of %d..." % (sentenceIterator + 1, len(domains))
+        print Fore.MAGENTA + "Generating sentence %d of %d..." % (count + 1, len(domains))
 
         # Decide how to proceed with sentence generation based on our intent
         if domain[0] == '=GREETING': sentence = make_greeting(domain[1]) + [u"!"]
