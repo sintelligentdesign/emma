@@ -162,6 +162,16 @@ def build_reply(associationPackage, hasGreeting, questionPackages):
                 else: answer = ""
             if answer != "":
                 questionAnswers.append(("what", question[1], question[2], answer))      # (what) COLOR (of) SKY (be) ANSWER
+        
+        print Fore.RED + str(question)
+        if question[0] in [u"do", u"does"]:
+            with connection:
+                cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' AND association_type = \'HAS\' AND target = \'%s\';" % (question[1], question[2]))
+                SQLReturn = cursor.fetchall()
+                print SQLReturn
+                if SQLReturn != []: answer = ("does", question[1], question[2], True)       # yes/no, CATS (have) PAWS
+                else: answer = ("does", question[1], question[2], False)
+            questionAnswers.append(answer)
 
     sentencesToGenerate -= len(questionAnswers)
 
@@ -267,10 +277,19 @@ def choose_association(associationGroup):
 def make_answer(answer):
     print answer
     answerDomains = []
-    if answer[0] == "what":
-
-        answerDomains = [
+    if answer[0] == "what": answerDomains = [
             [u"The", answer[1], u"of", u"the", answer[2], u"is", answer[3]]
+        ]
+    elif answer[0] == "does":
+        if answer[3]: answerDomains = [
+            [u"I", u"think", u"so", u",", u"yes"],
+            [answer[1], u"have", answer[2]],
+            [u"Yes", answer[1], u"have", answer[2]]
+        ]
+        else: answerDomains = [
+            [u"I", u"don\'t", u"think", u"so"],
+            [answer[1], u"do", u"not", u"have", answer[2]],
+            [u"no", answer[1], u"don\'t", u"have", answer[2]]
         ]
 
     domain = random.choice(answerDomains)
