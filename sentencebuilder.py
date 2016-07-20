@@ -322,9 +322,9 @@ def make_imperative(associationGroup):
     domain = random.choice(imperativeDomains)
     
     if console['verboseLogging']: print "Building imperative statement..."
+    sentence = []
     if mood > 0.4: 
         if random.randint(0, 1) == 0: sentence = [u"please"]
-    else: sentence = []
 
     for count, slot in enumerate(domain):
         print sentence + domain[count:]
