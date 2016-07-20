@@ -132,7 +132,7 @@ def determine_valid_intents(associationPackage):
     validIntents = {}
     for associationBundle in associationPackage[1]:
         intents = ['PHRASE']
-        if associationBundle['hasHas'] or associationBundle['hasIsA'] or associationBundle['hasHasProperty'] or associationBundle['hasHasAbilityTo']: intents.extend(['DECLARATIVE', 'COMPARATIVE'])
+        if associationBundle['hasHas'] or associationBundle['hasIsA'] or associationBundle['hasHasProperty'] or associationBundle['hasHasAbilityTo']: intents.append('DECLARATIVE')
         if len(associationBundle['associations']) < 3 and associationBundle['word'] != associationPackage[0]['asker']: intents.append('INTERROGATIVE')
         if associationBundle['hasHasAbilityTo']: intents.append('IMPERATIVE')
 
@@ -166,11 +166,11 @@ def build_reply(associationPackage, hasGreeting):
         print "Determining valid intents for words in association package..."
         validIntents = determine_valid_intents(associationPackage)
         intent = random.choice(validIntents[word])
-        print Fore.MAGENTA + "Sentence intent: \'%s\'" % intent
 
         # Retrieve our chosen word's association group
         for associationGroupIter in associationPackage[1]:
             if associationGroupIter['word'] == word: associationGroup = associationGroupIter
+        print Fore.RED + associationGroup['word']
 
         # Decide whether to make objects in the sentence plural
         # todo: check dictionary to see if the word is plural or singular so that we don't pluralize plurals or vice versa
@@ -180,23 +180,27 @@ def build_reply(associationPackage, hasGreeting):
 
         # Decide how to proceed with sentence generation based on our intent
         if intent == 'PHRASE': sentence = make_phrase(associationGroup) + [u"."]
-        elif intent == 'DECLARATIVE': sentence = make_declarative(associationGroup) + [u"."]
         elif intent == 'IMPERATIVE': sentence = make_imperative(associationGroup) + [u"."]
         elif intent == 'INTERROGATIVE': sentence = make_interrogative(word) + [u"?"]
-        elif intent == 'COMPARATIVE':
-            # Choose a word to compare our seed word with, similarly to how we chose a seed word for our sentence
-            comparisonCandidates = []
-            for word in validIntents.keys():
-                if 'COMPARATIVE' in validIntents[word]: comparisonCandidates.append(word)
+        elif intent == 'DECLARATIVE': 
+            if random.randint(0, 1) == 0: sentence = make_declarative(associationGroup) + [u"."]        # Create a declarative sentence
+            else:
+                # Create a comparative sentence
+                comparisonCandidatesList = {}
+                for word in validIntents.keys():
+                    print word
+                    print validIntents[word]
+                    if 'DECLARATIVE' in validIntents[word]: comparisonCandidatesList[word] = wordList[word]
 
-            comparisonDistribution = []
-            for word in wordList.keys(): comparisonDistribution.extend([word] * wordList[word])
-            comparison = random.choice(comparisonDistribution)
-            wordList[comparison] -= 1       # Decrease the chance of the compared word being chosen again
+                comparisonDistribution = []
+                for word in comparisonCandidatesList.keys(): comparisonDistribution.extend([word] * comparisonCandidatesList[word])
+                comparison = random.choice(comparisonDistribution)
+                print comparison
+                wordList[comparison] -= 1       # Decrease the chance of the compared word being chosen again
 
-            for associationGroup in associationPackage[1]:
-                if associationGroup['word'] == comparison: comparisonGroup = associationGroup
-            sentence = make_comparative(associationGroup, comparisonGroup) + [u"."]
+                for comparisonAssociationGroup in associationPackage[1]:
+                    if comparisonAssociationGroup['word'] == comparison: comparisonGroup = comparisonAssociationGroup
+                sentence = make_comparative(associationGroup, comparisonGroup) + [u"."]
             
         print sentence
         reply.extend(sentence)
@@ -258,13 +262,13 @@ def make_declarative(associationGroup):
 
     if console['verboseLogging']: print "Choosing domain..."
     declarativeDomains = []
-    if associationGroup['hasHasProperty']: declarativeDomains.extend([
+    if haspropertyAssociations != []: declarativeDomains.append(
         [u"=PHRASE", u"=ISARE", u"=ADJECTIVE"]
-    ])
+    )
     if len(haspropertyAssociations) > 1: declarativeDomains.append(
         [u"=PHRASE", u"=ISARE", u"=ADJECTIVE", u"and", u"=ADJECTIVE"]
     )
-    if associationGroup['hasHasAbilityTo']: declarativeDomains.extend([
+    if hasabilitytoAssociations != []: declarativeDomains.extend([
         [u"=PHRASE", u"=VERB"],
         [u"=PHRASE", u"can", u"=VERB"]
     ])
