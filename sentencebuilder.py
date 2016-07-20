@@ -260,9 +260,10 @@ def make_declarative(associationGroup):
         if association['type'] == "HAS-ABILITY-TO": hashasabilitytoAssociations.append(association)
 
     if console['verboseLogging']: print "Choosing domain..."
-    declarativeDomains = [
+    declarativeDomains = []
+    if associationGroup['hasHasProperty']: declarativeDomains.extend([
         [u"=PHRASE", u"=ISARE", u"=ADJECTIVE"]
-    ]
+    ])
     if len(haspropertyAssociations) > 1: declarativeDomains.append(
         [u"=PHRASE", u"=ISARE", u"=ADJECTIVE", u"and", u"=ADJECTIVE"]
     )
