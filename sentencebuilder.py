@@ -39,25 +39,13 @@ def generate_sentence(tokenizedMessage, moodAvg, askerIntents=[{'declarative': T
     print "Creating association bundles..."
     associationBundle = bundle_associations(importantWords)
 
+    '''
     if len(associationBundle) < 3:
         if len(associationBundle) == 0: print Fore.RED + "There are no associations in the primary bundle. Creating common sense halo..."
         else: print Fore.YELLOW + "The number of associations in the primary bundle is small. Creating common sense halo..."
 
-        halo = make_halo(importantWords)     # todo: is there a more efficient way to handle common sense halos?
-        if len(halo) != 0: 
-            print "Adding associations from common sense halo..."
-            associationBundle = bundle_associations(halo)
-        else: 
-            # Warning state
-            print Fore.YELLOW + "There are no words in the common sense halo. Widening halo..."
-            halo = make_halo(halo)
-            if len(halo) != 0:
-                print "Adding associations from common sense halo..."
-                associationBundle = bundle_associations(halo)
-            else:
-                # Fail state
-                print Fore.RED + "There are no words in the common sense halo. Reply generation failed."
-                return "%"
+        halo = make_halo(importantWords)
+    '''
 
     # Create packages which include the association package and information about its contents so that the generator knows what domains can be used
     print "Packaging association bundles and related information..."
