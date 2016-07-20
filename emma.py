@@ -133,14 +133,6 @@ def reply_to_asks(askList):
             print "Reading ask no. %d of %d..." % (askCount + 1, len(askList))
             print Fore.BLUE + u"@" + ask['asker'] + u" >> " + ask['message']
 
-            friendsList = []
-            with connection:
-                cursor.execute("SELECT username FROM friends")
-                for name in cursor.fetchall(): friendsList.append(name[0])
-                if not ask['asker'] in friendsList: 
-                    print Fore.BLUE + "Adding @%s to friends list..." % ask['asker']
-                    cursor.execute("INSERT INTO friends(username) VALUES(\'%s\');" % ask['asker'])
-
             parsedAsk = parse.tokenize(ask['message'])
             intents = consume(parsedAsk, ask['asker'])
             understanding = utilities.pretty_print_understanding(parsedAsk, intents)
@@ -167,7 +159,7 @@ def reply_to_asks(askList):
 
 def reblog_post():
     with connection:
-        cursor.execute("SELECT username FROM friends WHERE can_reblog_from = 1")
+        cursor.execute("SELECT username FROM friends;")
         SQLReturn = cursor.fetchall()
     posts = tumblrclient.get_recent_posts(random.choice(SQLReturn)[0])
 
