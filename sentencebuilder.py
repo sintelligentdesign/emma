@@ -18,7 +18,7 @@ cursor = connection.cursor()
 
 mood = 0
 
-def generate_sentence(tokenizedMessage, moodAvg, askerIntents=[{'declarative': True, 'interrogative': False, 'greeting': False}], asker=""):
+def generate_sentence(tokenizedMessage, moodAvg, askerIntents=[{'declarative': True, 'interrogative': False, 'greeting': False}], asker="", questionPackages=[]):
     global mood
     mood = moodAvg
     print "Creating reply..."
@@ -62,7 +62,7 @@ def generate_sentence(tokenizedMessage, moodAvg, askerIntents=[{'declarative': T
         if intent['greeting'] == True: hasGreeting = True
 
     # Generate the reply
-    return build_reply(associationPackage, hasGreeting)
+    return build_reply(associationPackage, hasGreeting, questionPackages)
 
 def make_halo(words):
     halo = words
@@ -140,8 +140,36 @@ def determine_valid_intents(associationPackage):
         validIntents[associationBundle['word']] = intents
     return validIntents
 
-def build_reply(associationPackage, hasGreeting):
+def build_reply(associationPackage, hasGreeting, questionPackages):
     sentencesToGenerate = random.randint(1, 3)
+
+    # Check whether or not we need to answer questions, and attempt to generate answers if we do
+    questionAnswers = []
+    for question in questionPackages:
+        if question[0] == "what":
+            with connection:
+                cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' AND association_type = \'HAS-PROPERTY\';" % question[2])
+                answerCandidates = []
+                for adjective in cursor.fetchall():
+                    cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' AND target = \'%s\';" % (adjective[2], question[1]))
+                    SQLReturn = cursor.fetchall() 
+                    if SQLReturn != []:
+                        answerCandidates.append(SQLReturn[0])
+                if len(answerCandidates) > 1:
+                    # todo: make this choice weighted by the weight of the associations
+                    answer = random.choice(answerCandidates)
+                elif len(answerCandidates) > 0: answer = answerCandidates[0][0]
+                else: answer = ""
+            if answer != "":
+                questionAnswers.append(("what", question[1], question[2], answer))      # (what) COLOR (of) SKY (be) ANSWER
+
+    sentencesToGenerate -= len(questionAnswers)
+
+    answers = []
+    for answer in questionAnswers:
+        answer = make_answer(answer)
+        answer.append(random.choice([u"!", u"."]))
+        answers.extend(answer)
 
  	# All words start with an equal chance (2) of being chosen for sentence generation. If the word is used, its chance of being chosen decreases by 1 each time it's used until it reaches 0
     wordList = {}
@@ -223,6 +251,8 @@ def build_reply(associationPackage, hasGreeting):
         reply.extend(sentence)
     
     print "Finalizing reply..."
+    if answers != []:
+        reply = reply + answers
     return finalize_reply(reply)
 
 def choose_association(associationGroup):
@@ -233,6 +263,22 @@ def choose_association(associationGroup):
     for association in associationGroup:
         dieResult -= association['weight']
         if dieResult <= 0: return association
+
+def make_answer(answer):
+    print answer
+    answerDomains = []
+    if answer[0] == "what":
+
+        answerDomains = [
+            [u"The", answer[1], u"of", u"the", answer[2], u"is", answer[3]]
+        ]
+
+    domain = random.choice(answerDomains)
+
+    if console['verboseLogging']: print "Building an answer..."
+    sentence = domain
+
+    return sentence
 
 def make_greeting(asker):
     if console['verboseLogging']: print "Generating a greeting..."
