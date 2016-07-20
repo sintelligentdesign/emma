@@ -148,6 +148,7 @@ def build_reply(associationPackage, hasGreeting):
     for associationBundle in associationPackage[1]: wordList[associationBundle['word']] = 2
 
     # Choose what domains to include in the sentence and order them correctly
+    print "Generating %d domains..." % sentencesToGenerate
     domains = []
     for i in range(0, sentencesToGenerate):
         if mood >= 0.1 and hasGreeting == True and associationPackage[0]['asker'] != "": domains.append(("=GREETING", associationPackage[0]['asker'], []))
@@ -157,10 +158,8 @@ def build_reply(associationPackage, hasGreeting):
         for word in wordList.keys(): wordDistribution.extend([word] * wordList[word])
         word = random.choice(wordDistribution)
         wordList[word] -= 1     # Decrease the chance of this word being chosen again
-        print Fore.MAGENTA + "Sentence subject: \'%s\'" % word
 
         # Create list intents to choose from, and choose an intent from it
-        print "Determining valid intents for words in association package..."
         validIntents = determine_valid_intents(associationPackage)
         intent = random.choice(validIntents[word])
 
@@ -173,6 +172,8 @@ def build_reply(associationPackage, hasGreeting):
         global pluralizeObjects
         if random.randint(0, 1) == 0: pluralizeObjects = True
         else: pluralizeObjects = False
+
+        print "Domain " + str(i + 1) + ": " + intent + " for \'" + word + "\' with " + str(len(associationGroup)) + " associations"
 
         domains.append(("=" + intent, word, associationGroup))
 
