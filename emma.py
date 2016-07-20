@@ -114,6 +114,7 @@ def get_mood(update=False, text="", expressAsText=True):
     
 def consume(parsedMessage, asker=u""):
     intents = []
+    questionPackages = []
     for count, parsedSentence in enumerate(parsedMessage):
         print "Consuming sentence %d of %d..." % (count + 1, len(parsedMessage))
 
@@ -121,14 +122,13 @@ def consume(parsedMessage, asker=u""):
         pronouns.flip_posessive_references(parsedSentence, asker)
         intent = parse.determine_intent(parsedSentence)
         if intent['interrogative'] == True:
-            questionPackage = questionparser.read_question(parsedSentence)
+            questionPackages.append(questionparser.read_question(parsedSentence))
         else:
             parse.add_new_words(parsedSentence)
             associationtrainer.find_associations(parsedSentence)
-            questionPackage = []
         intents.append(intent)
         print "Sentence consumed."
-    return intents, questionPackage
+    return intents, questionPackages
 
 def reply_to_asks(askList):
     if len(askList) > 0:
@@ -138,9 +138,10 @@ def reply_to_asks(askList):
             print Fore.BLUE + u"@" + ask['asker'] + u" >> " + ask['message']
 
             parsedAsk = parse.tokenize(ask['message'])
-            intents, questionPackage = consume(parsedAsk, ask['asker'])
+            intents, questionPackages = consume(parsedAsk, ask['asker'])
             understanding = utilities.pretty_print_understanding(parsedAsk, intents)
-            reply = sentencebuilder.generate_sentence(parsedAsk, get_mood(update=True, text=ask['message'], expressAsText=False), intents, ask['asker'])
+
+            reply = sentencebuilder.generate_sentence(parsedAsk, get_mood(update=True, text=ask['message'], expressAsText=False), intents, ask['asker'], questionPackages)
 
             if "%" not in reply:
                 print Fore.BLUE + u"emma >> %s" % reply
@@ -202,7 +203,7 @@ def chat():
     while True:
         input = raw_input(Fore.BLUE + 'You >> ').decode('utf-8')
         tokenizedMessage = parse.tokenize(input)
-        intents, questionPackage = consume(tokenizedMessage)
+        intents, questionPackages = consume(tokenizedMessage)
         # todo: do things with questionPackage in chat()
         
         reply = sentencebuilder.generate_sentence(tokenizedMessage, get_mood(update=True, text=input, expressAsText=False), intents)
