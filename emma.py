@@ -122,7 +122,10 @@ def consume(parsedMessage, asker=u""):
         pronouns.flip_posessive_references(parsedSentence, asker)
         intent = parse.determine_intent(parsedSentence)
         if intent['interrogative'] == True:
-            questionPackages.append(questionparser.read_question(parsedSentence))
+            questionPackage = questionparser.read_question(parsedSentence)
+            if questionPackage != None:
+                questionPackages.append(questionparser.read_question(parsedSentence))
+                print questionPackages
         else:
             parse.add_new_words(parsedSentence)
             associationtrainer.find_associations(parsedSentence)
