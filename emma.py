@@ -191,9 +191,7 @@ def dream():
     with connection:
         cursor.execute('SELECT word FROM dictionary WHERE is_banned = 0 ORDER BY RANDOM() LIMIT 10;')
         SQLReturn = cursor.fetchall()
-    dreamSeed = ""
-    for word in SQLReturn:
-        dreamSeed += word[0] + " "
+    dreamSeed = ' '.join(sentencebuilder.make_halo([random.choice(SQLReturn)[0]]))
     print "Dream seed: " + dreamSeed
     dream = sentencebuilder.generate_sentence(pattern.en.parse(dreamSeed, True, True, True, True, True).split(), get_mood(expressAsText=False))
     if "%" not in dream:
