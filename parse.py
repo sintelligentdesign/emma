@@ -63,6 +63,7 @@ def translate_netspeak(text):
         u'lemme': [u'let', u'me'],
         u'obv': [u'obviously'],
         u'tbh': [u'to', u'be', u'honest'],
+        u'btw': [u'by', u'the', u'way'],
         u'imo': [u'in', u'my', u'opinion'],
         u'omg': [u'oh', u'my', u'god'],
         u'gonna': [u'going', u'to'],
