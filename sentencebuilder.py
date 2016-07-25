@@ -513,7 +513,7 @@ def finalize_reply(reply):
             reply[count - 1] += word
             if word in [u".", u"!", u"?"] and count + 1 != len(reply):
                 reply[count + 1] = reply[count + 1][0].upper() + reply[count + 1][1:]
-        elif word == u"\'s":
+        elif word in [u"\'s", u"n\'t"]:
             reply[count - 1] += word
     
     reply[:] = [word for word in reply if word not in [u".", u",", u"!", u"?", u"\'s"]]
