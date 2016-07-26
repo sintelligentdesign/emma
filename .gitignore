@@ -2,3 +2,5 @@
 *.DS_Store
 
 apikeys.py
+emma.db
+moodHistory.p
