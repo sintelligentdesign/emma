@@ -15,11 +15,6 @@ connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 
 def tokenize(text):
-    bannedWords = []
-    with connection:
-        cursor.execute('SELECT word FROM dictionary WHERE is_banned = 1')
-        
-    for word in cursor.fetchall(): bannedWords.append(word[0])
     if text[-1] not in [u"!", u"?", "."]: text += u"."
     text = translate_netspeak(text)
 
@@ -86,6 +81,11 @@ def translate_netspeak(text):
     return ' '.join(decodedText)
 
 def finalize_sentence(taggedSentence):
+    bannedWords = []
+    with connection:
+        cursor.execute('SELECT word FROM dictionary WHERE is_banned = 1')
+        for word in cursor.fetchall(): bannedWords.append(word[0])
+
     rowsToRemove = []
     for count, taggedWord in enumerate(taggedSentence):
         if console['verboseLogging']: print "Checking for conjunctions and illegal characters..."
