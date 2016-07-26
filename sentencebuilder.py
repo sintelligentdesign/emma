@@ -516,6 +516,6 @@ def finalize_reply(reply):
         elif word in [u"\'s", u"n\'t"]:
             reply[count - 1] += word
     
-    reply[:] = [word for word in reply if word not in [u".", u",", u"!", u"?", u"\'s"]]
+    reply[:] = [word for word in reply if word not in [u".", u",", u"!", u"?", u"\'s", u"n\'t"]]
 
     return ' '.join(reply)
