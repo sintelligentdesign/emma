@@ -14,12 +14,12 @@ from config import console, files
 connection = sql.connect(files['dbPath'])
 cursor = connection.cursor()
 
-bannedWords = []
-with connection:
-    cursor.execute('SELECT word FROM dictionary WHERE is_banned = 1')
-    for word in cursor.fetchall(): bannedWords.append(word[0])
-
 def tokenize(text):
+    bannedWords = []
+    with connection:
+        cursor.execute('SELECT word FROM dictionary WHERE is_banned = 1')
+        
+    for word in cursor.fetchall(): bannedWords.append(word[0])
     if text[-1] not in [u"!", u"?", "."]: text += u"."
     text = translate_netspeak(text)
 
