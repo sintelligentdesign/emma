@@ -6,7 +6,7 @@ import re
 
 import pattern.en
 import sqlite3 as sql
-import pattern.en
+import enchant
 from colorama import init, Fore
 init(autoreset = True)
 
@@ -206,9 +206,8 @@ def build_reply(associationPackage, hasGreeting, questionPackages):
             if associationGroupIter['word'] == word: associationGroup = associationGroupIter
 
         # Decide whether to make objects in the sentence plural
-        # todo: check dictionary to see if the word is plural or singular so that we don't pluralize plurals or vice versa
         global pluralizeObjects
-        if random.randint(0, 1) == 0: pluralizeObjects = True
+        if random.randint(0, 1) == 0 and enchant.Dict('en_US').check(pattern.en.pluralize(word)): pluralizeObjects = True
         else: pluralizeObjects = False
 
         print "Domain " + str(i + 1) + ": " + intent + " for \'" + word + "\' with " + str(len(associationGroup)) + " associations"
