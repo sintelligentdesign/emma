@@ -189,30 +189,31 @@ def build_reply(associationPackage, hasGreeting, questionPackages):
     print "Generating %d domains..." % sentencesToGenerate
     domains = []
     for i in range(0, sentencesToGenerate):
-        if mood >= 0.1 and hasGreeting == True and associationPackage[0]['asker'] != "" and i == 0: domains.append(("=GREETING", associationPackage[0]['asker'], []))
+        if len(wordList) > 0:
+            if mood >= 0.1 and hasGreeting == True and associationPackage[0]['asker'] != "" and i == 0: domains.append(("=GREETING", associationPackage[0]['asker'], []))
 
-        # Choose the word to use as the seed for our sentence based on weighted random chance
-        wordDistribution = []
-        for word in wordList.keys(): wordDistribution.extend([word] * wordList[word])
-        word = random.choice(wordDistribution)
-        wordList[word] -= 1     # Decrease the chance of this word being chosen again
+            # Choose the word to use as the seed for our sentence based on weighted random chance
+            wordDistribution = []
+            for word in wordList.keys(): wordDistribution.extend([word] * wordList[word])
+            word = random.choice(wordDistribution)
+            wordList[word] -= 1     # Decrease the chance of this word being chosen again
 
-        # Create list intents to choose from, and choose an intent from it
-        validIntents = determine_valid_intents(associationPackage)
-        intent = random.choice(validIntents[word])
+            # Create list intents to choose from, and choose an intent from it
+            validIntents = determine_valid_intents(associationPackage)
+            intent = random.choice(validIntents[word])
 
-        # Retrieve our chosen word's association group
-        for associationGroupIter in associationPackage[1]:
-            if associationGroupIter['word'] == word: associationGroup = associationGroupIter
+            # Retrieve our chosen word's association group
+            for associationGroupIter in associationPackage[1]:
+                if associationGroupIter['word'] == word: associationGroup = associationGroupIter
 
-        # Decide whether to make objects in the sentence plural
-        global pluralizeObjects
-        if random.randint(0, 1) == 0 and enchant.Dict('en_US').check(pattern.en.pluralize(word)): pluralizeObjects = True
-        else: pluralizeObjects = False
+            # Decide whether to make objects in the sentence plural
+            global pluralizeObjects
+            if random.randint(0, 1) == 0 and enchant.Dict('en_US').check(pattern.en.pluralize(word)): pluralizeObjects = True
+            else: pluralizeObjects = False
 
-        print "Domain " + str(i + 1) + ": " + intent + " for \'" + word + "\' with " + str(len(associationGroup)) + " associations"
+            print "Domain " + str(i + 1) + ": " + intent + " for \'" + word + "\' with " + str(len(associationGroup)) + " associations"
 
-        domains.append(("=" + intent, word, associationGroup))
+            domains.append(("=" + intent, word, associationGroup))
 
     # Sort the domains
     sortedDomains = []
