@@ -208,7 +208,10 @@ def build_reply(associationPackage, hasGreeting, questionPackages):
 
             # Decide whether to make objects in the sentence plural
             global pluralizeObjects
-            if random.randint(0, 1) == 0 and enchant.Dict('en_US').check(pattern.en.pluralize(word)): pluralizeObjects = True
+            if random.randint(0, 1) == 0 and enchant.Dict('en_US').check(pattern.en.pluralize(word)): 
+                with connection:
+                    cursor.execute("SELECT part_of_speech FROM dictionary WHERE word = \'%s\';" % word)
+                    if cursor.fetchall()[0] not in ["NNP", "NNPS"]: pluralizeObjects = True
             else: pluralizeObjects = False
 
             print "Domain " + str(i + 1) + ": " + intent + " for \'" + word + "\' with " + str(len(associationGroup)) + " associations"
