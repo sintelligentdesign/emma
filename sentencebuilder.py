@@ -214,6 +214,7 @@ def build_reply(associationPackage, hasGreeting, questionPackages):
             print "Domain " + str(i + 1) + ": " + intent + " for \'" + word + "\' with " + str(len(associationGroup)) + " associations"
 
             domains.append(("=" + intent, word, associationGroup))
+        else break
 
     # Sort the domains
     sortedDomains = []
