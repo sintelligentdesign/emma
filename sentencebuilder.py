@@ -189,15 +189,15 @@ def build_reply(associationPackage, hasGreeting, questionPackages):
     print "Generating %d domains..." % sentencesToGenerate
     domains = []
     for i in range(0, sentencesToGenerate):
-        if len(wordList) > 0:
-            if mood >= 0.1 and hasGreeting == True and associationPackage[0]['asker'] != "" and i == 0: domains.append(("=GREETING", associationPackage[0]['asker'], []))
+        if mood >= 0.1 and hasGreeting == True and associationPackage[0]['asker'] != "" and i == 0: domains.append(("=GREETING", associationPackage[0]['asker'], []))
 
-            # Choose the word to use as the seed for our sentence based on weighted random chance
-            wordDistribution = []
-            for word in wordList.keys(): wordDistribution.extend([word] * wordList[word])
-            word = random.choice(wordDistribution)
-            wordList[word] -= 1     # Decrease the chance of this word being chosen again
-
+        # Choose the word to use as the seed for our sentence based on weighted random chance
+        wordDistribution = []
+        for word in wordList.keys(): wordDistribution.extend([word] * wordList[word])
+        word = random.choice(wordDistribution)
+        wordList[word] -= 1     # Decrease the chance of this word being chosen again
+        
+        if len(wordDistribution) > 0:
             # Create list intents to choose from, and choose an intent from it
             validIntents = determine_valid_intents(associationPackage)
             intent = random.choice(validIntents[word])
