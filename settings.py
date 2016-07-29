@@ -3,7 +3,7 @@
 # Section:
 import json
 
-from GUI import Window, Label, CheckBox, TextField, Button, application
+from GUI import Window, Label, CheckBox, TextField, application
 from GUI.StdColors import grey
 
 settings = []
