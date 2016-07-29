@@ -1,7 +1,7 @@
 # Name:             Settings / control panel
 # Description:      Control panel for debugging, testing, further dev, fun, etc.
 # Section:
-from GUI import Window, CheckBox, application
+from GUI import Window, Label, CheckBox, application
 
 general = {
     'chatMode': False,
@@ -23,6 +23,10 @@ tumblr = {
 
 paths = {
     'database': r'./emma.db',
-
     'moods': r'./moodHistory.p'
 }
+
+fakeAsks = [
+        {'asker': u'sharkthemepark', 'message': u"The color of the sky is blue. Blue is a color. What color is the sky?", 'id': 00000},
+        {'asker': u'sharkthemepark', 'message': u"Emma has paws. Does Emma have paws?", 'id': 00000}
+]
