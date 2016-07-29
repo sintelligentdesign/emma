@@ -1,0 +1,18 @@
+{
+    "general": {
+        "enableChatMode": false,
+        "enableSleep": false,
+        "verboseLogging": false
+    },
+    "tumblr": {
+        "publishOutput": true,
+        "enablePostPreview": true,
+
+        "enableAskReplies": true,
+        "enableAskDeletion": true,
+        "fetchRealAsks": true,
+
+        "enableReblogs": true,
+        "enableDreams": true
+    }
+}
