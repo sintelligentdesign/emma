@@ -1,16 +1,6 @@
-# -*- coding: utf-8 -*-
-
-#   .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .oooo.
-#  d88' `88b `888P"Y88bP"Y88b  `888P"Y88bP"Y88b  `P  )88b
-#  888ooo888  888   888   888   888   888   888   .oP"888
-#  888    .,  888   888   888   888   888   888  d8(  888
-#  `Y8bod8P' o888o o888o o888o o888o o888o o888o `Y888""8o
-#
-#          EXPANDING MODEL of MAPPED ASSOCIATIONS
-#
-#
-#     Written by Ellie Cochran & Alexander Howard, with
-#                contributions by Omri Barak.
+# Name:             High-Level Emma Module
+# Description:      Controls high-level functions and decision making
+# Section:  
 import time
 import random
 import os
@@ -69,7 +59,7 @@ else:
     print Fore.GREEN + "[Done]"
 
 # "Emma" banner
-print Fore.MAGENTA + u"\n .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .oooo.\nd88' `88b `888P\"Y88bP\"Y88b  `888P\"Y88bP\"Y88b  `P  )88b\n888ooo888  888   888   888   888   888   888   .oP\"888\n888    .,  888   888   888   888   888   888  d8(  888\n`Y8bod8P' o888o o888o o888o o888o o888o o888o `Y888\"\"8o\n\n        EXPANDING MODEL of MAPPED ASSOCIATIONS\n                     Alpha v0.0.3\n"
+print Fore.MAGENTA + u"\n .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .oooo.\nd88' \u006088b \u0060888P\"Y88bP\"Y88b  \u0060888P\"Y88bP\"Y88b  \u0060P  )88b\n888ooo888  888   888   888   888   888   888   .oP\"888\n888    .,  888   888   888   888   888   888  d8(  888\n\u0060Y8bod8P' o888o o888o o888o o888o o888o o888o \u0060Y888\"\"8o\n\n        EXPANDING MODEL of MAPPED ASSOCIATIONS\n                     Alpha v0.0.3\n"
 
 with connection:
     cursor.execute("SELECT * FROM associationmodel")
