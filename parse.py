@@ -10,6 +10,7 @@ init(autoreset = True)
 
 import utilities
 import settings
+import profanity
 
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
@@ -107,7 +108,7 @@ def finalize_sentence(taggedSentence):
             rowsToRemove.append(taggedWord)
         elif taggedWord[1] == u"\"" or taggedWord[5] in [u",", u"\u007c", u"\u2015", u"#", u"[", u"]", u"(", u")", u"{", u"}" u"\u2026", u"<", u">"]:
             rowsToRemove.append(taggedWord)
-        elif taggedWord[5] in pattern.en.wordlist.PROFANITY or taggedWord[5] in bannedWords:
+        elif taggedWord[5] in profanity.wordList or taggedWord[5] in bannedWords:
             rowsToRemove.append(taggedWord)
 
     if rowsToRemove:
@@ -134,7 +135,7 @@ def add_new_words(parsedSentence):
 
         wordsLeft = parsedSentence[-(len(parsedSentence) - count):len(parsedSentence) - 1]
 
-        if lemma not in storedLemata and lemma not in wordsLeft and lemma not in addedWords and lemma not in pattern.en.wordlist.PROFANITY and lemma.isnumeric() == False and pos != "FW":
+        if lemma not in storedLemata and lemma not in wordsLeft and lemma not in addedWords and lemma not in profanity.wordList and lemma.isnumeric() == False and pos != "FW":
             print Fore.MAGENTA + u"Learned new word: \'%s\'!" % lemma
             addedWords.append(lemma)
             with connection:
