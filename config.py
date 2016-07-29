@@ -61,6 +61,17 @@ enableReblogsBox = CheckBox(x=20, y=fetchRealAsksBox.bottom + 10, title="Enable 
 enableDreamsBox = CheckBox(x=20, y=enableReblogsBox.bottom, title="Enable dreams", action=(update_tumblr, 'enableDreams'))
 tumblrCheckboxMap = {'publishOutput': publishOutputBox.on, 'enablePostPreview': enablePostPreviewBox.on, 'enableAskReplies': enableAskRepliesBox.on, 'enableAskDeletion': enableAskDeletionBox.on, 'fetchRealAsks': fetchRealAsksBox.on, 'enableReblogs': enableReblogsBox.on, 'enableDreams': enableDreamsBox.on}
 
+if general['enableChatMode']: enableChatModeBox.on = True
+if general['enableSleep']: enableSleepBox.on = True
+if general['verboseLogging']: verboseLoggingBox.on = True
+if tumblr['publishOutput']: publishOutputBox.on = True
+if tumblr['enablePostPreview']: enablePostPreviewBox.on = True
+if tumblr['enableAskReplies']: enableAskRepliesBox.on = True
+if tumblr['enableAskDeletion']: enableAskDeletionBox.on = True
+if tumblr['fetchRealAsks']: fetchRealAsksBox.on = True
+if tumblr['enableReblogs']: enableReblogsBox.on = True
+if tumblr['enableDreams']: enableDreamsBox.on = True
+
 win = Window(width=200, height=enableDreamsBox.bottom + 20, title="Emma Settings Panel")
 
 win.add(generalLabel)
