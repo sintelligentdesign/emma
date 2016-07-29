@@ -1,37 +1,15 @@
 # Name:             Settings
 # Description:      Control panel for debugging, testing, further dev, fun, etc.
 # Section:
-from ConfigParser import SafeConfigParser
+import json
 
 from GUI import Window, Label, CheckBox, TextField, Button, application
 from GUI.StdColors import grey
 
-parser = SafeConfigParser()
-parser.read('settings.ini')
+settings = []
+with open('settings.json', 'r') as settingsFile: settings = json.load(settingsFile)
 
-print parser.sections()
-
-def option(group, option): return parser.items(group, option)
-print option('general', 'enableSleep')
-print option('tumblr', 'fetchRealAsks')
-
-general = {
-    'enableChatMode': False,
-    'enableSleep': False,
-    'verboseLogging': False
-}
-
-tumblr = {
-    'publishOutput': True,
-    'enablePostPreview': True,
-
-    'enableAskReplies': True,
-    'enableAskDeletion': True,
-    'fetchRealAsks': True,
-
-    'enableReblogs': True,
-    'enableDreams': True
-}
+def option(group, option): return settings[group][option]
 
 fakeAsks = [
         {'asker': u'sharkthemepark', 'message': u"The color of the sky is blue. Blue is a color. What color is the sky?", 'id': 00000},
@@ -41,17 +19,19 @@ fakeAsks = [
 ## GUI stuff begins here
 def make_label(text, **kwds): return Label(text=text, **kwds)
 
-def update_setting(setting):
+def update_setting(option):
     generalCheckboxMap = {'enableChatMode': enableChatModeBox.on, 'enableSleep': enableSleepBox.on, 'verboseLogging': verboseLoggingBox.on}
     tumblrCheckboxMap = {'publishOutput': publishOutputBox.on, 'enablePostPreview': enablePostPreviewBox.on, 'enableAskReplies': enableAskRepliesBox.on, 'enableAskDeletion': enableAskDeletionBox.on, 'fetchRealAsks': fetchRealAsksBox.on, 'enableReblogs': enableReblogsBox.on, 'enableDreams': enableDreamsBox.on}
 
-    if setting in generalCheckboxMap.keys():
-        group = general
-        value = generalCheckboxMap[setting]
-    elif setting in tumblrCheckboxMap.keys():
-        group = tumblr
-        value = tumblrCheckboxMap[setting]
-    group[setting] = value
+    if option in generalCheckboxMap.keys():
+        group = 'general'
+        value = generalCheckboxMap[option]
+    elif option in tumblrCheckboxMap.keys():
+        group = 'tumblr'
+        value = tumblrCheckboxMap[option]
+
+    settings[group][option] = value
+    with open('settings.json', 'w') as settingsFile: json.dump(settings, settingsFile)
 
 # General
 generalLabel = make_label("General", color=grey, x=20, y=15)
@@ -69,16 +49,16 @@ fetchRealAsksBox = CheckBox(x=20, y=enableAskDeletionBox.bottom, title="Fetch re
 enableReblogsBox = CheckBox(x=20, y=fetchRealAsksBox.bottom + 10, title="Enable Reblogs", action=(update_setting, 'enableReblogs'))
 enableDreamsBox = CheckBox(x=20, y=enableReblogsBox.bottom, title="Enable dreams", action=(update_setting, 'enableDreams'))
 
-if general['enableChatMode']: enableChatModeBox.on = True
-if general['enableSleep']: enableSleepBox.on = True
-if general['verboseLogging']: verboseLoggingBox.on = True
-if tumblr['publishOutput']: publishOutputBox.on = True
-if tumblr['enablePostPreview']: enablePostPreviewBox.on = True
-if tumblr['enableAskReplies']: enableAskRepliesBox.on = True
-if tumblr['enableAskDeletion']: enableAskDeletionBox.on = True
-if tumblr['fetchRealAsks']: fetchRealAsksBox.on = True
-if tumblr['enableReblogs']: enableReblogsBox.on = True
-if tumblr['enableDreams']: enableDreamsBox.on = True
+if option('general', 'enableChatMode'): enableChatModeBox.on = True
+if option('general', 'enableSleep'): enableSleepBox.on = True
+if option('general', 'verboseLogging'): verboseLoggingBox.on = True
+if option('tumblr', 'publishOutput'): publishOutputBox.on = True
+if option('tumblr', 'enablePostPreview'): enablePostPreviewBox.on = True
+if option('tumblr', 'enableAskReplies'): enableAskRepliesBox.on = True
+if option('tumblr', 'enableAskDeletion'): enableAskDeletionBox.on = True
+if option('tumblr', 'fetchRealAsks'): fetchRealAsksBox.on = True
+if option('tumblr', 'enableReblogs'): enableReblogsBox.on = True
+if option('tumblr', 'enableDreams'): enableDreamsBox.on = True
 
 win = Window(width=200, height=enableDreamsBox.bottom + 20, title="Emma Settings")
 
