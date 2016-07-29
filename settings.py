@@ -1,8 +1,19 @@
-# Name:             Settings / control win
-# Description:      Control win for debugging, testing, further dev, fun, etc.
+# Name:             Settings
+# Description:      Control panel for debugging, testing, further dev, fun, etc.
 # Section:
+from ConfigParser import SafeConfigParser
+
 from GUI import Window, Label, CheckBox, TextField, Button, application
 from GUI.StdColors import grey
+
+parser = SafeConfigParser()
+parser.read('settings.ini')
+
+print parser.sections()
+
+def option(group, option): return parser.items(group, option)
+print option('general', 'enableSleep')
+print option('tumblr', 'fetchRealAsks')
 
 general = {
     'enableChatMode': False,
