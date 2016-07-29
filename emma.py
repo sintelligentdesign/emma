@@ -21,6 +21,8 @@ import sentencebuilder
 import utilities
 import settings
 
+settings.load_settings()
+
 class stack(list):
     def push(self, item):
         self.insert(0, item)
@@ -127,6 +129,7 @@ def reply_to_asks(askList):
     if len(askList) > 0:
         print "Fetched %d new asks." % len(askList)
         for askCount, ask in enumerate(askList):
+            settings.load_settings()
             print "Reading ask no. %d of %d..." % (askCount + 1, len(askList))
             print Fore.BLUE + u"@" + ask['asker'] + u" >> " + ask['message']
 
@@ -156,6 +159,7 @@ def reply_to_asks(askList):
                 time.sleep(2)
 
 def reblog_post():
+    settings.load_settings()
     with connection:
         cursor.execute("SELECT username FROM friends;")
         SQLReturn = cursor.fetchall()
@@ -178,6 +182,7 @@ def reblog_post():
     else: print Fore.YELLOW + "No rebloggable posts found."
 
 def dream():
+    settings.load_settings()
     with connection:
         cursor.execute('SELECT word FROM dictionary WHERE is_banned = 0 ORDER BY RANDOM() LIMIT 10;')
         SQLReturn = cursor.fetchall()
@@ -191,7 +196,8 @@ def dream():
 
 def chat():
     print Fore.YELLOW + "!!! Chat mode enabled in settings. Press Control-C to exit."
-    while True:
+    while settings.option('general', 'enableChatMode'):
+        settings.load_settings()
         input = raw_input(Fore.BLUE + 'You >> ').decode('utf-8')
         tokenizedMessage = parse.tokenize(input)
         intents, questionPackages = consume(tokenizedMessage)
@@ -203,7 +209,6 @@ def chat():
 
 while True:
     settings.load_settings()
-
     # If we aren't in chat mode, every 15 minutes, try to make a post. Replying to asks is most likely, followed by dreams, and reblogging a post is the least likely
     if settings.option('general', 'enableChatMode'): chat()
     else:
