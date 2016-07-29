@@ -35,30 +35,31 @@ fakeAsks = [
 ## GUI stuff begins here
 def make_label(text, **kwds): return Label(text=text, **kwds)
 
+def update_setting(setting):
+    if setting in generalCheckboxMap.keys():
+        group = 'general'
+        value = generalCheckboxMap[setting]
+    elif setting in tumblrCheckboxMap.keys():
+        group = 'tumblr'
+        value = tumblrCheckboxMap[setting]
+    group[setting] = value
+
 # General
-def update_general(setting):
-    value = bool
-    if setting in generalCheckboxMap.keys(): value = generalCheckboxMap[setting]
-    general[setting] = value
 generalLabel = make_label("General", color=grey, x=20, y=15)
-enableChatModeBox = CheckBox(x=20, y=generalLabel.bottom, title="Chat mode", action=(update_general, 'enableChatMode'))
-enableSleepBox = CheckBox(x=20, y=enableChatModeBox.bottom, title="Enable sleep", action=(update_general, 'enableSleep'))
-verboseLoggingBox = CheckBox(x=20, y=enableSleepBox.bottom, title="Verbose Logging", action=(update_general, 'verboseLogging'))
+enableChatModeBox = CheckBox(x=20, y=generalLabel.bottom, title="Chat mode", action=(update_setting, 'enableChatMode'))
+enableSleepBox = CheckBox(x=20, y=enableChatModeBox.bottom, title="Enable sleep", action=(update_setting, 'enableSleep'))
+verboseLoggingBox = CheckBox(x=20, y=enableSleepBox.bottom, title="Verbose Logging", action=(update_setting, 'verboseLogging'))
 generalCheckboxMap = {'enableChatMode': enableChatModeBox.on, 'enableSleep': enableSleepBox.on, 'verboseLogging': verboseLoggingBox.on}
 
 # Tumblr
-def update_tumblr(setting):
-    value = bool
-    if setting in tumblrCheckboxMap.keys(): value = tumblrCheckboxMap[setting]
-    tumblr[setting] = value
 tumblrLabel = make_label("Tumblr", color=grey, x=20, y=verboseLoggingBox.bottom+15)
-publishOutputBox = CheckBox(x=20, y=tumblrLabel.bottom, title="Publish output", action=(update_tumblr, 'publishOutput'))
-enablePostPreviewBox = CheckBox(x=20, y=publishOutputBox.bottom, title="Show post preview", action=(update_tumblr, 'enablePostPreview'))
-enableAskRepliesBox = CheckBox(x=20, y=enablePostPreviewBox.bottom + 10, title="Enable Ask replies", action=(update_tumblr, 'enableAskReplies'))
-enableAskDeletionBox = CheckBox(x=20, y=enableAskRepliesBox.bottom, title="Enable Ask deletion", action=(update_tumblr, 'enableAskDeletion'))
-fetchRealAsksBox = CheckBox(x=20, y=enableAskDeletionBox.bottom, title="Fetch real Asks", action=(update_tumblr, 'fetchRealAsks'))
-enableReblogsBox = CheckBox(x=20, y=fetchRealAsksBox.bottom + 10, title="Enable Reblogs", action=(update_tumblr, 'enableReblogs'))
-enableDreamsBox = CheckBox(x=20, y=enableReblogsBox.bottom, title="Enable dreams", action=(update_tumblr, 'enableDreams'))
+publishOutputBox = CheckBox(x=20, y=tumblrLabel.bottom, title="Publish output", action=(update_setting, 'publishOutput'))
+enablePostPreviewBox = CheckBox(x=20, y=publishOutputBox.bottom, title="Show post preview", action=(update_setting, 'enablePostPreview'))
+enableAskRepliesBox = CheckBox(x=20, y=enablePostPreviewBox.bottom + 10, title="Enable Ask replies", action=(update_setting, 'enableAskReplies'))
+enableAskDeletionBox = CheckBox(x=20, y=enableAskRepliesBox.bottom, title="Enable Ask deletion", action=(update_setting, 'enableAskDeletion'))
+fetchRealAsksBox = CheckBox(x=20, y=enableAskDeletionBox.bottom, title="Fetch real Asks", action=(update_setting, 'fetchRealAsks'))
+enableReblogsBox = CheckBox(x=20, y=fetchRealAsksBox.bottom + 10, title="Enable Reblogs", action=(update_setting, 'enableReblogs'))
+enableDreamsBox = CheckBox(x=20, y=enableReblogsBox.bottom, title="Enable dreams", action=(update_setting, 'enableDreams'))
 tumblrCheckboxMap = {'publishOutput': publishOutputBox.on, 'enablePostPreview': enablePostPreviewBox.on, 'enableAskReplies': enableAskRepliesBox.on, 'enableAskDeletion': enableAskDeletionBox.on, 'fetchRealAsks': fetchRealAsksBox.on, 'enableReblogs': enableReblogsBox.on, 'enableDreams': enableDreamsBox.on}
 
 if general['enableChatMode']: enableChatModeBox.on = True
