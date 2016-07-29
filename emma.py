@@ -202,6 +202,8 @@ def chat():
         else: print Fore.RED + u"Reply generation failed."
 
 while True:
+    settings.load_settings()
+
     # If we aren't in chat mode, every 15 minutes, try to make a post. Replying to asks is most likely, followed by dreams, and reblogging a post is the least likely
     if settings.option('general', 'enableChatMode'): chat()
     else:
