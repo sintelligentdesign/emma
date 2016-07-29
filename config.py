@@ -49,7 +49,6 @@ generalLabel = make_label("General", color=grey, x=20, y=15)
 enableChatModeBox = CheckBox(x=20, y=generalLabel.bottom, title="Chat mode", action=(update_setting, 'enableChatMode'))
 enableSleepBox = CheckBox(x=20, y=enableChatModeBox.bottom, title="Enable sleep", action=(update_setting, 'enableSleep'))
 verboseLoggingBox = CheckBox(x=20, y=enableSleepBox.bottom, title="Verbose Logging", action=(update_setting, 'verboseLogging'))
-generalCheckboxMap = {'enableChatMode': enableChatModeBox.on, 'enableSleep': enableSleepBox.on, 'verboseLogging': verboseLoggingBox.on}
 
 # Tumblr
 tumblrLabel = make_label("Tumblr", color=grey, x=20, y=verboseLoggingBox.bottom+15)
@@ -60,6 +59,8 @@ enableAskDeletionBox = CheckBox(x=20, y=enableAskRepliesBox.bottom, title="Enabl
 fetchRealAsksBox = CheckBox(x=20, y=enableAskDeletionBox.bottom, title="Fetch real Asks", action=(update_setting, 'fetchRealAsks'))
 enableReblogsBox = CheckBox(x=20, y=fetchRealAsksBox.bottom + 10, title="Enable Reblogs", action=(update_setting, 'enableReblogs'))
 enableDreamsBox = CheckBox(x=20, y=enableReblogsBox.bottom, title="Enable dreams", action=(update_setting, 'enableDreams'))
+
+generalCheckboxMap = {'enableChatMode': enableChatModeBox.on, 'enableSleep': enableSleepBox.on, 'verboseLogging': verboseLoggingBox.on}
 tumblrCheckboxMap = {'publishOutput': publishOutputBox.on, 'enablePostPreview': enablePostPreviewBox.on, 'enableAskReplies': enableAskRepliesBox.on, 'enableAskDeletion': enableAskDeletionBox.on, 'fetchRealAsks': fetchRealAsksBox.on, 'enableReblogs': enableReblogsBox.on, 'enableDreams': enableDreamsBox.on}
 
 if general['enableChatMode']: enableChatModeBox.on = True
@@ -73,7 +74,7 @@ if tumblr['fetchRealAsks']: fetchRealAsksBox.on = True
 if tumblr['enableReblogs']: enableReblogsBox.on = True
 if tumblr['enableDreams']: enableDreamsBox.on = True
 
-win = Window(width=200, height=enableDreamsBox.bottom + 20, title="Emma Settings Panel")
+win = Window(width=200, height=enableDreamsBox.bottom + 20, title="Emma Settings")
 
 win.add(generalLabel)
 win.add(enableChatModeBox)
