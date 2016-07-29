@@ -1,7 +1,7 @@
 # Name:             Settings / control win
 # Description:      Control win for debugging, testing, further dev, fun, etc.
 # Section:
-from GUI import Window, Label, CheckBox, application
+from GUI import Window, Label, CheckBox, TextField, Button, application
 from GUI.StdColors import grey
 
 general = {
@@ -22,11 +22,6 @@ tumblr = {
     'enableDreams': True
 }
 
-paths = {
-    'database': r'./emma.db',
-    'moods': r'./moodHistory.p'
-}
-
 fakeAsks = [
         {'asker': u'sharkthemepark', 'message': u"The color of the sky is blue. Blue is a color. What color is the sky?", 'id': 00000},
         {'asker': u'sharkthemepark', 'message': u"Emma has paws. Does Emma have paws?", 'id': 00000}
@@ -36,11 +31,14 @@ fakeAsks = [
 def make_label(text, **kwds): return Label(text=text, **kwds)
 
 def update_setting(setting):
+    generalCheckboxMap = {'enableChatMode': enableChatModeBox.on, 'enableSleep': enableSleepBox.on, 'verboseLogging': verboseLoggingBox.on}
+    tumblrCheckboxMap = {'publishOutput': publishOutputBox.on, 'enablePostPreview': enablePostPreviewBox.on, 'enableAskReplies': enableAskRepliesBox.on, 'enableAskDeletion': enableAskDeletionBox.on, 'fetchRealAsks': fetchRealAsksBox.on, 'enableReblogs': enableReblogsBox.on, 'enableDreams': enableDreamsBox.on}
+
     if setting in generalCheckboxMap.keys():
-        group = 'general'
+        group = general
         value = generalCheckboxMap[setting]
     elif setting in tumblrCheckboxMap.keys():
-        group = 'tumblr'
+        group = tumblr
         value = tumblrCheckboxMap[setting]
     group[setting] = value
 
@@ -59,9 +57,6 @@ enableAskDeletionBox = CheckBox(x=20, y=enableAskRepliesBox.bottom, title="Enabl
 fetchRealAsksBox = CheckBox(x=20, y=enableAskDeletionBox.bottom, title="Fetch real Asks", action=(update_setting, 'fetchRealAsks'))
 enableReblogsBox = CheckBox(x=20, y=fetchRealAsksBox.bottom + 10, title="Enable Reblogs", action=(update_setting, 'enableReblogs'))
 enableDreamsBox = CheckBox(x=20, y=enableReblogsBox.bottom, title="Enable dreams", action=(update_setting, 'enableDreams'))
-
-generalCheckboxMap = {'enableChatMode': enableChatModeBox.on, 'enableSleep': enableSleepBox.on, 'verboseLogging': verboseLoggingBox.on}
-tumblrCheckboxMap = {'publishOutput': publishOutputBox.on, 'enablePostPreview': enablePostPreviewBox.on, 'enableAskReplies': enableAskRepliesBox.on, 'enableAskDeletion': enableAskDeletionBox.on, 'fetchRealAsks': fetchRealAsksBox.on, 'enableReblogs': enableReblogsBox.on, 'enableDreams': enableDreamsBox.on}
 
 if general['enableChatMode']: enableChatModeBox.on = True
 if general['enableSleep']: enableSleepBox.on = True
