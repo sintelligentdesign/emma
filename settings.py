@@ -11,11 +11,6 @@ with open('settings.json', 'r') as settingsFile: settings = json.load(settingsFi
 
 def option(group, option): return settings[group][option]
 
-fakeAsks = [
-        {'asker': u'sharkthemepark', 'message': u"The color of the sky is blue. Blue is a color. What color is the sky?", 'id': 00000},
-        {'asker': u'sharkthemepark', 'message': u"Emma has paws. Does Emma have paws?", 'id': 00000}
-]
-
 ## GUI stuff begins here
 def make_label(text, **kwds): return Label(text=text, **kwds)
 

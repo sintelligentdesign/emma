@@ -9,9 +9,9 @@ from colorama import init, Fore
 init(autoreset = True)
 
 import utilities
-from config import console, files
+import settings
 
-connection = sql.connect(files['dbPath'])
+connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
 def tokenize(text):
@@ -19,12 +19,12 @@ def tokenize(text):
     text = translate_netspeak(text)
 
     print "Tokenizing message..."
-    if console['verboseLogging']: pattern.en.pprint(pattern.en.parse(text, True, True, True, True, True))
+    if settings.option('general', 'verboseLogging'): pattern.en.pprint(pattern.en.parse(text, True, True, True, True, True))
     taggedText = pattern.en.parse(text, True, True, True, True, True).split()
     
     parsedMessage = []
     for count, taggedSentence in enumerate(taggedText):
-        if console['verboseLogging']: print "Packaging sentence no. %d..." % (count + 1)
+        if settings.option('general', 'verboseLogging'): print "Packaging sentence no. %d..." % (count + 1)
         finalize_sentence(taggedSentence)
 
         posSentence = []
@@ -88,7 +88,7 @@ def finalize_sentence(taggedSentence):
 
     rowsToRemove = []
     for count, taggedWord in enumerate(taggedSentence):
-        if console['verboseLogging']: print "Checking for conjunctions and illegal characters..."
+        if settings.option('general', 'verboseLogging'): print "Checking for conjunctions and illegal characters..."
         if count != 0: prevWord = taggedSentence[count - 1]
         if count != len(taggedSentence) - 1: nextWord = taggedSentence[count + 1]
         

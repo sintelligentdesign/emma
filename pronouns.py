@@ -2,7 +2,6 @@
 # Description:      Replaces words like "it" or "they" with the nouns that they refer to
 # Section:          
 import utilities
-from config import console
 from colorama import init, Fore
 init(autoreset = True)
 

@@ -19,17 +19,17 @@ import pronouns
 import associationtrainer
 import sentencebuilder
 import utilities
-from config import debug, console, files, tumblr
+import settings
 
 class stack(list):
     def push(self, item):
         self.insert(0, item)
         self.remove(self[10])
 
-connection = sql.connect(files['dbPath'])
+connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
-print ("Checking for concept database at %s..." % files['dbPath']),
+print "Checking for concept database...",
 with connection:
     cursor.execute("SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'associationmodel\';")
     if cursor.fetchone() == (u'associationmodel',): print Fore.GREEN + "[Done]"
@@ -45,14 +45,14 @@ with connection:
         """)
         print Fore.GREEN + "[Done]"
 
-print ("Checking for mood file at %s..." % files['moodPath']),
-if os.path.isfile(files['moodPath']):
+print "Checking for mood file...",
+if os.path.isfile('moodHistory.p'):
     print Fore.GREEN + "[Done]"
-    with open(files['moodPath'],'r') as moodFile: moodHistory = stack(pickle.load(moodFile))
+    with open('moodHistory.p','r') as moodFile: moodHistory = stack(pickle.load(moodFile))
 else:   
     print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating file with randomized moods...",
     moodHistory = []
-    with open(files['moodPath'],'wb') as moodFile:
+    with open('moodHistory.p','wb') as moodFile:
         for i in range(0, 10): moodHistory.append(random.uniform(-0.5, 0.5))
         moodHistory = stack(moodHistory)
         pickle.dump(moodHistory, moodFile)
@@ -75,9 +75,9 @@ def get_mood(update=False, text="", expressAsText=True):
     if update == True: 
         sentiment = pattern.en.sentiment(text)       # Get the average mood from the moods of sentences in the text
         moodHistory.push(sum(sentiment) / float(len(sentiment)))        # Add the mood to the list of mood values
-        with open(files['moodPath'],'wb') as moodFile: pickle.dump(moodHistory, moodFile)       # Save to mood values file
+        with open('moodHistory.p','wb') as moodFile: pickle.dump(moodHistory, moodFile)       # Save to mood values file
     else: 
-        with open(files['moodPath'], 'r') as moodFile: moodHistory = stack(pickle.load(moodFile))
+        with open('moodHistory.p', 'r') as moodFile: moodHistory = stack(pickle.load(moodFile))
 
     # More recent mood values have a higher weight when calculating Emma's overall mood
     weightedmoodHistory = []
@@ -86,7 +86,7 @@ def get_mood(update=False, text="", expressAsText=True):
     weightedmoodHistory.append(moodHistory[2])
     weightedmoodHistory = weightedmoodHistory + moodHistory
     mood = sum(weightedmoodHistory) / float(len(weightedmoodHistory))
-    if console['verboseLogging']: print Fore.MAGENTA + "Mood values: %s\nCalculated mood: %s" % (str(moodHistory), str(mood))
+    if settings.option('general', 'verboseLogging'): print Fore.MAGENTA + "Mood values: %s\nCalculated mood: %s" % (str(moodHistory), str(mood))
 
     if not expressAsText: return mood
     else:
@@ -148,11 +148,11 @@ def reply_to_asks(askList):
 
             tumblrclient.delete_ask(ask['id'])
 
-            if debug['enableSleep']:
+            if settings.option('general', 'enableSleep'):
                 print "Sleeping for 3 minutes..."
                 time.sleep(180)
             else:
-                print Fore.YELLOW + "!!! Sleep disabled in config file -- execution will continue normally in 2 seconds..."
+                print Fore.YELLOW + "!!! Sleep disabled in settings -- execution will continue normally in 2 seconds..."
                 time.sleep(2)
 
 def reblog_post():
@@ -190,7 +190,7 @@ def dream():
     else: print Fore.YELLOW + "Dreamless sleep..."
 
 def chat():
-    print Fore.YELLOW + "!!! Chat mode enabled in config file. Press Control-C to exit."
+    print Fore.YELLOW + "!!! Chat mode enabled in settings. Press Control-C to exit."
     while True:
         input = raw_input(Fore.BLUE + 'You >> ').decode('utf-8')
         tokenizedMessage = parse.tokenize(input)
@@ -203,18 +203,18 @@ def chat():
 
 while True:
     # If we aren't in chat mode, every 15 minutes, try to make a post. Replying to asks is most likely, followed by dreams, and reblogging a post is the least likely
-    if console['chatMode']: chat()
+    if settings.option('general', 'enableChatMode'): chat()
     else:
-        if debug['fetchRealAsks']: askList = tumblrclient.get_asks()
+        if settings.option('tumblr', 'fetchRealAsks'): askList = tumblrclient.get_asks()
         else: 
-            print Fore.YELLOW + "!!! Real ask fetching disabled in config file. Using fake asks instead."
-            askList = debug['fakeAsks']
+            print Fore.YELLOW + "!!! Real ask fetching disabled in settings. Using fake asks instead."
+            askList = utilities.fakeAsks
 
         print "Choosing activity..."
         activities = []
-        if debug['enableReblogs']: activities.append('reblogPost')
-        if debug['enableDreams']: activities.extend(['dream'] * 2)
-        if debug['enableReplies'] and askList != []: activities.extend(['replyToAsks'] * 3)
+        if settings.option('tumblr', 'enableReblogs'): activities.append('reblogPost')
+        if settings.option('tumblr', 'enableDreams'): activities.extend(['dream'] * 2)
+        if settings.option('tumblr', 'enableAskReplies') and askList != []: activities.extend(['replyToAsks'] * 3)
 
         activity = random.choice(activities)
         if activity == 'reblogPost':
@@ -227,9 +227,9 @@ while True:
             print "Replying to asks in queue..."
             reply_to_asks(askList)
         
-        if debug['enableSleep']:
+        if settings.option('general', 'enableSleep'):
             print "Sleeping for 15 minutes..."
             time.sleep(900)
         else:
-            print Fore.YELLOW + "!!! Sleep disabled in config file -- execution will continue normally in 2 seconds..."
+            print Fore.YELLOW + "!!! Sleep disabled in settings -- execution will continue normally in 2 seconds..."
             time.sleep(2)

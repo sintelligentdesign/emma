@@ -11,9 +11,9 @@ from colorama import init, Fore
 init(autoreset = True)
 
 import utilities
-from config import console, files
+import settings
 
-connection = sql.connect(files['dbPath'])
+connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
 mood = 0
@@ -136,7 +136,7 @@ def determine_valid_intents(associationPackage):
         if len(associationBundle['associations']) < 3 and associationBundle['word'] != associationPackage[0]['asker']: intents.append('INTERROGATIVE')
         if associationBundle['hasHasAbilityTo']: intents.append('IMPERATIVE')
 
-        if console['verboseLogging']: print Fore.GREEN + u"Intents for \'" + associationBundle['word'] + u"\': " + u', '.join(intents)
+        if settings.option('general', 'verboseLogging'): print Fore.GREEN + u"Intents for \'" + associationBundle['word'] + u"\': " + u', '.join(intents)
         validIntents[associationBundle['word']] = intents
     return validIntents
 
@@ -298,13 +298,13 @@ def make_answer(answer):
 
     domain = random.choice(answerDomains)
 
-    if console['verboseLogging']: print "Building an answer..."
+    if settings.option('general', 'verboseLogging'): print "Building an answer..."
     sentence = domain
 
     return sentence
 
 def make_greeting(asker):
-    if console['verboseLogging']: print "Generating a greeting..."
+    if settings.option('general', 'verboseLogging'): print "Generating a greeting..."
     greetingDomains = [
         [u"Hi", asker], 
         [u"Hello", asker]
@@ -312,9 +312,9 @@ def make_greeting(asker):
     return random.choice(greetingDomains)
 
 def make_comparative(associationGroup, comparisonGroup):
-    if console['verboseLogging']: print "Generating a comparative statement for \'%s\' and \'%s\'..." % (associationGroup['word'], comparisonGroup['word'])
+    if settings.option('general', 'verboseLogging'): print "Generating a comparative statement for \'%s\' and \'%s\'..." % (associationGroup['word'], comparisonGroup['word'])
 
-    if console['verboseLogging']: print "Choosing domain..."
+    if settings.option('general', 'verboseLogging'): print "Choosing domain..."
     comparativeDomains = [
         [u"=DECLARATIVE", u"like", u"=COMPARISON"],
         [u"=DECLARATIVE", u",", u"and", u"=COMPARISON"],
@@ -322,7 +322,7 @@ def make_comparative(associationGroup, comparisonGroup):
     ]
     domain = random.choice(comparativeDomains)
 
-    if console['verboseLogging']: print "Building comparative statement..."
+    if settings.option('general', 'verboseLogging'): print "Building comparative statement..."
     sentence = []
     for count, slot in enumerate(domain):
         print sentence + domain[count:]
@@ -333,7 +333,7 @@ def make_comparative(associationGroup, comparisonGroup):
     return sentence
 
 def make_declarative(associationGroup):
-    if console['verboseLogging']: print "Generating a declarative statement for \'%s\'..." % associationGroup['word']
+    if settings.option('general', 'verboseLogging'): print "Generating a declarative statement for \'%s\'..." % associationGroup['word']
     
     # Gather information about what associations we have to help us decide what domains we're allowed to use
     hasAssociations = []
@@ -346,7 +346,7 @@ def make_declarative(associationGroup):
         if association['type'] == "HAS-PROPERTY": haspropertyAssociations.append(association)
         if association['type'] == "HAS-ABILITY-TO": hasabilitytoAssociations.append(association)
 
-    if console['verboseLogging']: print "Choosing domain..."
+    if settings.option('general', 'verboseLogging'): print "Choosing domain..."
     declarativeDomains = []
     if haspropertyAssociations != []: declarativeDomains.append(
         [u"=PHRASE", u"=ISARE", u"=ADJECTIVE"]
@@ -366,7 +366,7 @@ def make_declarative(associationGroup):
     )
     domain = random.choice(declarativeDomains)
 
-    if console['verboseLogging']: print "Building declarative statement..."
+    if settings.option('general', 'verboseLogging'): print "Building declarative statement..."
     sentence = []
     # Iterate through the objects in the domain and fill them in to create the declarative statement
     for count, slot in enumerate(domain):
@@ -387,13 +387,13 @@ def make_declarative(associationGroup):
     return sentence
 
 def make_imperative(associationGroup):
-    if console['verboseLogging']: print "Generating an imperative statement for \'%s\'..." % associationGroup['word']
+    if settings.option('general', 'verboseLogging'): print "Generating an imperative statement for \'%s\'..." % associationGroup['word']
 
     verbAssociations = []
     for association in associationGroup['associations']:
         if association['type'] == "HAS-ABILITY-TO": verbAssociations.append(association)
 
-    if console['verboseLogging']: print "Choosing domain..."
+    if settings.option('general', 'verboseLogging'): print "Choosing domain..."
     imperativeDomains = [
         [u"=VERB", u"=PHRASE"]
     ]
@@ -409,7 +409,7 @@ def make_imperative(associationGroup):
     # todo: new domain: VERB a/an/the OBJECT with (its THING OBJECT HAS / a/an/the OTHER OBJECT)
     domain = random.choice(imperativeDomains)
     
-    if console['verboseLogging']: print "Building imperative statement..."
+    if settings.option('general', 'verboseLogging'): print "Building imperative statement..."
     sentence = []
     if mood > 0.4: 
         if random.randint(0, 1) == 0: sentence = [u"please"]
@@ -423,9 +423,9 @@ def make_imperative(associationGroup):
     return sentence
 
 def make_interrogative(word):
-    if console['verboseLogging']: print "Generating an interrogative phrase for \'%s\'..." % word
+    if settings.option('general', 'verboseLogging'): print "Generating an interrogative phrase for \'%s\'..." % word
 
-    if console['verboseLogging']: print "Choosing domain..."
+    if settings.option('general', 'verboseLogging'): print "Choosing domain..."
     interrogativeDomains = [
         [u"what\'s", u"=WORD"]
     ]
@@ -438,7 +438,7 @@ def make_interrogative(word):
     ])
     domain = random.choice(interrogativeDomains)
 
-    if console['verboseLogging']: print "Building interrogative phrase..."
+    if settings.option('general', 'verboseLogging'): print "Building interrogative phrase..."
     sentence = []
     for count, slot in enumerate(domain):
         print sentence + domain[count:]
@@ -450,14 +450,14 @@ def make_interrogative(word):
     return sentence
 
 def make_phrase(associationGroup):
-    if console['verboseLogging']: print "Generating a phrase for \'%s\'..." % associationGroup['word']
+    if settings.option('general', 'verboseLogging'): print "Generating a phrase for \'%s\'..." % associationGroup['word']
     
-    if console['verboseLogging']: print "Looking for adjective associations..."
+    if settings.option('general', 'verboseLogging'): print "Looking for adjective associations..."
     adjectiveAssociations = []
     for association in associationGroup['associations']:
         if association['type'] == "HAS-PROPERTY": adjectiveAssociations.append(association)
 
-    if console['verboseLogging']: print "Choosing domain..."
+    if settings.option('general', 'verboseLogging'): print "Choosing domain..."
     phraseDomains = [
         [u"=OBJECT"]
     ]
@@ -469,7 +469,7 @@ def make_phrase(associationGroup):
     )
     domain = random.choice(phraseDomains)
 
-    if console['verboseLogging']: print "Building phrase..."
+    if settings.option('general', 'verboseLogging'): print "Building phrase..."
     # Decide if we want to precede the phrase with a determiner ("the", "a")
     if random.randint(0, 1) == 0: 
         determiners = [[u"the"]]

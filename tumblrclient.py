@@ -9,7 +9,7 @@ from colorama import init, Fore
 init(autoreset = True)
 
 import apikeys
-from config import tumblr
+import settings
 
 # authenticate with tumblr api
 client = pytumblr.TumblrRestClient(
@@ -28,10 +28,10 @@ def get_asks():
     return askList
 
 def delete_ask(askid):
-    if tumblr['enableAskDeletion']: 
+    if settings.option('tumblr', 'enableAskDeletion'): 
         print "Deleting ask with ID %d..." % askid
         client.delete_post('emmacanlearn', askid)
-    else: print Fore.YELLOW + "!!! Ask deletion disabled in config file."
+    else: print Fore.YELLOW + "!!! Ask deletion disabled in settings."
 
 def get_recent_posts(user):
     print "Fetching @%s\'s most recent text posts..." % user
@@ -49,13 +49,13 @@ def get_recent_posts(user):
     return postList
 
 def post(body, tags=[]):
-    if tumblr['enablePostPreview']: 
+    if settings.option('tumblr', 'enablePostPreview'): 
         tagsAsString = ""
         for tag in tags: tagsAsString += "#%s " % tag
-    if tumblr['enablePublishing']: client.create_text('emmacanlearn', state="published", body=body, tags=tags)
-    else: print Fore.YELLOW + "!!! Posting disabled in config file."
+    if settings.option('tumblr', 'publishOutput'): client.create_text('emmacanlearn', state="published", body=body, tags=tags)
+    else: print Fore.YELLOW + "!!! Posting disabled in settings."
 
 def reblog(postid, reblogKey, comment, tags):
     print "Reblogging post & adding comment..."
-    if tumblr['enablePublishing']: client.reblog('emmacanlearn', id=postid, reblog_key=reblogKey, comment=cgi.escape(comment), tags=tags)
-    else: print Fore.YELLOW + "!!! Reblogging disabled in config file."
+    if settings.option('tumblr', 'publishOutput'): client.reblog('emmacanlearn', id=postid, reblog_key=reblogKey, comment=cgi.escape(comment), tags=tags)
+    else: print Fore.YELLOW + "!!! Reblogging disabled in settings."

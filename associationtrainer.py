@@ -9,9 +9,9 @@ from colorama import init, Fore
 init(autoreset = True)
 
 import utilities
-from config import files
+import settings
 
-connection = sql.connect(files['dbPath'])
+connection = sql.connect('emma.db')
 cursor = connection.cursor()
 def find_associations(sentence):
     for count, word in enumerate(sentence):

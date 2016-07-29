@@ -3,9 +3,8 @@
 # Section:          REPLY
 import pattern.graph
 import sqlite3 as sql
-from config import files
 
-connection = sql.connect(files['dbPath'])
+connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
 graph = pattern.graph.Graph()

@@ -31,3 +31,8 @@ def pretty_print_understanding(parsedMessage, intents):
         prettyUnderstanding += rawSentence + u" " + u"(" + u' '.join(sentenceIntents) + u")\n"
     prettyUnderstanding = u"Emma interpreted this message as:\n" + prettyUnderstanding
     return prettyUnderstanding
+
+fakeAsks = [
+        {'asker': u'sharkthemepark', 'message': u"The color of the sky is blue. Blue is a color. What color is the sky?", 'id': 00000},
+        {'asker': u'sharkthemepark', 'message': u"Emma has paws. Does Emma have paws?", 'id': 00000}
+]
