@@ -6,6 +6,7 @@ import random
 import os
 import pickle
 import cgi
+import re
 
 import pattern.en
 import sqlite3 as sql
