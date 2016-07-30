@@ -24,7 +24,6 @@ def tokenize(text):
     
     parsedMessage = []
     for count, taggedSentence in enumerate(taggedText):
-        if settings.option('general', 'verboseLogging'): print "Packaging sentence no. %d..." % (count + 1)
         finalize_sentence(taggedSentence)
 
         posSentence = []
@@ -47,7 +46,7 @@ def translate_netspeak(text):
     # todo: add more abbreviations as we think of or encounter them
     # todo: arrange abbreviations alphabetically?
     text = text.split(' ')
-    leetDict = {
+    txtDict = {
         u'im': [u'I\'m'],
         u'u': [u'you'],
         u'n': [u'and'],
@@ -67,12 +66,12 @@ def translate_netspeak(text):
 
     decodedText = []
     for word in text:
-        if re.sub(r'[\d\s\W]', "", word.lower()) in leetDict.keys():
+        if re.sub(r'[\d\s\W]', "", word.lower()) in txtDict.keys():
             punctuation = u""
             if word[-1] in [u'.', u',', u'!', u'?']: punctuation = word[-1]     # Take note of punctuation so that we can put it back in later
             
             print Fore.GREEN + u"Translating \"%s\" from txt speak..." % word
-            replacementWord = leetDict[re.sub(r'[\d\s\W]', "", word.lower())]
+            replacementWord = txtDict[re.sub(r'[\d\s\W]', "", word.lower())]
 
             if punctuation != "": replacementWord[-1] += punctuation
 
@@ -87,7 +86,6 @@ with connection:
 def finalize_sentence(taggedSentence):
     rowsToRemove = []
     for count, taggedWord in enumerate(taggedSentence):
-        if settings.option('general', 'verboseLogging'): print "Checking for conjunctions and illegal characters..."
         if count != 0: prevWord = taggedSentence[count - 1]
         if count != len(taggedSentence) - 1: nextWord = taggedSentence[count + 1]
         
@@ -105,8 +103,10 @@ def finalize_sentence(taggedSentence):
             prevWord[5] = prevWord[5] + u"\'s"
             rowsToRemove.append(taggedWord)
         elif taggedWord[1] in [u"\"", u"FW", u":", u".", u"(", u")"] or taggedWord[5] in [u",", u"\u007c", u"\u2015", u"#", u"[", u"]", u"(", u")", u"{", u"}" u"\u2026", u"<", u">"]:
+            print Fore.GREEN + "Removing \"%s\"" % taggedWord[1]
             rowsToRemove.append(taggedWord)
         elif taggedWord[5] in bannedWords:
+            print Fore.GREEN + "Removing naughty word \"%s\"" % taggedWord[1]
             rowsToRemove.append(taggedWord)
 
     if rowsToRemove:

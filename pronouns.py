@@ -14,6 +14,7 @@ otherPronouns = [
     "it", "its", "itself"
 ]
 
+# todo: make both of these work across sentences
 def determine_references(sentence):
     lastUsedProperNoun = ""
     lastUsedNoun = ""

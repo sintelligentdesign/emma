@@ -32,7 +32,7 @@ with connection:
 for row in SQLReturn:
     create_edge(row[0], row[2], row[1], row[3])
     
-print "Emma >> Please enter the name of a directory where I can dump the visualization of my association model"
+print "emma >> Please enter the name of a directory where I can dump the visualization of my association model"
 exportFolder = raw_input('Directory name: ./').replace("/", "")
 graph.export(
     exportFolder, 

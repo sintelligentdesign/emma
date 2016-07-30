@@ -56,17 +56,16 @@ def generate_sentence(tokenizedMessage, moodAvg, askerIntents=[{'declarative': T
     # Generate the reply
     return build_reply(associationPackage, hasGreeting, questionPackages)
 
+# todo: move this function into emma.dream()
 def make_halo(words):
     halo = words
-    print u"Common sense halo:",
+    print Fore.GREEN + "Creating common sense halo..."
     for word in words:
         with connection:
             cursor.execute("SELECT target FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.target = dictionary.word WHERE associationmodel.word = \"%s\" AND part_of_speech IN (\'NN\', \'NNS\', \'NNP\', \'NNPS\');" % re.escape(word))
             for fetchedWord in cursor.fetchall():
-                if fetchedWord[0] not in halo:
-                    print(fetchedWord[0]),
-                    halo.append(fetchedWord[0])
-    print Fore.GREEN + u"[Done]"
+                if fetchedWord[0] not in halo: halo.append(fetchedWord[0])
+    print Fore.GREEN + "Common sense halo:" + str(halo)
     return halo
 
 def group_associations(word):
@@ -127,8 +126,6 @@ def determine_valid_intents(associationPackage):
         if associationBundle['hasHas'] or associationBundle['hasIsA'] or associationBundle['hasHasProperty'] or associationBundle['hasHasAbilityTo']: intents.append('DECLARATIVE')
         if len(associationBundle['associations']) < 3 and associationBundle['word'] != associationPackage[0]['asker']: intents.append('INTERROGATIVE')
         if associationBundle['hasHasAbilityTo']: intents.append('IMPERATIVE')
-
-        if settings.option('general', 'verboseLogging'): print Fore.GREEN + u"Intents for \'" + associationBundle['word'] + u"\': " + u', '.join(intents)
         validIntents[associationBundle['word']] = intents
     return validIntents
 
@@ -138,6 +135,8 @@ def build_reply(associationPackage, hasGreeting, questionPackages):
     # Check whether or not we need to answer questions, and attempt to generate answers if we do
     questionAnswers = []
     for question in questionPackages:
+        print u"Question package:" + str(question)
+        # "WHAT IS THE [ADJECTIVE] OF [NOUN]"
         if question[0] == "what":
             with connection:
                 cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' AND association_type = \'HAS-PROPERTY\';" % question[2])
@@ -155,8 +154,8 @@ def build_reply(associationPackage, hasGreeting, questionPackages):
             if answer != "":
                 questionAnswers.append(("what", question[1], question[2], answer))      # (what) COLOR (of) SKY (be) ANSWER
         
-        print Fore.RED + str(question)
-        if question[0] in [u"do", u"does"]:
+        # "DO [NOUN] HAVE [NOUN]"
+        if question[0] == "doXhaveY":
             with connection:
                 cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' AND association_type = \'HAS\' AND target = \'%s\';" % (question[1], question[2]))
                 SQLReturn = cursor.fetchall()
@@ -306,7 +305,6 @@ def make_greeting(asker):
 def make_comparative(associationGroup, comparisonGroup):
     if settings.option('general', 'verboseLogging'): print "Generating a comparative statement for \'%s\' and \'%s\'..." % (associationGroup['word'], comparisonGroup['word'])
 
-    if settings.option('general', 'verboseLogging'): print "Choosing domain..."
     comparativeDomains = [
         [u"=DECLARATIVE", u"like", u"=COMPARISON"],
         [u"=DECLARATIVE", u",", u"and", u"=COMPARISON"],
@@ -338,7 +336,6 @@ def make_declarative(associationGroup):
         if association['type'] == "HAS-PROPERTY": haspropertyAssociations.append(association)
         if association['type'] == "HAS-ABILITY-TO": hasabilitytoAssociations.append(association)
 
-    if settings.option('general', 'verboseLogging'): print "Choosing domain..."
     declarativeDomains = []
     if haspropertyAssociations != []: declarativeDomains.append(
         [u"=PHRASE", u"=ISARE", u"=ADJECTIVE"]
@@ -385,7 +382,6 @@ def make_imperative(associationGroup):
     for association in associationGroup['associations']:
         if association['type'] == "HAS-ABILITY-TO": verbAssociations.append(association)
 
-    if settings.option('general', 'verboseLogging'): print "Choosing domain..."
     imperativeDomains = [
         [u"=VERB", u"=PHRASE"]
     ]
@@ -417,7 +413,6 @@ def make_imperative(associationGroup):
 def make_interrogative(word):
     if settings.option('general', 'verboseLogging'): print "Generating an interrogative phrase for \'%s\'..." % word
 
-    if settings.option('general', 'verboseLogging'): print "Choosing domain..."
     interrogativeDomains = [
         [u"what\'s", u"=WORD"]
     ]
@@ -449,7 +444,6 @@ def make_phrase(associationGroup):
     for association in associationGroup['associations']:
         if association['type'] == "HAS-PROPERTY": adjectiveAssociations.append(association)
 
-    if settings.option('general', 'verboseLogging'): print "Choosing domain..."
     phraseDomains = [
         [u"=OBJECT"]
     ]
@@ -481,6 +475,7 @@ def make_phrase(associationGroup):
     return sentence
 
 def finalize_reply(reply):
+    # todo: optimize this function
     splitReply = pattern.en.parse(' '.join(reply), True, True, False, False, True).split()
     tokenizedReply = []
     for sentence in splitReply: tokenizedReply.extend(sentence)     # Fix some pattern.en formatting stuff

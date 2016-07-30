@@ -28,7 +28,7 @@ def lpush(l, item):
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
-print "Checking for concept database...",
+print "Loading concept database...",
 with connection:
     cursor.execute("SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'associationmodel\';")
     if cursor.fetchone() == (u'associationmodel',): print Fore.GREEN + "[Done]"
@@ -44,7 +44,7 @@ with connection:
         """)
         print Fore.GREEN + "[Done]"
 
-print "Checking for mood file...",
+print "Loading mood file...",
 if os.path.isfile('moodHistory.p'):
     print Fore.GREEN + "[Done]"
     with open('moodHistory.p','r') as moodFile: moodHistory = pickle.load(moodFile)
@@ -109,11 +109,13 @@ def consume(parsedMessage, asker=u""):
         pronouns.determine_references(parsedSentence)
         pronouns.flip_posessive_references(parsedSentence, asker)
         intent = parse.determine_intent(parsedSentence)
+        # Questions
         if intent['interrogative'] == True:
             questionPackage = questionparser.read_question(parsedSentence)
             if questionPackage != None:
                 questionPackages.append(questionparser.read_question(parsedSentence))
-                print questionPackages
+                #print questionPackages
+        # Not questions
         else:
             parse.add_new_words(parsedSentence)
             associationtrainer.find_associations(parsedSentence)
@@ -134,11 +136,10 @@ def reply_to_ask(ask):
     if "%" not in reply:
         print Fore.BLUE + u"emma >> %s" % reply
         print "Posting reply..."
-        print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + "@" + ask['asker'] + " >> " + ask['message'] + "\n\n" + "emma >> " + reply + "\n- - - - - - - - - - -\n" + get_mood(update=False, expressAsText=True) + "\n\n"
+        if settings.option('tumblr', 'enablePostPreview') print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + "@" + ask['asker'] + " >> " + ask['message'] + "\n\n" + "emma >> " + reply + "\n- - - - - - - - - - -\n" + get_mood(update=False, expressAsText=True) + "\n\n"
         body = "<a href=" + ask['asker'] + ".tumblr.com/>@" + ask['asker'] + "</a>" + cgi.escape(" >> ") + cgi.escape(ask['message']) + "\n\n" + cgi.escape("emma >> ") + cgi.escape(reply) + "\n<!-- more -->\n" + cgi.escape(understanding)
         tumblrclient.post(body.encode('utf-8'), ["dialogue", ask['asker'].encode('utf-8'), get_mood().encode('utf-8')])
-    else:
-        print Fore.YELLOW + "Reply generation failed."
+    else: print Fore.RED + "Reply generation failed."
 
     tumblrclient.delete_ask(ask['id'])
 
@@ -161,8 +162,8 @@ def reblog_post():
                 print Fore.BLUE + u"Emma >> " + comment
                 tumblrclient.reblog(post['id'], post['reblogKey'], comment.encode('utf-8'), ["reblog", post['blogName'].encode('utf-8'), mood.encode('utf-8')])
                 break
-            else: print Fore.YELLOW + "Reply generation failed."
-    else: print Fore.YELLOW + "No rebloggable posts found."
+            else: print Fore.RED + "Reply generation failed."
+    else: print Fore.RED + "No rebloggable posts found."
 
 def dream():
     with connection:
@@ -174,16 +175,15 @@ def dream():
     if "%" not in dream:
         print Fore.BLUE + u"emma >> " + dream
         tumblrclient.post(cgi.escape(dream.encode('utf-8')), ["dreams", get_mood(update=True, text=dream).encode('utf-8')])
-    else: print Fore.YELLOW + "Dreamless sleep..."
+    else: print Fore.RED + "Dreamless sleep..."
 
 def chat():
-    print Fore.YELLOW + "!!! Chat mode enabled in settings. Press Control-C to exit."
-    while settings.option('general', 'enableChatMode'):
-        input = raw_input(Fore.BLUE + 'You >> ').decode('utf-8')
-        tokenizedMessage = parse.tokenize(input)
-        intents, questionPackages = consume(tokenizedMessage)
-        # todo: do things with questionPackage in chat()
-        
-        reply = sentencebuilder.generate_sentence(tokenizedMessage, get_mood(update=True, text=input, expressAsText=False), intents)
-        if "%" not in reply: print Fore.BLUE + u"emma >> " + reply
-        else: print Fore.RED + u"Reply generation failed."
+    print Fore.YELLOW + "!!! Chat mode enabled in settings."
+    input = raw_input(Fore.BLUE + 'You >> ').decode('utf-8')
+    tokenizedMessage = parse.tokenize(input)
+    intents, questionPackages = consume(tokenizedMessage)
+    # todo: do things with questionPackage in chat()
+    
+    reply = sentencebuilder.generate_sentence(tokenizedMessage, get_mood(update=True, text=input, expressAsText=False), intents)
+    if "%" not in reply: print Fore.BLUE + u"emma >> " + reply
+    else: print Fore.RED + u"Reply generation failed."

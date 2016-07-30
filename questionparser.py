@@ -23,6 +23,6 @@ def read_question(sentence):
             if word[1] in utilities.nounCodes:
                 interrogativeObject = word[0]
                 if settings.option('general', 'verboseLogging'): print Fore.GREEN + "Interrogative: DO " + interrogativeProperty + " HAVE " + interrogativeObject
-                return (["does", interrogativeProperty, interrogativeObject])
+                return (["doXhaveY", interrogativeProperty, interrogativeObject])
             
     else: return None

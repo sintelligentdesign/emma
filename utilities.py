@@ -13,7 +13,7 @@ adverbCodes = ['RB', 'RBR', 'RBS', 'RP']
 
 # Turn Emma's understanding and asker intents into something that people can read for Tumblr
 def pretty_print_understanding(parsedMessage, intents):
-    print Fore.GREEN + "Formatting Emma's understanding for Tumblr..."
+    print "Formatting Emma's understanding for Tumblr..."
     prettyUnderstanding = ""
     for count, parsedSentence in enumerate(parsedMessage):
         rawSentence = []
