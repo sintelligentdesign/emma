@@ -10,7 +10,6 @@ init(autoreset = True)
 
 import utilities
 import settings
-import profanity
 
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
@@ -81,12 +80,11 @@ def translate_netspeak(text):
         else: decodedText.append(word)
     return ' '.join(decodedText)
 
+bannedWords = []
+with connection:
+    cursor.execute('SELECT word FROM dictionary WHERE is_banned = 1')
+    for word in cursor.fetchall(): bannedWords.append(word[0])
 def finalize_sentence(taggedSentence):
-    bannedWords = []
-    with connection:
-        cursor.execute('SELECT word FROM dictionary WHERE is_banned = 1')
-        for word in cursor.fetchall(): bannedWords.append(word[0])
-
     rowsToRemove = []
     for count, taggedWord in enumerate(taggedSentence):
         if settings.option('general', 'verboseLogging'): print "Checking for conjunctions and illegal characters..."
@@ -106,9 +104,9 @@ def finalize_sentence(taggedSentence):
             print Fore.GREEN + "Appending \"\'s\" to \"%s\"..." % prevWord[5]
             prevWord[5] = prevWord[5] + u"\'s"
             rowsToRemove.append(taggedWord)
-        elif taggedWord[1] == u"\"" or taggedWord[5] in [u",", u"\u007c", u"\u2015", u"#", u"[", u"]", u"(", u")", u"{", u"}" u"\u2026", u"<", u">"]:
+        elif taggedWord[1] in [u"\"", u"FW", u":", u".", u"(", u")"] or taggedWord[5] in [u",", u"\u007c", u"\u2015", u"#", u"[", u"]", u"(", u")", u"{", u"}" u"\u2026", u"<", u">"]:
             rowsToRemove.append(taggedWord)
-        elif taggedWord[5] in profanity.wordList or taggedWord[5] in bannedWords:
+        elif taggedWord[5] in bannedWords:
             rowsToRemove.append(taggedWord)
 
     if rowsToRemove:
@@ -135,7 +133,7 @@ def add_new_words(parsedSentence):
 
         wordsLeft = parsedSentence[-(len(parsedSentence) - count):len(parsedSentence) - 1]
 
-        if lemma not in storedLemata and lemma not in wordsLeft and lemma not in addedWords and lemma not in profanity.wordList and lemma.isnumeric() == False and pos != "FW":
+        if lemma not in storedLemata and lemma not in wordsLeft and lemma not in addedWords and lemma not in bannedWords and lemma.isnumeric() == False:
             print Fore.MAGENTA + u"Learned new word: \'%s\'!" % lemma
             addedWords.append(lemma)
             with connection:
