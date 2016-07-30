@@ -99,7 +99,7 @@ if settings.option('tumblr', 'enableDreams'): enableDreamsBox.on = True
 loopButton = Button(x=15, y=enableDreamsBox.bottom + 15, width=170, title="Start Emma Loop", style='default', action=loop_emma)
 runOnceButton = Button(x=15, y=loopButton.bottom + 5, width=170, title="Run Emma Once", style='normal', action=run_emma)
 
-win = Window(width=200, height=runOnceButton.bottom + 20, title="Emma", auto_position=True, )
+win = Window(width=200, height=runOnceButton.bottom + 20, title="Emma", auto_position=True, resizable=False, zoomable=False)
 
 win.add(generalLabel)
 win.add(enableChatModeBox)
