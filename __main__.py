@@ -1,5 +1,6 @@
 import json
 import time
+import random
 
 from GUI import Window, Label, CheckBox, Button, application
 from GUI.StdColors import grey
@@ -9,40 +10,44 @@ init(autoreset = True)
 import settings
 import emma
 import tumblrclient
+import utilities
 
-def start_emma():
-    while True:
-        # If we aren't in chat mode, every 15 minutes, try to make a post. Replying to asks is most likely, followed by dreams, and reblogging a post is the least likely
-        if settings.option('general', 'enableChatMode'): emma.chat()
+def run_emma():
+    # If we aren't in chat mode, every 15 minutes, try to make a post. Replying to asks is most likely, followed by dreams, and reblogging a post is the least likely
+    if settings.option('general', 'enableChatMode'): emma.chat()
+    else:
+        if settings.option('tumblr', 'fetchRealAsks'): askList = tumblrclient.get_asks()
+        else: 
+            print Fore.YELLOW + "!!! Real ask fetching disabled in settings. Using fake asks instead."
+            askList = utilities.fakeAsks
+
+        print "Choosing activity..."
+        activities = []
+        if settings.option('tumblr', 'enableReblogs'): activities.append('reblogPost')
+        if settings.option('tumblr', 'enableDreams'): activities.extend(['dream'] * 2)
+        if settings.option('tumblr', 'enableAskReplies') and askList != []: activities.extend(['replyToAsks'] * 3)
+
+        activity = random.choice(activities)
+        if activity == 'reblogPost':
+            print "Reblogging a post..."
+            emma.reblog_post()
+        elif activity == 'dream':
+            print "Dreaming..."
+            emma.dream()
+        elif activity == 'replyToAsks':
+            print "Replying to asks in queue..."
+            emma.reply_to_asks(askList)
+        
+        if settings.option('general', 'enableSleep'):
+            print "Sleeping for 15 minutes..."
+            time.sleep(900)
         else:
-            if settings.option('tumblr', 'fetchRealAsks'): askList = tumblrclient.get_asks()
-            else: 
-                print Fore.YELLOW + "!!! Real ask fetching disabled in settings. Using fake asks instead."
-                askList = utilities.fakeAsks
+            print Fore.YELLOW + "!!! Sleep disabled in settings -- execution will continue normally in 2 seconds..."
+            time.sleep(2)
 
-            print "Choosing activity..."
-            activities = []
-            if settings.option('tumblr', 'enableReblogs'): activities.append('reblogPost')
-            if settings.option('tumblr', 'enableDreams'): activities.extend(['dream'] * 2)
-            if settings.option('tumblr', 'enableAskReplies') and askList != []: activities.extend(['replyToAsks'] * 3)
-
-            activity = random.choice(activities)
-            if activity == 'reblogPost':
-                print "Reblogging a post..."
-                emma.reblog_post()
-            elif activity == 'dream':
-                print "Dreaming..."
-                emma.dream()
-            elif activity == 'replyToAsks':
-                print "Replying to asks in queue..."
-                emma.reply_to_asks(askList)
-            
-            if settings.option('general', 'enableSleep'):
-                print "Sleeping for 15 minutes..."
-                time.sleep(900)
-            else:
-                print Fore.YELLOW + "!!! Sleep disabled in settings -- execution will continue normally in 2 seconds..."
-                time.sleep(2)
+def loop_emma():
+    win.hide()
+    while True: run_emma()
 
 settingsList = settings.load_settings()
 
@@ -91,9 +96,10 @@ if settings.option('tumblr', 'fetchRealAsks'): fetchRealAsksBox.on = True
 if settings.option('tumblr', 'enableReblogs'): enableReblogsBox.on = True
 if settings.option('tumblr', 'enableDreams'): enableDreamsBox.on = True
 
-startButton = Button(x=15, y=enableDreamsBox.bottom + 15, width=170, title="Start Emma", style='default', action=start_emma)
+loopButton = Button(x=15, y=enableDreamsBox.bottom + 15, width=170, title="Start Emma Loop", style='default', action=loop_emma)
+runOnceButton = Button(x=15, y=loopButton.bottom + 5, width=170, title="Start Emma Once", style='normal', action=run_emma)
 
-win = Window(width=200, height=startButton.bottom + 20, title="Emma Settings")
+win = Window(width=200, height=runOnceButton.bottom + 20, title="Emma", auto_position=True, )
 
 win.add(generalLabel)
 win.add(enableChatModeBox)
@@ -109,7 +115,8 @@ win.add(fetchRealAsksBox)
 win.add(enableReblogsBox)
 win.add(enableDreamsBox)
 
-win.add(startButton)
+win.add(loopButton)
+win.add(runOnceButton)
 
 win.show()
 application().run()
