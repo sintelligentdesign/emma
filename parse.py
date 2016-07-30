@@ -141,7 +141,7 @@ def add_new_words(parsedSentence):
             with connection:
                 cursor.execute("INSERT INTO dictionary VALUES (\"%s\", \"%s\", 1, 0, null);" % (re.escape(lemma), pos))
 
-greetingTerms = [[u'what\'s', u'up'], [u'hi'], [u'hiya'], [u'hello'], [u'what', u'up'], [u'wassup'], [u'what', u'is', u'up'], [u'what\'s', u'going', u'on'], [u'how', u'are', u'you'], [u'howdy'], [u'hey'], [u'good', u'morning'], [u'good', u'evening'], [u'good', u'afternoon']]
+greetingTerms = [[u'what\'s', u'up'], [u'hi'], [u'yo'], [u'hiya'], [u'hello'], [u'what', u'up'], [u'wassup'], [u'what', u'is', u'up'], [u'what\'s', u'going', u'on'], [u'how', u'are', u'you'], [u'howdy'], [u'hey'], [u'good', u'morning'], [u'good', u'evening'], [u'good', u'afternoon']]
 def determine_intent(parsedSentence):
     intent = {'declarative': False, 'interrogative': False, 'greeting': False}      # todo: 'imperative'
     message = []
