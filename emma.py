@@ -206,37 +206,3 @@ def chat():
         reply = sentencebuilder.generate_sentence(tokenizedMessage, get_mood(update=True, text=input, expressAsText=False), intents)
         if "%" not in reply: print Fore.BLUE + u"emma >> " + reply
         else: print Fore.RED + u"Reply generation failed."
-
-while True:
-    settings.load_settings()
-    # If we aren't in chat mode, every 15 minutes, try to make a post. Replying to asks is most likely, followed by dreams, and reblogging a post is the least likely
-    if settings.option('general', 'enableChatMode'): chat()
-    else:
-        if settings.option('tumblr', 'fetchRealAsks'): askList = tumblrclient.get_asks()
-        else: 
-            print Fore.YELLOW + "!!! Real ask fetching disabled in settings. Using fake asks instead."
-            askList = utilities.fakeAsks
-
-        print "Choosing activity..."
-        activities = []
-        if settings.option('tumblr', 'enableReblogs'): activities.append('reblogPost')
-        if settings.option('tumblr', 'enableDreams'): activities.extend(['dream'] * 2)
-        if settings.option('tumblr', 'enableAskReplies') and askList != []: activities.extend(['replyToAsks'] * 3)
-
-        activity = random.choice(activities)
-        if activity == 'reblogPost':
-            print "Reblogging a post..."
-            reblog_post()
-        elif activity == 'dream':
-            print "Dreaming..."
-            dream()
-        elif activity == 'replyToAsks':
-            print "Replying to asks in queue..."
-            reply_to_asks(askList)
-        
-        if settings.option('general', 'enableSleep'):
-            print "Sleeping for 15 minutes..."
-            time.sleep(900)
-        else:
-            print Fore.YELLOW + "!!! Sleep disabled in settings -- execution will continue normally in 2 seconds..."
-            time.sleep(2)

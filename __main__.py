@@ -1,15 +1,48 @@
 import json
+import time
 
 from GUI import Window, Label, CheckBox, Button, application
 from GUI.StdColors import grey
 from colorama import init, Fore
 init(autoreset = True)
 
-#import emma
 import settings
+import emma
+import tumblrclient
 
 def start_emma():
-    print "test"
+    while True:
+        # If we aren't in chat mode, every 15 minutes, try to make a post. Replying to asks is most likely, followed by dreams, and reblogging a post is the least likely
+        if settings.option('general', 'enableChatMode'): emma.chat()
+        else:
+            if settings.option('tumblr', 'fetchRealAsks'): askList = tumblrclient.get_asks()
+            else: 
+                print Fore.YELLOW + "!!! Real ask fetching disabled in settings. Using fake asks instead."
+                askList = utilities.fakeAsks
+
+            print "Choosing activity..."
+            activities = []
+            if settings.option('tumblr', 'enableReblogs'): activities.append('reblogPost')
+            if settings.option('tumblr', 'enableDreams'): activities.extend(['dream'] * 2)
+            if settings.option('tumblr', 'enableAskReplies') and askList != []: activities.extend(['replyToAsks'] * 3)
+
+            activity = random.choice(activities)
+            if activity == 'reblogPost':
+                print "Reblogging a post..."
+                emma.reblog_post()
+            elif activity == 'dream':
+                print "Dreaming..."
+                emma.dream()
+            elif activity == 'replyToAsks':
+                print "Replying to asks in queue..."
+                emma.reply_to_asks(askList)
+            
+            if settings.option('general', 'enableSleep'):
+                print "Sleeping for 15 minutes..."
+                time.sleep(900)
+            else:
+                print Fore.YELLOW + "!!! Sleep disabled in settings -- execution will continue normally in 2 seconds..."
+                time.sleep(2)
 
 settingsList = settings.load_settings()
 
