@@ -24,8 +24,8 @@ import settings
 settings.load_settings()
 
 def lpush(l, item):
-    l.insert(item)
-    l.remove(self[-1])
+    l.insert(0, item)
+    l.remove(l[-1])
 
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
@@ -77,7 +77,7 @@ def get_mood(update=False, text="", expressAsText=True):
         lpush(moodHistory, (sum(sentiment) / float(len(sentiment))))        # Add the mood to the list of mood values
         with open('moodHistory.p','wb') as moodFile: pickle.dump(moodHistory, moodFile)       # Save to mood values file
     else: 
-        with open('moodHistory.p', 'r') as moodFile: moodHistory = stack(pickle.load(moodFile))
+        with open('moodHistory.p', 'r') as moodFile: moodHistory = pickle.load(moodFile)
 
     # More recent mood values have a higher weight when calculating Emma's overall mood
     weightedmoodHistory = []
