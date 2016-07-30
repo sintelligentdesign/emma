@@ -39,14 +39,6 @@ def generate_sentence(tokenizedMessage, moodAvg, askerIntents=[{'declarative': T
     print "Creating association bundles..."
     associationBundle = bundle_associations(importantWords)
 
-    '''
-    if len(associationBundle) < 3:
-        if len(associationBundle) == 0: print Fore.RED + "There are no associations in the primary bundle. Creating common sense halo..."
-        else: print Fore.YELLOW + "The number of associations in the primary bundle is small. Creating common sense halo..."
-
-        halo = make_halo(importantWords)
-    '''
-
     # Create packages which include the association package and information about its contents so that the generator knows what domains can be used
     print "Packaging association bundles and related information..."
     associationPackage = make_association_package(associationBundle, asker)
