@@ -37,7 +37,7 @@ def run_emma():
         elif activity == 'replyToAsks':
             print "Fetched %d new asks. Responding the newest one..." % len(askList)
             # todo: maybe have Emma figure out if she's able to respond to an ask before calling reply_to_asks()?
-            emma.reply_to_asks(askList[0])
+            emma.reply_to_ask(askList[0])
         
         if settings.option('general', 'enableSleep'):
             print "Sleeping for 15 minutes..."
