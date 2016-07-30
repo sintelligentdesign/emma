@@ -47,14 +47,8 @@ def generate_sentence(tokenizedMessage, moodAvg, askerIntents=[{'declarative': T
         print Fore.RED + "There are no associations available to generate a reply. Sentence generation failed."
         return "%"
 
-    # Disposable code to be rewritten later once we do more things with asker intents
-    # todo: do more with asker intents
-    hasGreeting = False
-    for intent in askerIntents:
-        if intent['greeting'] == True: hasGreeting = True
-
     # Generate the reply
-    return build_reply(associationPackage, hasGreeting, questionPackages)
+    return build_reply(associationPackage, askerIntents, questionPackages)
 
 # todo: move this function into emma.dream()
 def make_halo(words):
@@ -129,10 +123,14 @@ def determine_valid_intents(associationPackage):
         validIntents[associationBundle['word']] = intents
     return validIntents
 
-def build_reply(associationPackage, hasGreeting, questionPackages):
+def build_reply(associationPackage, askerIntents, questionPackages):
     sentencesToGenerate = random.randint(1, 3)
 
-    # Check whether or not we need to answer questions, and attempt to generate answers if we do
+    hasGreeting = False
+    for intent in askerIntents:
+        if intent['greeting'] == True: hasGreeting = True
+
+    # Attempt to generate answers if we have any
     questionAnswers = []
     for question in questionPackages:
         print u"Question package:" + str(question)
