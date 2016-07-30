@@ -43,25 +43,23 @@ def tokenize(text):
 
 def translate_netspeak(text):
     # Turn internet abbreviations into proper English
-    # todo: add more abbreviations as we think of or encounter them
-    # todo: arrange abbreviations alphabetically?
     text = text.split(' ')
     txtDict = {
-        u'im': [u'I\'m'],
-        u'u': [u'you'],
-        u'n': [u'and'],
-        u'cn': [u'can'],
-        u'r': [u'are'],
-        u'ur': [u'your'],
-        u'yea': [u'yeah'],
-        u'lemme': [u'let', u'me'],
-        u'obv': [u'obviously'],
-        u'tbh': [u'to', u'be', u'honest'],
+        u'aight': [u'alright'],
         u'btw': [u'by', u'the', u'way'],
-        u'imo': [u'in', u'my', u'opinion'],
-        u'omg': [u'oh', u'my', u'god'],
+        u'cn': [u'can'],
         u'gonna': [u'going', u'to'],
-        u'aight': [u'alright']
+        u'im': [u'I\'m'],
+        u'imo': [u'in', u'my', u'opinion'],
+        u'lemme': [u'let', u'me'],
+        u'n': [u'and'],
+        u'obv': [u'obviously'],
+        u'omg': [u'oh', u'my', u'god'],
+        u'r': [u'are'],
+        u'tbh': [u'to', u'be', u'honest'],
+        u'u': [u'you'],
+        u'ur': [u'your'],
+        u'yea': [u'yeah']
     }
 
     decodedText = []
