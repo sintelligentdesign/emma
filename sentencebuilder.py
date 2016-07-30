@@ -139,25 +139,27 @@ def build_reply(associationPackage, askerIntents, questionPackages):
             with connection:
                 cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' AND association_type = \'HAS-PROPERTY\';" % question[2])
                 answerCandidates = []
+
                 for adjective in cursor.fetchall():
                     cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' AND target = \'%s\';" % (adjective[2], question[1]))
                     SQLReturn = cursor.fetchall() 
                     if SQLReturn != []:
-                        answerCandidates.append(SQLReturn[0])
-                if len(answerCandidates) > 1:
-                    # todo: make this choice weighted by the weight of the associations
-                    answer = random.choice(answerCandidates)
-                elif len(answerCandidates) > 0: answer = answerCandidates[0][0]
-                else: answer = ""
-            if answer != "":
-                questionAnswers.append(("what", question[1], question[2], answer))      # (what) COLOR (of) SKY (be) ANSWER
+                        answerCandidates = (SQLReturn)
+
+                if len(answerCandidates) > 0:
+                    answer = answerCandidates[0]
+                    # Choose the answer with the highest weight
+                    for candidate in answerCandidates:
+                        if candidate[3] > answer[3]: answer = candidate
+                    questionAnswers.append(("what", question[1], question[2], answer[0]))      # (what) COLOR (of) SKY (be) ANSWER
         
         # "DO [NOUN] HAVE [NOUN]"
         if question[0] == "doXhaveY":
             with connection:
                 cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' AND association_type = \'HAS\' AND target = \'%s\';" % (question[1], question[2]))
                 SQLReturn = cursor.fetchall()
-                print SQLReturn
+                # todo: add lower bound?
+                
                 if SQLReturn != []: answer = ("does", question[1], question[2], True)       # yes/no, CATS (have) PAWS
                 else: answer = ("does", question[1], question[2], False)
                 questionAnswers.append(answer)
