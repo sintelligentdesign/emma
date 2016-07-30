@@ -152,9 +152,7 @@ def reply_to_asks(askList):
             if settings.option('general', 'enableSleep'):
                 print "Sleeping for 3 minutes..."
                 time.sleep(180)
-            else:
-                print Fore.YELLOW + "!!! Sleep disabled in settings -- execution will continue normally in 2 seconds..."
-                time.sleep(2)
+            else: print Fore.YELLOW + "!!! Sleep disabled in settings"
 
 def reblog_post():
     settings.load_settings()

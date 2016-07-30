@@ -41,9 +41,7 @@ def run_emma():
         if settings.option('general', 'enableSleep'):
             print "Sleeping for 15 minutes..."
             time.sleep(900)
-        else:
-            print Fore.YELLOW + "!!! Sleep disabled in settings -- execution will continue normally in 2 seconds..."
-            time.sleep(2)
+        else: print Fore.YELLOW + "!!! Sleep disabled in settings"
 
 def loop_emma():
     win.hide()
