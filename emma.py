@@ -121,10 +121,7 @@ def consume(parsedMessage, asker=u""):
         print "Sentence consumed."
     return intents, questionPackages
 
-def reply_to_asks(askList):
-    print "Fetched %d new asks." % len(askList)
-    ask = random.choice(askList)
-
+def reply_to_ask(ask):
     print "Reading ask..."
     print Fore.BLUE + u"@" + ask['asker'] + u" >> " + ask['message']
 
@@ -136,7 +133,6 @@ def reply_to_asks(askList):
 
     if "%" not in reply:
         print Fore.BLUE + u"emma >> %s" % reply
-
         print "Posting reply..."
         print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + "@" + ask['asker'] + " >> " + ask['message'] + "\n\n" + "emma >> " + reply + "\n- - - - - - - - - - -\n" + get_mood(update=False, expressAsText=True) + "\n\n"
         body = "<a href=" + ask['asker'] + ".tumblr.com/>@" + ask['asker'] + "</a>" + cgi.escape(" >> ") + cgi.escape(ask['message']) + "\n\n" + cgi.escape("emma >> ") + cgi.escape(reply) + "\n<!-- more -->\n" + cgi.escape(understanding)
