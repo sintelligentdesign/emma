@@ -87,7 +87,6 @@ def finalize_sentence(taggedSentence):
         if count != 0: prevWord = taggedSentence[count - 1]
         if count != len(taggedSentence) - 1: nextWord = taggedSentence[count + 1]
         
-        # todo: this splits up the word "can't" incorrectly. Fix
         if taggedWord[5] in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
             print Fore.GREEN + "Replacing \"n\'t\" with \"not\"..."
             taggedWord[5] = u"not"
@@ -139,20 +138,23 @@ def add_new_words(parsedSentence):
 
 greetingTerms = [[u'what\'s', u'up'], [u'hi'], [u'yo'], [u'hiya'], [u'hello'], [u'what', u'up'], [u'wassup'], [u'what', u'is', u'up'], [u'what\'s', u'going', u'on'], [u'how', u'are', u'you'], [u'howdy'], [u'hey'], [u'good', u'morning'], [u'good', u'evening'], [u'good', u'afternoon']]
 def determine_intent(parsedSentence):
-    intent = {'declarative': False, 'interrogative': False, 'greeting': False}      # todo: 'imperative'
+    intent = {'declarative': False, 'interrogative': False, 'greeting': False}
     message = []
     for word in parsedSentence: message.append(word[0])
 
+    # Greeting pass
     for greeting in greetingTerms:
         match = re.match(' '.join(greeting), ' '.join(message[0:3]))
         if match: intent['greeting'] = True
 
+    # Interrogative pass
     if parsedSentence[0][1] in ("WDT", "WP", "WP$", "WRB") or parsedSentence[1][1] in (u'be') or parsedSentence[-1][0] == "?": intent['interrogative'] = True
+
+    # Declarative pass
     if intent['interrogative'] == False:
+        # If we have a greeting, check to see if the sentence is compound
         if intent['greeting']:
             if "," in message[:5]: intent['declarative'] = True
         else: intent['declarative'] = True
 
     return intent
-
-# todo: write a function that can take a given sentence and its intent and break it down into its domains (if possible) for easier parsing
