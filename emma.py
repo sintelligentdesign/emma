@@ -23,10 +23,9 @@ import settings
 
 settings.load_settings()
 
-class stack(list):
-    def push(self, item):
-        self.insert(0, item)
-        self.remove(self[10])
+def lpush(l, item):
+    l.insert(item)
+    l.remove(self[-1])
 
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
@@ -50,13 +49,12 @@ with connection:
 print "Checking for mood file...",
 if os.path.isfile('moodHistory.p'):
     print Fore.GREEN + "[Done]"
-    with open('moodHistory.p','r') as moodFile: moodHistory = stack(pickle.load(moodFile))
+    with open('moodHistory.p','r') as moodFile: moodHistory = pickle.load(moodFile)
 else:   
     print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating file with randomized moods...",
-    moodHistory = []
     with open('moodHistory.p','wb') as moodFile:
+        moodHistory = []
         for i in range(0, 10): moodHistory.append(random.uniform(-0.5, 0.5))
-        moodHistory = stack(moodHistory)
         pickle.dump(moodHistory, moodFile)
     print Fore.GREEN + "[Done]"
 
@@ -76,7 +74,7 @@ def get_mood(update=False, text="", expressAsText=True):
     # By default, this function does nothing and just returns Emma's mood in human-readable form (as opposed to numbers)
     if update == True: 
         sentiment = pattern.en.sentiment(text)       # Get the average mood from the moods of sentences in the text
-        moodHistory.push(sum(sentiment) / float(len(sentiment)))        # Add the mood to the list of mood values
+        lpush(moodHistory, (sum(sentiment) / float(len(sentiment))))        # Add the mood to the list of mood values
         with open('moodHistory.p','wb') as moodFile: pickle.dump(moodHistory, moodFile)       # Save to mood values file
     else: 
         with open('moodHistory.p', 'r') as moodFile: moodHistory = stack(pickle.load(moodFile))
