@@ -21,8 +21,6 @@ import sentencebuilder
 import utilities
 import settings
 
-settings.load_settings()
-
 def lpush(l, item):
     l.insert(0, item)
     l.remove(l[-1])
@@ -124,38 +122,31 @@ def consume(parsedMessage, asker=u""):
     return intents, questionPackages
 
 def reply_to_asks(askList):
-    if len(askList) > 0:
-        print "Fetched %d new asks." % len(askList)
-        for askCount, ask in enumerate(askList):
-            settings.load_settings()
-            print "Reading ask no. %d of %d..." % (askCount + 1, len(askList))
-            print Fore.BLUE + u"@" + ask['asker'] + u" >> " + ask['message']
+    print "Fetched %d new asks." % len(askList)
+    ask = random.choice(askList)
 
-            parsedAsk = parse.tokenize(ask['message'])
-            intents, questionPackages = consume(parsedAsk, ask['asker'])
-            understanding = utilities.pretty_print_understanding(parsedAsk, intents)
+    print "Reading ask..."
+    print Fore.BLUE + u"@" + ask['asker'] + u" >> " + ask['message']
 
-            reply = sentencebuilder.generate_sentence(parsedAsk, get_mood(update=True, text=ask['message'], expressAsText=False), intents, ask['asker'], questionPackages)
+    parsedAsk = parse.tokenize(ask['message'])
+    intents, questionPackages = consume(parsedAsk, ask['asker'])
+    understanding = utilities.pretty_print_understanding(parsedAsk, intents)
 
-            if "%" not in reply:
-                print Fore.BLUE + u"emma >> %s" % reply
+    reply = sentencebuilder.generate_sentence(parsedAsk, get_mood(update=True, text=ask['message'], expressAsText=False), intents, ask['asker'], questionPackages)
 
-                print "Posting reply..."
-                print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + "@" + ask['asker'] + " >> " + ask['message'] + "\n\n" + "emma >> " + reply + "\n- - - - - - - - - - -\n" + get_mood(update=False, expressAsText=True) + "\n\n"
-                body = "<a href=" + ask['asker'] + ".tumblr.com/>@" + ask['asker'] + "</a>" + cgi.escape(" >> ") + cgi.escape(ask['message']) + "\n\n" + cgi.escape("emma >> ") + cgi.escape(reply) + "\n<!-- more -->\n" + cgi.escape(understanding)
-                tumblrclient.post(body.encode('utf-8'), ["dialogue", ask['asker'].encode('utf-8'), get_mood().encode('utf-8')])
-            else:
-                print Fore.YELLOW + "Reply generation failed."
+    if "%" not in reply:
+        print Fore.BLUE + u"emma >> %s" % reply
 
-            tumblrclient.delete_ask(ask['id'])
+        print "Posting reply..."
+        print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + "@" + ask['asker'] + " >> " + ask['message'] + "\n\n" + "emma >> " + reply + "\n- - - - - - - - - - -\n" + get_mood(update=False, expressAsText=True) + "\n\n"
+        body = "<a href=" + ask['asker'] + ".tumblr.com/>@" + ask['asker'] + "</a>" + cgi.escape(" >> ") + cgi.escape(ask['message']) + "\n\n" + cgi.escape("emma >> ") + cgi.escape(reply) + "\n<!-- more -->\n" + cgi.escape(understanding)
+        tumblrclient.post(body.encode('utf-8'), ["dialogue", ask['asker'].encode('utf-8'), get_mood().encode('utf-8')])
+    else:
+        print Fore.YELLOW + "Reply generation failed."
 
-            if settings.option('general', 'enableSleep'):
-                print "Sleeping for 3 minutes..."
-                time.sleep(180)
-            else: print Fore.YELLOW + "!!! Sleep disabled in settings"
+    tumblrclient.delete_ask(ask['id'])
 
 def reblog_post():
-    settings.load_settings()
     with connection:
         cursor.execute("SELECT username FROM friends;")
         SQLReturn = cursor.fetchall()
@@ -178,7 +169,6 @@ def reblog_post():
     else: print Fore.YELLOW + "No rebloggable posts found."
 
 def dream():
-    settings.load_settings()
     with connection:
         cursor.execute('SELECT word FROM dictionary WHERE is_banned = 0 ORDER BY RANDOM() LIMIT 10;')
         SQLReturn = cursor.fetchall()
@@ -193,7 +183,6 @@ def dream():
 def chat():
     print Fore.YELLOW + "!!! Chat mode enabled in settings. Press Control-C to exit."
     while settings.option('general', 'enableChatMode'):
-        settings.load_settings()
         input = raw_input(Fore.BLUE + 'You >> ').decode('utf-8')
         tokenizedMessage = parse.tokenize(input)
         intents, questionPackages = consume(tokenizedMessage)
