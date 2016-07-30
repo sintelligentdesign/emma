@@ -178,7 +178,6 @@ def dream():
     else: print Fore.RED + "Dreamless sleep..."
 
 def chat():
-    print Fore.YELLOW + "!!! Chat mode enabled in settings."
     input = raw_input(Fore.BLUE + 'You >> ').decode('utf-8')
     tokenizedMessage = parse.tokenize(input)
     intents, questionPackages = consume(tokenizedMessage)

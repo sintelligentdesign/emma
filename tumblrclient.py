@@ -31,7 +31,6 @@ def delete_ask(askid):
     if settings.option('tumblr', 'enableAskDeletion'): 
         print "Deleting ask with ID %d..." % askid
         client.delete_post('emmacanlearn', askid)
-    else: print Fore.YELLOW + "!!! Ask deletion disabled in settings."
 
 def get_recent_posts(user):
     print "Fetching @%s\'s most recent text posts..." % user
@@ -53,9 +52,7 @@ def post(body, tags=[]):
         tagsAsString = ""
         for tag in tags: tagsAsString += "#%s " % tag
     if settings.option('tumblr', 'publishOutput'): client.create_text('emmacanlearn', state="published", body=body, tags=tags)
-    else: print Fore.YELLOW + "!!! Posting disabled in settings."
 
 def reblog(postid, reblogKey, comment, tags):
     print "Reblogging post & adding comment..."
     if settings.option('tumblr', 'publishOutput'): client.reblog('emmacanlearn', id=postid, reblog_key=reblogKey, comment=cgi.escape(comment), tags=tags)
-    else: print Fore.YELLOW + "!!! Reblogging disabled in settings."

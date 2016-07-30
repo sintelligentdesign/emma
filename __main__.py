@@ -17,9 +17,7 @@ def run_emma():
     if settings.option('general', 'enableChatMode'): emma.chat()
     else:
         if settings.option('tumblr', 'fetchRealAsks'): askList = tumblrclient.get_asks()
-        else: 
-            print Fore.YELLOW + "!!! Fetching of real Asks disabled in settings. Execution will continue using fake Asks instead."
-            askList = utilities.fakeAsks
+        else: askList = utilities.fakeAsks
 
         print "Choosing activity..."
         activities = []
@@ -42,7 +40,6 @@ def run_emma():
         if settings.option('general', 'enableSleep'):
             print "Sleeping for 15 minutes..."
             time.sleep(900)
-        else: print Fore.YELLOW + "!!! Sleep disabled in settings. Execution will continue."
 
 def loop_emma():
     win.hide()
