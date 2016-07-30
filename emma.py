@@ -182,8 +182,7 @@ def chat():
     input = raw_input(Fore.BLUE + 'You >> ').decode('utf-8')
     tokenizedMessage = parse.tokenize(input)
     intents, questionPackages = consume(tokenizedMessage)
-    # todo: do things with questionPackage in chat()
     
-    reply = sentencebuilder.generate_sentence(tokenizedMessage, get_mood(update=True, text=input, expressAsText=False), intents)
+    reply = sentencebuilder.generate_sentence(tokenizedMessage, get_mood(update=True, text=input, expressAsText=False), intents, questionPackages=questionPackages)
     if "%" not in reply: print Fore.BLUE + u"emma >> " + reply
     else: print Fore.RED + u"Reply generation failed."
