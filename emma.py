@@ -169,9 +169,15 @@ def dream():
     with connection:
         cursor.execute('SELECT word FROM dictionary WHERE is_banned = 0 ORDER BY RANDOM() LIMIT 10;')
         SQLReturn = cursor.fetchall()
-    dreamSeed = ' '.join(sentencebuilder.make_halo([random.choice(SQLReturn)[0]]))
-    print "Dream seed: " + dreamSeed
-    dream = sentencebuilder.generate_sentence(pattern.en.parse(dreamSeed, True, True, True, True, True).split(), get_mood(expressAsText=False))
+
+    print Fore.GREEN + "Creating common sense halo..."
+    halo = []
+    with connection:
+        cursor.execute("SELECT target FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.target = dictionary.word WHERE associationmodel.word = \"%s\" AND part_of_speech IN (\'NN\', \'NNS\', \'NNP\', \'NNPS\');" % re.escape(random.choice(SQLReturn)[0]))
+        for fetchedWord in cursor.fetchall():
+            if fetchedWord[0] not in halo: halo.append(fetchedWord[0])
+            
+    dream = sentencebuilder.generate_sentence(pattern.en.parse(' '.join(halo), True, True, True, True, True).split(), get_mood(expressAsText=False))
     if "%" not in dream:
         print Fore.BLUE + u"emma >> " + dream
         tumblrclient.post(cgi.escape(dream.encode('utf-8')), ["dreams", get_mood(update=True, text=dream).encode('utf-8')])

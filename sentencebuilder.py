@@ -50,18 +50,6 @@ def generate_sentence(tokenizedMessage, moodAvg, askerIntents=[{'declarative': T
     # Generate the reply
     return build_reply(associationPackage, askerIntents, questionPackages)
 
-# todo: move this function into emma.dream()
-def make_halo(words):
-    halo = words
-    print Fore.GREEN + "Creating common sense halo..."
-    for word in words:
-        with connection:
-            cursor.execute("SELECT target FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.target = dictionary.word WHERE associationmodel.word = \"%s\" AND part_of_speech IN (\'NN\', \'NNS\', \'NNP\', \'NNPS\');" % re.escape(word))
-            for fetchedWord in cursor.fetchall():
-                if fetchedWord[0] not in halo: halo.append(fetchedWord[0])
-    print Fore.GREEN + "Common sense halo:" + str(halo)
-    return halo
-
 def group_associations(word):
     # Retrieves and groups the input string's associations
     associationGroup = []
