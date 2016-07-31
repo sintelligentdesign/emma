@@ -1,3 +1,41 @@
+import os
+import random
+import pickle
+import sqlite3 as sql
+from colorama import init, Fore
+init(autoreset = True)
+
+connection = sql.connect('emma.db')
+cursor = connection.cursor()
+
+print "Loading concept database...",
+with connection:
+    cursor.execute("SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'associationmodel\';")
+    if cursor.fetchone() == (u'associationmodel',): print Fore.GREEN + "[Done]"
+    else:
+        print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating new database...",
+        cursor.executescript("""
+        DROP TABLE IF EXISTS associationmodel;
+        DROP TABLE IF EXISTS dictionary;
+        DROP TABLE IF EXISTS friends;
+        CREATE TABLE associationmodel(word TEXT, association_type TEXT, target TEXT, weight DOUBLE);
+        CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, is_new INTEGER DEFAULT 1, is_banned INTEGER DEFAULT 0);
+        CREATE TABLE friends(username TEXT, can_reblog_from INTEGER DEFAULT 0);
+        """)
+        print Fore.GREEN + "[Done]"
+
+print "Loading mood file...",
+if os.path.isfile('moodHistory.p'):
+    print Fore.GREEN + "[Done]"
+    with open('moodHistory.p','r') as moodFile: moodHistory = pickle.load(moodFile)
+else:   
+    print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating file with randomized moods...",
+    with open('moodHistory.p','wb') as moodFile:
+        moodHistory = []
+        for i in range(0, 10): moodHistory.append(random.uniform(-0.5, 0.5))
+        pickle.dump(moodHistory, moodFile)
+    print Fore.GREEN + "[Done]"
+
 import json
 import time
 import random
@@ -5,13 +43,14 @@ import argparse
 
 from GUI import Window, Label, CheckBox, Button, application
 from GUI.StdColors import grey
-from colorama import init, Fore
-init(autoreset = True)
 
 import settings
 import emma
 import tumblrclient
 import utilities
+
+# "Emma" banner
+print Fore.MAGENTA + u"\n .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .oooo.\nd88' \u006088b \u0060888P\"Y88bP\"Y88b  \u0060888P\"Y88bP\"Y88b  \u0060P  )88b\n888ooo888  888   888   888   888   888   888   .oP\"888\n888    .,  888   888   888   888   888   888  d8(  888\n\u0060Y8bod8P' o888o o888o o888o o888o o888o o888o \u0060Y888\"\"8o\n\n        EXPANDING MODEL of MAPPED ASSOCIATIONS\n                     Alpha v0.0.3\n"
 
 settingsList = settings.load_settings()
 
