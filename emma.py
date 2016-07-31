@@ -71,6 +71,7 @@ def consume(parsedMessage, asker=u""):
         pronouns.determine_references(parsedSentence)
         pronouns.flip_posessive_references(parsedSentence, asker)
         intent = parse.determine_intent(parsedSentence)
+        
         # Questions
         if intent['interrogative'] == True:
             questionPackage = questionparser.read_question(parsedSentence)
