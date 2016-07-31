@@ -6,6 +6,7 @@ import random
 import pickle
 import cgi
 import re
+import os
 
 import pattern.en
 import sqlite3 as sql
@@ -27,6 +28,18 @@ def lpush(l, item):
 
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
+
+print "Loading mood file...",
+if os.path.isfile('moodHistory.p'):
+    print Fore.GREEN + "[Done]"
+    with open('moodHistory.p','r') as moodFile: moodHistory = pickle.load(moodFile)
+else:   
+    print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating file with randomized moods...",
+    with open('moodHistory.p','wb') as moodFile:
+        moodHistory = []
+        for i in range(0, 10): moodHistory.append(random.uniform(-0.5, 0.5))
+        pickle.dump(moodHistory, moodFile)
+    print Fore.GREEN + "[Done]"
 
 def get_mood(update=False, text="", expressAsText=True):
     global moodHistory
