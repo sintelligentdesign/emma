@@ -63,6 +63,8 @@ def find_associations(sentence):
 
             # NP + 'has' + NP >> NN HAS NN (People have two hands >> People HAS hands)
             if wordSandwich and word[0] == "have" and "NP" in wordsBack[-1][2] and "NP" in wordsFore[0][2]:
+                subjectNoun = ""
+                targetNoun = ""
                 for word in reversed(wordsBack):
                     if word[1] in utilities.nounCodes:
                         subjectNoun = word[0]
@@ -71,7 +73,7 @@ def find_associations(sentence):
                     if word[1] in utilities.nounCodes:
                         targetNoun = word[0]
                         break
-                if subjectNoun and targetNoun:
+                if subjectNoun != "" and targetNoun != "":
                     print Fore.MAGENTA + u"Found association: %s HAS %s." % (subjectNoun, targetNoun)
                     add_association(subjectNoun, targetNoun, "HAS")
 
