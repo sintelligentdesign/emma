@@ -16,8 +16,8 @@ cursor = connection.cursor()
 def find_associations(sentence):
     for count, word in enumerate(sentence):
         wordsBack = sentence[0:count]
-        wordsFore = sentence[count + 1:-1]
-        if count != 0 and count + 1 != len(sentence) - 1: wordSandwich = True
+        wordsFore = sentence[count:-1]
+        if count != 0 and count + 1 != len(sentence): wordSandwich = True
         else: wordSandwich = False
 
         if word[1]  not in ["LS", "SYM", "UH", ".", ",", ":", "(", ")", "FW"]:      # Don't associate unusable parts of speech

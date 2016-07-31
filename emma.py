@@ -28,13 +28,6 @@ def lpush(l, item):
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
-with connection:
-    cursor.execute("SELECT * FROM associationmodel")
-    associationModelItems = "{:,d}".format(len(cursor.fetchall()))
-    cursor.execute("SELECT * FROM dictionary")
-    dictionaryItems = "{:,d}".format(len(cursor.fetchall()))
-print Fore.MAGENTA + "Database contains %s associations and %s words." % (associationModelItems, dictionaryItems)
-
 def get_mood(update=False, text="", expressAsText=True):
     global moodHistory
     # If update is set to true, use text to add new mood value. Otherwise, just return the mood without touching it

@@ -148,7 +148,9 @@ def determine_intent(parsedSentence):
         if match: intent['greeting'] = True
 
     # Interrogative pass
-    if parsedSentence[0][1] in ("WDT", "WP", "WP$", "WRB") or parsedSentence[1][1] in (u'be') or parsedSentence[-1][0] == "?": intent['interrogative'] = True
+    print parsedSentence
+    if len(parsedSentence) > 1:
+        if parsedSentence[0][1] in ("WDT", "WP", "WP$", "WRB") or parsedSentence[1][1] in (u'be') or parsedSentence[-1][0] == "?": intent['interrogative'] = True
 
     # Declarative pass
     if intent['interrogative'] == False:
