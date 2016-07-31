@@ -1,6 +1,7 @@
 import json
 import time
 import random
+import argparse
 
 from GUI import Window, Label, CheckBox, Button, application
 from GUI.StdColors import grey
@@ -11,6 +12,8 @@ import settings
 import emma
 import tumblrclient
 import utilities
+
+settingsList = settings.load_settings()
 
 def run_emma():
     # If we aren't in chat mode, every 15 minutes, try to make a post. Replying to asks is most likely, followed by dreams, and reblogging a post is the least likely
@@ -45,8 +48,6 @@ def loop_emma():
     win.hide()
     while True: run_emma()
 
-settingsList = settings.load_settings()
-
 # Emma GUI-related functions
 def make_label(text, **kwds): return Label(text=text, **kwds)
 def update_setting(option):
@@ -64,6 +65,13 @@ def update_setting(option):
     settingsList[group][option] = value
     with open('settings.json', 'w') as settingsFile: json.dump(settingsList, settingsFile)
     
+parser = argparse.ArgumentParser(description='Entry point for Expanding Model of Mapped Associations.')
+parser.add_argument('-gui', help='Show or hide Emma\'s GUI. If hidden, execution will begin automatically.', choices=['show', 'hide'], default='show')
+args = parser.parse_args()
+if args.gui == 'hide': 
+    win = Window()
+    loop_emma()
+
 ## Set up and display Emma's GUI
 # General
 generalLabel = make_label("General", color=grey, x=20, y=15)
