@@ -193,7 +193,7 @@ def build_reply(associationPackage, askerIntents, questionPackages):
                     if cursor.fetchall()[0] not in ["NNP", "NNPS"]: pluralizeObjects = True
             else: pluralizeObjects = False
 
-            print "Domain " + str(i + 1) + ": " + intent + " for \'" + word + "\' with " + str(len(associationGroup)) + " associations"
+            print "Domain " + str(i + 1) + ": " + intent + " for \'" + word + "\' with " + str(len(associationGroup['associations'])) + " associations"
 
             domains.append(("=" + intent, word, associationGroup))
         else: break
