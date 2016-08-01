@@ -43,7 +43,7 @@ def get_recent_posts(user):
             # ...But don't allow posts with tags in the realm of 'personal' or 'do not reblog'
             taggedDoNotReblog = False
             for tag in post['tags']:
-                if re.sub(r'[\d\s\W]', "", tag.lower()) in [u"personal", u"donotreblog", u"dontreblog", u"nsfw"]: taggedDoNotReblog = True
+                if re.sub(r'[\d\s\W]', "", tag.lower()) in [u"personal", u"donotreblog", u"dontreblog", u"dontrb", u"nsfw"]: taggedDoNotReblog = True
             if not taggedDoNotReblog: postList.append({'id': int(post['id']), 'reblogKey': post['reblog_key'], 'blogName': cgi.escape(post['blog_name']), 'body': post['body']})
     return postList
 
