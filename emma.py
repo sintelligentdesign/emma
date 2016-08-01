@@ -89,7 +89,7 @@ def get_mood(update=False, text="", expressAsText=True):
         elif 0.4 > mood >= 0.2: moodStr = u"good \ud83d\ude42"
         elif 0.6 > mood >= 0.4: moodStr = u"great \ud83d\ude09"
         elif 0.8 > mood >= 0.6: moodStr = u"fantastic \ud83d\ude00"
-        elif >= 0.8: moodStr = u"glorious \ud83d\ude1c"
+        elif mood >= 0.8: moodStr = u"glorious \ud83d\ude1c"
         return u"feeling " + moodStr
     
 def consume(parsedMessage, asker=u""):

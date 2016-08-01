@@ -26,3 +26,5 @@ Alexander Howard is [@ale303sh](http://www.twitter.com/ale303sh) on Twitter.
 
 ###Special Thanks
 Omri Barak
+
+![GNU GPL](https://www.gnu.org/graphics/gplv3-88x31.png)
