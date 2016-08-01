@@ -183,7 +183,11 @@ def build_reply(associationPackage, askerIntents, questionPackages):
 
             # Retrieve our chosen word's association group
             for associationGroupIter in associationPackage[1]:
-                if associationGroupIter['word'] == word: associationGroup = associationGroupIter
+                if associationGroupIter['word'] == word: 
+                    if len(associationGroupIter['associations']) > 0: associationGroup = associationGroupIter
+                    else: 
+                        print Fore.YELLOW + "No associations for \'%s\'. Cannot create domain." % word
+                        continue
 
             # Decide whether to make objects in the sentence plural
             global pluralizeObjects
