@@ -1,3 +1,5 @@
+![GNU GPL](https://www.gnu.org/graphics/gplv3-88x31.png)
+
      .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .oooo.
     d88' `88b `888P"Y88bP"Y88b  `888P"Y88bP"Y88b  `P  )88b
     888ooo888  888   888   888   888   888   888   .oP"888
@@ -26,5 +28,3 @@ Alexander Howard is [@ale303sh](http://www.twitter.com/ale303sh) on Twitter.
 
 ###Special Thanks
 Omri Barak
-
-![GNU GPL](https://www.gnu.org/graphics/gplv3-88x31.png)
