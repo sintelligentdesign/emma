@@ -1,34 +1,11 @@
-import os
 import random
-import pickle
+import json
+import time
+import argparse
+
 import sqlite3 as sql
 from colorama import init, Fore
 init(autoreset = True)
-
-connection = sql.connect('emma.db')
-cursor = connection.cursor()
-
-print "Loading concept database...",
-with connection:
-    cursor.execute("SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'associationmodel\';")
-    if cursor.fetchone() == (u'associationmodel',): print Fore.GREEN + "[Done]"
-    else:
-        print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating new database...",
-        cursor.executescript("""
-        DROP TABLE IF EXISTS associationmodel;
-        DROP TABLE IF EXISTS dictionary;
-        DROP TABLE IF EXISTS friends;
-        CREATE TABLE associationmodel(word TEXT, association_type TEXT, target TEXT, weight DOUBLE);
-        CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, synonyms TEXT, is_new INTEGER DEFAULT 1, is_banned INTEGER DEFAULT 0);
-        CREATE TABLE friends(username TEXT, can_reblog_from INTEGER DEFAULT 0);
-        """)
-        print Fore.GREEN + "[Done]"
-
-import json
-import time
-import random
-import argparse
-
 from GUI import Window, Label, CheckBox, Button, application
 from GUI.StdColors import grey
 

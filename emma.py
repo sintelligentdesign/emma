@@ -23,11 +23,28 @@ import utilities
 import settings
 
 def lpush(l, item):
+    # Push item into the front of a list, pop out the last item in the list
     l.insert(0, item)
     l.remove(l[-1])
 
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
+
+print "Loading concept database...",
+with connection:
+    cursor.execute("SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'associationmodel\';")
+    if cursor.fetchone() == (u'associationmodel',): print Fore.GREEN + "[Done]"
+    else:
+        print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating new database...",
+        cursor.executescript("""
+        DROP TABLE IF EXISTS associationmodel;
+        DROP TABLE IF EXISTS dictionary;
+        DROP TABLE IF EXISTS friends;
+        CREATE TABLE associationmodel(word TEXT, association_type TEXT, target TEXT, weight DOUBLE);
+        CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, synonyms TEXT, is_new INTEGER DEFAULT 1, is_banned INTEGER DEFAULT 0);
+        CREATE TABLE friends(username TEXT, can_reblog_from INTEGER DEFAULT 0);
+        """)
+        print Fore.GREEN + "[Done]"
 
 print "Loading mood file...",
 if os.path.isfile('moodHistory.p'):
@@ -72,7 +89,7 @@ def get_mood(update=False, text="", expressAsText=True):
         elif 0.4 > mood >= 0.2: moodStr = u"good \ud83d\ude42"
         elif 0.6 > mood >= 0.4: moodStr = u"great \ud83d\ude09"
         elif 0.8 > mood >= 0.6: moodStr = u"fantastic \ud83d\ude00"
-        elif 1.0 > mood >= 0.8: moodStr = u"glorious \ud83d\ude1c"
+        elif >= 0.8: moodStr = u"glorious \ud83d\ude1c"
         return u"feeling " + moodStr
     
 def consume(parsedMessage, asker=u""):
