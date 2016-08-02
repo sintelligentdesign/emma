@@ -13,15 +13,6 @@ import sqlite3 as sql
 from colorama import init, Fore
 init(autoreset = True)
 
-import tumblrclient
-import parse
-import questionparser
-import pronouns
-import associationtrainer
-import sentencebuilder
-import utilities
-import settings
-
 def lpush(l, item):
     # Push item into the front of a list, pop out the last item in the list
     l.insert(0, item)
@@ -67,6 +58,14 @@ with connection:
     cursor.execute("SELECT * FROM dictionary")
     dictionaryItems = "{:,d}".format(len(cursor.fetchall()))
 print Fore.MAGENTA + "Database contains %s associations and %s words." % (associationModelItems, dictionaryItems)
+
+import tumblrclient
+import questionparser
+import pronouns
+import associationtrainer
+import sentencebuilder
+import utilities
+import settings
 
 def get_mood(update=False, text="", expressAsText=True):
     global moodHistory
