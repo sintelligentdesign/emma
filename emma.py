@@ -62,6 +62,7 @@ print Fore.MAGENTA + "Database contains %s associations and %s words." % (associ
 import tumblrclient
 import questionparser
 import pronouns
+import parse
 import associationtrainer
 import sentencebuilder
 import utilities
