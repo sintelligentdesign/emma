@@ -16,30 +16,28 @@ import settings
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
-mood = 0
+mood = int
 
 def generate_sentence(tokenizedMessage, moodAvg, askerIntents=[{'declarative': True, 'interrogative': False, 'greeting': False}], asker="", questionPackages=[]):
+    print "Creating reply..."
     global mood
     mood = moodAvg
-    print "Creating reply..."
 
     print "Determining important words..."
     importantWords = []
-    message = []
     for sentence in tokenizedMessage:
         for word in sentence:
-            message.append(word[0])
             if word[1] in utilities.nounCodes and word[3] and word[0] not in importantWords: importantWords.append(word[0])
     if len(importantWords) == 0: 
         # Fail state
         print Fore.RED + "No important words were found in the input. Sentence generation failed."
         return "%"
 
-    # Find associations
+    # Find and bundle associations
     print "Creating association bundles..."
     associationBundle = bundle_associations(importantWords)
 
-    # Create packages which include the association package and information about its contents so that the generator knows what domains can be used
+    # Create an association package from the bundles
     print "Packaging association bundles and related information..."
     associationPackage = make_association_package(associationBundle, asker)
     if len(associationPackage[1]) == 0: 
@@ -50,19 +48,14 @@ def generate_sentence(tokenizedMessage, moodAvg, askerIntents=[{'declarative': T
     # Generate the reply
     return build_reply(associationPackage, askerIntents, questionPackages)
 
-def group_associations(word):
-    # Retrieves and groups the input string's associations
+def find_associations(word):
+    # Finds and returns the input word's associations
     associationGroup = []
     with connection:
         cursor.execute("SELECT * FROM associationmodel WHERE word = \"%s\";" % re.escape(word))
         SQLReturn = cursor.fetchall()
     if SQLReturn:
-        for row in SQLReturn:
-            associationGroup.append({
-                'type': row[1], 
-                'target': row[2], 
-                'weight': row[3]
-                })
+        for row in SQLReturn: associationGroup.append({'type': row[1], 'target': row[2], 'weight': row[3]})
     return associationGroup
 
 def bundle_associations(words):
@@ -70,7 +63,7 @@ def bundle_associations(words):
     print Fore.GREEN + u"Finding associations for:",
     for word in words:
         print word,
-        associationBundle.append((word, group_associations(word)))
+        associationBundle.append((word, find_associations(word)))
     print Fore.GREEN + u"[Done]"
     return associationBundle
     
