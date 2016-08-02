@@ -43,7 +43,12 @@ def get_recent_posts(user):
             # ...But don't allow posts with tags in the realm of 'personal' or 'do not reblog'
             taggedDoNotReblog = False
             for tag in post['tags']:
-                if re.sub(r'[\d\s\W]', "", tag.lower()) in [u"personal", u"donotreblog", u"dontreblog", u"dontrb", u"nsfw"]: taggedDoNotReblog = True
+                # todo: Write a more elegant solution or remove some of the banned tags
+                if re.sub(r'[\d\s\W]', "", tag.lower()) in [u"personal", u"donotreblog", u"dontreblog", u"dontrb", u"nsfw" u"epilepsywarning"]: taggedDoNotReblog = True
+                elif re.sub(r'\d\W', " ", tag.lower()).startswith(u"trigger warning ") or re.sub(r'\d\W', " ", tag.lower()).endswith(u" trigger warning"): taggedDoNotReblog = True
+                elif re.sub(r'\d\W', " ", tag.lower()).startswith(u"content warning ") or re.sub(r'\d\W', " ", tag.lower()).endswith(u" content warning"): taggedDoNotReblog = True
+                elif re.sub(r'\d\W', " ", tag.lower()).startswith(u"tw ") or re.sub(r'\d\W', " ", tag.lower()).endswith(u" tw"): taggedDoNotReblog = True
+                elif re.sub(r'\d\W', " ", tag.lower()).startswith(u"cw ") or re.sub(r'\d\W', " ", tag.lower()).endswith(u" cw"): taggedDoNotReblog = True
             if not taggedDoNotReblog: postList.append({'id': int(post['id']), 'reblogKey': post['reblog_key'], 'blogName': cgi.escape(post['blog_name']), 'body': post['body']})
     return postList
 
