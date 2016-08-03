@@ -49,9 +49,6 @@ def get_recent_posts(user):
     return postList
 
 def post(body, tags=[]):
-    if settings.option('tumblr', 'enablePostPreview'): 
-        tagsAsString = ""
-        for tag in tags: tagsAsString += "#%s " % tag
     if settings.option('tumblr', 'publishOutput'): client.create_text('emmacanlearn', state="published", body=body, tags=tags)
 
 def reblog(postid, reblogKey, comment, tags):
