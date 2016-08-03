@@ -157,7 +157,7 @@ def build_reply(associationPackage, askerIntents, questionPackages):
 
  	# All words start with an equal chance (2) of being chosen for sentence generation. If the word is used, its chance of being chosen decreases by 1 each time it's used until it reaches 0
     wordList = {}
-    for associationBundle in associationPackage[1]: wordList[associationBundle['word']] = 2
+    for associationBundle in associationPackage[1]: wordList[associationBundle['word']] = 3
 
     # Choose what domains to include in the sentence and order them correctly
     print "Generating %d domains..." % sentencesToGenerate
@@ -180,9 +180,6 @@ def build_reply(associationPackage, askerIntents, questionPackages):
             for associationGroupIter in associationPackage[1]:
                 if associationGroupIter['word'] == word: 
                     if len(associationGroupIter['associations']) > 0: associationGroup = associationGroupIter
-                    else: 
-                        print Fore.YELLOW + "No associations for \'%s\'. Cannot create domain." % word
-                        continue
 
             # Decide whether to make objects in the sentence plural
             global pluralizeObjects
