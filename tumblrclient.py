@@ -4,9 +4,6 @@
 import pytumblr
 import cgi
 import re
-import HTMLParser
-from colorama import init, Fore
-init(autoreset = True)
 
 import apikeys
 import settings
