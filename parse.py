@@ -134,7 +134,7 @@ def add_new_words(parsedSentence):
             print Fore.MAGENTA + u"Learned new word: \'%s\'!" % lemma
             addedWords.append(lemma)
             with connection:
-                cursor.execute("INSERT INTO dictionary VALUES (\"%s\", \"%s\", 1, 0, null);" % (re.escape(lemma), pos))
+                cursor.execute("INSERT INTO dictionary VALUES (\"%s\", \"%s\", 0, null, 0);" % (re.escape(lemma), pos))
 
 greetingTerms = [[u'what\'s', u'up'], [u'hi'], [u'yo'], [u'hiya'], [u'hello'], [u'what', u'up'], [u'wassup'], [u'what', u'is', u'up'], [u'what\'s', u'going', u'on'], [u'how', u'are', u'you'], [u'howdy'], [u'hey'], [u'good', u'morning'], [u'good', u'evening'], [u'good', u'afternoon']]
 def determine_intent(parsedSentence):
