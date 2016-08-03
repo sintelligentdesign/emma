@@ -187,13 +187,13 @@ def build_reply(associationPackage, askerIntents, questionPackages):
             validIntents = determine_valid_intents(associationPackage)
             intent = random.choice(validIntents[word])
 
-            associationGroup = []
             # Retrieve our chosen word's association group
             for associationGroupIter in associationPackage[1]:
                 if associationGroupIter['word'] == word: 
-                    if len(associationGroupIter['associations']) > 0: associationGroup = associationGroupIter
-            
-            print "Domain " + str(i + 1) + ": " + intent + " for \'" + word + "\' with " + str(len(associationGroup['associations'])) + " associations"
+                    print associationGroupIter
+                    associationGroup = associationGroupIter
+                    print "Domain " + str(i + 1) + ": " + intent + " for \'" + word + "\' with " + str(len(associationGroup['associations'])) + " associations"
+                    break
 
             # Decide whether to make objects in the sentence plural
             global pluralizeObjects
