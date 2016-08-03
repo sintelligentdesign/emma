@@ -105,10 +105,12 @@ def get_mood(update=False, text="", expressAsText=True):
 def consume(parsedMessage, asker=u""):
     intents = []
     questionPackages = []
+
+    pronouns.determine_references(parsedMessage)
+
     for count, parsedSentence in enumerate(parsedMessage):
         print "Consuming sentence %d of %d..." % (count + 1, len(parsedMessage))
 
-        pronouns.determine_references(parsedSentence)
         pronouns.flip_posessive_references(parsedSentence, asker)
         intent = parse.determine_intent(parsedSentence)
         

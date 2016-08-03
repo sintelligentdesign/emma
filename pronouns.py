@@ -5,35 +5,26 @@ import utilities
 from colorama import init, Fore
 init(autoreset = True)
 
-properPronouns = [
+pronouns = [
     "he", "him", "his", "himself",
     "she", "her", "hers", "herself",
-    "they", "them", "their", "theirs", "themself", "themselves"
-]
-otherPronouns = [
+    "they", "them", "their", "theirs", "themself", "themselves",
     "it", "its", "itself"
 ]
+def determine_references(message):
+    lastUsedNoun = list
+    for sentence in message:
+        for count, word in enumerate(sentence):
+            if word[1] in ['NN', 'NNS', 'NNP', 'NNPS']:
+                lastUsedNoun = word
 
-# todo: make both of these work across sentences
-def determine_references(sentence):
-    lastUsedProperNoun = ""
-    lastUsedNoun = ""
-    for count, word in enumerate(sentence):
-        if word[1] in ['NN', 'NNS']: lastUsedNoun = word
-        elif word[1] in ['NNP', 'NNPS']: 
-            lastUsedProperNoun = word
-            if lastUsedNoun == "": lastUsedNoun = word
+            elif word[0] in pronouns and lastUsedNoun != list:
+                print Fore.GREEN + u"Replacing pronoun \'%s\' with \'%s\'..." % (word[0], lastUsedNoun[0])
+                sentence[count] = lastUsedNoun
 
-        if word[0] in properPronouns and lastUsedProperNoun != "":
-            print Fore.GREEN + u"Replacing proper pronoun \'%s\' with \'%s\'..." % (word[0], lastUsedProperNoun[0])
-            sentence[count] = lastUsedProperNoun
-        elif word[0] in otherPronouns and lastUsedNoun != "":
-            print Fore.GREEN + u"Replacing pronoun \'%s\' with \'%s\'..." % (word[0], lastUsedNoun[0])
-            sentence[count] = lastUsedNoun
+    return message
 
-    return sentence
-
-posessiveReferences = {u"you": u"emma", u"your": u"emma", u"yours": u"emma", u"myself": u"emma"}      # todo: add apostrophe + s when we're able to handle it
+posessiveReferences = {u"you": u"emma", u"your": u"emma", u"yours": u"emma", u"myself": u"emma"}      # todo: add "'s" for posessives (your -> emma's) when we're able to do something with posessives
 
 def flip_posessive_references(sentence, asker=""):
     if asker != "": posessiveReferences.update({u"me": asker, u"i": asker, u"my": asker, u"mine": asker, u"myself": asker})
