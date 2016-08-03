@@ -113,13 +113,13 @@ def consume(parsedMessage, asker=u""):
 
         pronouns.determine_posessive_references(parsedSentence, asker)
         intent = parse.determine_intent(parsedSentence)
-        
+        if settings.option('general', 'verboseLogging'): print intent
+
         # Questions
         if intent['interrogative'] == True:
             questionPackage = questionparser.read_question(parsedSentence)
             if questionPackage != None:
                 questionPackages.append(questionparser.read_question(parsedSentence))
-                #print questionPackages
         # Not questions
         else:
             parse.add_new_words(parsedSentence)

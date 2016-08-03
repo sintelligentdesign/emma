@@ -125,7 +125,7 @@ def build_reply(associationPackage, askerIntents, questionPackages):
 
                 for adjective in cursor.fetchall():
                     cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' AND target = \'%s\';" % (adjective[2], question[1]))
-                    SQLReturn = cursor.fetchall() 
+                    SQLReturn = cursor.fetchone() 
                     if SQLReturn != []:
                         answerCandidates = (SQLReturn)
 
@@ -140,11 +140,22 @@ def build_reply(associationPackage, askerIntents, questionPackages):
         if question[0] == "doXhaveY":
             with connection:
                 cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' AND association_type = \'HAS\' AND target = \'%s\';" % (question[1], question[2]))
-                SQLReturn = cursor.fetchall()
+                SQLReturn = cursor.fetchone()
                 # todo: add lower bound?
                 
                 if SQLReturn != []: answer = ("does", question[1], question[2], True)       # yes/no, CATS (have) PAWS
                 else: answer = ("does", question[1], question[2], False)
+                questionAnswers.append(answer)
+
+        # "CAN [NOUN] [VERB]"
+        if question[0] == "can":
+            with connection:
+                cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' AND association_type = \'HAS-ABILITY-TO\' AND target = \'%s\';" % (question[1], question[2]))
+                SQLReturn = cursor.fetchone()
+                # todo: add lower bound?
+
+                if SQLReturn != []: answer = ("can", question[1], question[2], True)        # yes/no, EMMA (can) CREATE
+                else: answer = ("can", question[1], question[2], False)
                 questionAnswers.append(answer)
 
     sentencesToGenerate -= len(questionAnswers)
@@ -261,14 +272,31 @@ def make_answer(answer):
         ]
     elif answer[0] == "does":
         if answer[3]: answerDomains = [
+            [u"Yes"],
             [u"I", u"think", u"so", u",", u"yes"],
             [answer[1], u"have", answer[2]],
             [u"Yes", answer[1], u"have", answer[2]]
         ]
         else: answerDomains = [
+            [u"No"],
             [u"I", u"don\'t", u"think", u"so"],
             [answer[1], u"do", u"not", u"have", answer[2]],
             [u"no", answer[1], u"don\'t", u"have", answer[2]]
+        ]
+    elif answer[0] == "can":
+        if answer[3]: answerDomains = [
+            [u"Yes"],
+            [u"I", u"think", u"so", u",", u"yes"],
+            [u"Yes", u",", answer[1], u"can", answer[2]],
+            [answer[1], u"can", answer[2]]
+        ]
+        else: answerDomains = [
+            [u"No"],
+            [u"I", u"don\'t", u"think", u"so"],
+            [answer[1], u"can", u"not", answer[2]],
+            [u"No", u",", answer[1], u"can", u"not", answer[2]],
+            [answer[1], u"can\'t", answer[2]],
+            [u"No", u",", answer[1], u"can\'t", answer[2]]
         ]
 
     domain = random.choice(answerDomains)

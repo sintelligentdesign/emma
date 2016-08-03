@@ -24,5 +24,13 @@ def read_question(sentence):
                 interrogativeObject = word[0]
                 if settings.option('general', 'verboseLogging'): print Fore.GREEN + "Interrogative: DO " + interrogativeProperty + " HAVE " + interrogativeObject
                 return (["doXhaveY", interrogativeProperty, interrogativeObject])
+
+    elif sentence[0][0] == u"can" and sentence[1][1] in utilities.nounCodes and sentence[2][1] in utilities.verbCodes:      # CAN emma create
+        interrogativeProperty = sentence[1][0]      # "emma"
+        for word in sentence[::-1]:     # create emma CAN
+            if word[1] in utilities.verbCodes:
+                interrogativeObject = word[0]
+                if settings.option('general', 'verboseLogging'): print Fore.GREEN + "Interrogative: CAN " + interrogativeProperty + " " + interrogativeObject
+                return (["can", interrogativeProperty, interrogativeObject])
             
     else: return None
