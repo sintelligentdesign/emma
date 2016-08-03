@@ -374,9 +374,6 @@ def make_imperative(associationGroup):
     for association in associationBundle[0][1]:
         if association['type'] == "HAS-OBJECT": objectBundle.append(association)
 
-    imperativeDomains = [
-        [u"=VERB"]
-    ]
     if len(objectBundle) > 0:
         imperativeDomains.append(
             [u"=VERB", u"=OBJECT"]
