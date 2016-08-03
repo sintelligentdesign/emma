@@ -48,8 +48,11 @@ def get_recent_posts(user):
             if not taggedDoNotReblog: postList.append({'id': int(post['id']), 'reblogKey': post['reblog_key'], 'blogName': cgi.escape(post['blog_name']), 'body': post['body']})
     return postList
 
-def post(body, tags=[]):
+def post_text(body, tags=[]):
     if settings.option('tumblr', 'publishOutput'): client.create_text('emmacanlearn', state="published", body=body, tags=tags)
+
+def post_ask(id, answer, tags=[]):
+    if settings.option('tumblr', 'publishOutput'): client.edit_post('emmacanlearn', id=id, answer=answer, state='published', tags=tags)
 
 def reblog(postid, reblogKey, comment, tags):
     print "Reblogging post & adding comment..."
