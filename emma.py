@@ -32,7 +32,7 @@ with connection:
         DROP TABLE IF EXISTS dictionary;
         DROP TABLE IF EXISTS friends;
         CREATE TABLE associationmodel(word TEXT, association_type TEXT, target TEXT, weight DOUBLE);
-        CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, synonyms TEXT, affinity INTEGER DEFAULT 0, is_new INTEGER DEFAULT 1, is_banned INTEGER DEFAULT 0);
+        CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, synonyms TEXT, affinity DOUBLE DEFAULT 0, is_banned INTEGER DEFAULT 0);
         CREATE TABLE friends(username TEXT, can_reblog_from INTEGER DEFAULT 0);
         """)
         print Fore.GREEN + "[Done]"
