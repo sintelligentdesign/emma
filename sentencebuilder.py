@@ -501,13 +501,15 @@ def finalize_reply(reply):
     # Correct positions of punctuation, capitalize first letter of first word in new sentences
     reply[0] = reply[0][0].upper() + reply[0][1:]
     for count, word in enumerate(reply):
-        if word in [u".", u",", u"!", u"?"]:
+        if word in [u"\'s", u"n\'t"]:
+            reply[count - 1] += word
+        elif word in [u".", u",", u"!", u"?"]:
             reply[count - 1] += word
             if word in [u".", u"!", u"?"] and count + 1 != len(reply):
                 reply[count + 1] = reply[count + 1][0].upper() + reply[count + 1][1:]
-        elif word in [u"\'s", u"n\'t"]:
-            reply[count - 1] += word
+
+    print reply
     
-    reply[:] = [word for word in reply if word not in [u".", u",", u"!", u"?", u"\'s", u"n\'t"]]
+    reply[:] = [word for word in reply if word not in [u".", u",", u"!", u"?", u"\'s", u"\'s." u"n\'t"]]
 
     return ' '.join(reply)
