@@ -26,7 +26,7 @@ def determine_references(message):
 
 posessiveReferences = {u"you": u"emma", u"your": u"emma", u"yours": u"emma", u"myself": u"emma"}      # todo: add "'s" for posessives (your -> emma's) when we're able to do something with posessives
 
-def flip_posessive_references(sentence, asker=""):
+def determine_posessive_references(sentence, asker=""):
     if asker != "": posessiveReferences.update({u"me": asker, u"i": asker, u"my": asker, u"mine": asker, u"myself": asker})
     else: posessiveReferences.update({u"me": u"you", u"i": u"you", u"my": u"your", u"mine": u"yours", u"myself": u"yourself"})
     

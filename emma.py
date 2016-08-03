@@ -111,7 +111,7 @@ def consume(parsedMessage, asker=u""):
     for count, parsedSentence in enumerate(parsedMessage):
         print "Consuming sentence %d of %d..." % (count + 1, len(parsedMessage))
 
-        pronouns.flip_posessive_references(parsedSentence, asker)
+        pronouns.determine_posessive_references(parsedSentence, asker)
         intent = parse.determine_intent(parsedSentence)
         
         # Questions
