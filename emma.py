@@ -57,7 +57,7 @@ with connection:
     associationModelItems = "{:,d}".format(len(cursor.fetchall()))
     cursor.execute("SELECT * FROM dictionary")
     dictionaryItems = "{:,d}".format(len(cursor.fetchall()))
-print Fore.MAGENTA + "Database contains %s associations and %s words." % (associationModelItems, dictionaryItems)
+print Fore.MAGENTA + "Database contains %s associations for %s words." % (associationModelItems, dictionaryItems)
 
 import tumblrclient
 import questionparser

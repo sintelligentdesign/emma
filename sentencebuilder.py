@@ -237,7 +237,7 @@ def build_reply(associationPackage, askerIntents, questionPackages):
                     if comparisonAssociationGroup['word'] == comparison: comparisonGroup = comparisonAssociationGroup
                 sentence = make_comparative(associationGroup, comparisonGroup) + [u"."]
             
-        print sentence
+        print ' '.join(sentence)
         reply.extend(sentence)
     
     print "Finalizing reply..."
@@ -300,7 +300,7 @@ def make_comparative(associationGroup, comparisonGroup):
     if settings.option('general', 'verboseLogging'): print "Building comparative statement..."
     sentence = []
     for count, slot in enumerate(domain):
-        print sentence + domain[count:]
+        print ' '.join([' '.join(sentence), ' '.join(domain[count:])])
         if slot == u"=DECLARATIVE": sentence.extend(make_declarative(associationGroup))
         elif slot == u"=COMPARISON": sentence.extend(make_declarative(comparisonGroup))
         else: sentence.append(slot)
@@ -344,7 +344,7 @@ def make_declarative(associationGroup):
     sentence = []
     # Iterate through the objects in the domain and fill them in to create the declarative statement
     for count, slot in enumerate(domain):
-        print sentence + domain[count:]
+        print ' '.join([' '.join(sentence), ' '.join(domain[count:])])
         if slot == u"=PHRASE": sentence.extend(make_phrase(associationGroup))
         elif slot == u"=ADJECTIVE": sentence.append(choose_association(haspropertyAssociations)['target'])
         elif slot == u"=VERB": sentence.append(choose_association(hasabilitytoAssociations)['target'])       #todo: add "how" ("the snake moved (how?) quickly")
@@ -388,7 +388,7 @@ def make_imperative(associationGroup):
         if random.randint(0, 1) == 0: sentence = [u"please"]
 
     for count, slot in enumerate(domain):
-        print sentence + domain[count:]
+        print ' '.join([' '.join(sentence), ' '.join(domain[count:])])
         if slot == "=PHRASE": sentence.extend(make_phrase(associationGroup))
         elif slot == "=VERB": sentence.append(choose_association(verbAssociations)['target'])
         else: sentence.append(slot)
@@ -413,7 +413,7 @@ def make_interrogative(word):
     if settings.option('general', 'verboseLogging'): print "Building interrogative phrase..."
     sentence = []
     for count, slot in enumerate(domain):
-        print sentence + domain[count:]
+        print ' '.join([' '.join(sentence), ' '.join(domain[count:])])
         if slot == u"=WORD":
             if pluralizeObjects: sentence.append(pattern.en.pluralize(word))
             else: sentence.append(word)
@@ -451,7 +451,8 @@ def make_phrase(associationGroup):
 
     # Iterate through the objects in the domain and fill them in to create the phrase
     for count, slot in enumerate(domain):
-        print sentence + domain[count:]
+
+        print ' '.join([' '.join(sentence), ' '.join(domain[count:])])
         if slot == u"=OBJECT":
             if pluralizeObjects: sentence.append(pattern.en.pluralize(associationGroup['word']))
             else: sentence.append(associationGroup['word'])
