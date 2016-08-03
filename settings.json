@@ -1,1 +1,1 @@
-{"tumblr": {"enableAskReplies": true, "fetchRealAsks": true, "enablePostPreview": true, "enableDreams": true, "enableAskDeletion": true, "enableReblogs": true, "publishOutput": true}, "general": {"verboseLogging": false, "enableChatMode": false, "enableSleep": false}}
+{"tumblr": {"enableAskReplies": true, "fetchRealAsks": false, "enablePostPreview": true, "enableDreams": false, "enableAskDeletion": true, "enableReblogs": false, "publishOutput": false}, "general": {"verboseLogging": false, "enableChatMode": false, "enableSleep": false}}
