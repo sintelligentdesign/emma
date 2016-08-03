@@ -21,6 +21,8 @@ import json
 import time
 import argparse
 
+from colorama import init, Fore
+init(autoreset = True)
 from GUI import Window, Label, CheckBox, Button, application
 from GUI.StdColors import grey
 
@@ -44,7 +46,9 @@ def run_emma():
         if settings.option('tumblr', 'enableDreams'): activities.extend(['dream'] * 2)
         if settings.option('tumblr', 'enableAskReplies') and askList != []: activities.extend(['replyToAsks'] * 3)
 
-        activity = random.choice(activities)
+        if len(activities) > 0: activity = random.choice(activities)
+        else: print Fore.RED + "No available activities. Double-check the Settings panel."
+
         if activity == 'reblogPost':
             print "Reblogging a post..."
             emma.reblog_post()

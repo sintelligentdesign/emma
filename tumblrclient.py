@@ -21,7 +21,8 @@ def get_asks():
     asks = client.submission('emmacanlearn.tumblr.com')
 
     askList = []
-    for ask in asks.values()[0]: askList.append({'id': int(ask['id']), 'asker': ask['asking_name'], 'message': ask['question']})
+    if len(asks.values()[0]) > 0:
+        for ask in asks.values()[0]: askList.append({'id': int(ask['id']), 'asker': ask['asking_name'], 'message': ask['question']})
     return askList
 
 def delete_ask(askid):
