@@ -140,8 +140,8 @@ def reply_to_ask(ask):
         print Fore.BLUE + u"emma >> %s" % reply
         print "Posting reply..."
         if settings.option('tumblr', 'enablePostPreview'): print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + "@" + ask['asker'] + " >> " + ask['message'] + "\n\n" + "emma >> " + reply + "\n- - - - - - - - - - -\n" + get_mood(update=False, expressAsText=True) + "\n\n"
-        body = "<a href=" + ask['asker'] + ".tumblr.com/>@" + ask['asker'] + "</a>" + cgi.escape(" >> ") + cgi.escape(ask['message']) + "\n\n" + cgi.escape("emma >> ") + cgi.escape(reply) + "\n<!-- more -->\n" + cgi.escape(understanding)
-        tumblrclient.post(body.encode('utf-8'), ["dialogue", ask['asker'].encode('utf-8'), get_mood().encode('utf-8')])
+        answer = cgi.escape(reply) + "\n<!-- more -->\n" + cgi.escape(understanding)
+        tumblrclient.post_ask(ask['id'], answer.encode('utf-8'), ["dialogue", ask['asker'].encode('utf-8'), get_mood().encode('utf-8')])
     else: print Fore.RED + "Reply generation failed."
 
     tumblrclient.delete_ask(ask['id'])
@@ -183,7 +183,7 @@ def dream():
     dream = sentencebuilder.generate_sentence(pattern.en.parse(' '.join(halo), True, True, True, True, True).split(), get_mood(expressAsText=False))
     if "%" not in dream:
         print Fore.BLUE + u"emma >> " + dream
-        tumblrclient.post(cgi.escape(dream.encode('utf-8')), ["dreams", get_mood(update=True, text=dream).encode('utf-8')])
+        tumblrclient.post_text(cgi.escape(dream.encode('utf-8')), ["dreams", get_mood(update=True, text=dream).encode('utf-8')])
     else: print Fore.RED + "Dreamless sleep..."
 
 def chat():
