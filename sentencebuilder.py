@@ -350,8 +350,8 @@ def make_declarative(associationGroup):
         if slot == u"=PHRASE": sentence.extend(make_phrase(associationGroup))
         elif slot == u"=ADJECTIVE": sentence.append(choose_association(haspropertyAssociations)['target'])
         elif slot == u"=VERB": sentence.append(choose_association(hasabilitytoAssociations)['target'])       #todo: add "how" ("the snake moved (how?) quickly")
-        elif slot == u"=OBJ-HAS": sentence.append(choose_association(hasAssociations)['target'])
-        elif slot == u"=OBJ-IS-A": sentence.append(choose_association(isaAssociations)['target'])
+        elif slot == u"=PHRASE-HAS": sentence.append(choose_association(hasAssociations)['target'])
+        elif slot == u"=PHRASE-IS-A": sentence.append(choose_association(isaAssociations)['target'])
         elif slot == u"=ISARE":
             if pluralizeObjects: sentence.append(u"are")
             else: sentence.append(u"is")
