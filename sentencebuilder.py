@@ -335,10 +335,10 @@ def make_declarative(associationGroup):
         [u"=PHRASE", u"can", u"=VERB"]
     ])
     if hasAssociations != []: declarativeDomains.append(
-        [u"=PHRASE", u"=HAVEHAS", u"=OBJ-HAS"]
+        [u"=PHRASE", u"=HAVEHAS", u"=PHRASE-HAS"]
     )
     if isaAssociations != []: declarativeDomains.append(
-        [u"=PHRASE", u"=ISARE", u"=OBJ-IS-A"]
+        [u"=PHRASE", u"=ISARE", u"=PHRASE-IS-A"]
     )
     domain = random.choice(declarativeDomains)
 
