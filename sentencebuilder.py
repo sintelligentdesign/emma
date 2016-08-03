@@ -365,22 +365,38 @@ def make_declarative(associationGroup):
 def make_imperative(associationGroup):
     if settings.option('general', 'verboseLogging'): print "Generating an imperative statement for \'%s\'..." % associationGroup['word']
 
-    verbAssociations = []
+    # Decide what verb to use
+    verbBundle = []
     for association in associationGroup['associations']:
-        if association['type'] == "HAS-ABILITY-TO": verbAssociations.append(association)
+        if association['type'] == "HAS-ABILITY-TO": verbBundle.append(association)
+    verb = choose_association(verbBundle)['target']
+
+    # See if the verb has any objects and gather them into their own bundle
+    associationBundle = bundle_associations([verb])
+    objectBundle = []
+    for association in associationBundle[0][1]:
+        if association['type'] == "HAS-OBJECT": objectBundle.append(association)
 
     imperativeDomains = [
-        [u"=VERB", u"=PHRASE"]
+        [u"=VERB"]
     ]
-    if mood > 0: imperativeDomains.append(
-        [u"always", u"=VERB", u"=PHRASE"]
-    )
-    else: imperativeDomains.append(
-        [u"never", u"=VERB", u"=PHRASE"]
-    )
-    if not pluralizeObjects: imperativeDomains.append(
-        [u"=VERB", u"=PHRASE"]
-    )
+    if len(objectBundle) > 0:
+        imperativeDomains.append(
+            [u"=VERB", u"=OBJECT"]
+        )
+        if mood > 0: imperativeDomains.append(
+            [u"always", u"=VERB", u"=OBJECT"]
+        )
+        else: imperativeDomains.append(
+            [u"never", u"=VERB", u"=OBJECT"]
+        )
+    else:
+        if mood > 0: imperativeDomains.append(
+            [u"always", u"=VERB"]
+        )
+        else: imperativeDomains.append(
+            [u"never", u"=VERB"]
+        )
     # todo: new domain: VERB a/an/the OBJECT with (its THING OBJECT HAS / a/an/the OTHER OBJECT)
     domain = random.choice(imperativeDomains)
     
@@ -391,8 +407,8 @@ def make_imperative(associationGroup):
 
     for count, slot in enumerate(domain):
         print ' '.join([' '.join(sentence), ' '.join(domain[count:])])
-        if slot == "=PHRASE": sentence.extend(make_phrase(associationGroup))
-        elif slot == "=VERB": sentence.append(choose_association(verbAssociations)['target'])
+        if slot == "=OBJECT": sentence.append(choose_association(objectBundle)['target'])
+        elif slot == "=VERB": sentence.append(verb)
         else: sentence.append(slot)
 
     return sentence
