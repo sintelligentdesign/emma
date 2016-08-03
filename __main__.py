@@ -84,6 +84,14 @@ def update_setting(option):
 
     settingsList[group][option] = value
     with open('settings.json', 'w') as settingsFile: json.dump(settingsList, settingsFile)
+
+    if option == "enableAskReplies":        # This gets a special section because it toggles visibility of other checkboxes
+        if enableAskRepliesBox.on:
+            enableAskDeletionBox.container = win
+            fetchRealAsksBox.container = win
+        else:
+            enableAskDeletionBox.container = None
+            fetchRealAsksBox.container = None
     
 parser = argparse.ArgumentParser(description='Entry point for Expanding Model of Mapped Associations.')
 parser.add_argument('-gui', help='Show or hide Emma\'s GUI. If hidden, execution will begin automatically.', choices=['show', 'hide'], default='show')
