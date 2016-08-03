@@ -74,12 +74,13 @@ def make_association_package(associationBundle, asker):
         hasIsA = False
         hasHasProperty = False
         hasHasAbilityTo = False
+        hasHasObject = False
         for association in associationGroup[1]:
             if association['type'] == "HAS": hasHas = True
             if association['type'] == "IS-A": hasIsA = True
             if association['type'] == "HAS-PROPERTY": hasHasProperty = True
             if association['type'] == "HAS-ABILITY-TO": hasHasAbilityTo = True
-            # todo: what can we do with HAS-OBJECT?
+            if association['type'] == "HAS-OBJECT": hasHasObject = True
 
         associationPackage.append({
             'word': associationGroup[0], 
@@ -87,6 +88,7 @@ def make_association_package(associationBundle, asker):
             'hasIsA': hasIsA, 
             'hasHasProperty': hasHasProperty,
             'hasHasAbilityTo': hasHasAbilityTo,
+            'hasHasObject': hasHasObject,
             'associations': associationGroup[1]
             })
     numObjects = len(associationBundle)
