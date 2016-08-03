@@ -187,10 +187,13 @@ def build_reply(associationPackage, askerIntents, questionPackages):
             validIntents = determine_valid_intents(associationPackage)
             intent = random.choice(validIntents[word])
 
+            associationGroup = []
             # Retrieve our chosen word's association group
             for associationGroupIter in associationPackage[1]:
                 if associationGroupIter['word'] == word: 
                     if len(associationGroupIter['associations']) > 0: associationGroup = associationGroupIter
+            
+            print "Domain " + str(i + 1) + ": " + intent + " for \'" + word + "\' with " + str(len(associationGroup['associations'])) + " associations"
 
             # Decide whether to make objects in the sentence plural
             global pluralizeObjects
@@ -199,8 +202,6 @@ def build_reply(associationPackage, askerIntents, questionPackages):
                     cursor.execute("SELECT part_of_speech FROM dictionary WHERE word = \'%s\';" % word)
                     if cursor.fetchall()[0] not in ["NNP", "NNPS"]: pluralizeObjects = True
             else: pluralizeObjects = False
-
-            print "Domain " + str(i + 1) + ": " + intent + " for \'" + word + "\' with " + str(len(associationGroup['associations'])) + " associations"
 
             domains.append(("=" + intent, word, associationGroup))
         else: break
