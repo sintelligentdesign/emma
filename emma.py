@@ -164,6 +164,7 @@ def reblog_post():
                 tumblrclient.reblog(post['id'], post['reblogKey'], comment.encode('utf-8'), ["reblog", post['blogName'].encode('utf-8'), mood.encode('utf-8')])
                 return
             else: print Fore.RED + "Reply generation failed."
+        else print Fore.RED + "No posts found."
 
     # If nobody has valid rebloggable posts or we fail to generate all replies
     print Fore.RED + "No rebloggable posts."
