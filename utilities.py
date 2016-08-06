@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Name:             Utilities
 # Description:      Miscellaneous functions and vars
 # Section:

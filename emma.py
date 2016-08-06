@@ -102,7 +102,7 @@ def consume(parsedMessage, asker=u""):
     pronouns.determine_references(parsedMessage)
 
     for count, parsedSentence in enumerate(parsedMessage):
-        print "Consuming sentence %d of %d...", % (count + 1, len(parsedMessage))
+        print "Consuming sentence " + str(count + 1) + " of " + str(len(parsedMessage)) + "...",
 
         pronouns.determine_posessive_references(parsedSentence, asker)
         intent = parse.determine_intent(parsedSentence)
