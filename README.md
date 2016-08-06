@@ -29,7 +29,7 @@ Alexander Howard is [@ale303sh](http://www.twitter.com/ale303sh) on Twitter.
 ##Special Thanks
 Omri Barak
 
-##Legal
+###Legal
 Expanding Model of Mapped Associations Copyright © 2016 Ellie Cochran & Alexander Howard.
 
 This program comes with ABSOLUTELY NO WARRANTY.
