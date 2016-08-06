@@ -163,12 +163,12 @@ def reblog_post():
                 tumblrclient.reblog(post['id'], post['reblogKey'], comment.encode('utf-8'), ["reblog", post['blogName'].encode('utf-8'), mood.encode('utf-8')])
                 return
             else: print Fore.RED + "Reply generation failed."
-        else print Fore.RED + "No posts found."
+        else: print Fore.RED + "No posts found."
     print Fore.RED + "No rebloggable posts."
 
 def dream():
     for i in range(0, 4):       # 5 attempts to generate a dream
-        print "Attempting to dream (%d tries remaining)." % 4 - i
+        print "Attempting to dream (attempt %s)." % i 
         print Fore.GREEN + "Creating common sense halo..."
         halo = []
         with connection:
