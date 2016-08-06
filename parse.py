@@ -24,7 +24,7 @@ def tokenize(text):
     
     parsedMessage = []
     for count, taggedSentence in enumerate(taggedText):
-        finalize_sentence(taggedSentence)
+        format_sentence(taggedSentence)
 
         posSentence = []
         chunkSeries = []
@@ -35,15 +35,14 @@ def tokenize(text):
             chunkSeries.append(taggedWord[2])
             lemmaSentence.append(taggedWord[5])
             subObj.append(taggedWord[4])
+
         parsedSentence = zip(lemmaSentence, posSentence, chunkSeries, subObj)
-        for count, word in enumerate(parsedSentence):
-            parsedSentence[count] = list(word)
+        for count, word in enumerate(parsedSentence): parsedSentence[count] = list(word)
         parsedMessage.append(parsedSentence)
     return parsedMessage
 
 def translate_netspeak(text):
     # Turn internet abbreviations into proper English
-    text = text.split(' ')
     txtDict = {
         u'aight': [u'alright'],
         u'btw': [u'by', u'the', u'way'],
@@ -61,18 +60,11 @@ def translate_netspeak(text):
         u'ur': [u'your'],
         u'yea': [u'yeah']
     }
-
     decodedText = []
-    for word in text:
-        if re.sub(r'[\d\s\W]', "", word.lower()) in txtDict.keys():
-            punctuation = u""
-            if word[-1] in [u'.', u',', u'!', u'?']: punctuation = word[-1]     # Take note of punctuation so that we can put it back in later
-            
+    for word in text.split(' '):
+        if word.lower() in txtDict.keys():
             print Fore.GREEN + u"Translating \"%s\" from txt speak..." % word
-            replacementWord = txtDict[re.sub(r'[\d\s\W]', "", word.lower())]
-
-            if punctuation != "": replacementWord[-1] += punctuation
-
+            replacementWord = txtDict[word.lower()]
             decodedText.extend(replacementWord)
         else: decodedText.append(word)
     return ' '.join(decodedText)
@@ -81,7 +73,8 @@ bannedWords = []
 with connection:
     cursor.execute('SELECT word FROM dictionary WHERE is_banned = 1')
     for word in cursor.fetchall(): bannedWords.append(word[0])
-def finalize_sentence(taggedSentence):
+def format_sentence(taggedSentence):
+    # Attempts to improve or remove things that make our parser choke
     rowsToRemove = []
     for count, taggedWord in enumerate(taggedSentence):
         if count != 0: prevWord = taggedSentence[count - 1]
