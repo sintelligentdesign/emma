@@ -48,7 +48,7 @@ def generate_sentence(tokenizedMessage, moodAvg, askerIntents=[{'declarative': T
     # Generate the reply
     hasGreeting = False
     for intent in askerIntents:
-        if intent['greeting'] == True: hasGreeting = True
+        if intent['greeting']: hasGreeting = True
 
     # Attempt to generate answers if we have any
     # todo: merge this with the answer formatting code a few lines down
@@ -73,7 +73,7 @@ def generate_sentence(tokenizedMessage, moodAvg, askerIntents=[{'declarative': T
     print "Generating %d domains..." % sentencesToGenerate
     domains = []
     for i in range(0, sentencesToGenerate):
-        if mood >= 0.1 and hasGreeting == True and associationPackage[0]['asker'] != "" and i == 0: domains.append(("=GREETING", associationPackage[0]['asker'], []))
+        if mood >= 0.1 and hasGreeting and associationPackage[0]['asker'] != "" and i == 0: domains.append(("=GREETING", associationPackage[0]['asker'], []))
 
         # Choose the word to use as the seed for our sentence based on weighted random chance
         wordDistribution = []

@@ -24,9 +24,9 @@ def pretty_print_understanding(parsedMessage, intents):
         rawSentence = rawSentence[0].upper() + rawSentence[1:]
 
         sentenceIntents = []
-        if intents[count]['declarative'] == True: sentenceIntents.append(u"DECLARATIVE")
-        if intents[count]['interrogative'] == True: sentenceIntents.append(u"INTERROGATIVE")
-        if intents[count]['greeting'] == True: sentenceIntents.append(u"GREETING")
+        if intents[count]['declarative']: sentenceIntents.append(u"DECLARATIVE")
+        if intents[count]['interrogative']: sentenceIntents.append(u"INTERROGATIVE")
+        if intents[count]['greeting']: sentenceIntents.append(u"GREETING")
 
         prettyUnderstanding += rawSentence + u" " + u"(" + u' '.join(sentenceIntents) + u")\n"
     prettyUnderstanding = u"Emma interpreted this message as:\n" + prettyUnderstanding
