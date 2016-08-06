@@ -61,7 +61,7 @@ import questionparser
 import pronouns
 import parse
 import associationtrainer
-import sentencebuilder
+import replybuilder
 import utilities
 import settings
 
@@ -127,7 +127,7 @@ def reply_to_ask(ask):
     intents, questionPackages = consume(parsedAsk, ask['asker'])
     understanding = utilities.pretty_print_understanding(parsedAsk, intents)
 
-    reply = sentencebuilder.generate_sentence(parsedAsk, get_mood(update=True, text=ask['message'], expressAsText=False), intents, ask['asker'], questionPackages)
+    reply = replybuilder.generate_sentence(parsedAsk, get_mood(update=True, text=ask['message'], expressAsText=False), intents, ask['asker'], questionPackages)
 
     if "%" not in reply:
         print Fore.BLUE + u"emma >> %s" % reply
@@ -154,7 +154,7 @@ def reblog_post():
             post = random.choice(posts)
 
             mood = get_mood(update=True, text=post['body'])
-            comment = sentencebuilder.generate_sentence(pattern.en.parse(post['body'], True, True, True, True, True).split(), mood)
+            comment = replybuilder.generate_sentence(pattern.en.parse(post['body'], True, True, True, True, True).split(), mood)
             
             if "%" not in comment:
                 print Fore.BLUE + u"Emma >> " + comment
@@ -176,7 +176,7 @@ def dream():
             cursor.execute("SELECT target FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.target = dictionary.word WHERE associationmodel.word = \"%s\" AND part_of_speech IN (\'NN\', \'NNS\', \'NNP\', \'NNPS\');" % re.escape(cursor.fetchone()[0]))
             for fetchedWord in cursor.fetchall(): halo.append(fetchedWord[0])
                 
-        dream = sentencebuilder.generate_sentence(pattern.en.parse(' '.join(halo), True, True, True, True, True).split(), get_mood(expressAsText=False))
+        dream = replybuilder.generate_sentence(pattern.en.parse(' '.join(halo), True, True, True, True, True).split(), get_mood(expressAsText=False))
         if "%" not in dream:
             print Fore.BLUE + u"emma >> " + dream
             tumblrclient.post_text(cgi.escape(dream.encode('utf-8')), ["dreams", get_mood(update=True, text=dream).encode('utf-8')])
@@ -189,6 +189,6 @@ def chat():
     tokenizedMessage = parse.tokenize(input)
     intents, questionPackages = consume(tokenizedMessage)
     
-    reply = sentencebuilder.generate_sentence(tokenizedMessage, get_mood(update=True, text=input, expressAsText=False), intents, questionPackages=questionPackages)
+    reply = replybuilder.generate_sentence(tokenizedMessage, get_mood(update=True, text=input, expressAsText=False), intents, questionPackages=questionPackages)
     if "%" not in reply: print Fore.BLUE + u"emma >> " + reply
     else: print Fore.RED + u"Reply generation failed."
