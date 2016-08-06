@@ -33,6 +33,8 @@ def pretty_print_understanding(parsedMessage, intents):
     return prettyUnderstanding
 
 fakeAsks = [
+        {'asker': u'sharkthemepark', 'message': u"Hello Emma, today is beautiful. Do you like the smell of rain?", 'id': 000000},
+        {'asker': u'sharkthemepark', 'message': u"Dogs r beautiful animals. I like dogs. Dogs like to roll around n smell things!", 'id': 000000},
         {'asker': u'sharkthemepark', 'message': u"My cat is furry. she is also silly.", 'id': 00000},
         {'asker': u'sharkthemepark', 'message': u"The color of the sky is blue. Blue is a color. What color is the sky?", 'id': 00000},
         {'asker': u'sharkthemepark', 'message': u"Emma has paws. Does Emma have paws?", 'id': 00000}
