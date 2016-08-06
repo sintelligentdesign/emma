@@ -164,27 +164,27 @@ def reblog_post():
                 return
             else: print Fore.RED + "Reply generation failed."
         else print Fore.RED + "No posts found."
-
-    # If nobody has valid rebloggable posts or we fail to generate all replies
     print Fore.RED + "No rebloggable posts."
 
 def dream():
-    with connection:
-        cursor.execute('SELECT word FROM dictionary WHERE is_banned = 0 ORDER BY RANDOM() LIMIT 10;')
-        SQLReturn = cursor.fetchall()
-
-    print Fore.GREEN + "Creating common sense halo..."
-    halo = []
-    with connection:
-        cursor.execute("SELECT target FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.target = dictionary.word WHERE associationmodel.word = \"%s\" AND part_of_speech IN (\'NN\', \'NNS\', \'NNP\', \'NNPS\');" % re.escape(random.choice(SQLReturn)[0]))
-        for fetchedWord in cursor.fetchall():
-            if fetchedWord[0] not in halo: halo.append(fetchedWord[0])
-            
-    dream = sentencebuilder.generate_sentence(pattern.en.parse(' '.join(halo), True, True, True, True, True).split(), get_mood(expressAsText=False))
-    if "%" not in dream:
-        print Fore.BLUE + u"emma >> " + dream
-        tumblrclient.post_text(cgi.escape(dream.encode('utf-8')), ["dreams", get_mood(update=True, text=dream).encode('utf-8')])
-    else: print Fore.RED + "Dreamless sleep..."
+    for i in range(0, 4):       # 5 attempts to generate a dream
+        print "Attempting to dream (%d tries remaining)." % 4 - i
+        print Fore.GREEN + "Creating common sense halo..."
+        halo = []
+        with connection:
+            # Get seed word
+            cursor.execute('SELECT word FROM dictionary WHERE is_banned = 0 ORDER BY RANDOM() LIMIT 1;')
+            # Create common sense halo
+            cursor.execute("SELECT target FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.target = dictionary.word WHERE associationmodel.word = \"%s\" AND part_of_speech IN (\'NN\', \'NNS\', \'NNP\', \'NNPS\');" % re.escape(cursor.fetchone()[0]))
+            for fetchedWord in cursor.fetchall(): halo.append(fetchedWord[0])
+                
+        dream = sentencebuilder.generate_sentence(pattern.en.parse(' '.join(halo), True, True, True, True, True).split(), get_mood(expressAsText=False))
+        if "%" not in dream:
+            print Fore.BLUE + u"emma >> " + dream
+            tumblrclient.post_text(cgi.escape(dream.encode('utf-8')), ["dreams", get_mood(update=True, text=dream).encode('utf-8')])
+            return
+        else: print Fore.RED + "Couldn\'t generate a dream.'"
+    print Fore.RED + "Dreamless sleep."
 
 def chat():
     input = raw_input(Fore.BLUE + 'You >> ').decode('utf-8')
