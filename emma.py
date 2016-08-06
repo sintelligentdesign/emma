@@ -18,16 +18,12 @@ def lpush(l, item):
     l.insert(0, item)
     l.remove(l[-1])
 
-connection = sql.connect('emma.db')
-cursor = connection.cursor()
-
 print "Loading database...",
-if os.path.isfile('emma.db'):
-    print Fore.GREEN + "[DONE]"
+if os.path.isfile('emma.db'): print Fore.GREEN + "[DONE]"
 else:
     print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating new database...",
-    with connection:
-        cursor.executescript("""
+    with sql.connect('emma.db') as genConnection:       # This is done with a temporary connection because if the connection is initialized before this point, os.path.isfile() will find (the empty) emma.db
+        genConnection.cursor().executescript("""
         DROP TABLE IF EXISTS associationmodel;
         DROP TABLE IF EXISTS dictionary;
         DROP TABLE IF EXISTS friends;
@@ -39,18 +35,20 @@ else:
 
 print "Loading mood history...",
 if os.path.isfile('moodHistory.p'):
-    print Fore.GREEN + "[Done]"
+    print Fore.GREEN + "[DONE]"
     with open('moodHistory.p','r') as moodFile: moodHistory = pickle.load(moodFile)
 else:   
     print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating file...",
     with open('moodHistory.p','wb') as moodFile:
         moodHistory = [0] * 10
         pickle.dump(moodHistory, moodFile)
-    print Fore.GREEN + "[Done]"
+    print Fore.GREEN + "[DONE]"
 
 # "Emma" banner
 print Fore.MAGENTA + u"\n .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .oooo.\nd88' \u006088b \u0060888P\"Y88bP\"Y88b  \u0060888P\"Y88bP\"Y88b  \u0060P  )88b\n888ooo888  888   888   888   888   888   888   .oP\"888\n888    .,  888   888   888   888   888   888  d8(  888\n\u0060Y8bod8P' o888o o888o o888o o888o o888o o888o \u0060Y888\"\"8o\n\n        EXPANDING MODEL of MAPPED ASSOCIATIONS\n                     Alpha v0.0.4\n"
 
+connection = sql.connect('emma.db')
+cursor = connection.cursor()
 with connection:
     cursor.execute("SELECT * FROM associationmodel")
     associationModelItems = "{:,d}".format(len(cursor.fetchall()))
