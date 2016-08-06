@@ -107,14 +107,13 @@ def format_sentence(taggedSentence):
 
 def add_new_words(parsedSentence):
     # todo: make use of synonym column in emma's dictionary
+    # todo: if the part of speech is different, log the new word as a different word
     with connection:
         cursor.execute('SELECT * FROM dictionary;')
-        SQLReturn = cursor.fetchall()
 
-    storedLemata = []
-    for row in SQLReturn:
-        lemma = row[0]
-        storedLemata.append(lemma)
+        knownWords = []
+        for row in cursor.fetchall():
+            knownWords.append((row[0], row[1]))       # (lemma, pos)
 
     addedWords = []
     for count, item in enumerate(parsedSentence):
@@ -123,11 +122,10 @@ def add_new_words(parsedSentence):
 
         wordsLeft = parsedSentence[-(len(parsedSentence) - count):len(parsedSentence) - 1]
 
-        if lemma not in storedLemata and lemma not in wordsLeft and lemma not in addedWords and lemma not in bannedWords and lemma.isnumeric() == False:
+        if lemma not in [word[0] for word in knownWords if lemma == word[0]] and lemma not in wordsLeft and lemma not in addedWords and lemma not in bannedWords and not lemma.isnumeric():
             print Fore.MAGENTA + u"Learned new word: \'%s\'!" % lemma
             addedWords.append(lemma)
-            with connection:
-                cursor.execute("INSERT INTO dictionary VALUES (\"%s\", \"%s\", 0, null, 0);" % (re.escape(lemma), pos))
+            with connection: cursor.execute("INSERT INTO dictionary VALUES (\"%s\", \"%s\", 0, null, 0);" % (re.escape(lemma), pos))
 
 greetingTerms = [[u'what\'s', u'up'], [u'hi'], [u'yo'], [u'hiya'], [u'hello'], [u'what', u'up'], [u'wassup'], [u'what', u'is', u'up'], [u'what\'s', u'going', u'on'], [u'how', u'are', u'you'], [u'howdy'], [u'hey'], [u'good', u'morning'], [u'good', u'evening'], [u'good', u'afternoon']]
 def determine_intent(parsedSentence):
