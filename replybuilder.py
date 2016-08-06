@@ -46,25 +46,26 @@ def generate_sentence(tokenizedMessage, moodAvg, askerIntents=[{'declarative': T
         return "%"
 
     # Generate the reply
-    sentencesToGenerate = random.randint(1, 3)
-
     hasGreeting = False
     for intent in askerIntents:
         if intent['greeting'] == True: hasGreeting = True
 
     # Attempt to generate answers if we have any
-    answers = []
-    for question in questionPackages: answers.append(answer_question(question))
+    # todo: merge this with the answer formatting code a few lines down
+    answerPackages = []
+    for question in questionPackages: answerPackages.append(make_answer_package(question))
 
-    sentencesToGenerate -= len(answers)
+    # Decide how many sentences we want to generate. If we're answering a question, generate fewer sentences
+    if len(answers) == 0: sentencesToGenerate = random.randint(1, 3)
+    else: sentencesToGenerate = random.randint(0, 1)
 
-    answers = []
-    for answer in answers:
-        answer = make_answer(answer)
+    formattedAnswers = []
+    for answer in answerPackages:
+        answer = format_answer(answer)
         answer.append(random.choice([u"!", u"."]))
         answers.extend(answer)
 
- 	# All words start with an equal chance (2) of being chosen for sentence generation. If the word is used, its chance of being chosen decreases by 1 each time it's used until it reaches 0
+ 	# All words start with an equal chance of being chosen for sentence generation. If the word is used, its chance of being chosen decreases by 1 each time it's used until it reaches 0
     wordList = {}
     for associationBundle in associationPackage[1]: wordList[associationBundle['word']] = 3
 
@@ -201,7 +202,7 @@ def make_association_package(associationBundle, asker):
     associationPackage = ({'asker': asker, 'numObjects': numObjects}, associationPackage)
     return associationPackage
 
-def answer_question(questionPackage):
+def make_answer_package(questionPackage):
     answer = tuple
     print u"Question package:" + str(question)
         # "WHAT IS THE [ADJECTIVE] OF [NOUN]"
@@ -264,7 +265,7 @@ def choose_association(associationGroup):
         dieResult -= association['weight']
         if dieResult <= 0: return association
 
-def make_answer(answer):
+def format_answer(answer):
     print answer
     answerDomains = []
     if answer[0] == "what": answerDomains = [
