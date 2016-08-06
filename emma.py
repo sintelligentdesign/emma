@@ -30,10 +30,10 @@ else:
         cursor.executescript("""
         DROP TABLE IF EXISTS associationmodel;
         DROP TABLE IF EXISTS dictionary;
-        DROP TABLE IF EXISTS contacts;
+        DROP TABLE IF EXISTS friends;
         CREATE TABLE associationmodel(word TEXT, association_type TEXT, target TEXT, weight DOUBLE);
         CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, synonyms TEXT, affinity DOUBLE DEFAULT 0, is_banned INTEGER DEFAULT 0);
-        CREATE TABLE contacts(username TEXT, is_friend INTEGER DEFAULT 0, is_banned INTEGER DEFAULT 0);
+        CREATE TABLE friends(username TEXT);
         """)
     print Fore.GREEN + "[DONE]"
 
@@ -145,7 +145,7 @@ def reblog_post():
     print "Fetching friends list..."
     friendsList = []
     with connection:
-        cursor.execute("SELECT username FROM contacts WHERE is_friend = 1;")
+        cursor.execute("SELECT username FROM friends;")
         for row in cursor.fetchall(): friendsList.append(row[0])
 
     for friend in random.shuffle(friendsList):
