@@ -21,12 +21,12 @@ def lpush(l, item):
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
-print "Loading concept database...",
-with connection:
-    cursor.execute("SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'associationmodel\';")
-    if cursor.fetchone() == (u'associationmodel',): print Fore.GREEN + "[Done]"
-    else:
-        print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating new database...",
+print "Loading database...",
+if os.path.isfile('emma.db'):
+    print Fore.GREEN + "[DONE]"
+else:
+    print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating new database...",
+    with connection:
         cursor.executescript("""
         DROP TABLE IF EXISTS associationmodel;
         DROP TABLE IF EXISTS dictionary;
@@ -35,17 +35,16 @@ with connection:
         CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, synonyms TEXT, affinity DOUBLE DEFAULT 0, is_banned INTEGER DEFAULT 0);
         CREATE TABLE friends(username TEXT, can_reblog_from INTEGER DEFAULT 0);
         """)
-        print Fore.GREEN + "[Done]"
+    print Fore.GREEN + "[DONE]"
 
-print "Loading mood file...",
+print "Loading mood history...",
 if os.path.isfile('moodHistory.p'):
     print Fore.GREEN + "[Done]"
     with open('moodHistory.p','r') as moodFile: moodHistory = pickle.load(moodFile)
 else:   
-    print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating file with randomized moods...",
+    print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating file...",
     with open('moodHistory.p','wb') as moodFile:
-        moodHistory = []
-        for i in range(0, 10): moodHistory.append(random.uniform(-0.5, 0.5))
+        moodHistory = [0] * 10
         pickle.dump(moodHistory, moodFile)
     print Fore.GREEN + "[Done]"
 
