@@ -30,10 +30,10 @@ else:
         cursor.executescript("""
         DROP TABLE IF EXISTS associationmodel;
         DROP TABLE IF EXISTS dictionary;
-        DROP TABLE IF EXISTS friends;
+        DROP TABLE IF EXISTS contacts;
         CREATE TABLE associationmodel(word TEXT, association_type TEXT, target TEXT, weight DOUBLE);
         CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, synonyms TEXT, affinity DOUBLE DEFAULT 0, is_banned INTEGER DEFAULT 0);
-        CREATE TABLE friends(username TEXT, can_reblog_from INTEGER DEFAULT 0);
+        CREATE TABLE contacts(username TEXT, is_friend INTEGER DEFAULT 0, is_banned INTEGER DEFAULT 0);
         """)
     print Fore.GREEN + "[DONE]"
 
@@ -143,7 +143,7 @@ def reply_to_ask(ask):
 
 def reblog_post():
     with connection:
-        cursor.execute("SELECT username FROM friends;")
+        cursor.execute("SELECT username FROM contacts WHERE is_friend = 1;")
         SQLReturn = cursor.fetchall()
     posts = tumblrclient.get_recent_posts(random.choice(SQLReturn)[0])
 
