@@ -142,16 +142,19 @@ def reply_to_ask(ask):
     tumblrclient.delete_ask(ask['id'])
 
 def reblog_post():
+    print "Fetching friends list..."
+    friendsList = []
     with connection:
         cursor.execute("SELECT username FROM contacts WHERE is_friend = 1;")
         SQLReturn = cursor.fetchall()
-    posts = tumblrclient.get_recent_posts(random.choice(SQLReturn)[0])
+    for row in SQLReturn: friendsList.append(row[0])
 
-    if len(posts) > 0:
-        print "Found %d rebloggable posts." % len(posts)
-        while posts:
+    for friend in random.shuffle(friendsList):
+        print "Checking @%s\'s blog for rebloggable posts..." % friend
+        posts = tumblrclient.get_rebloggable_posts(friend)
+        if posts != 0:
+            print "Attempting to create a reply to @%s\'s post..." % friend
             post = random.choice(posts)
-            posts.remove(post)
 
             mood = get_mood(update=True, text=post['body'])
             comment = sentencebuilder.generate_sentence(pattern.en.parse(post['body'], True, True, True, True, True).split(), mood)
@@ -159,9 +162,11 @@ def reblog_post():
             if "%" not in comment:
                 print Fore.BLUE + u"Emma >> " + comment
                 tumblrclient.reblog(post['id'], post['reblogKey'], comment.encode('utf-8'), ["reblog", post['blogName'].encode('utf-8'), mood.encode('utf-8')])
-                break
+                return
             else: print Fore.RED + "Reply generation failed."
-    else: print Fore.RED + "No rebloggable posts found."
+
+    # If nobody has valid rebloggable posts or we fail to generate all replies
+    print Fore.RED + "No rebloggable posts."
 
 def dream():
     with connection:

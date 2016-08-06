@@ -30,8 +30,7 @@ def delete_ask(askid):
         print "Deleting ask with ID %d..." % askid
         client.delete_post('emmacanlearn', askid)
 
-def get_recent_posts(user):
-    print "Fetching @%s\'s most recent text posts..." % user
+def get_rebloggable_posts(user):
     posts = client.posts(user, type='text', filter='text')[u'posts']
 
     postList = []
