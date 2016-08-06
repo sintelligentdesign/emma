@@ -53,54 +53,13 @@ def generate_sentence(tokenizedMessage, moodAvg, askerIntents=[{'declarative': T
         if intent['greeting'] == True: hasGreeting = True
 
     # Attempt to generate answers if we have any
-    questionAnswers = []
-    for question in questionPackages:
-        print u"Question package:" + str(question)
-        # "WHAT IS THE [ADJECTIVE] OF [NOUN]"
-        if question[0] == "what":
-            with connection:
-                cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' AND association_type = \'HAS-PROPERTY\';" % question[2])
-                answerCandidates = []
+    answers = []
+    for question in questionPackages: answers.append(answer_question(question))
 
-                for adjective in cursor.fetchall():
-                    cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' AND target = \'%s\';" % (adjective[2], question[1]))
-                    SQLReturn = cursor.fetchone() 
-                    if SQLReturn != []:
-                        answerCandidates = (SQLReturn)
-
-                if len(answerCandidates) > 0:
-                    answer = answerCandidates[0]
-                    # Choose the answer with the highest weight
-                    for candidate in answerCandidates:
-                        if candidate[3] > answer[3]: answer = candidate
-                    questionAnswers.append(("what", question[1], question[2], answer[0]))      # (what) COLOR (of) SKY (be) ANSWER
-        
-        # "DO [NOUN] HAVE [NOUN]"
-        if question[0] == "doXhaveY":
-            with connection:
-                cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' AND association_type = \'HAS\' AND target = \'%s\';" % (question[1], question[2]))
-                SQLReturn = cursor.fetchone()
-                # todo: add lower bound?
-                
-                if SQLReturn != []: answer = ("does", question[1], question[2], True)       # yes/no, CATS (have) PAWS
-                else: answer = ("does", question[1], question[2], False)
-                questionAnswers.append(answer)
-
-        # "CAN [NOUN] [VERB]"
-        if question[0] == "can":
-            with connection:
-                cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' AND association_type = \'HAS-ABILITY-TO\' AND target = \'%s\';" % (question[1], question[2]))
-                SQLReturn = cursor.fetchone()
-                # todo: add lower bound?
-
-                if SQLReturn != []: answer = ("can", question[1], question[2], True)        # yes/no, EMMA (can) CREATE
-                else: answer = ("can", question[1], question[2], False)
-                questionAnswers.append(answer)
-
-    sentencesToGenerate -= len(questionAnswers)
+    sentencesToGenerate -= len(answers)
 
     answers = []
-    for answer in questionAnswers:
+    for answer in answers:
         answer = make_answer(answer)
         answer.append(random.choice([u"!", u"."]))
         answers.extend(answer)
@@ -241,6 +200,49 @@ def make_association_package(associationBundle, asker):
     numObjects = len(associationBundle)
     associationPackage = ({'asker': asker, 'numObjects': numObjects}, associationPackage)
     return associationPackage
+
+def answer_question(questionPackage):
+    answer = tuple
+    print u"Question package:" + str(question)
+        # "WHAT IS THE [ADJECTIVE] OF [NOUN]"
+        if question[0] == "what":
+            with connection:
+                cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' AND association_type = \'HAS-PROPERTY\';" % question[2])
+                answerCandidates = []
+
+                for adjective in cursor.fetchall():
+                    cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' AND target = \'%s\';" % (adjective[2], question[1]))
+                    SQLReturn = cursor.fetchone() 
+                    if SQLReturn != []:
+                        answerCandidates = (SQLReturn)
+
+                if len(answerCandidates) > 0:
+                    answer = answerCandidates[0]
+                    # Choose the answer with the highest weight
+                    for candidate in answerCandidates:
+                        if candidate[3] > answer[3]: answer = candidate
+                    answer = ("what", question[1], question[2], answer[0])      # (what) COLOR (of) SKY (be) ANSWER
+        
+        # "DO [NOUN] HAVE [NOUN]"
+        if question[0] == "doXhaveY":
+            with connection:
+                cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' AND association_type = \'HAS\' AND target = \'%s\';" % (question[1], question[2]))
+                SQLReturn = cursor.fetchone()
+                # todo: add lower bound?
+                
+                if SQLReturn != []: answer = ("does", question[1], question[2], True)       # yes/no, CATS (have) PAWS
+                else: answer = ("does", question[1], question[2], False)
+
+        # "CAN [NOUN] [VERB]"
+        if question[0] == "can":
+            with connection:
+                cursor.execute("SELECT * FROM associationmodel WHERE word = \'%s\' AND association_type = \'HAS-ABILITY-TO\' AND target = \'%s\';" % (question[1], question[2]))
+                SQLReturn = cursor.fetchone()
+                # todo: add lower bound?
+
+                if SQLReturn != []: answer = ("can", question[1], question[2], True)        # yes/no, EMMA (can) CREATE
+                else: answer = ("can", question[1], question[2], False)
+    return answer
 
 def determine_valid_intents(associationPackage):
     # This function doesn't include interrogatives or greetings, since those are Association Bundle-specific
