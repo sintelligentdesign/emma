@@ -146,8 +146,7 @@ def reblog_post():
     friendsList = []
     with connection:
         cursor.execute("SELECT username FROM contacts WHERE is_friend = 1;")
-        SQLReturn = cursor.fetchall()
-    for row in SQLReturn: friendsList.append(row[0])
+        for row in cursor.fetchall(): friendsList.append(row[0])
 
     for friend in random.shuffle(friendsList):
         print "Checking @%s\'s blog for rebloggable posts..." % friend
