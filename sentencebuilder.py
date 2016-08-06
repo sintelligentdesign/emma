@@ -46,67 +46,6 @@ def generate_sentence(tokenizedMessage, moodAvg, askerIntents=[{'declarative': T
         return "%"
 
     # Generate the reply
-    return build_reply(associationPackage, askerIntents, questionPackages)
-
-def find_associations(word):
-    # Finds and returns the input word's associations
-    associationGroup = []
-    with connection:
-        cursor.execute("SELECT * FROM associationmodel WHERE word = \"%s\";" % re.escape(word))
-        SQLReturn = cursor.fetchall()
-    if SQLReturn:
-        for row in SQLReturn: associationGroup.append({'type': row[1], 'target': row[2], 'weight': row[3]})
-    return associationGroup
-
-def bundle_associations(words):
-    associationBundle = []
-    print Fore.GREEN + u"Finding associations for:",
-    for word in words:
-        print word,
-        associationBundle.append((word, find_associations(word)))
-    print Fore.GREEN + u"[Done]"
-    return associationBundle
-    
-def make_association_package(associationBundle, asker):
-    associationPackage = []
-    for associationGroup in associationBundle:
-        hasHas = False
-        hasIsA = False
-        hasHasProperty = False
-        hasHasAbilityTo = False
-        hasHasObject = False
-        for association in associationGroup[1]:
-            if association['type'] == "HAS": hasHas = True
-            if association['type'] == "IS-A": hasIsA = True
-            if association['type'] == "HAS-PROPERTY": hasHasProperty = True
-            if association['type'] == "HAS-ABILITY-TO": hasHasAbilityTo = True
-            if association['type'] == "HAS-OBJECT": hasHasObject = True
-
-        associationPackage.append({
-            'word': associationGroup[0], 
-            'hasHas': hasHas, 
-            'hasIsA': hasIsA, 
-            'hasHasProperty': hasHasProperty,
-            'hasHasAbilityTo': hasHasAbilityTo,
-            'hasHasObject': hasHasObject,
-            'associations': associationGroup[1]
-            })
-    numObjects = len(associationBundle)
-    associationPackage = ({'asker': asker, 'numObjects': numObjects}, associationPackage)
-    return associationPackage
-
-def determine_valid_intents(associationPackage):
-    # This function doesn't include interrogatives or greetings, since those are Association Bundle-specific
-    validIntents = {}
-    for associationBundle in associationPackage[1]:
-        intents = ['PHRASE']
-        if associationBundle['hasHas'] or associationBundle['hasIsA'] or associationBundle['hasHasProperty'] or associationBundle['hasHasAbilityTo']: intents.append('DECLARATIVE')
-        if len(associationBundle['associations']) < 3 and associationBundle['word'] != associationPackage[0]['asker']: intents.append('INTERROGATIVE')
-        if associationBundle['hasHasAbilityTo']: intents.append('IMPERATIVE')
-        validIntents[associationBundle['word']] = intents
-    return validIntents
-
-def build_reply(associationPackage, askerIntents, questionPackages):
     sentencesToGenerate = random.randint(1, 3)
 
     hasGreeting = False
@@ -255,6 +194,64 @@ def build_reply(associationPackage, askerIntents, questionPackages):
     if answers != []:
         reply = reply + answers
     return finalize_reply(reply)
+
+def find_associations(word):
+    # Finds and returns the input word's associations
+    associationGroup = []
+    with connection:
+        cursor.execute("SELECT * FROM associationmodel WHERE word = \"%s\";" % re.escape(word))
+        SQLReturn = cursor.fetchall()
+    if SQLReturn:
+        for row in SQLReturn: associationGroup.append({'type': row[1], 'target': row[2], 'weight': row[3]})
+    return associationGroup
+
+def bundle_associations(words):
+    associationBundle = []
+    print Fore.GREEN + u"Finding associations for:",
+    for word in words:
+        print word,
+        associationBundle.append((word, find_associations(word)))
+    print Fore.GREEN + u"[Done]"
+    return associationBundle
+    
+def make_association_package(associationBundle, asker):
+    associationPackage = []
+    for associationGroup in associationBundle:
+        hasHas = False
+        hasIsA = False
+        hasHasProperty = False
+        hasHasAbilityTo = False
+        hasHasObject = False
+        for association in associationGroup[1]:
+            if association['type'] == "HAS": hasHas = True
+            if association['type'] == "IS-A": hasIsA = True
+            if association['type'] == "HAS-PROPERTY": hasHasProperty = True
+            if association['type'] == "HAS-ABILITY-TO": hasHasAbilityTo = True
+            if association['type'] == "HAS-OBJECT": hasHasObject = True
+
+        associationPackage.append({
+            'word': associationGroup[0], 
+            'hasHas': hasHas, 
+            'hasIsA': hasIsA, 
+            'hasHasProperty': hasHasProperty,
+            'hasHasAbilityTo': hasHasAbilityTo,
+            'hasHasObject': hasHasObject,
+            'associations': associationGroup[1]
+            })
+    numObjects = len(associationBundle)
+    associationPackage = ({'asker': asker, 'numObjects': numObjects}, associationPackage)
+    return associationPackage
+
+def determine_valid_intents(associationPackage):
+    # This function doesn't include interrogatives or greetings, since those are Association Bundle-specific
+    validIntents = {}
+    for associationBundle in associationPackage[1]:
+        intents = ['PHRASE']
+        if associationBundle['hasHas'] or associationBundle['hasIsA'] or associationBundle['hasHasProperty'] or associationBundle['hasHasAbilityTo']: intents.append('DECLARATIVE')
+        if len(associationBundle['associations']) < 3 and associationBundle['word'] != associationPackage[0]['asker']: intents.append('INTERROGATIVE')
+        if associationBundle['hasHasAbilityTo']: intents.append('IMPERATIVE')
+        validIntents[associationBundle['word']] = intents
+    return validIntents
 
 def choose_association(associationGroup):
     dieSeed = 0
