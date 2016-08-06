@@ -92,7 +92,7 @@ def format_sentence(taggedSentence):
             print Fore.GREEN + "Appending \"\'s\" to \"%s\"..." % prevWord[5]
             prevWord[5] = prevWord[5] + u"\'s"
             rowsToRemove.append(taggedWord)
-        elif taggedWord[1] in [u"\"", u"FW", u":", u".", u"(", u")"] or taggedWord[5] in [u",", u"\u007c", u"\u2015", u"#", u"[", u"]", u"(", u")", u"{", u"}" u"\u2026", u"<", u">"]:
+        elif taggedWord[1] in [u"\"", u"FW", u":", u"(", u")"] or taggedWord[5] in [u"\u007c", u"\u2015", u"#", u"[", u"]", u"(", u")", u"{", u"}" u"\u2026", u"<", u">"]:
             print Fore.GREEN + "Removing \"%s\"" % taggedWord[1]
             rowsToRemove.append(taggedWord)
         elif taggedWord[5] in bannedWords:
@@ -139,8 +139,7 @@ def determine_intent(parsedSentence):
         if match: intent['greeting'] = True
 
     # Interrogative pass
-    if len(parsedSentence) > 1:
-        if parsedSentence[-1][0] == "?" or parsedSentence[0][1] in ("WDT", "WP", "WP$", "WRB", "MD") or parsedSentence[0][1] in [u'be', u'can', u'do', u'does']: intent['interrogative'] = True
+    if message[-1][0] == "?" or parsedSentence[0][1] in ("WDT", "WP", "WP$", "WRB", "MD") or parsedSentence[0][1] in [u'be', u'can', u'do', u'does']: intent['interrogative'] = True
 
     # Declarative pass
     if intent['interrogative'] == False:
