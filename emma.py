@@ -71,7 +71,7 @@ def get_mood(update=False, text="", expressAsText=True):
     global moodHistory
     # If update is set to true, use text to add new mood value. Otherwise, just return the mood without touching it
     # By default, this function does nothing and just returns Emma's mood in human-readable form (as opposed to numbers)
-    if update == True: 
+    if update: 
         sentiment = pattern.en.sentiment(text)       # Get the average mood from the moods of sentences in the text
         lpush(moodHistory, (sum(sentiment) / float(len(sentiment))))        # Add the mood to the list of mood values
         with open('moodHistory.p','wb') as moodFile: pickle.dump(moodHistory, moodFile)       # Save to mood values file
@@ -79,11 +79,7 @@ def get_mood(update=False, text="", expressAsText=True):
         with open('moodHistory.p', 'r') as moodFile: moodHistory = pickle.load(moodFile)
 
     # More recent mood values have a higher weight when calculating Emma's overall mood
-    weightedmoodHistory = []
-    for i in range(0, 3): weightedmoodHistory.append(moodHistory[0])
-    for i in range(0, 2): weightedmoodHistory.append(moodHistory[1])
-    weightedmoodHistory.append(moodHistory[2])
-    weightedmoodHistory = weightedmoodHistory + moodHistory
+    weightedmoodHistory = [moodHistory[0]]*3 + [moodHistory[1]]*2 + moodHistory[2:]
     mood = sum(weightedmoodHistory) / float(len(weightedmoodHistory))
     if settings.option('general', 'verboseLogging'): print Fore.MAGENTA + "Mood values: %s\nCalculated mood: %s" % (str(moodHistory), str(mood))
 
