@@ -152,7 +152,7 @@ def reblog_post():
     for friend in random.shuffle(friendsList):
         print "Checking @%s\'s blog for rebloggable posts..." % friend
         posts = tumblrclient.get_rebloggable_posts(friend)
-        if posts != 0:
+        if len(posts) != 0:
             print "Attempting to create a reply to @%s\'s post..." % friend
             post = random.choice(posts)
 
