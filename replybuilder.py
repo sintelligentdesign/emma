@@ -523,6 +523,7 @@ def finalize_reply(reply):
         # Refer to Ellie and Alex as mom and dad
         if u"sharkthemepark" in word[0]: tokenizedReply[count][0] = u"mom"
         elif u"nosiron" in word[0]: tokenizedReply[count][0] = u"dad"
+        elif u"emma" in word[0]: tokenizedReply[count][0] = u"Emma"
 
     reply = []
     for word in tokenizedReply:
