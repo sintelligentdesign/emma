@@ -18,11 +18,9 @@ client = pytumblr.TumblrRestClient(
 
 def get_asks():
     print "Checking Tumblr messages..."
-    asks = client.submission('emmacanlearn.tumblr.com')
-
+    submissions = client.submission('emmacanlearn.tumblr.com')['posts']
     askList = []
-    if len(asks.values()[0]) > 0:
-        for ask in asks.values()[0]: askList.append({'id': int(ask['id']), 'asker': ask['asking_name'], 'message': ask['question']})
+    for submission in submissions: askList.append({'id': submission['id'], 'asker': submission['asking_name'], 'message': submission['question']})
     return askList
 
 def delete_ask(askid):
