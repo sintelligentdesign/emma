@@ -89,7 +89,6 @@ def generate_sentence(tokenizedMessage, moodAvg, askerIntents=[{'declarative': T
             # Retrieve our chosen word's association group
             for associationGroupIter in associationPackage[1]:
                 if associationGroupIter['word'] == word: 
-                    print associationGroupIter
                     associationGroup = associationGroupIter
                     print "Domain " + str(i + 1) + ": " + intent + " for \'" + word + "\' with " + str(len(associationGroup['associations'])) + " associations"
                     break
