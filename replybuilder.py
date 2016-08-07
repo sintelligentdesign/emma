@@ -56,7 +56,7 @@ def generate_sentence(tokenizedMessage, moodAvg, askerIntents=[{'declarative': T
     for question in questionPackages: answerPackages.append(make_answer_package(question))
 
     # Decide how many sentences we want to generate. If we're answering a question, generate fewer sentences
-    if len(answers) == 0: sentencesToGenerate = random.randint(1, 3)
+    if len(answerPackages) == 0: sentencesToGenerate = random.randint(1, 3)
     else: sentencesToGenerate = random.randint(0, 1)
 
     formattedAnswers = []
