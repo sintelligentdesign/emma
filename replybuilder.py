@@ -150,9 +150,10 @@ def generate_sentence(tokenizedMessage, moodAvg, askerIntents=[{'declarative': T
         print ' '.join(sentence)
         reply.extend(sentence)
     
+    # todo: move these to the beginning of a reply, after the greeting?
     print "Finalizing reply..."
-    if answers != []:
-        reply = reply + answers
+    if formattedAnswers != []:
+        reply = reply + formattedAnswers
     return finalize_reply(reply)
 
 def find_associations(word):
