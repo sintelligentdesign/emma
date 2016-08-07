@@ -146,7 +146,9 @@ def reblog_post():
         cursor.execute("SELECT username FROM friends;")
         for row in cursor.fetchall(): friendsList.append(row[0])
 
-    for friend in random.shuffle(friendsList):
+    random.shuffle(friendsList)
+
+    for friend in friendsList:
         print "Checking @%s\'s blog for rebloggable posts..." % friend
         posts = tumblrclient.get_rebloggable_posts(friend)
         if len(posts) != 0:
