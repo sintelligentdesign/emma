@@ -18,7 +18,7 @@ client = pytumblr.TumblrRestClient(
 
 def get_asks():
     print "Checking Tumblr messages..."
-    submissions = client.submission('emmacanlearn.tumblr.com')['posts']
+    submissions = client.submission('emmacanlearn')['posts']        # todo: fix bug in which calling get_asks() more than once results in a 401 Unauthorized error
     askList = []
     for submission in submissions: askList.append({'id': submission['id'], 'asker': submission['asking_name'], 'message': submission['question']})
     return askList
