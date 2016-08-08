@@ -35,7 +35,7 @@ def get_rebloggable_posts(user):
     postList = []
     for post in posts:
         # Only allow posts that were posted by the blog owner and are also under 800 characters...
-        if u'is_root_item' in post['trail'][0].keys() and len(post['body']) < 800:
+        if u'is_root_item' in post['trail'][0].keys() and len(post['trail']) < 2 and len(post['body']) < 800:
             # ...But don't allow posts with tags in the realm of 'personal' or 'do not reblog'
             taggedDoNotReblog = False
             for tag in post['tags']:
