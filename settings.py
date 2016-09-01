@@ -3,7 +3,7 @@
 # Section:
 import json
 
-settings = []
+settings = {}
 def load_settings():
     global settings
     with open('settings.json', 'r') as settingsFile: settings = json.load(settingsFile)
