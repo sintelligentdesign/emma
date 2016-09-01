@@ -1,5 +1,5 @@
 # Name:             Settings
-# Description:      Control panel for debugging, testing, further dev, fun, etc.
+# Description:      Includes functions related to checking the value of settings. Settings can be changed by hand or through a GUI using settingsfrontend module
 # Section:
 import json
 
