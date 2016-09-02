@@ -138,7 +138,7 @@ def consume(parsedMessage, sender=u""):
         print Fore.GREEN + "[DONE]"
     return intents, questionPackages
 
-def input(message, sender):
+def input(message, sender="you"):
     tokenizedMessage = parse.tokenize(message.decode('utf-8'))
     intents, questionPackages = consume(tokenizedMessage, sender)
     
