@@ -2,7 +2,15 @@ import pytumblr
 import cgi
 import re
 
+import sqlite3 as sql
+from colorama import init, Fore
+init(autoreset = True)
+
+import emma
 import apikeys
+
+connection = sql.connect('emma.db')
+cursor = connection.cursor()
 
 ## Tumblr client functions
 # authenticate with tumblr api
@@ -48,7 +56,29 @@ def client_reblog(postid, reblogKey, comment, tags):
 
 ## Actions
 def reblog_post():
-    pass
+    print "Fetching friends list..."
+    friendsList = []
+    with connection:
+        cursor.execute("SELECT username FROM friends;")
+        for row in cursor.fetchall(): friendsList.append(row[0])
+
+    random.shuffle(friendsList)
+
+    for friend in friendsList:
+        print "Checking @%s's blog for rebloggable posts..." % friend
+        posts = client_get_rebloggable_posts(friend)
+        if len(posts) != 0:
+            print "Attempting to create a reply to @%s\'s post..." % friend
+            post = random.choice(posts)
+
+            comment = emma.input(post['body'], friend)
+
+            if comment != "%":
+                client_reblog(post['id'], post['reblogKey'], comment.encode('utf-8'), ["reblog", post['blogName'].encode('utf-8'), mood.encode('utf-8')])
+                return
+            else: print Fore.RED + "Reply generation failed."
+        else: print Fore.RED + "No posts found."
+    print Fore.RED + "No rebloggable posts."
 
 def dream():
     pass
@@ -56,7 +86,7 @@ def dream():
 def reply_to_ask():
     pass
 
-## Higher-level decision making
+## Decision making
 while True:
     askList = client_get_asks()
     print "Fetched %d asks." % len(askList)
