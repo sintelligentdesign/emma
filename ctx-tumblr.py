@@ -72,7 +72,6 @@ def reblog_post():
             post = random.choice(posts)
 
             comment = emma.input(post['body'], friend)
-
             if comment != "%":
                 client_reblog(post['id'], post['reblogKey'], comment.encode('utf-8'), ["reblog", post['blogName'].encode('utf-8'), mood.encode('utf-8')])
                 return
@@ -81,7 +80,19 @@ def reblog_post():
     print Fore.RED + "No rebloggable posts."
 
 def dream():
-    pass
+    for i in range(0, 4):       # 5 attempts to generate a dream
+        print "Attempting to dream (attempt %s of 5)." % i
+        with connection:
+            # Get seed word
+            cursor.execute('SELECT word FROM dictionary WHERE is_banned = 0 ORDER BY RANDOM() LIMIT 1;')
+            seed = cursor.fetchone()[0]
+
+        dream = emma.input(seed)
+        if dream != "%":
+            client_post_text(cgi.escape(dream.encode('utf-8')), ["dreams", get_mood(update=True, text=dream).encode('utf-8')])
+            return
+        else: print Fore.RED + "Generation failed."
+    print Fore.RED + "Dreamless sleep."
 
 def reply_to_ask():
     pass
