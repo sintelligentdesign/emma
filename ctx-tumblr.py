@@ -1,7 +1,9 @@
-import pytumblr
+import random
+import time
 import cgi
 import re
 
+import pytumblr
 import sqlite3 as sql
 from colorama import init, Fore
 init(autoreset = True)
@@ -73,7 +75,7 @@ def reblog_post():
 
             comment = emma.input(post['body'], friend)
             if comment != "%":
-                client_reblog(post['id'], post['reblogKey'], comment.encode('utf-8'), ["reblog", post['blogName'].encode('utf-8'), mood.encode('utf-8')])
+                client_reblog(post['id'], post['reblogKey'], comment.encode('utf-8'), ["reblog", post['blogName'].encode('utf-8'), emma.get_mood().encode('utf-8')])
                 return
             else: print Fore.RED + "Reply generation failed."
         else: print Fore.RED + "No posts found."
@@ -89,7 +91,7 @@ def dream():
 
         dream = emma.input(seed)
         if dream != "%":
-            client_post_text(cgi.escape(dream.encode('utf-8')), ["dreams", get_mood(update=True, text=dream).encode('utf-8')])
+            client_post_text(cgi.escape(dream.encode('utf-8')), ["dreams", emma.get_mood(update=True, text=dream).encode('utf-8')])
             return
         else: print Fore.RED + "Generation failed."
     print Fore.RED + "Dreamless sleep."
@@ -118,16 +120,16 @@ while True:
 
     activity = random.choice(activities)
 
-    if activity = 'reblog':
+    if activity == 'reblog':
         print "Reblogging a post..."
         reblog_post()
-    elif activity = 'dream':
+    elif activity == 'dream':
         print "Dreaming..."
         dream()
-    elif activity = 'answer':
+    elif activity == 'answer':
         print "Answering newest ask..."
-            # todo: maybe have Emma figure out if she's able to respond to an ask before calling reply_to_asks()?
-            reply_to_ask(askList[0])
+        # todo: maybe have Emma figure out if she's able to respond to an ask before calling reply_to_asks()?
+        reply_to_ask(askList[0])
 
     print "Sleeping for 15 minutes..."
     time.sleep(900)
