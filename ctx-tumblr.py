@@ -48,7 +48,7 @@ def client_post_text(body, tags=[]): client.create_text('emmacanlearn', state="p
 
 def client_answer_ask(id, answer, tags=[]): 
     client.edit_post('emmacanlearn', id=id, answer=answer, state='published', tags=tags, type='answer')
-    client.delete_post('emmacanlearn', askid)
+    client.delete_post('emmacanlearn', id)
 
 def client_reblog(postid, reblogKey, comment, tags):
     print "Reblogging post & adding comment..."
@@ -94,8 +94,17 @@ def dream():
         else: print Fore.RED + "Generation failed."
     print Fore.RED + "Dreamless sleep."
 
-def reply_to_ask():
-    pass
+def reply_to_ask(ask):
+    print Fore.BLUE + u"@" + ask['asker'] + u" >> " + ask['message']
+
+    response = emma.input(ask['message'], ask['asker'])
+    if response != "%":
+        print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + "@" + ask['asker'] + " >> " + ask['message'] + "\n\n" + "emma >> " + response + "\n- - - - - - - - - - -\n" + emma.get_mood(update=False, expressAsText=True) + "\n\n"
+        # todo: patch understanding back in, maybe move utilities.pretty_print_understanding() to this module?
+        response = cgi.escape(response) # + "\n<!-- more -->\n" + cgi.escape(understanding)
+
+        client_answer_ask(ask['id'], response.encode('utf-8'), ["dialogue", ask['asker'].encode('utf-8'), emma.get_mood().encode('utf-8')])
+    else: print Fore.RED + "Generation failed."     # todo: attempt to reply multiple times (5?)
 
 ## Decision making
 while True:
