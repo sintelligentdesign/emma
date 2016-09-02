@@ -4,7 +4,7 @@
 import json
 
 settings = {}
-def load_settings():
+def load():
     global settings
     with open('settings.json', 'r') as settingsFile: settings = json.load(settingsFile)
     return settings

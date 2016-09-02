@@ -1,3 +1,21 @@
+'''
+Expanding Model of Mapped Associations
+Copyright (C) 2016 Ellie Cochran & Alexander Howard
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+'''
+
 # Name:             High-Level Emma Module
 # Description:      Controls high-level functions and decision making
 # Section:  
@@ -56,7 +74,6 @@ with connection:
     dictionaryItems = "{:,d}".format(len(cursor.fetchall()))
 print Fore.MAGENTA + "Database contains %s associations for %s words." % (associationModelItems, dictionaryItems)
 
-import tumblrclient
 import questionparser
 import pronouns
 import parse
@@ -64,6 +81,8 @@ import associationtrainer
 import replybuilder
 import utilities
 import settings
+
+settings.load()
 
 def get_mood(update=False, text="", expressAsText=True):
     global moodHistory
@@ -95,7 +114,7 @@ def get_mood(update=False, text="", expressAsText=True):
         elif mood >= 0.8: moodStr = u"glorious \ud83d\ude1c"
         return u"feeling " + moodStr
     
-def consume(parsedMessage, asker=u""):
+def consume(parsedMessage, sender=u""):
     intents = []
     questionPackages = []
 
@@ -104,7 +123,7 @@ def consume(parsedMessage, asker=u""):
     for count, parsedSentence in enumerate(parsedMessage):
         print "Consuming sentence " + str(count + 1) + " of " + str(len(parsedMessage)) + "...",
 
-        pronouns.determine_posessive_references(parsedSentence, asker)
+        pronouns.determine_posessive_references(parsedSentence, sender)
         intent = parse.determine_intent(parsedSentence)
         if settings.option('general', 'verboseLogging'): print intent       # todo: delete debug print statement
 
@@ -119,78 +138,14 @@ def consume(parsedMessage, asker=u""):
         print Fore.GREEN + "[DONE]"
     return intents, questionPackages
 
-def reply_to_ask(ask):
-    print "Reading ask..."
-    print Fore.BLUE + u"@" + ask['asker'] + u" >> " + ask['message']
-
-    parsedAsk = parse.tokenize(ask['message'])
-    intents, questionPackages = consume(parsedAsk, ask['asker'])
-    understanding = utilities.pretty_print_understanding(parsedAsk, intents)
-
-    reply = replybuilder.generate_sentence(parsedAsk, get_mood(update=True, text=ask['message'], expressAsText=False), intents, ask['asker'], questionPackages)
-
-    if "%" not in reply:
-        print Fore.BLUE + u"emma >> %s" % reply
-        print "Posting reply..."
-        if settings.option('tumblr', 'enablePostPreview'): print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + "@" + ask['asker'] + " >> " + ask['message'] + "\n\n" + "emma >> " + reply + "\n- - - - - - - - - - -\n" + get_mood(update=False, expressAsText=True) + "\n\n"
-        answer = cgi.escape(reply) + "\n<!-- more -->\n" + cgi.escape(understanding)
-        tumblrclient.post_ask(ask['id'], answer.encode('utf-8'), ["dialogue", ask['asker'].encode('utf-8'), get_mood().encode('utf-8')])
-    else: print Fore.RED + "Reply generation failed."
-
-    tumblrclient.delete_ask(ask['id'])
-
-def reblog_post():
-    print "Fetching friends list..."
-    friendsList = []
-    with connection:
-        cursor.execute("SELECT username FROM friends;")
-        for row in cursor.fetchall(): friendsList.append(row[0])
-
-    random.shuffle(friendsList)
-
-    for friend in friendsList:
-        print "Checking @%s\'s blog for rebloggable posts..." % friend
-        posts = tumblrclient.get_rebloggable_posts(friend)
-        if len(posts) != 0:
-            print "Attempting to create a reply to @%s\'s post..." % friend
-            post = random.choice(posts)
-
-            mood = get_mood(update=True, text=post['body'])
-            comment = replybuilder.generate_sentence(pattern.en.parse(post['body'], True, True, True, True, True).split(), mood)
-            
-            if "%" not in comment:
-                print Fore.BLUE + u"Emma >> " + comment
-                tumblrclient.reblog(post['id'], post['reblogKey'], comment.encode('utf-8'), ["reblog", post['blogName'].encode('utf-8'), mood.encode('utf-8')])
-                return
-            else: print Fore.RED + "Reply generation failed."
-        else: print Fore.RED + "No posts found."
-    print Fore.RED + "No rebloggable posts."
-
-def dream():
-    for i in range(0, 4):       # 5 attempts to generate a dream
-        print "Attempting to dream (attempt %s)." % i 
-        print Fore.GREEN + "Creating common sense halo..."
-        halo = []
-        with connection:
-            # Get seed word
-            cursor.execute('SELECT word FROM dictionary WHERE is_banned = 0 ORDER BY RANDOM() LIMIT 1;')
-            # Create common sense halo
-            cursor.execute("SELECT target FROM associationmodel LEFT OUTER JOIN dictionary ON associationmodel.target = dictionary.word WHERE associationmodel.word = \"%s\" AND part_of_speech IN (\'NN\', \'NNS\', \'NNP\', \'NNPS\');" % re.escape(cursor.fetchone()[0]))
-            for fetchedWord in cursor.fetchall(): halo.append(fetchedWord[0])
-                
-        dream = replybuilder.generate_sentence(pattern.en.parse(' '.join(halo), True, True, True, True, True).split(), get_mood(expressAsText=False))
-        if "%" not in dream:
-            print Fore.BLUE + u"emma >> " + dream
-            tumblrclient.post_text(cgi.escape(dream.encode('utf-8')), ["dreams", get_mood(update=True, text=dream).encode('utf-8')])
-            return
-        else: print Fore.RED + "Couldn\'t generate a dream.'"
-    print Fore.RED + "Dreamless sleep."
-
-def chat():
-    input = raw_input(Fore.BLUE + 'You >> ').decode('utf-8')
-    tokenizedMessage = parse.tokenize(input)
-    intents, questionPackages = consume(tokenizedMessage)
+def input(message, sender="you"):
+    tokenizedMessage = parse.tokenize(message.decode('utf-8'))
+    intents, questionPackages = consume(tokenizedMessage, sender)
     
     reply = replybuilder.generate_sentence(tokenizedMessage, get_mood(update=True, text=input, expressAsText=False), intents, questionPackages=questionPackages)
-    if "%" not in reply: print Fore.BLUE + u"emma >> " + reply
-    else: print Fore.RED + u"Reply generation failed."
+    if "%" not in reply: 
+        print Fore.BLUE + u"Emma >> " + reply
+        return reply
+    else: 
+        print Fore.RED + "Reply generation failed."
+        return "%"
