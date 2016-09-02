@@ -64,7 +64,7 @@ import replybuilder
 import utilities
 import settings
 
-settings.load_settings()
+settings.load()
 
 def get_mood(update=False, text="", expressAsText=True):
     global moodHistory
