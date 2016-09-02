@@ -64,6 +64,8 @@ import replybuilder
 import utilities
 import settings
 
+settings.load_settings()
+
 def get_mood(update=False, text="", expressAsText=True):
     global moodHistory
     # If update is set to true, use text to add new mood value. Otherwise, just return the mood without touching it
