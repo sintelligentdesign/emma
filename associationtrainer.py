@@ -9,7 +9,6 @@ from colorama import init, Fore
 init(autoreset = True)
 
 import utilities
-import settings
 
 connection = sql.connect('emma.db')
 cursor = connection.cursor()

@@ -80,9 +80,6 @@ import parse
 import associationtrainer
 import replybuilder
 import utilities
-import settings
-
-settings.load()
 
 def get_mood(update=False, text="", expressAsText=True):
     global moodHistory
@@ -98,7 +95,6 @@ def get_mood(update=False, text="", expressAsText=True):
     # More recent mood values have a higher weight when calculating Emma's overall mood
     weightedmoodHistory = [moodHistory[0]]*3 + [moodHistory[1]]*2 + moodHistory[2:]
     mood = sum(weightedmoodHistory) / float(len(weightedmoodHistory))
-    if settings.option('general', 'verboseLogging'): print Fore.MAGENTA + "Mood values: %s\nCalculated mood: %s" % (str(moodHistory), str(mood))
 
     if not expressAsText: return mood
     else:
@@ -125,7 +121,6 @@ def consume(parsedMessage, sender=u""):
 
         pronouns.determine_posessive_references(parsedSentence, sender)
         intent = parse.determine_intent(parsedSentence)
-        if settings.option('general', 'verboseLogging'): print intent       # todo: delete debug print statement
 
         # If the sentence is interrogative, package it and add the package to questionPackages
         if intent['interrogative']:

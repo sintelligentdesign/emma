@@ -9,7 +9,6 @@ from colorama import init, Fore
 init(autoreset = True)
 
 import utilities
-import settings
 
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
@@ -19,7 +18,7 @@ def tokenize(text):
     text = translate_netspeak(text)
 
     print "Tokenizing message..."
-    if settings.option('general', 'verboseLogging'): pattern.en.pprint(pattern.en.parse(text, True, True, True, True, True))
+    #pattern.en.pprint(pattern.en.parse(text, True, True, True, True, True))
     taggedText = pattern.en.parse(text, True, True, True, True, True).split()
     
     parsedMessage = []
