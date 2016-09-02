@@ -117,7 +117,7 @@ def consume(parsedMessage, sender=u""):
     pronouns.determine_references(parsedMessage)
 
     for count, parsedSentence in enumerate(parsedMessage):
-        print "Consuming sentence " + str(count + 1) + " of " + str(len(parsedMessage)) + "...",
+        print "Consuming sentence " + str(count + 1) + " of " + str(len(parsedMessage)) + "..."
 
         pronouns.determine_posessive_references(parsedSentence, sender)
         intent = parse.determine_intent(parsedSentence)
@@ -130,7 +130,6 @@ def consume(parsedMessage, sender=u""):
             parse.add_new_words(parsedSentence)
             associationtrainer.find_associations(parsedSentence)
         intents.append(intent)
-        print Fore.GREEN + "[DONE]"
     return intents, questionPackages
 
 def input(message, sender=u"you"):
