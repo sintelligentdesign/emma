@@ -144,6 +144,8 @@ def input(message, sender):
     
     reply = replybuilder.generate_sentence(tokenizedMessage, get_mood(update=True, text=input, expressAsText=False), intents, questionPackages=questionPackages)
     if "%" not in reply: 
-        print Fore.BLUE + u"emma >> " + reply
+        print Fore.BLUE + u"Emma >> " + reply
         return reply
-    else: print Fore.RED + u"Reply generation failed."
+    else: 
+        print Fore.RED + "Reply generation failed."
+        return "%"
