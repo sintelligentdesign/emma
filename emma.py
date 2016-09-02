@@ -119,13 +119,11 @@ def consume(parsedMessage, sender=u""):
     return intents, questionPackages
 
 def input(message, sender):
-    message = message.decode('utf-8')
-    tokenizedMessage = parse.tokenize(message)
+    tokenizedMessage = parse.tokenize(message.decode('utf-8'))
     intents, questionPackages = consume(tokenizedMessage, sender)
     
     reply = replybuilder.generate_sentence(tokenizedMessage, get_mood(update=True, text=input, expressAsText=False), intents, questionPackages=questionPackages)
     if "%" not in reply: 
         print Fore.BLUE + u"emma >> " + reply
         return reply
-    else: 
-        print Fore.RED + u"Reply generation failed."
+    else: print Fore.RED + u"Reply generation failed."
