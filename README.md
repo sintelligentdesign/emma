@@ -27,8 +27,8 @@ Ellie Cochran is [@sharkthemepark](http://sharkthemepark.tumblr.com) on Tumblr a
 Alexander Howard is [@ale303sh](http://www.twitter.com/ale303sh) on Twitter.
 
 ##Special Thanks
-Omri Barak
-Alexander Lozada
+ * Omri Barak
+ * Alexander Lozada
 
 ###Legal
 Expanding Model of Mapped Associations Copyright © 2016 Ellie Cochran & Alexander Howard.
