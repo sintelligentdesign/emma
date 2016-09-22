@@ -14,7 +14,7 @@ connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
 def tokenize(text):
-    if text[-1] not in [u"!", u"?", "."]: text += u"."
+    if text[-1] not in [u"!", u"?", u"."]: text += u"."
     text = translate_netspeak(text)
 
     print "Tokenizing message..."

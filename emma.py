@@ -133,10 +133,11 @@ def consume(parsedMessage, sender=u""):
     return intents, questionPackages
 
 def input(message, sender=u"you"):
-    tokenizedMessage = parse.tokenize(message.decode('utf-8'))
+    tokenizedMessage = parse.tokenize(message.encode('utf-8'))
     intents, questionPackages = consume(tokenizedMessage, sender)
     
-    reply = replybuilder.generate_sentence(tokenizedMessage, get_mood(update=True, text=input, expressAsText=False), intents, questionPackages=questionPackages)
+    #reply = replybuilder.generate_sentence(tokenizedMessage, get_mood(update=True, text=input, expressAsText=False), intents, questionPackages=questionPackages)
+    reply = "%"
     if "%" not in reply: 
         print Fore.BLUE + u"Emma >> " + reply
         return reply
