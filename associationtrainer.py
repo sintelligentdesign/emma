@@ -93,7 +93,7 @@ def add_association(word, target, associationType):
 
 e = np.exp(1)
 def calculate_new_weight(currentWeight):
-    rankingConstant = 3.19722457734
+    rankingConstant = 4.19722457734
 
     if currentWeight == 1: currentWeight = 0.999999999994
     occurances = np.log(currentWeight/(1-currentWeight))+rankingConstant     # turn the weight back into the number of occurances of the association
