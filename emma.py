@@ -16,9 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-# Name:             High-Level Emma Module
-# Description:      Controls high-level functions and decision making
-# Section:  
 import time
 import random
 import pickle
