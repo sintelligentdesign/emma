@@ -45,7 +45,7 @@ while True:
         print "Fetching friends list..."
         friendsList = []
         with connection:
-            cursor.execute("SELECT friendname FROM friends;")
+            cursor.execute("SELECT username FROM friends;")
             for row in cursor.fetchall(): friendsList.append(row[0])
 
         random.shuffle(friendsList)
@@ -72,7 +72,6 @@ while True:
                 if comment != "%":
                     print "Reblogging post & adding comment..."
                     client.reblog('emmacanlearn', id=post['id'], reblog_key=post['reblogKey'], comment=cgi.escape(comment.encode('utf-8')), tags=["reblog", post['blogName'].encode('utf-8'), emma.get_mood().encode('utf-8')])
-                    return
                 else: print Fore.RED + "Reply generation failed."
             else: print Fore.RED + "No posts found."
         print Fore.RED + "No rebloggable posts."
@@ -89,7 +88,6 @@ while True:
             dream = emma.input(seed)
             if dream != "%":
                 client.create_text('emmacanlearn', state="published", body=cgi.escape(dream.encode('utf-8')), tags=["dreams", emma.get_mood(update=True, text=dream).encode('utf-8')])
-                return
             else: print Fore.RED + "Generation failed."
         print Fore.RED + "Dreamless sleep."
 
