@@ -16,7 +16,7 @@ def read_question(sentence):
                 #print Fore.GREEN + "Interrogative: WHAT is " + interrogativeProperty + " of " + interrogativeObject
                 return (["what", interrogativeProperty, interrogativeObject])
 
-    elif sentence[0][0] in [u"do", u"does"] and sentence[2][0] == u"have":       # DO dog HAVE paw"
+    elif sentence[0][0] in [u"do", u"does"] and sentence[2][0] == u"have":       # DO dog HAVE paw
         interrogativeProperty = sentence[1][0]      # "dog"
         for word in sentence[::-1]:     # PAW have dog do
             if word[1] in utilities.nounCodes:
