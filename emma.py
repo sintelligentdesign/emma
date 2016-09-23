@@ -32,6 +32,7 @@ def lpush(l, item):
     # Push item into the front of a list, pop out the last item in the list
     l.insert(0, item)
     l.remove(l[-1])
+    return l
 
 print "Loading database...",
 if os.path.isfile('emma.db'): print Fore.GREEN + "[DONE]"
@@ -84,7 +85,7 @@ def get_mood(update=False, text="", expressAsText=True):
     # By default, this function does nothing and just returns Emma's mood in human-readable form (as opposed to numbers)
     if update: 
         sentiment = pattern.en.sentiment(text)       # Get the average mood from the moods of sentences in the text
-        lpush(moodHistory, (sum(sentiment) / float(len(sentiment))))        # Add the mood to the list of mood values
+        moodHistory = lpush(moodHistory, (sum(sentiment) / float(len(sentiment))))        # Add the mood to the list of mood values
         with open('moodHistory.p','wb') as moodFile: pickle.dump(moodHistory, moodFile)       # Save to mood values file
     else: 
         with open('moodHistory.p', 'r') as moodFile: moodHistory = pickle.load(moodFile)
