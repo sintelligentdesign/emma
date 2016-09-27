@@ -15,8 +15,8 @@ import apikeys
 
 def make_headers(extraHeaders={}):
     defaultHeaders = {
-    "User-Agent": "DiscordBot (http://www.emmacanlearn.tumblr.com, 0.0.4a)",
-    "Authorization": "Bot " + apikeys.discordClientToken
+        "User-Agent": "DiscordBot (http://www.emmacanlearn.tumblr.com, 0.0.4a)",
+        "Authorization": "Bot " + apikeys.discordClientToken
     }
     return dict(defaultHeaders.items() + extraHeaders.items())
 
@@ -58,6 +58,11 @@ else:
                     response = emma.input(message['content'].lstrip(u"<@220320669810950144>"), message['author']['username'])
 
                     # Post response
-                    r = requests.post('https://discordapp.com/api/channels/' + channel['id'] + '/messages', headers=make_headers({"Content-Type": "application/json"}), json=json.dumps({"content": response}))
+                    payload = {"content": response}
+                    r = requests.post(
+                        'https://discordapp.com/api/channels/' + channel['id'] + '/messages', 
+                        headers=make_headers({"Content-Type": "application/json"}), 
+                        json=payload
+                    )
                     print r.text
     time.sleep(30)
