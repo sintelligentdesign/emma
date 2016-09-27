@@ -13,6 +13,13 @@ import apikeys
 # It would be a lot easier to use discord.py instead of rolling my own solution
 # But Emma is written in Python 2.7 and until I port the code to Python 3 this is how things have to be
 
+def make_headers(extraHeaders={}):
+    defaultHeaders = {
+    "User-Agent": "DiscordBot (http://www.emmacanlearn.tumblr.com, 0.0.4a)",
+    "Authorization": "Bot " + apikeys.discordClientToken
+    }
+    return dict(defaultHeaders.items() + extraHeaders.items())
+
 # Attempt to connect to Discord, test our connection
 r = requests.get('https://discordapp.com/api/oauth2/applications/@me', headers=make_headers())
 
@@ -51,13 +58,6 @@ else:
                     response = emma.input(message['content'].lstrip(u"<@220320669810950144>"), message['author']['username'])
 
                     # Post response
-                    r = requests.post('https://discordapp.com/api/channels/' + channel['id'] + '/messages', headers=make_headers())
+                    r = requests.post('https://discordapp.com/api/channels/' + channel['id'] + '/messages', headers=make_headers({"Content-Type": "application/json"}), json=json.dumps({"content": response}))
                     print r.text
     time.sleep(30)
-
-def make_headers(extraHeaders={}):
-    defaultHeaders = {
-    'User-Agent': 'DiscordBot (http://www.emmacanlearn.tumblr.com, 0.0.4a)',
-    'Authorization': 'Bot ' + apikeys.discordClientToken
-    }
-    return dict(defaultHeaders.items() + extraHeaders.items())
