@@ -1,4 +1,5 @@
 import json
+import time
 
 import requests
 from colorama import init, Fore
@@ -18,11 +19,30 @@ clientHeaders = {
 
 # Attempt to connect to Discord, test our connection
 r = requests.get('https://discordapp.com/api/oauth2/applications/@me', headers=clientHeaders)
+print r.text
 
 if not r.status_code == 200: print Fore.RED + "Connection error."
 else:
     print Fore.GREEN + "Connected to Discord!"
+
+    # Get and display server list
     r = requests.get('https://discordapp.com/api/users/@me/guilds', headers=clientHeaders)
-    print "Server List:"
-    for guild in json.loads(r.text):
-        print " * " guild['name']
+    print "Guild/Channel List:"
+    connectedChannels = []
+    for guild in json.loads(r.text): 
+        print " * " + guild['name'] + " [" + guild['id'] + "]"
+        
+        for channel in json.loads(requests.get('https://discordapp.com/api/guilds/' + guild['id'] + "/channels", headers=clientHeaders).text):
+            if channel['type'] == 'text': 
+                print "   - " + channel['name'] + " [" + channel['id'] + "]"
+                connectedChannels.append('name': channel['name'], 'id': channel['id']})     # todo: add channel parent guild (and guild id?)
+    print connectedChannels
+
+                
+    # Mention listen loop
+    while True:
+        # todo: check rate limits
+        for channel in connectedChannels:
+            messages = requests.get('https://discordapp.com/api/channels/' + channel['id'] + '/messages', headers=clientHeaders)
+            print json.loads(messages.text)
+    time.sleep(30)
