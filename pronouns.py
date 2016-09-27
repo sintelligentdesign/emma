@@ -35,5 +35,5 @@ def determine_posessive_references(sentence, asker=""):
             replacementWord = posessiveReferences[word[0]]
             print Fore.GREEN + u"replacing posessive reference \'%s\' with \'%s\'..." % (word[0], replacementWord)
             word[0] = replacementWord
-            word[1] = "NNP"
+            word[1] = u"NNP"
     return sentence

@@ -121,7 +121,7 @@ def add_new_words(parsedSentence):
 
         wordsLeft = parsedSentence[-(len(parsedSentence) - count):len(parsedSentence) - 1]
 
-        if lemma not in [word[0] for word in knownWords if lemma == word[0]] and lemma not in wordsLeft and lemma not in addedWords and lemma not in bannedWords and not lemma.isnumeric():
+        if lemma not in [word[0] for word in knownWords if lemma == word[0]] and lemma not in wordsLeft and lemma not in addedWords and lemma not in bannedWords:
             print Fore.MAGENTA + u"Learned new word: \'%s\'!" % lemma
             addedWords.append(lemma)
             with connection: cursor.execute("INSERT INTO dictionary VALUES (\"%s\", \"%s\", 0, null, 0);" % (re.escape(lemma), pos))
