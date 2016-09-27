@@ -1,6 +1,12 @@
+import json
+
 import requests
+from colorama import init, Fore
+init(autoreset=True)
 
 import apikeys
+
+# Add Emma to a server: https://discordapp.com/oauth2/authorize?client_id=220320669810950144&scope=bot&permissions=0
 
 # It would be a lot easier to use discord.py instead of rolling my own solution
 # But Emma is written in Python 2.7 and until I port the code to Python 3 this is how things have to be
@@ -10,18 +16,13 @@ clientHeaders = {
     'Authorization': 'Bot ' + apikeys.discordClientToken
     }
 
-# Generate an 'add bot to guild' URL
-print "Add Emma to a server:"
-print "https://discordapp.com/oauth2/authorize?client_id=" + apikeys.discordClientID + "&scope=bot&permissions=0"
-
-# Test our connection
+# Attempt to connect to Discord, test our connection
 r = requests.get('https://discordapp.com/api/oauth2/applications/@me', headers=clientHeaders)
-if r.status_code == "200":
-    print "Connected to Discord!"
-    # todo: pprint name, id
-elif r.status_code in ["401", "403"]:
-    print "Permissions error."
-    # todo: add flavor text, print json error response
+
+if not r.status_code == 200: print Fore.RED + "Connection error."
 else:
-    print "Discord connection failed."
-    # todo: retry in 30s
+    print Fore.GREEN + "Connected to Discord!"
+    r = requests.get('https://discordapp.com/api/users/@me/guilds', headers=clientHeaders)
+    print "Server List:"
+    for guild in json.loads(r.text):
+        print " * " guild['name']
