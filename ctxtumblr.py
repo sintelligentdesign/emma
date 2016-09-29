@@ -93,7 +93,8 @@ while True:
 
     elif activity == 'answer':
         print "Answering newest ask..."
-        # todo: maybe have Emma figure out if she's able to respond to an ask before calling reply_to_asks()?
+        ask = askList[0]
+        # todo: maybe have Emma figure out if she's able to respond to an ask before attempting to reply?
         print Fore.BLUE + u"@" + ask['asker'] + u" >> " + ask['message']
 
         response = emma.input(ask['message'], ask['asker'])
