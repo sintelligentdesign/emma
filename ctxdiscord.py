@@ -5,7 +5,7 @@ import requests
 from colorama import init, Fore
 init(autoreset=True)
 
-import emma
+#import emma
 import apikeys
 
 # Add Emma to a server: https://discordapp.com/oauth2/authorize?client_id=220320669810950144&scope=bot&permissions=0
@@ -22,6 +22,7 @@ def make_headers(extraHeaders={}):
 
 # Attempt to connect to Discord, test our connection
 r = requests.get('https://discordapp.com/api/oauth2/applications/@me', headers=make_headers())
+print r.text
 
 if not r.status_code == 200: print Fore.RED + "Connection error."
 else:
@@ -55,14 +56,14 @@ else:
                     print message['author']['username'] + ": " + message['content']
 
                     # Read message and generate response
-                    response = emma.input(message['content'].lstrip(u"<@220320669810950144>"), message['author']['username'])
+                    #response = emma.input(message['content'].lstrip(u"<@220320669810950144>"), message['author']['username'])
+                    response = "test"
 
                     # Post response
-                    payload = {"content": response}
                     r = requests.post(
                         'https://discordapp.com/api/channels/' + channel['id'] + '/messages', 
                         headers=make_headers({"Content-Type": "application/json"}), 
-                        json=payload
+                        json={"content": response.encode('utf-8')}
                     )
                     print r.text
     time.sleep(30)
