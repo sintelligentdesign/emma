@@ -63,6 +63,7 @@ while True:
                         if re.sub(r'[\d\s\W]', "", tag.lower()) in [u"personal", u"donotreblog", u"dontreblog", u"dontrb", u"nsfw" u"epilepsywarning"]: taggedDoNotReblog = True
                         elif re.sub(r'\d\W', " ", tag.lower()).startswith((u"trigger warning ", u"content warning ", u"tw ", u"cw")) or re.sub(r'\d\W', " ", tag.lower()).endswith((u" trigger warning", u" content warning", u" tw", u" cw")): taggedDoNotReblog = True
                     if not taggedDoNotReblog: postList.append({'id': int(post['id']), 'reblogKey': post['reblog_key'], 'blogName': cgi.escape(post['blog_name']), 'body': post['body']})
+                    else: break
 
             if len(postList) != 0:
                 print "Attempting to create a reply to @%s\'s post..." % friend
