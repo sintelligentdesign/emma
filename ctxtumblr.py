@@ -89,6 +89,7 @@ while True:
             dream = emma.input(seed)
             if dream != "%":
                 client.create_text('emmacanlearn', state="published", body=cgi.escape(dream.encode('utf-8')), tags=["dreams", emma.get_mood(update=True, text=dream).encode('utf-8')])
+                break
             else: print Fore.RED + "Generation failed."
         print Fore.RED + "Dreamless sleep."
 
