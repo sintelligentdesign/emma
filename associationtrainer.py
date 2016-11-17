@@ -77,20 +77,23 @@ def find_associations(sentence):
                             if otherWord[1] in utilities.verbCodes: add_association(otherWord[0], word[0], "HAS-OBJECT")
 
 def add_association(word, target, associationType):
-    word = re.escape(word)
-    with connection:
-        cursor.execute('SELECT * FROM associationmodel WHERE word = \"%s\" AND target = \"%s\" AND association_type = \"%s\";' % (word.encode('utf-8'), target.encode('utf-8'), associationType))
-        SQLReturn = cursor.fetchone()
-    if SQLReturn:
-        # update record
-        print Fore.MAGENTA + u"Strengthened association: %s %s %s." % (word, associationType, target)
-        newWeight = calculate_new_weight(SQLReturn[3])
-        with connection: cursor.execute('UPDATE associationmodel SET weight = \'%s\' WHERE word = \"%s\" AND target = \"%s\" AND association_type = \'%s\';' % (newWeight, word.encode('utf-8'), target.encode('utf-8'), associationType))
+    if word != target:
+		word = re.escape(word)
+		with connection:
+			cursor.execute('SELECT * FROM associationmodel WHERE word = \"%s\" AND target = \"%s\" AND association_type = \"%s\";' % (word.encode('utf-8'), target.encode('utf-8'), associationType))
+			SQLReturn = cursor.fetchone()
+		if SQLReturn:
+			# update record
+			print Fore.MAGENTA + u"Strengthened association: %s %s %s." % (word, associationType, target)
+			newWeight = calculate_new_weight(SQLReturn[3])
+			with connection: cursor.execute('UPDATE associationmodel SET weight = \'%s\' WHERE word = \"%s\" AND target = \"%s\" AND association_type = \'%s\';' % (newWeight, word.encode('utf-8'), target.encode('utf-8'), associationType))
+		else:
+			# add record
+			print Fore.MAGENTA + u"Found new association: %s %s %s." % (word, associationType, target)
+			weight = 0.0999999999997        # This is what the weight calculates to for all new associations, so why waste cycles calculating
+			with connection: cursor.execute('INSERT INTO associationmodel(word, association_type, target, weight) VALUES (\"%s\", \'%s\', \"%s\", \'%s\');' % (word.encode('utf-8'), associationType, target.encode('utf-8'), weight))
     else:
-        # add record
-        print Fore.MAGENTA + u"Found new association: %s %s %s." % (word, associationType, target)
-        weight = 0.0999999999997        # This is what the weight calculates to for all new associations, so why waste cycles calculating
-        with connection: cursor.execute('INSERT INTO associationmodel(word, association_type, target, weight) VALUES (\"%s\", \'%s\', \"%s\", \'%s\');' % (word.encode('utf-8'), associationType, target.encode('utf-8'), weight))
+        print Fore.MAGENTA + u"Ignored self association: %s %s %s." % (word, associationType, target)
 
 e = np.exp(1)
 def calculate_new_weight(currentWeight):
