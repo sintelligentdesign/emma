@@ -56,7 +56,7 @@ if os.path.isfile('moodHistory.p'):
 else:   
     print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating file...",
     with open('moodHistory.p','wb') as moodFile:
-        moodHistory = [0] * 10
+        moodHistory = [0] * 3
         pickle.dump(moodHistory, moodFile)
     print Fore.GREEN + "[DONE]"
 
@@ -91,8 +91,8 @@ def get_mood(update=False, text="", expressAsText=True):
         with open('moodHistory.p', 'r') as moodFile: moodHistory = pickle.load(moodFile)
 
     # More recent mood values have a higher weight when calculating Emma's overall mood
-    weightedmoodHistory = [moodHistory[0]]*3 + [moodHistory[1]]*2 + moodHistory[2:]
-    mood = sum(weightedmoodHistory) / float(len(weightedmoodHistory))
+    weightedmoodHistory = [moodHistory[0]]*3 + [moodHistory[1]]*2 + moodHistory[2]
+    mood = sum(weightedmoodHistory) / 6
 
     if not expressAsText: return mood
     else:
