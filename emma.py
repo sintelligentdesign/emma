@@ -91,7 +91,7 @@ def get_mood(update=False, text="", expressAsText=True):
         with open('moodHistory.p', 'r') as moodFile: moodHistory = pickle.load(moodFile)
 
     # More recent mood values have a higher weight when calculating Emma's overall mood
-    weightedmoodHistory = [moodHistory[0]]*3 + [moodHistory[1]]*2 + moodHistory[2]
+    weightedmoodHistory = [moodHistory[0]]*3 + [moodHistory[1]]*2 + [moodHistory[2]]
     mood = sum(weightedmoodHistory) / 6
 
     if not expressAsText: return mood
