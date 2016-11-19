@@ -91,7 +91,6 @@ while True:
                 client.create_text('emmacanlearn', state="published", body=cgi.escape(dream.encode('utf-8')), tags=["dreams", emma.get_mood(update=True, text=dream).encode('utf-8')])
                 break
             else: print Fore.RED + "Generation failed."
-        print Fore.RED + "Dreamless sleep."
 
     elif activity == 'answer':
         print "Answering newest ask..."
@@ -99,15 +98,18 @@ while True:
         # todo: maybe have Emma figure out if she's able to respond to an ask before attempting to reply?
         print Fore.BLUE + u"@" + ask['asker'] + u" >> " + ask['message']
 
-        response = emma.input(ask['message'], ask['asker'])
-        if response != "%":
-            print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + "@" + ask['asker'] + " >> " + ask['message'] + "\n\n" + "emma >> " + response + "\n- - - - - - - - - - -\n" + emma.get_mood(update=False, expressAsText=True) + "\n\n"
-            # todo: patch understanding back in, maybe move utilities.pretty_print_understanding() to this module?
-            response = cgi.escape(response) # + "\n<!-- more -->\n" + cgi.escape(understanding)
+        for i in range(0, 4):   # 5 attempts to generate a reply
+            print "Attempting to reply (attempt %s of 5)." % i
+            response = emma.input(ask['message'], ask['asker'])
+            if response != "%":
+                print Fore.BLUE + "\n\nTUMBLR POST PREVIEW\n\n" + Fore.RESET + "@" + ask['asker'] + " >> " + ask['message'] + "\n\n" + "emma >> " + response + "\n- - - - - - - - - - -\n" + emma.get_mood(update=False, expressAsText=True) + "\n\n"
+                # todo: patch understanding back in, maybe move utilities.pretty_print_understanding() to this module?
+                response = cgi.escape(response) # + "\n<!-- more -->\n" + cgi.escape(understanding)
 
-            client.edit_post('emmacanlearn', id=ask['id'], answer=response.encode('utf-8'), state='published', tags=["dialogue", ask['asker'].encode('utf-8'), emma.get_mood().encode('utf-8')], type='answer')
-            client.delete_post('emmacanlearn', id)
-        else: print Fore.RED + "Generation failed."     # todo: attempt to reply multiple times (5?)
+                client.edit_post('emmacanlearn', id=ask['id'], answer=response.encode('utf-8'), state='published', tags=["dialogue", ask['asker'].encode('utf-8'), emma.get_mood().encode('utf-8')], type='answer')
+                client.delete_post('emmacanlearn', id)
+                break
+            else: print Fore.RED + "Generation failed."
 
     print "Sleeping for 15 minutes..."
     time.sleep(900)
