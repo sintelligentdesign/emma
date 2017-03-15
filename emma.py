@@ -42,56 +42,6 @@ else:
         pickle.dump(moodHistory, moodFile)
     logging.debug('Mood history file creation done.')
 
-# Preparing our datatypes
-# Let's start by defining some classes to hold input stuff:
-class Word:
-    def __init__(self, word):
-        self.originalWord = word[0]
-        self.lemma = word[5]
-        self.partOfSpeech = word[3]
-        self.chunk = word[2]
-        self.subjectObject = word[4]
-
-class Sentence:
-    def __init__(self, sentence):
-        self.sentence = sentence
-        self.taggedWords = []
-        self.mood = float
-
-    # Returns a list of Word objects contained in the Sentence
-    def get_words(self):
-        for taggedWord in self.sentence:
-            self.taggedWords.append(Word(taggedWord))
-        return self.taggedWords
-
-class Message:
-    def __init__(self, message):
-        self.message = message
-        self.taggedSentences = []
-        self.avgMood = float
-        self.domain = ''
-
-    # Returns a list of Sentence objects contained in the Message
-    def get_sentences(self):
-        for taggedSentence in pattern.en.parse(self.message, True, True, True, True, True).split(): 
-            self.taggedSentences.append(Sentence(taggedSentence))
-        return self.taggedSentences
-
-class Question:
-    def __init__(self):
-        return
-
-class ImportantWord:
-    def __init__(self):
-        return
-
-# Input is stored as a Message object
-if flags.useTestingStrings: inputMessage = Message(random.choice(flags.testingStrings))
-else: inputMessage = Message(input("Message >> "))
-
-sentences = inputMessage.get_sentences()
-words = sentences[0].get_words()
-
 # Mood-related things
 # Adds the new mood value to the front of the history list and removes the last one
 def add_mood_value(text):
@@ -105,7 +55,8 @@ def add_mood_value(text):
     logging.info('Saving new mood history...')
     with open('moodhistory.p', 'wb') as moodFile: 
         pickle.dump(moodHistory, moodFile)
-    return moodHistory
+
+    return moodValue
 
 # Mood is calculated with a weighted mean average formula, skewed towards more recent moods
 def calculate_mood():
@@ -117,6 +68,7 @@ def calculate_mood():
 
     # And take the average to get the mood
     mood = sum(weightedMoodHistory) / 13
+    logging.debug('Mood: %d' % mood)
     return mood
 
 # Returns a string which can be attached to a post as a tag expressing Emma's mood
@@ -133,18 +85,81 @@ def express_mood(moodValue):
     elif 0.8 > moodValue >= 0.6: return u"feeling fantastic \ud83d\ude00"
     elif moodValue >= 0.8: return u"feeling glorious \ud83d\ude1c"
 
-# Checking that mood works
-#print add_mood_value("I'm so happy!")
-#print calculate_mood()
-#print express_mood(calculate_mood())
+# Preparing our datatypes
+# Let's start by defining some classes for NLU stuff:
+class Word:
+    def __init__(self, word):
+        self.word = word[0]
+        self.lemma = word[5]
+        self.partOfSpeech = word[3]
+        self.chunk = word[2]
+        self.subjectObject = word[4]
+
+    def __str__(self): return self.word
+
+class Sentence:
+    def __init__(self, sentence):
+        self.sentence = sentence
+
+        # Get a list of Word objects contained in the Sentence and put them in taggedWords
+        self.words = []
+        for word in pattern.en.parse(
+            self.sentence,
+            tokenize = False, 
+            tags = True, 
+            chunks = True, 
+            relations = True, 
+            lemmata = True, 
+            encoding = 'utf-8'
+        ).split()[0]:
+            self.words.append(Word(word))
+            print word
+
+        # Get the mood of the Sentence
+        self.mood = add_mood_value(self.sentence)
+
+    def __str__(self): return self.sentence
+
+class Message:
+    def __init__(self, message):
+        self.message = message
+        #self.domain = ''
+
+        # Get a list of Sentence objects contained in the Message and put them in taggedSentences
+        self.sentences = []
+        for sentence in pattern.en.parse(
+            self.message, 
+            tokenize = True, 
+            tags = False, 
+            chunks = False, 
+            relations = False, 
+            lemmata = False, 
+            encoding = 'utf-8'
+        ).split('\n'): 
+            self.sentences.append(Sentence(sentence))
+
+        # Average Sentence moods and record the value
+        moods = []
+        for sentence in self.sentences: moods.append(sentence.mood)
+        self.avgMood = sum(moods) / len(moods)
+
+    def __str__(self): return self.message
+
+# Now classes for reading stuff
+class QuestionPackage:
+    def __init__(self):
+        return
+
+class ImportantWord:
+    def __init__(self):
+        return
 
 # Read a message as a string, learn from it, store what we learned in the database
 def consume(messageText):
     inputMessage = Message(messageText)
-    inputSentences = inputMessage.get_sentences()
 
-    for inputSentence in inputSentences.sentences:
-        inputWords = inputSentence.get_words()
+    #for inputSentence in inputSentences.sentences:
+        #inputWords = inputSentence.get_words()
         # TODO: All of this
         # Read the words
         # Determine pronoun references
@@ -162,4 +177,8 @@ def reply(message):
     # Look up ImportantWords and Questions
     # Find their associations/answers
     # Generate a reply
-    # Return
+    return
+
+# Input is stored as a Message object
+if flags.useTestingStrings: inputMessage = Message(random.choice(flags.testingStrings))
+else: inputMessage = Message(input("Message >> "))
