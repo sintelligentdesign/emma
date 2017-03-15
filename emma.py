@@ -1,143 +1,165 @@
-'''
-Expanding Model of Mapped Associations
-Copyright (C) 2016 Ellie Cochran & Alexander Howard
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-'''
-
-import time
 import random
 import pickle
-import cgi
-import re
+import logging
 import os
 
 import pattern.en
 import sqlite3 as sql
-from colorama import init, Fore
-init(autoreset = True)
 
-def lpush(l, item):
-    # Push item into the front of a list, pop out the last item in the list
-    l.insert(0, item)
-    l.remove(l[-1])
-    return l
+import misc
+import flags
 
-print "Loading database...",
-if os.path.isfile('emma.db'): print Fore.GREEN + "[DONE]"
-else:
-    print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating new database...",
-    with sql.connect('emma.db') as genConnection:       # This is done with a temporary connection because if the connection is initialized before this point, os.path.isfile() will find (the empty) emma.db
-        genConnection.cursor().executescript("""
-        DROP TABLE IF EXISTS associationmodel;
-        DROP TABLE IF EXISTS dictionary;
-        DROP TABLE IF EXISTS friends;
-        CREATE TABLE associationmodel(word TEXT, association_type TEXT, target TEXT, weight DOUBLE);
-        CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, synonyms TEXT, affinity DOUBLE DEFAULT 0, is_banned INTEGER DEFAULT 0);
-        CREATE TABLE friends(username TEXT);
-        """)
-    print Fore.GREEN + "[DONE]"
+# Dumb chrome
+misc.show_emma_banner()
+misc.show_database_stats()
 
-print "Loading mood history...",
-if os.path.isfile('moodHistory.p'):
-    print Fore.GREEN + "[DONE]"
-    with open('moodHistory.p','r') as moodFile: moodHistory = pickle.load(moodFile)
-else:   
-    print Fore.RED + "[File Not Found]\n" + Fore.YELLOW + "Creating file...",
-    with open('moodHistory.p','wb') as moodFile:
-        moodHistory = [0] * 3
-        pickle.dump(moodHistory, moodFile)
-    print Fore.GREEN + "[DONE]"
-
-# "Emma" banner
-print Fore.MAGENTA + u"\n .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .oooo.\nd88' \u006088b \u0060888P\"Y88bP\"Y88b  \u0060888P\"Y88bP\"Y88b  \u0060P  )88b\n888ooo888  888   888   888   888   888   888   .oP\"888\n888    .,  888   888   888   888   888   888  d8(  888\n\u0060Y8bod8P' o888o o888o o888o o888o o888o o888o \u0060Y888\"\"8o\n\n        EXPANDING MODEL of MAPPED ASSOCIATIONS\n                     Alpha v0.0.4\n"
-
+# Setup stuff
+# Set up SQL (this is used a LOT throughout the code)
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
-with connection:
-    cursor.execute("SELECT * FROM associationmodel")
-    associationModelItems = "{:,d}".format(len(cursor.fetchall()))
-    cursor.execute("SELECT * FROM dictionary")
-    dictionaryItems = "{:,d}".format(len(cursor.fetchall()))
-print Fore.MAGENTA + "Database contains %s associations for %s words." % (associationModelItems, dictionaryItems)
 
-import questionparser
-import pronouns
-import parse
-import associationtrainer
-import replybuilder
-import utilities
+# Set up logging level (this should go in misc.py but eh)
+logging.root.setLevel(logging.INFO)
 
-def get_mood(update=False, text="", expressAsText=True):
-    global moodHistory
-    # If update is set to true, use text to add new mood value. Otherwise, just return the mood without touching it
-    # By default, this function does nothing and just returns Emma's mood in human-readable form (as opposed to numbers)
-    if update: 
-        sentiment = pattern.en.sentiment(text)       # Get the average mood from the moods of sentences in the text
-        moodHistory = lpush(moodHistory, (sum(sentiment) / float(len(sentiment))))        # Add the mood to the list of mood values
-        with open('moodHistory.p','wb') as moodFile: pickle.dump(moodHistory, moodFile)       # Save to mood values file
-    else: 
-        with open('moodHistory.p', 'r') as moodFile: moodHistory = pickle.load(moodFile)
+# Pre-flight engine checks
+# Check for emma.db or create it if it isn't there
+logging.info('Checking for database...')
+if os.path.isfile('emma.db'): logging.debug('Database found!')
+else:
+    logging.warn('Database not found! Eventually this will create a new database but for now you have to do it by hand...')
+    # TODO: Create a new database if one cannot be found
 
-    # More recent mood values have a higher weight when calculating Emma's overall mood
-    weightedmoodHistory = [moodHistory[0]]*3 + [moodHistory[1]]*2 + [moodHistory[2]]
-    mood = sum(weightedmoodHistory) / 6
+# Check for and load the file containing the history of mood values or create it if it isn't there
+logging.info('Loading mood history...')
+if os.path.isfile('moodHistory.p'):
+    logging.debug('Mood history found!')
+    with open('moodHistory.p','rb') as moodFile: moodHistory = pickle.load(moodFile)
+    logging.debug('Mood history loaded!')
+else:   
+    logging.warn('Mood history file not found! Creating...')
+    with open('moodHistory.p','wb') as moodFile:
+        moodHistory = [0] * 10
+        pickle.dump(moodHistory, moodFile)
+    logging.debug('Mood history file creation done.')
 
-    if not expressAsText: return mood
-    else:
-        if -0.8 > mood: moodStr = u"abysmal \ud83d\ude31"
-        elif -0.6 > mood >= -0.8: moodStr = u"dreadful \ud83d\ude16"
-        elif -0.4 > mood >= -0.6: moodStr = u"bad \ud83d\ude23"
-        elif -0.2 > mood >= -0.4: moodStr = u"crummy \ud83d\ude41"
-        elif 0.0 > mood >= -0.2: moodStr = u"blah \ud83d\ude15"
-        elif 0.2 > mood >= 0.0: moodStr = u"alright \ud83d\ude10"
-        elif 0.4 > mood >= 0.2: moodStr = u"good \ud83d\ude42"
-        elif 0.6 > mood >= 0.4: moodStr = u"great \ud83d\ude09"
-        elif 0.8 > mood >= 0.6: moodStr = u"fantastic \ud83d\ude00"
-        elif mood >= 0.8: moodStr = u"glorious \ud83d\ude1c"
-        return u"feeling " + moodStr
-    
-def consume(parsedMessage, sender=u""):
-    intents = []
-    questionPackages = []
+# Preparing our datatypes
+# Let's start by defining some classes to hold input stuff:
+class Word:
+    def __init__(self, word):
+        self.originalWord = word[0]
+        self.lemma = word[5]
+        self.partOfSpeech = word[3]
+        self.chunk = word[2]
+        self.subjectObject = word[4]
 
-    pronouns.determine_references(parsedMessage)
+class Sentence:
+    def __init__(self, sentence):
+        self.sentence = sentence
+        self.taggedWords = []
+        self.mood = float
 
-    for count, parsedSentence in enumerate(parsedMessage):
-        print "Consuming sentence " + str(count + 1) + " of " + str(len(parsedMessage)) + "..."
+    # Returns a list of Word objects contained in the Sentence
+    def get_words(self):
+        for taggedWord in self.sentence:
+            self.taggedWords.append(Word(taggedWord))
+        return self.taggedWords
 
-        pronouns.determine_posessive_references(parsedSentence, sender)
-        intent = parse.determine_intent(parsedSentence)
+class Message:
+    def __init__(self, message):
+        self.message = message
+        self.taggedSentences = []
+        self.avgMood = float
+        self.domain = ''
 
-        # If the sentence is interrogative, package it and add the package to questionPackages
-        if intent['interrogative']:
-            questionPackage = questionparser.read_question(parsedSentence)
-            if questionPackage != None: questionPackages.append(questionparser.read_question(parsedSentence))
-        else:
-            parse.add_new_words(parsedSentence)
-            associationtrainer.find_associations(parsedSentence)
-        intents.append(intent)
-    return intents, questionPackages
+    # Returns a list of Sentence objects contained in the Message
+    def get_sentences(self):
+        for taggedSentence in pattern.en.parse(self.message, True, True, True, True, True).split(): 
+            self.taggedSentences.append(Sentence(taggedSentence))
+        return self.taggedSentences
 
-def input(message, sender=u"you"):
-    tokenizedMessage = parse.tokenize(message.encode('utf-8'))
-    intents, questionPackages = consume(tokenizedMessage, sender)
-    
-    reply = replybuilder.generate_sentence(tokenizedMessage, get_mood(update=True, text=input, expressAsText=False), intents, questionPackages=questionPackages)
-    if "%" not in reply: 
-        print Fore.BLUE + u"Emma >> " + reply
-        return reply
-    else: 
-        print Fore.RED + "Reply generation failed."
-        return "%"
+class Question:
+    def __init__(self):
+        return
+
+class ImportantWord:
+    def __init__(self):
+        return
+
+# Input is stored as a Message object
+if flags.useTestingStrings: inputMessage = Message(random.choice(flags.testingStrings))
+else: inputMessage = Message(input("Message >> "))
+
+sentences = inputMessage.get_sentences()
+words = sentences[0].get_words()
+
+# Mood-related things
+# Adds the new mood value to the front of the history list and removes the last one
+def add_mood_value(text):
+    moodValue = pattern.en.sentiment(text)[0]
+    logging.debug('Adding mood value %s to mood history %s...' % (moodValue, moodHistory))
+    moodHistory.insert(0, moodValue)
+    del moodHistory[-1]
+    logging.debug('New mood history is %s' % moodHistory)
+
+    # And save!
+    logging.info('Saving new mood history...')
+    with open('moodhistory.p', 'wb') as moodFile: 
+        pickle.dump(moodHistory, moodFile)
+    return moodHistory
+
+# Mood is calculated with a weighted mean average formula, skewed towards more recent moods
+def calculate_mood():
+    logging.debug('Calculating mood...')
+    # First, we calculate the weighted mood history
+    weightedMoodHistory = []
+    weightedMoodHistory.extend([moodHistory[0], moodHistory[0], moodHistory[0], moodHistory[1], moodHistory[1]])
+    weightedMoodHistory.extend(moodHistory[2:9])
+
+    # And take the average to get the mood
+    mood = sum(weightedMoodHistory) / 13
+    return mood
+
+# Returns a string which can be attached to a post as a tag expressing Emma's mood
+def express_mood(moodValue):
+    logging.debug('Expressing mood...')
+    if -0.8 > moodValue: return u"feeling abysmal \ud83d\ude31"
+    elif -0.6 > moodValue >= -0.8: return u"feeling dreadful \ud83d\ude16"
+    elif -0.4 > moodValue >= -0.6: return u"feeling bad \ud83d\ude23"
+    elif -0.2 > moodValue >= -0.4: return u"feeling crummy \ud83d\ude41"
+    elif 0.0 > moodValue >= -0.2: return u"feeling blah \ud83d\ude15"
+    elif 0.2 > moodValue >= 0.0: return u"feeling alright \ud83d\ude10"
+    elif 0.4 > moodValue >= 0.2: return u"feeling good \ud83d\ude42"
+    elif 0.6 > moodValue >= 0.4: return u"feeling great \ud83d\ude09"
+    elif 0.8 > moodValue >= 0.6: return u"feeling fantastic \ud83d\ude00"
+    elif moodValue >= 0.8: return u"feeling glorious \ud83d\ude1c"
+
+# Checking that mood works
+#print add_mood_value("I'm so happy!")
+#print calculate_mood()
+#print express_mood(calculate_mood())
+
+# Read a message as a string, learn from it, store what we learned in the database
+def consume(messageText):
+    inputMessage = Message(messageText)
+    inputSentences = inputMessage.get_sentences()
+
+    for inputSentence in inputSentences.sentences:
+        inputWords = inputSentence.get_words()
+        # TODO: All of this
+        # Read the words
+        # Determine pronoun references
+        # Determine domain
+            # If interrogative, check for Question objects
+            # Otherwise,
+        # Look for ImportantWord objects
+        # Add new words to the dictionary
+        # Write to db
+        # Find associations
+        # Write to db
+
+# Read a message as a Message object and reply to it
+def reply(message):
+    # Look up ImportantWords and Questions
+    # Find their associations/answers
+    # Generate a reply
+    # Return

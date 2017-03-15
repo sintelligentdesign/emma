@@ -1,8 +1,4 @@
 *.pyc
 *.DS_Store
 
-apikeys.py
-emma.db
-moodHistory.p
-
-utils
+legacy
