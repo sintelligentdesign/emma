@@ -6,33 +6,23 @@
     888    .,  888   888   888   888   888   888  d8(  888
     `Y8bod8P' o888o o888o o888o o888o o888o o888o `Y888""8o
 
-             EXPANDING MODEL of MAPPED ASSOCIATIONS
+            ELECTRONIC MODEL of MAPPED ASSOCIATIONS
 
           Written by Ellie Cochran & Alexander Howard
 
 Emma is a computer program that generates rough concepts of associations by reading input. She uses these associations, in conjunction with learned sentence structure patterns, to generate a reply (consequently, Emma is *not* a run-of-the-mill Markov bot. She's much more interesting than that~). She is a Summer project created by Digital Media student, programmer, & computer artist Ellie Cochran, and Computer Science & Mathematics student Alexander Howard.
 
-      Progress towards Beta:
-      [0%]▨▨▨▨[25%]▨▨▨▨[50%]▨▨▨▨[75%]▨▨▨▢[100%]
-
-#Talk to Emma
+# Talk to Emma
 You can talk to Emma using Tumblr Asks at [emmacanlearn.tumblr.com](http://emmacanlearn.tumblr.com/ask).
 
-##Implementation Details (How Does Emma Work?)
+## How Does Emma Work?
 (to-do)
 
-##Contact the Developers
+## Contact the Developers
 Ellie and Alex are on social media! Ask us about Emma!
-Ellie Cochran is [@sharkthemepark](http://sharkthemepark.tumblr.com) on Tumblr and Twitter.
+Ellie Cochran is [@deersyrup](http://deersyrup.tumblr.com) on Tumblr.
 Alexander Howard is [@ale303sh](http://www.twitter.com/ale303sh) on Twitter.
 
-##Special Thanks
+## Special Thanks
  * Omri Barak
  * Alexander Lozada
-
-###Legal
-Expanding Model of Mapped Associations Copyright © 2016 Ellie Cochran & Alexander Howard.
-
-This program comes with ABSOLUTELY NO WARRANTY.
-This is free software, and you are welcome to redistribute it under certain conditions.
-This program is licensed under the GNU GPL.
