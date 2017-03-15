@@ -6,7 +6,7 @@
     888    .,  888   888   888   888   888   888  d8(  888
     `Y8bod8P' o888o o888o o888o o888o o888o o888o `Y888""8o
 
-             EXPANDING MODEL of MAPPED ASSOCIATIONS
+            ELECTRONIC MODEL of MAPPED ASSOCIATIONS
 
           Written by Ellie Cochran & Alexander Howard
 
@@ -31,8 +31,6 @@ Alexander Howard is [@ale303sh](http://www.twitter.com/ale303sh) on Twitter.
  * Alexander Lozada
 
 ###Legal
-Expanding Model of Mapped Associations Copyright © 2016 Ellie Cochran & Alexander Howard.
-
 This program comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it under certain conditions.
 This program is licensed under the GNU GPL.
