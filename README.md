@@ -1,5 +1,3 @@
-![GNU GPL](https://www.gnu.org/graphics/gplv3-88x31.png)
-
      .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .oooo.
     d88' `88b `888P"Y88bP"Y88b  `888P"Y88bP"Y88b  `P  )88b
     888ooo888  888   888   888   888   888   888   .oP"888
@@ -20,8 +18,7 @@ You can talk to Emma using Tumblr Asks at [emmacanlearn.tumblr.com](http://emmac
 
 ## Contact the Developers
 Ellie and Alex are on social media! Ask us about Emma!
-Ellie Cochran is [@deersyrup](http://deersyrup.tumblr.com) on Tumblr.
-Alexander Howard is [@ale303sh](http://www.twitter.com/ale303sh) on Twitter.
+Ellie is [@deersyrup](http://deersyrup.tumblr.com) on Tumblr, and Alex is [@ale303sh](http://www.twitter.com/ale303sh) on Twitter.
 
 ## Special Thanks
  * Omri Barak
