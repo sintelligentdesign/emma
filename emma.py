@@ -88,6 +88,13 @@ def express_mood(moodValue):
 # Preparing our datatypes
 # Let's start by defining some classes for NLU stuff:
 class Word:
+    # Class variables:
+    # word          str     String representation of the Word
+    # lemma         str     String representation of the root form of the Word
+    # partOfSpeech  str     Penn Treebank II part-of-speech tag
+    # chunk         str     Part of the Sentence (noun-phrase, verb-phrase, etc.)
+    # subjectObject str     If the Word is a noun, this indicates whether it is the subject or object of the Sentence
+
     def __init__(self, word):
         self.word = word[0]
         self.lemma = word[5]
@@ -98,6 +105,11 @@ class Word:
     def __str__(self): return self.word
 
 class Sentence:
+    # Class variables:
+    # sentence      str     String representation of the Sentence
+    # words         list    Ordered list of Word objects in the Sentence
+    # mood          float   Positive or negative sentiment in the Sentence
+
     def __init__(self, sentence):
         self.sentence = sentence
 
@@ -121,9 +133,13 @@ class Sentence:
     def __str__(self): return self.sentence
 
 class Message:
+    # Class Variables
+    # message       str     String representation of the Message
+    # sentences     list    Ordered list of Sentence objects in the Message
+    # avgMood       float   Average of the mood value of all the Sentences in the Message
+
     def __init__(self, message):
         self.message = message
-        #self.domain = ''
 
         # Get a list of Sentence objects contained in the Message and put them in taggedSentences
         self.sentences = []
@@ -143,6 +159,8 @@ class Message:
         for sentence in self.sentences: moods.append(sentence.mood)
         self.avgMood = sum(moods) / len(moods)
 
+        # TODO: Calculate Domain
+
     def __str__(self): return self.message
 
 # Now classes for reading stuff
@@ -153,6 +171,14 @@ class QuestionPackage:
 class ImportantWord:
     def __init__(self):
         return
+
+# And classes for using what we've learned
+class Association:
+    def __init__(self, word):
+        if type(word) == "str":
+            # Handle as string
+        else:
+            # Handle as Word object
 
 # Read a message as a string, learn from it, store what we learned in the database
 def consume(messageText):
