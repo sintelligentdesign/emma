@@ -183,20 +183,17 @@ class Association:
 # Read a message as a string, learn from it, store what we learned in the database
 def consume(messageText):
     inputMessage = Message(messageText)
-
-    #for inputSentence in inputSentences.sentences:
-        #inputWords = inputSentence.get_words()
-        # TODO: All of this
-        # Read the words
-        # Determine pronoun references
-        # Determine domain
-            # If interrogative, check for Question objects
-            # Otherwise,
-        # Look for ImportantWord objects
-        # Add new words to the dictionary
-        # Write to db
-        # Find associations
-        # Write to db
+    # TODO: All of this
+    # Read the words
+    # Determine pronoun references
+    # Determine domain
+        # If interrogative, check for Question objects
+        # Otherwise,
+    # Look for ImportantWord objects
+    # Add new words to the dictionary
+    # Write to db
+    # Find associations
+    # Write to db
 
 # Read a message as a Message object and reply to it
 def reply(message):
