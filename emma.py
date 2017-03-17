@@ -23,36 +23,36 @@ logging.root.setLevel(logging.INFO)
 
 # Pre-flight engine checks
 # Check for emma.db or create it if it isn't there
-logging.info('Checking for database...')
-if os.path.isfile('emma.db'): logging.debug('Database found!')
+logging.INFO('Checking for database...')
+if os.path.isfile('emma.db'): logging.DEBUG('Database found!')
 else:
-    logging.warn('Database not found! Eventually this will create a new database but for now you have to do it by hand...')
+    logging.WARN('Database not found! Eventually this will create a new database but for now you have to do it by hand...')
     # TODO: Create a new database if one cannot be found
 
 # Check for and load the file containing the history of mood values or create it if it isn't there
-logging.info('Loading mood history...')
+logging.INFO('Loading mood history...')
 if os.path.isfile('moodHistory.p'):
-    logging.debug('Mood history found!')
+    logging.DEBUG('Mood history found!')
     with open('moodHistory.p','rb') as moodFile: moodHistory = pickle.load(moodFile)
-    logging.debug('Mood history loaded!')
+    logging.DEBUG('Mood history loaded!')
 else:   
-    logging.warn('Mood history file not found! Creating...')
+    logging.WARN('Mood history file not found! Creating...')
     with open('moodHistory.p','wb') as moodFile:
         moodHistory = [0] * 10
         pickle.dump(moodHistory, moodFile)
-    logging.debug('Mood history file creation done.')
+    logging.DEBUG('Mood history file creation done.')
 
 # Mood-related things
 def add_mood_value(text):
     """Adds the new mood value to the front of the history list and removes the last one"""
     moodValue = pattern.en.sentiment(text)[0]
-    logging.debug('Adding mood value %s to mood history %s...' % (moodValue, moodHistory))
+    logging.DEBUG('Adding mood value %s to mood history %s...' % (moodValue, moodHistory))
     moodHistory.insert(0, moodValue)
     del moodHistory[-1]
-    logging.debug('New mood history is %s' % moodHistory)
+    logging.DEBUG('New mood history is %s' % moodHistory)
 
     # And save!
-    logging.info('Saving new mood history...')
+    logging.INFO('Saving new mood history...')
     with open('moodhistory.p', 'wb') as moodFile: 
         pickle.dump(moodHistory, moodFile)
 
@@ -60,7 +60,7 @@ def add_mood_value(text):
 
 def calculate_mood():
     """Mood is calculated with a weighted mean average formula, skewed towards more recent moods"""
-    logging.debug('Calculating mood...')
+    logging.DEBUG('Calculating mood...')
     # First, we calculate the weighted mood history
     weightedMoodHistory = []
     weightedMoodHistory.extend([moodHistory[0], moodHistory[0], moodHistory[0], moodHistory[1], moodHistory[1]])
@@ -68,12 +68,12 @@ def calculate_mood():
 
     # And take the average to get the mood
     mood = sum(weightedMoodHistory) / 13
-    logging.debug('Mood: %d' % mood)
+    logging.DEBUG('Mood: %d' % mood)
     return mood
 
 def express_mood(moodValue):
     """Returns a string which can be attached to a post as a tag expressing Emma's mood"""
-    logging.debug('Expressing mood...')
+    logging.DEBUG('Expressing mood...')
     if -0.8 > moodValue: return u"feeling abysmal \ud83d\ude31"
     elif -0.6 > moodValue >= -0.8: return u"feeling dreadful \ud83d\ude16"
     elif -0.4 > moodValue >= -0.6: return u"feeling bad \ud83d\ude23"
@@ -192,12 +192,15 @@ class Association:
         else:
             # Handle as Word object
 
-# Read a message as a string, learn from it, store what we learned in the database
-def consume(messageText):
-    inputMessage = Message(messageText)
+def consume(messageText, sender="You"):
+    """Read a message as a string, learn from it, store what we learned in the database"""
+    message = Message(messageText)
+
+    logging.INFO("Consuming message...")
+    message = determine_pronoun_references(message)
+    message = determine_posessive_references(message, sender)
+
     # TODO: All of this
-    # Read the words
-    # Determine pronoun references
     # Determine domain
         # If interrogative, check for Question objects
         # Otherwise,

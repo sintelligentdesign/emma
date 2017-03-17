@@ -10,6 +10,7 @@ def determine_pronoun_references(message):
         'it', 'its', 'itself'
     ]
 
+    logging.DEBUG("Determining pronoun references...")
     lastUsedNoun = None
     for sentence in message.sentences:
         for word in sentence.words:
@@ -30,14 +31,15 @@ def determine_posessive_references(message, sender):
     emmaReferences = [u'you', u'your', u'yours', u'yourself']
     senderReferences = [u'i', u'my', u'mine', u'myself']
 
+    logging.DEBUG("Determining posessive references...")
     for sentence in message.sentences:
         for word in sentence.words:
             if word.lemma in emmaReferences:
-                print logging.info("Replacing posessive reference \'%s\' with \'%s\'..." % (word.lemma, 'emma'))
+                print logging.INFO("Replacing posessive reference \'%s\' with \'%s\'..." % (word.lemma, 'emma'))
                 word.lemma = u'emma'
                 word.partOfSpeech = 'NNP'
             elif word.lemma in senderReferences:
-                print logging.info("Replacing posessive reference \'%s\' with \'%s\'..." % (word.lemma, sender))
+                print logging.INFO("Replacing posessive reference \'%s\' with \'%s\'..." % (word.lemma, sender))
                 word.lemma = sender
                 word.partOfSpeech = 'NNP'
     
