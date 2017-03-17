@@ -4,10 +4,10 @@ def determine_pronoun_references(message):
     # so that the nouns that they reference could be tracked seperately
     # but there are people who use it/its and similar pronouns so idk :/
     pronouns = [
-        'he', 'him', 'his', 'himself',
-        'she', 'her', 'hers', 'herself',
-        'they', 'them', 'their', 'theirs', 'themself', 'themselves',
-        'it', 'its', 'itself'
+        u'he', u'him', u'his', u'himself',
+        u'she', u'her', u'hers', u'herself',
+        u'they', u'them', u'their', u'theirs', u'themself', u'themselves',
+        u'it', u'its', u'itself'
     ]
 
     logging.DEBUG("Determining pronoun references...")
