@@ -43,8 +43,8 @@ else:
     logging.debug('Mood history file creation done.')
 
 # Mood-related things
-# Adds the new mood value to the front of the history list and removes the last one
 def add_mood_value(text):
+    """Adds the new mood value to the front of the history list and removes the last one"""
     moodValue = pattern.en.sentiment(text)[0]
     logging.debug('Adding mood value %s to mood history %s...' % (moodValue, moodHistory))
     moodHistory.insert(0, moodValue)
@@ -58,8 +58,8 @@ def add_mood_value(text):
 
     return moodValue
 
-# Mood is calculated with a weighted mean average formula, skewed towards more recent moods
 def calculate_mood():
+    """Mood is calculated with a weighted mean average formula, skewed towards more recent moods"""
     logging.debug('Calculating mood...')
     # First, we calculate the weighted mood history
     weightedMoodHistory = []
@@ -71,8 +71,8 @@ def calculate_mood():
     logging.debug('Mood: %d' % mood)
     return mood
 
-# Returns a string which can be attached to a post as a tag expressing Emma's mood
 def express_mood(moodValue):
+    """Returns a string which can be attached to a post as a tag expressing Emma's mood"""
     logging.debug('Expressing mood...')
     if -0.8 > moodValue: return u"feeling abysmal \ud83d\ude31"
     elif -0.6 > moodValue >= -0.8: return u"feeling dreadful \ud83d\ude16"
@@ -88,12 +88,16 @@ def express_mood(moodValue):
 # Preparing our datatypes
 # Let's start by defining some classes for NLU stuff:
 class Word:
-    # Class variables:
-    # word          str     String representation of the Word
-    # lemma         str     String representation of the root form of the Word
-    # partOfSpeech  str     Penn Treebank II part-of-speech tag
-    # chunk         str     Part of the Sentence (noun-phrase, verb-phrase, etc.)
-    # subjectObject str     If the Word is a noun, this indicates whether it is the subject or object of the Sentence
+    """
+    Defines a word and its attributes
+
+    Class variables:
+    word          str     String representation of the Word
+    lemma         str     String representation of the root form of the Word
+    partOfSpeech  str     Penn Treebank II part-of-speech tag
+    chunk         str     Part of the Sentence (noun-phrase, verb-phrase, etc.)
+    subjectObject str     If the Word is a noun, this indicates whether it is the subject or object of the Sentence
+    """
 
     def __init__(self, word):
         self.word = word[0]
@@ -105,10 +109,14 @@ class Word:
     def __str__(self): return self.word
 
 class Sentence:
-    # Class variables:
-    # sentence      str     String representation of the Sentence
-    # words         list    Ordered list of Word objects in the Sentence
-    # mood          float   Positive or negative sentiment in the Sentence
+    """
+    Defines a sentence and its attributes, auto-generates and fills itself with Word objects
+
+    Class variables:
+    sentence      str     String representation of the Sentence
+    words         list    Ordered list of Word objects in the Sentence
+    mood          float   Positive or negative sentiment in the Sentence
+    """
 
     def __init__(self, sentence):
         self.sentence = sentence
@@ -133,10 +141,14 @@ class Sentence:
     def __str__(self): return self.sentence
 
 class Message:
-    # Class Variables
-    # message       str     String representation of the Message
-    # sentences     list    Ordered list of Sentence objects in the Message
-    # avgMood       float   Average of the mood value of all the Sentences in the Message
+    """
+    Defines a collection of Sentences and its attributes, auto-generates and fills itself with Sentence objects
+
+    Class Variables
+    message       str     String representation of the Message
+    sentences     list    Ordered list of Sentence objects in the Message
+    avgMood       float   Average of the mood value of all the Sentences in the Message
+    """
 
     def __init__(self, message):
         self.message = message
