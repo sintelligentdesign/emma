@@ -10,20 +10,19 @@ def determine_pronoun_references(message):
         'it', 'its', 'itself'
     ]
 
-    # TODO: Rewrite all of this
-    '''
-    lastUsedNoun = list
-    for sentence in message:
-        for count, word in enumerate(sentence):
-            if word[1] in ['NN', 'NNS', 'NNP', 'NNPS']:
+    lastUsedNoun = None
+    for sentence in message.sentences:
+        for word in sentence.words:
+            # Check if the word is a noun and save it if it is
+            if word.partOfSpeech in ['NN', 'NNS', 'NNP', 'NNPS']:
                 lastUsedNoun = word
-
-            elif word[0] in pronouns and lastUsedNoun != list:
-                print Fore.GREEN + u'Replacing pronoun \'%s\' with \'%s\'...' % (word[0], lastUsedNoun[0])
-                sentence[count] = lastUsedNoun
-
+            
+            # Check if the word is a pronoun and replace it if it is
+            elif word.lemma in pronouns and lastUsedNoun != None:
+                word.word = lastUsedNoun.word
+                word.lemma = lastUsedNoun.lemma
+                
     return message
-    '''
 
 # Gets a Message object and the name of the person sending the message and replaces posessive references (you/me/your/my/etc.) with the thing that they reference
 def determine_posessive_references(message, sender):
