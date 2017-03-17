@@ -1,4 +1,6 @@
 *.pyc
 *.DS_Store
 
+apikeys.py
+
 legacy

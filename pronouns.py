@@ -1,3 +1,5 @@
+import logging
+
 def determine_pronoun_references(message):
     """Gets a Message object and iterates through sentences/words, replacing pronouns with the last used noun"""
     # Ideally I'd split pronouns into personal pronouns (she/her) and object pronouns (it/its) 
@@ -10,7 +12,7 @@ def determine_pronoun_references(message):
         u'it', u'its', u'itself'
     ]
 
-    logging.DEBUG("Determining pronoun references...")
+    logging.debug("Determining pronoun references...")
     lastUsedNoun = None
     for sentence in message.sentences:
         for word in sentence.words:
@@ -31,15 +33,15 @@ def determine_posessive_references(message, sender):
     emmaReferences = [u'you', u'your', u'yours', u'yourself']
     senderReferences = [u'i', u'my', u'mine', u'myself']
 
-    logging.DEBUG("Determining posessive references...")
+    logging.debug("Determining posessive references...")
     for sentence in message.sentences:
         for word in sentence.words:
             if word.lemma in emmaReferences:
-                print logging.INFO("Replacing posessive reference \'%s\' with \'%s\'..." % (word.lemma, 'emma'))
+                print logging.info("Replacing posessive reference \'%s\' with \'%s\'..." % (word.lemma, 'emma'))
                 word.lemma = u'emma'
                 word.partOfSpeech = 'NNP'
             elif word.lemma in senderReferences:
-                print logging.INFO("Replacing posessive reference \'%s\' with \'%s\'..." % (word.lemma, sender))
+                print logging.info("Replacing posessive reference \'%s\' with \'%s\'..." % (word.lemma, sender))
                 word.lemma = sender
                 word.partOfSpeech = 'NNP'
     
