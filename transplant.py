@@ -2,12 +2,12 @@ import math
 import logging
 
 from tqdm import tqdm
-
 import pytumblr
-#import emma
+
+import emma
 import apikeys
 
-logging.root.setLevel(0)
+logging.root.setLevel(1)
 
 class Ask:
     def __init__(self, message, sender):
