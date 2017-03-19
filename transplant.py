@@ -41,6 +41,6 @@ for i in tqdm(range(0, numRequests)):
 
 logging.info("Tokenizing messages and feeding them to Emma...")
 for ask in asks:
-    emma.consume(ask.message, ask.sender)
+    emma.train(ask.message, ask.sender)
 
 logging.info("Done")

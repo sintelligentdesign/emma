@@ -4,6 +4,7 @@ import logging
 import os
 
 import pattern.en
+from pattern.vector import Document
 import sqlite3 as sql
 
 import misc
@@ -171,6 +172,9 @@ class Message:
         for sentence in self.sentences: moods.append(sentence.mood)
         self.avgMood = sum(moods) / len(moods)
 
+        # Find the message's keywords
+        self.keywords = Document(message).keywords()
+
         # TODO: Calculate Domain
 
     def __str__(self): return self.message
@@ -186,13 +190,14 @@ class ImportantWord:
 
 # And classes for using what we've learned
 class Association:
+    # note for self: does there need to be an option or word being a Word object? couldn't the program just pass Word.lemma or something
     def __init__(self, word):
         if type(word) == "str":
             # Handle as string
         else:
             # Handle as Word object
 
-def consume(messageText, sender="You"):
+def train(messageText, sender="You"):
     """Read a message as a string, learn from it, store what we learned in the database"""
     message = Message(messageText)
 
