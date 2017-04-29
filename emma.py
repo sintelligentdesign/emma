@@ -10,6 +10,7 @@ import sqlite3 as sql
 
 import flags
 import pronouns
+import associationtrainer
 import misc
 
 # Dumb chrome
@@ -178,17 +179,6 @@ class Message:
 
     def __str__(self): return self.message
 
-# Association stuff
-class Association:
-    # note for self: does there need to be an option or word being a Word object? couldn't the program just pass Word.lemma or something
-    def __init__(self, word):
-        if type(word) == "str":
-            # Handle as string
-            pass
-        else:
-            # Handle as Word object
-            pass
-
 def filter_message(messageText):
     """Make it easier for the computer to read messages (and also screen out banned words)"""
     # Add punctuation is it isn't already present
@@ -241,6 +231,16 @@ def train(messageText, sender="You"):
     # Write to db
 
 # Read a message as a Message object and reply to it
+class Association:
+    # note for self: does there need to be an option or word being a Word object? couldn't the program just pass Word.lemma or something
+    def __init__(self, word):
+        if type(word) == "str":
+            # Handle as string
+            pass
+        else:
+            # Handle as Word object
+            pass
+
 def reply(message):
     # Look up ImportantWords and Questions
     # Find their associations/answers
