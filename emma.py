@@ -20,7 +20,7 @@ connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
 # Set up logging level (this should go in misc.py but eh)
-logging.root.setLevel(logging.info)
+logging.root.setLevel(logging.INFO)
 
 # Pre-flight engine checks
 # Check for emma.db or create it if it isn't there
@@ -183,8 +183,10 @@ class Association:
     def __init__(self, word):
         if type(word) == "str":
             # Handle as string
+            pass
         else:
             # Handle as Word object
+            pass
 
 def filter_message(messageText):
     """Make it easier for the computer to read messages (and also screen out banned words)"""
@@ -215,11 +217,26 @@ def train(messageText, sender="You"):
     message = determine_posessive_references(message, sender)
 
     logging.info("Looking for new words...")
-    # TODO: Find new words
+    # Gather words we already know from database
+    with connection:
+        cursor.execute('SELECT * FROM dictionary;')
+
+        knownWords = []
+        for row in cursor.fetchall():
+            knownWords.append((row[0], row[1]))     # (lemma, POS)
+
+        # Compare them against each word from the message
+        for sentence in message.sentences:
+            for word in sentence.words:
+                # If it's a word we don't have in the database, add it
+                if word.lemma not in [knownWord[0] for knownWord in knownWords if word.lemma == knownWord[0]]:
+                    logging.info("Learned new word: \'%s\'!" % word.word)
+                    knownWords.append((word.lemma, word.partOfSpeech))
+                    with connection:
+                        cursor.execute('INSERT INTO dictionary VALUES (\"%s\", \"%s\", 0);' % (re.escape(word.lemma), word.partOfSpeech))
+
 
     # TODO: All of this
-    # Add new words to the dictionary
-    # Write to db
     # Find associations
     # Write to db
 
