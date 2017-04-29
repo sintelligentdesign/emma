@@ -37,11 +37,11 @@ def determine_posessive_references(message, sender):
     for sentence in message.sentences:
         for word in sentence.words:
             if word.lemma in emmaReferences:
-                print logging.info("Replacing posessive reference \'%s\' with \'%s\'..." % (word.lemma, 'emma'))
+                logging.info("Replacing posessive reference \'%s\' with \'%s\'..." % (word.lemma, 'emma'))
                 word.lemma = u'emma'
                 word.partOfSpeech = 'NNP'
             elif word.lemma in senderReferences:
-                print logging.info("Replacing posessive reference \'%s\' with \'%s\'..." % (word.lemma, sender))
+                logging.info("Replacing posessive reference \'%s\' with \'%s\'..." % (word.lemma, sender))
                 word.lemma = sender
                 word.partOfSpeech = 'NNP'
     

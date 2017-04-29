@@ -2,13 +2,15 @@ import random
 import pickle
 import logging
 import os
+import re
 
 import pattern.en
 import pattern.vector
 import sqlite3 as sql
 
-import misc
 import flags
+import pronouns
+import misc
 
 # Dumb chrome
 misc.show_emma_banner()
@@ -53,7 +55,7 @@ def add_mood_value(text):
     logging.debug('New mood history is %s' % moodHistory)
 
     # And save!
-    logging.info('Saving new mood history...')
+    logging.info('Saving mood history...')
     with open('moodhistory.p', 'wb') as moodFile: 
         pickle.dump(moodHistory, moodFile)
 
@@ -134,7 +136,6 @@ class Sentence:
             encoding = 'utf-8'
         ).split()[0]:
             self.words.append(Word(word))
-            print word
 
         # Get the mood of the Sentence
         self.mood = add_mood_value(self.sentence)
@@ -199,11 +200,11 @@ def filter_message(messageText):
     for word in messageText.split(' '):
         if word.lower() in misc.netspeak.keys():
             logging.debug("Translating \'%s\' from net speak..." % word)
-            filtered.extend(misc.netspeak[word.lower()])
+            filtered.append(misc.netspeak[word.lower()])
         elif word.lower() in pattern.en.wordlist.PROFANITY:
             pass
         else:
-            filtered.extend(word)
+            filtered.append(word)
     filteredText = ' '.join(filtered)
 
     return filteredText
@@ -213,8 +214,8 @@ def train(messageText, sender="You"):
     message = Message(filter_message(messageText))
 
     logging.info("Consuming message...")
-    message = determine_pronoun_references(message)
-    message = determine_posessive_references(message, sender)
+    message = pronouns.determine_pronoun_references(message)
+    message = pronouns.determine_posessive_references(message, sender)
 
     logging.info("Looking for new words...")
     # Gather words we already know from database
@@ -248,5 +249,6 @@ def reply(message):
     return
 
 # Input is stored as a Message object
-if flags.useTestingStrings: inputMessage = Message(random.choice(flags.testingStrings))
-else: inputMessage = Message(input("Message >> "))
+if flags.useTestingStrings: inputText = random.choice(flags.testingStrings)
+else: inputText = input("Message >> ")
+train(inputText)
