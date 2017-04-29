@@ -231,11 +231,10 @@ def train(messageText, sender="You"):
             for word in sentence.words:
                 # If it's a word we don't have in the database, add it
                 if word.lemma not in [knownWord[0] for knownWord in knownWords if word.lemma == knownWord[0]]:
-                    logging.info("Learned new word: \'%s\'!" % word.word)
+                    logging.info("Learned new word: \'%s\'!" % word.lemma)
                     knownWords.append((word.lemma, word.partOfSpeech))
                     with connection:
                         cursor.execute('INSERT INTO dictionary VALUES (\"%s\", \"%s\", 0);' % (re.escape(word.lemma), word.partOfSpeech))
-
 
     # TODO: All of this
     # Find associations
