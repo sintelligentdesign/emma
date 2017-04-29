@@ -2,6 +2,6 @@
 *.DS_Store
 
 apikeys.py
-notes
 
 legacy
+utils
