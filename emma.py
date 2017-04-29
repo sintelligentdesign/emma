@@ -4,7 +4,7 @@ import logging
 import os
 
 import pattern.en
-from pattern.vector import Document
+import pattern.vector
 import sqlite3 as sql
 
 import misc
@@ -153,9 +153,11 @@ class Message:
 
     def __init__(self, message):
         self.message = message
+        self.sentences = []
+        self.avgMood = int
+        self.keywords = pattern.vector.Document(self.message).keywords()
 
         # Get a list of Sentence objects contained in the Message and put them in taggedSentences
-        self.sentences = []
         for sentence in pattern.en.parse(
             self.message, 
             tokenize = True, 
@@ -169,26 +171,13 @@ class Message:
 
         # Average Sentence moods and record the value
         moods = []
-        for sentence in self.sentences: moods.append(sentence.mood)
+        for sentence in self.sentences: 
+            moods.append(sentence.mood)
         self.avgMood = sum(moods) / len(moods)
-
-        # Find the message's keywords
-        self.keywords = Document(message).keywords()
-
-        # TODO: Calculate Domain
 
     def __str__(self): return self.message
 
-# Now classes for reading stuff
-class QuestionPackage:
-    def __init__(self):
-        return
-
-class ImportantWord:
-    def __init__(self):
-        return
-
-# And classes for using what we've learned
+# Association stuff
 class Association:
     # note for self: does there need to be an option or word being a Word object? couldn't the program just pass Word.lemma or something
     def __init__(self, word):
@@ -197,19 +186,38 @@ class Association:
         else:
             # Handle as Word object
 
+def filter_message(messageText):
+    """Make it easier for the computer to read messages (and also screen out banned words)"""
+    # Add punctuation is it isn't already present
+    if messageText[-1] not in [u'!', u'?', u'.']:
+        messageText += u"."
+
+    # Translate internet slang and remove bad words
+    filtered = []
+    for word in messageText.split(' '):
+        if word.lower() in misc.netspeak.keys():
+            logging.debug("Translating \'%s\' from net speak..." % word)
+            filtered.extend(misc.netspeak[word.lower()])
+        elif word.lower() in pattern.en.wordlist.PROFANITY:
+            pass
+        else:
+            filtered.extend(word)
+    filteredText = ' '.join(filtered)
+
+    return filteredText
+
 def train(messageText, sender="You"):
     """Read a message as a string, learn from it, store what we learned in the database"""
-    message = Message(messageText)
+    message = Message(filter_message(messageText))
 
     logging.info("Consuming message...")
     message = determine_pronoun_references(message)
     message = determine_posessive_references(message, sender)
 
+    logging.info("Looking for new words...")
+    # TODO: Find new words
+
     # TODO: All of this
-    # Determine domain
-        # If interrogative, check for Question objects
-        # Otherwise,
-    # Look for ImportantWord objects
     # Add new words to the dictionary
     # Write to db
     # Find associations
