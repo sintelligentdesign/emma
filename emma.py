@@ -248,7 +248,7 @@ def filter_message(messageText):
     for word in messageText.split(' '):
         if word.lower() in misc.netspeak.keys():
             logging.debug("Translating \'{0}\' from net speak...".format(word))
-            filtered.append(misc.netspeak[word.lower()])
+            filtered.extend(misc.netspeak[word.lower()])
         elif word.lower() in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
             logging.debug("Replacing \"n\'t\" with \"not\"...")
             filtered.append(u'not')
@@ -258,6 +258,7 @@ def filter_message(messageText):
             pass
         else:
             filtered.append(word)
+    print filtered
     filteredText = ' '.join(filtered)
 
     return filteredText
