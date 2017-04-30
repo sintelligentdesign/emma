@@ -7,14 +7,15 @@ import sqlite3 as sql
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
-class Sentence:
-    def __init__(self):
-        self.domain = str
-        self.topic = str
+class SBBWord:
+    def __init__(self, word, partOfSpeech):
+        self.word = word
+        self.partOfSpeech = str
 
-class Chunk:
-    def __init__(self):
-        pass
+        with connection:
+            cursor.execute('SELECT part_of_speech FROM dictionary WHERE word = \"{0}\";'.format(self.word))
+            SQLReturn = cursor.fetchall()
+            self.partOfSpeech = SQLReturn[0]
 
 class SBBHaveHas:
     def __init__(self):
@@ -23,13 +24,6 @@ class SBBHaveHas:
 class SBBIsAre:
     def __init__(self):
         pass
-
-class Association:
-    def __init__(self, word, associationType, target, weight):
-        self.word = word
-        self.target = target
-        self.associationType = associationType
-        self.weight = weight
 
 def weighted_roll(choices):
     """Takes a list of (weight, option) tuples and makes a weighted die roll"""
@@ -54,6 +48,33 @@ def find_associations(keyword):
             associations.append(Association(row[0], row[1], row[2], row[3]))
     return associations
 
+def make_declarative(topic):
+    pass
+
+def make_imperative(topic):
+    pass
+
+def make_phrase(topic):
+    pass
+
+def make_interrogative(topic):
+    pass
+
+def make_greeting():
+    pass
+
+class Sentence:
+    def __init__(self):
+        self.domain = str
+        self.topic = str
+
+class Association:
+    def __init__(self, word, associationType, target, weight):
+        self.word = word
+        self.target = target
+        self.associationType = associationType
+        self.weight = weight
+        
 def reply(message):
     """Replies to a Message object using the associations we built using train()"""
     logging.info("Building reply...")
@@ -105,11 +126,16 @@ def reply(message):
         sentence.domain = random.choice(domains)
         logging.debug("Chose {0}".format(sentence.domain))
 
-    # Domains:
-    #   Declarative
-    #   Imperative
-    #   Interrogative
-    #   Phrase
-    #   Greeting
+    # Build sentence structures
+    logging.info("Building sentence structures...")
+    for i, sentence in enumerate(reply):
+        if sentence.domain == 'declarative':
+            pass
+        elif sentence.domain == 'imperative':
+            pass
+        elif sentence.domain == 'interrogative':
+            pass
+        elif sentence.domain == 'phrase':
+            pass
 
     return reply
