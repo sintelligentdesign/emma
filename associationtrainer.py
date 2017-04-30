@@ -81,9 +81,26 @@ def find_associations(message):
                                         else:
                                             break
                         if "NP" in word.chunk and word.partOfSpeech in misc.nounCodes:
-                            pass
+                            # NP containing JJ + NN >> NN HAS-PROPERTY JJ (the big house >> house HAS-PROPERTY big)
+                            for adjectiveCandidate in reversed(sentence.words[0, word.index]):
+                                if adjectiveCandidate.partOfSpeech in misc.adjectiveCodes:
+                                    train_association(word.lemma, "HAS-PROPERTY", adjectiveCandidate.lemma)
+                                else:
+                                    break
+
+                            # NP + VP >> NN HAS-ABILITY-TO VB (Cats can run fast >> cat HAS-ABILITY-TO run)
+                            for verbCandidate in sentence.words[word.index+1:-1]:
+                                if "VP" in verbCandidate.chunk and verbCandidate.partOfSpeech in misc.verbCodes and verbCandidate.lemma != u'be':
+                                    train_association(word.lemma, "HAS-ABILITY-TO", verbCandidate.lemma)
+                                else:
+                                    break
+
                         if word.partOfSpeech in misc.verbCodes:
-                            pass
+                            # VP containing RB + VB >> RB HAS-PROPERTY VB (It quickly moves >> quickly HAS-PROPERTY moves)
+                            if word.index != 0 and sentence.words[word.index-1].partOfSpeech in misc.adverbCodes:
+                                for propertyCandidate in reversed(sentence.words[0, word.index]):
+                                    if propertyCandidate.partOfSpeech in misc.adverbCodes:
+                                        train_association(word.lemma, "HAS-PROPERTY", propertyCandidate.lemma)
                         
                         # NP + 'has' + NP >> NN HAS NN (People have two hands >> People HAS hands)
                         if word.lemma == u'have' and "NP" in sentence.words[word.index-1].chunk and "NP" in sentence.words[word.index+1].chunk:
