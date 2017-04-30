@@ -38,6 +38,10 @@ class SBBArticle:
     def __init__(self):
         pass
 
+class SBBConjunction:
+    def __init__(self):
+        pass
+
 def weighted_roll(choices):
     """Takes a list of (weight, option) tuples and makes a weighted die roll"""
     dieSeed = 0
@@ -112,10 +116,30 @@ def make_simple(sentence):
     # Add the word
     sentence.contents.append(sentence.topic)
 
-    return sentence.contents
+    return sentence
         
-def make_compound(topic1, topic2):
-    pass
+def make_compound(sentence, altTopic):
+    # This function gets an extra topic so that it can seed a second call of make_simple()
+    # Make the first half of the sentence
+    sentence = make_simple(sentence)
+
+    # Make a 'fake' sentence to generate the second half of the sentence
+    shellSentence = Sentence()
+    shellSentence.topic = altTopic
+    shellSentence.domain = 'simple'
+    shellSentence = make_simple(shellSentence)
+
+    # Have a chance to add a comma
+    if random.choice([True, False]):
+        sentence.contents.append(u',')
+
+    # Add a conjunction to the end of the first sentence
+    sentence.contents.append(SBBConjunction())
+
+    # Paste the second half of the sentence onto the first half
+    sentence.contents.extend(shellSentence.contents)
+
+    return sentence
 
 def make_greeting():
     pass
@@ -183,22 +207,22 @@ def reply(message):
             domains.append('compound')
 
         #sentence.domain = random.choice(domains)
-        sentence.domain = 'simple'
+        sentence.domain = 'compound'
         logging.debug("Chose {0}".format(sentence.domain))
 
         # Build sentence structures
         logging.info("Building sentence structures...")
         for i, sentence in enumerate(reply):
             if sentence.domain == 'declarative':
-                sentence.contents = make_declarative(sentence.topic)
+                sentence = make_declarative(sentence)
             elif sentence.domain == 'imperative':
-                sentence.contents = make_imperative(sentence.topic)
+                sentence = make_imperative(sentence)
             elif sentence.domain == 'interrogative':
-                sentence.contents = make_interrogative(sentence.topic)
+                sentence = make_interrogative(sentence)
             elif sentence.domain == 'simple':
-                sentence.contents = make_simple(sentence)
+                sentence = make_simple(sentence)
             elif sentence.domain == 'compound':
-                sentence.contents = make_compound(sentence.topic)
+                sentence = make_compound(sentence, random.choice(message.keywords))
 
         print sentence.contents
     return reply
