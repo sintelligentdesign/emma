@@ -96,19 +96,21 @@ class Word:
     Defines a word and its attributes
 
     Class variables:
-    word          str     String representation of the Word
-    lemma         str     String representation of the root form of the Word
-    partOfSpeech  str     Penn Treebank II part-of-speech tag
-    chunk         str     Part of the Sentence (noun-phrase, verb-phrase, etc.)
-    subjectObject str     If the Word is a noun, this indicates whether it is the subject or object of the Sentence
+    word            str     String representation of the Word
+    lemma           str     String representation of the root form of the Word
+    partOfSpeech    str     Penn Treebank II part-of-speech tag
+    chunk           str     Part of the Sentence (noun-phrase, verb-phrase, etc.)
+    subjectObject   str     If the Word is a noun, this indicates whether it is the subject or object of the Sentence
+    index           int     The word's position in the sentence (1-indexed)
     """
 
-    def __init__(self, word):
+    def __init__(self, word, index):
         self.word = word[0]
         self.lemma = word[5]
         self.partOfSpeech = word[3]
         self.chunk = word[2]
         self.subjectObject = word[4]
+        self.index = index
 
     def __str__(self): return self.word
 
@@ -117,17 +119,20 @@ class Sentence:
     Defines a sentence and its attributes, auto-generates and fills itself with Word objects
 
     Class variables:
-    sentence      str     String representation of the Sentence
-    words         list    Ordered list of Word objects in the Sentence
-    mood          float   Positive or negative sentiment in the Sentence
+    sentence        str     String representation of the Sentence
+    words           list    Ordered list of Word objects in the Sentence
+    mood            float   Positive or negative sentiment in the Sentence
+    length          int     Length of the sentence
     """
 
     def __init__(self, sentence):
         self.sentence = sentence
+        self.words = []
+        self.mood = add_mood_value(self.sentence)
+        self.length = int
 
         # Get a list of Word objects contained in the Sentence and put them in taggedWords
-        self.words = []
-        for word in pattern.en.parse(
+        for i, word in enumerate(pattern.en.parse(
             self.sentence,
             tokenize = False, 
             tags = True, 
@@ -135,11 +140,9 @@ class Sentence:
             relations = True, 
             lemmata = True, 
             encoding = 'utf-8'
-        ).split()[0]:
-            self.words.append(Word(word))
-
-        # Get the mood of the Sentence
-        self.mood = add_mood_value(self.sentence)
+        ).split()[0]):
+            self.words.append(Word(word, i+1))
+        self.length = len(self.words)
 
     def __str__(self): return self.sentence
 
