@@ -5,6 +5,14 @@ import sqlite3 as sql
 
 import logging
 
+def find_associations(message):
+    """Use pattern recognition to learn from a Message object"""
+    for sentence in message.sentences:
+        for word in sentence.words:
+            # Don't associate parts of speech we can't actually use
+            if word.partOfSpeech not in ['LS', 'SYM', 'UH', '.', ',', ':', '(', ')', 'FW']:
+                pass
+
 E = np.exp(1)
 RANKING_CONSTANT = 3.19722457734
 def calculate_new_weight(currentWeight):
