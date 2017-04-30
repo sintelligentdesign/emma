@@ -25,10 +25,7 @@ class Sentence:
         self.topic = str
         # TODO: stuff with plurality
         #self.plurality = False
-        self.contents = []
-
-    def __str__(self):
-        return self.sentence
+        self.contents = ['something']
 
 class SBBHaveHas:
     def __init__(self):
@@ -93,7 +90,7 @@ def make_simple(topic, sentence):
 
     # Decide whether to add an article
     if random.choice([True, False]):
-            sentence.contents.append(SBBArticle)
+            sentence.contents += SBBArticle()
 
     # Decide whether to add an adjective, and how many
     for i in range(random.randint(1, 2)):
@@ -106,7 +103,8 @@ def make_simple(topic, sentence):
                 sentence.contents.append(association.target)
 
     # Add the word
-    sentence.contents.append(topic)
+    print sentence
+    sentence.contents += topic
 
     return sentence
         
