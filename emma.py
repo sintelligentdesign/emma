@@ -23,7 +23,7 @@ connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
 # Set up logging level (this should go in misc.py but eh)
-logging.root.setLevel(logging.INFO)
+logging.root.setLevel(logging.DEBUG)
 
 # Pre-flight engine checks
 # Check for emma.db or create it if it isn't there
@@ -160,7 +160,7 @@ class Message:
         self.message = message
         self.sentences = []
         self.avgMood = int
-        self.keywords = pattern.vector.Document(self.message).keywords()
+        self.keywords = []
 
         # Get a list of Sentence objects contained in the Message and put them in taggedSentences
         for sentence in pattern.en.parse(
@@ -180,37 +180,25 @@ class Message:
             moods.append(sentence.mood)
         self.avgMood = sum(moods) / len(moods)
 
+        # Use pattern.vector to find keywords
+        # TODO: pattern.vector also returns the strength of the keywords. We should do something with this in the future
+        for keyword in pattern.vector.Document(self.message).keywords():
+            self.keywords.append(keyword[1])
+        # If pattern.vector couldn't find any keywords, use the old method
+        if self.keywords == []:
+            logging.warning("No keywords detected by pattern.en, using old method...")
+            for sentence in self.sentences:
+                for word in sentence.words:
+                    if word.partOfSpeech in misc.nounCodes and word.lemma not in self.keywords:
+                        self.keywords.append(word.lemma)
+        # If we still don't have any keywords, that's bad
+        if self.keywords == []:
+            logging.error("No keywords detected in message! This will cause a critical failure when we try to reply!")
+
     def __str__(self): return self.message
 
-def filter_message(messageText):
-    """Make it easier for the computer to read messages (and also screen out banned words)"""
-    # Add punctuation is it isn't already present
-    if messageText[-1] not in [u'!', u'?', u'.']:
-        messageText += u"."
-
-    # Translate internet slang and remove bad words
-    filtered = []
-    for word in messageText.split(' '):
-        if word.lower() in misc.netspeak.keys():
-            logging.debug("Translating \'%s\' from net speak..." % word)
-            filtered.append(misc.netspeak[word.lower()])
-        elif word.lower() in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
-            logging.debug("Replacing \"n\'t\" with \"not\"...")
-            filtered.append(u'not')
-        elif word == "\"":
-            pass
-        elif word.lower() in pattern.en.wordlist.PROFANITY:
-            pass
-        else:
-            filtered.append(word)
-    filteredText = ' '.join(filtered)
-
-    return filteredText
-
-def train(messageText, sender="You"):
+def train(message, sender="You"):
     """Read a message as a string, learn from it, store what we learned in the database"""
-    message = Message(filter_message(messageText))
-
     logging.info("Consuming message...")
     message = pronouns.determine_pronoun_references(message)
     message = pronouns.determine_posessive_references(message, sender)
@@ -241,22 +229,66 @@ def train(messageText, sender="You"):
 
 # Read a message as a Message object and reply to it
 class Association:
-    # note for self: does there need to be an option or word being a Word object? couldn't the program just pass Word.lemma or something
-    def __init__(self, word):
-        if type(word) == "str":
-            # Handle as string
-            pass
-        else:
-            # Handle as Word object
-            pass
+    def __init__(self, word, associationType, target, weight):
+        self.word = word
+        self.target = target
+        self.associationType = associationType
+        self.weight = weight
 
 def reply(message):
-    # Look up ImportantWords and Questions
-    # Find their associations/answers
+    """Replies to a Message object using the associations we built using train()"""
+    logging.info("Creating reply...")
+
+    # Look up what we know about the keywords in the message
+    logging.info("Finding associations for keywords...")
+    logging.debug("Keywords: {0}".format(', '.join(message.keywords)))
+
+    associations = []
+    for keyword in message.keywords:
+        logging.debug("Finding associations for \'%s\'..." % keyword)
+        with connection:
+            cursor.execute('SELECT * FROM associationmodel WHERE word = \"%s\" OR target = \"%s\";' % (keyword, keyword))
+            SQLReturn = cursor.fetchall()
+            for row in SQLReturn:
+                associations.append(Association(row[0], row[1], row[2], row[3]))
+
+    logging.info("Found {0} associations.".format(len(associations)))
+
     # Generate a reply
-    return
+    reply = ""
+    return reply
+
+def filter_message(messageText):
+    """Make it easier for the computer to read messages (and also screen out banned words)"""
+    # Add punctuation is it isn't already present
+    if messageText[-1] not in [u'!', u'?', u'.']:
+        messageText += u"."
+
+    # Translate internet slang and remove bad words
+    filtered = []
+    for word in messageText.split(' '):
+        if word.lower() in misc.netspeak.keys():
+            logging.debug("Translating \'%s\' from net speak..." % word)
+            filtered.append(misc.netspeak[word.lower()])
+        elif word.lower() in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
+            logging.debug("Replacing \"n\'t\" with \"not\"...")
+            filtered.append(u'not')
+        elif word == "\"":
+            pass
+        elif word.lower() in pattern.en.wordlist.PROFANITY:
+            pass
+        else:
+            filtered.append(word)
+    filteredText = ' '.join(filtered)
+
+    return filteredText
 
 # Input is stored as a Message object
+# TODO: This will all live in a main function eventually
 if flags.useTestingStrings: inputText = random.choice(flags.testingStrings)
 else: inputText = raw_input("Message >> ")
-train(inputText)
+
+message = Message(filter_message(inputText))
+logging.debug("Message: %s" % message.message)
+train(message)
+print reply(message)
