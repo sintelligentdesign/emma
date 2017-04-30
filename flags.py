@@ -1,5 +1,5 @@
 # Testing Strings
-useTestingStrings = True
+useTestingStrings = False
 testingStringType = 'simple'
 
 testingStringsSimple = [
@@ -10,8 +10,8 @@ testingStringsSimple = [
     u"The quick brown fox jumped over the lazy dog."
 ]
 
-if testingStringType = 'simple':
+if testingStringType == 'simple':
     testingStrings = testingStringsSimple
-elif testingStringType = 'fuzz':
+elif testingStringType == 'fuzz':
     with open('utils/questions.txt', 'r') as file:
         testingStrings = '\n'.split(file)

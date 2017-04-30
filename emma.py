@@ -107,7 +107,7 @@ class Word:
     def __init__(self, word, index):
         self.word = word[0]
         self.lemma = word[5]
-        self.partOfSpeech = word[3]
+        self.partOfSpeech = word[1]
         self.chunk = word[2]
         self.subjectObject = word[4]
         self.index = index
@@ -171,7 +171,7 @@ class Message:
             relations = False, 
             lemmata = False, 
             encoding = 'utf-8'
-        ).split('\n'): 
+        ).split('\n'):
             self.sentences.append(Sentence(sentence))
 
         # Average Sentence moods and record the value
@@ -222,16 +222,16 @@ def train(messageText, sender="You"):
         # Compare them against each word from the message
         for sentence in message.sentences:
             for word in sentence.words:
-                # If it's a word we don't have in the database, add it
-                if word.lemma not in [knownWord[0] for knownWord in knownWords if word.lemma == knownWord[0]]:
-                    logging.info("Learned new word: \'%s\'!" % word.lemma)
-                    knownWords.append((word.lemma, word.partOfSpeech))
-                    with connection:
-                        cursor.execute('INSERT INTO dictionary VALUES (\"%s\", \"%s\", 0);' % (re.escape(word.lemma), word.partOfSpeech))
+                if word.partOfSpeech not in misc.trashPOS:
+                    # If it's a word we don't have in the database, add it
+                    if word.lemma not in [knownWord[0] for knownWord in knownWords if word.lemma == knownWord[0]]:
+                        logging.info("Learned new word: \'%s\'!" % word.lemma)
+                        knownWords.append((word.lemma, word.partOfSpeech))
+                        with connection:
+                            cursor.execute('INSERT INTO dictionary VALUES (\"%s\", \"%s\", 0);' % (re.escape(word.lemma), word.partOfSpeech))
 
-    # TODO: All of this
-    # Find associations
-    # Write to db
+    logging.info("Finding associations...")
+    associationtrainer.find_associations(message)
 
 # Read a message as a Message object and reply to it
 class Association:
@@ -252,5 +252,5 @@ def reply(message):
 
 # Input is stored as a Message object
 if flags.useTestingStrings: inputText = random.choice(flags.testingStrings)
-else: inputText = input("Message >> ")
+else: inputText = raw_input("Message >> ")
 train(inputText)

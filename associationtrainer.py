@@ -55,7 +55,7 @@ def find_associations(message):
     for sentence in message.sentences:
         for word in sentence.words:
             # Don't associate parts of speech we can't actually use
-            if word.partOfSpeech not in ['LS', 'SYM', 'UH', '.', ',', ':', '(', ')', 'FW']:
+            if word.partOfSpeech not in misc.trashPOS:
                 # Check for words behind the word we're on
                 if sentence.length - word.index > 0:
                     # Check for words in front of the word we're on
@@ -67,11 +67,11 @@ def find_associations(message):
                                     for nextWord in sentence.words[word.index+1:-1]:
                                         # NP + 'be' + ADJP >> NN HAS-PROPERTY JJ (milk is white >> milk HAS-PROPERTY white)
                                         if nextWord.partOfSpeech in misc.adjectiveCodes:
-                                            add_association(sentence.words[word.index-1].lemma, nextWord.lemma, 'HAS-PROPERTY')
+                                            train_association(sentence.words[word.index-1].lemma, 'HAS-PROPERTY', nextWord.lemma)
 
                                         # NP + 'be' + NP >> NN IS-A NN (a dog is an animal >> dog IS-A animal)
                                         elif nextWord.partOfSpeech in misc.nounCodes:
-                                            add_association(sentence.words[word.index-1].lemma, nextWord.lemma, "IS-A")
+                                            train_association(sentence.words[word.index-1].lemma, "IS-A", nextWord.lemma)
                                             # A noun should be the last word in this pattern, so
                                             break
 
@@ -86,7 +86,7 @@ def find_associations(message):
                             pass
                         
                         # NP + 'has' + NP >> NN HAS NN (People have two hands >> People HAS hands)
-                        if word.lemma = u'have' and "NP" in sentence.words[word.index-1].chunk and "NP" in sentence.words[word.index+1].chunk:
+                        if word.lemma == u'have' and "NP" in sentence.words[word.index-1].chunk and "NP" in sentence.words[word.index+1].chunk:
                             pass
                         # VB + obj >> VB HAS-OBJECT NN (This button releases the hounds. >> release HAS-OBJECT hound)
                         if "OBJ" in word.subjectObject and word.partOfSpeech in misc.nounCodes:
