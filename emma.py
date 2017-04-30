@@ -182,17 +182,18 @@ class Message:
             moods.append(sentence.mood)
         self.avgMood = sum(moods) / len(moods)
 
-        # Use pattern.vector to find keywords
-        # TODO: pattern.vector also returns the strength of the keywords. We should do something with this in the future
+        # Use pattern.vector to find keywords. Keywords are returned as (weight, keyword) tuples
         for keyword in pattern.vector.Document(self.message).keywords():
-            self.keywords.append(keyword[1])
+            self.keywords.append(keyword)
+
         # If pattern.vector couldn't find any keywords, use the old method
         if self.keywords == []:
-            logging.warning("No keywords detected by pattern.en, using old method...")
+            logging.warning("No keywords detected by pattern.en. Using old method...")
             for sentence in self.sentences:
                 for word in sentence.words:
                     if word.partOfSpeech in misc.nounCodes and word.lemma not in self.keywords:
-                        self.keywords.append(word.lemma)
+                        self.keywords.append((1.0, word.lemma))
+
         # If we still don't have any keywords, that's bad
         if self.keywords == []:
             logging.error("No keywords detected in message! This will cause a critical failure when we try to reply!")
@@ -229,41 +230,6 @@ def train(message, sender="You"):
     logging.info("Finding associations...")
     associationtrainer.find_associations(message)
 
-# Read a message as a Message object and reply to it
-class Association:
-    def __init__(self, word, associationType, target, weight):
-        self.word = word
-        self.target = target
-        self.associationType = associationType
-        self.weight = weight
-
-def reply(message):
-    """Replies to a Message object using the associations we built using train()"""
-    logging.info("Creating reply...")
-
-    # Look up what we know about the keywords in the message
-    logging.info("Finding associations for keywords...")
-
-    if len(message.keywords) > 0:
-        logging.debug("Keywords: {0}".format(', '.join(message.keywords)))
-
-        associations = []
-        for keyword in message.keywords:
-            logging.debug("Finding associations for \'{0}\'...".format(keyword))
-            with connection:
-                cursor.execute('SELECT * FROM associationmodel WHERE word = \"{0}\" OR target = \"{1}\";'.format(keyword, keyword))
-                SQLReturn = cursor.fetchall()
-                for row in SQLReturn:
-                    associations.append(Association(row[0], row[1], row[2], row[3]))
-
-        logging.info("Found {0} associations.".format(len(associations)))
-    else:
-        raise IndexError('reply(): No keywords in Message object. Sentence generation failed.')
-
-    # Actually build the reply
-    reply = replybuilder.build_reply(associations)
-    return reply
-
 def filter_message(messageText):
     """Make it easier for the computer to read messages (and also screen out banned words)"""
     # Add punctuation is it isn't already present
@@ -298,6 +264,6 @@ message = Message(filter_message(inputText))
 logging.debug("Message: {0}".format(message.message))
 train(message)
 try:
-    print reply(message)
+    print replybuilder.reply(message)
 except ValueError as error:
     logging.error(error)
