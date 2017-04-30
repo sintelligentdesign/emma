@@ -4,6 +4,8 @@ import re
 
 import sqlite3 as sql
 
+import misc
+
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
@@ -16,12 +18,27 @@ class SBBWord:
             cursor.execute('SELECT part_of_speech FROM dictionary WHERE word = \"{0}\";'.format(self.word))
             SQLReturn = cursor.fetchall()
             self.partOfSpeech = SQLReturn[0]
+            
+class Sentence:
+    def __init__(self):
+        self.domain = str
+        self.topic = str
+        # TODO: stuff with plurality
+        #self.plurality = False
+        self.contents = []
+
+    def __str__(self):
+        return self.sentence
 
 class SBBHaveHas:
     def __init__(self):
         pass
 
 class SBBIsAre:
+    def __init__(self):
+        pass
+
+class SBBArticle:
     def __init__(self):
         pass
 
@@ -48,6 +65,19 @@ def find_associations(keyword):
             associations.append(Association(row[0], row[1], row[2], row[3]))
     return associations
 
+def find_part_of_speech(keyword):
+    """Looks in our dictionary for the part of speech of a given keyword"""
+    # TODO: Make this able to handle words with more than one usage
+    logging.debug("Looking up \"{0}\" in the dictionary...".format(keyword))
+    with connection:
+        cursor.execute('SELECT part_of_speech FROM dictionary WHERE word = \"{0}\";'.format(keyword))
+        SQLReturn = cursor.fetchall()
+        if SQLReturn:
+            return SQLReturn[0]
+        else:
+            return "NN"
+
+# TODO: Random choices should be influenced by mood or other
 def make_declarative(topic):
     pass
 
@@ -57,19 +87,34 @@ def make_imperative(topic):
 def make_interrogative(topic):
     pass
 
-def make_simple(topic):
-    pass
+def make_simple(topic, sentence):
+    # Look for adjectives to describe the object
+    associations = find_associations(topic)
 
+    # Decide whether to add an article
+    if random.choice([True, False]):
+            sentence.contents.append(SBBArticle)
+
+    # Decide whether to add an adjective, and how many
+    for i in range(random.randint(1, 2)):
+        adjectiveAssociations = []
+        for association in associations:
+            if association.associationType == "HAS-PROPERTY" and association.word == topic:
+                adjectiveAssociations.append((association.weight, association))
+        if len(adjectiveAssociations) > 0:
+            if random.choice([True, False]):
+                sentence.contents.append(association.target)
+
+    # Add the word
+    sentence.contents.append(topic)
+
+    return sentence
+        
 def make_compound(topic1, topic2):
     pass
 
 def make_greeting():
     pass
-
-class Sentence:
-    def __init__(self):
-        self.domain = str
-        self.topic = str
 
 class Association:
     def __init__(self, word, associationType, target, weight):
@@ -103,7 +148,7 @@ def reply(message):
     logging.debug("Keywords: {0}".format(str(message.keywords)))
     for i, sentence in enumerate(reply):
         logging.debug("Choosing topic for sentence {0}...".format(i))
-        sentence.topic = weighted_roll(message.keywords)
+        sentence.topic = random.choice(message.keywords)
 
         # Look up associations for the keyword
         logging.debug("Choosing domain for sentence {0}...".format(i))
@@ -111,6 +156,8 @@ def reply(message):
 
         # Choose a domain based on the associations
         # Decide what domains are valid to be chosen
+        # Interrogative is always valid, so the list starts with it prepopulated
+        domains = ['interrogative']
         canBeDeclarative = False
         canBeImperative = False
         for association in associations:
@@ -118,31 +165,32 @@ def reply(message):
                 canBeDeclarative = True
             if association.associationType == "HAS-ABILITY-TO":
                 canBeImperative = True
-
-        # Choose a domain from the set of valid domains
-        domains = ['simple', 'interrogative', compound]
         if canBeDeclarative:
             domains.append('declarative')
         if canBeImperative:
             domains.append('imperative')
-        if len(associations) > 1:
-            domains.append('compound')
+        if find_part_of_speech(sentence.topic) in misc.nounCodes:
+            domains.append('simple')
+            if len(associations) > 1:
+                domains.append('compound')
 
-        sentence.domain = random.choice(domains)
+        #sentence.domain = random.choice(domains)
+        sentence.domain = 'simple'
         logging.debug("Chose {0}".format(sentence.domain))
 
-    # Build sentence structures
-    logging.info("Building sentence structures...")
-    for i, sentence in enumerate(reply):
-        if sentence.domain == 'declarative':
-            pass
-        elif sentence.domain == 'imperative':
-            pass
-        elif sentence.domain == 'interrogative':
-            pass
-        elif sentence.domain == 'simple':
-            pass
-        elif sentence.domain == 'compound':
-            pass
+        # Build sentence structures
+        logging.info("Building sentence structures...")
+        for i, sentence in enumerate(reply):
+            if sentence.domain == 'declarative':
+                sentence.contents = make_declarative(sentence.topic)
+            elif sentence.domain == 'imperative':
+                sentence.contents = make_imperative(sentence.topic)
+            elif sentence.domain == 'interrogative':
+                sentence.contents = make_interrogative(sentence.topic)
+            elif sentence.domain == 'simple':
+                sentence.contents = make_simple(sentence.topic, sentence)
+            elif sentence.domain == 'compound':
+                sentence.contents = make_compound(sentence.topic)
 
+        print sentence.contents
     return reply

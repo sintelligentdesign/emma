@@ -114,7 +114,8 @@ class Word:
         self.subjectObject = word[4]
         self.index = index
 
-    def __str__(self): return self.word
+    def __str__(self): 
+        return self.word
 
 class Sentence:
     """
@@ -146,7 +147,8 @@ class Sentence:
             self.words.append(Word(word, i))
         self.length = len(self.words)
 
-    def __str__(self): return self.sentence
+    def __str__(self): 
+        return self.sentence
 
 class Message:
     """
@@ -182,8 +184,9 @@ class Message:
             moods.append(sentence.mood)
         self.avgMood = sum(moods) / len(moods)
 
-        # Use pattern.vector to find keywords. Keywords are returned as (weight, keyword) tuples
+        # Use pattern.vector to find keywords
         for keyword in pattern.vector.Document(self.message).keywords():
+            keyword = pattern.en.lemma(keyword[1])
             self.keywords.append(keyword)
 
         # If pattern.vector couldn't find any keywords, use the old method
@@ -192,13 +195,14 @@ class Message:
             for sentence in self.sentences:
                 for word in sentence.words:
                     if word.partOfSpeech in misc.nounCodes and word.lemma not in self.keywords:
-                        self.keywords.append((1.0, word.lemma))
+                        self.keywords.append(word.lemma)
 
         # If we still don't have any keywords, that's bad
         if self.keywords == []:
             logging.error("No keywords detected in message! This will cause a critical failure when we try to reply!")
 
-    def __str__(self): return self.message
+    def __str__(self): 
+        return self.message
 
 def train(message, sender="You"):
     """Read a message as a string, learn from it, store what we learned in the database"""
@@ -245,7 +249,7 @@ def filter_message(messageText):
         elif word.lower() in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
             logging.debug("Replacing \"n\'t\" with \"not\"...")
             filtered.append(u'not')
-        elif word == "\"":
+        elif word == u'"':
             pass
         elif word.lower() in pattern.en.wordlist.PROFANITY:
             pass
@@ -260,7 +264,7 @@ def filter_message(messageText):
 if flags.useTestingStrings: inputText = random.choice(flags.testingStrings)
 else: inputText = raw_input("Message >> ")
 
-message = Message(filter_message(inputText))
+message = Message(filter_message(inputText.decode('utf-8')))
 logging.debug("Message: {0}".format(message.message))
 train(message)
 try:
