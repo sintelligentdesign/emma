@@ -36,3 +36,8 @@ netspeak = {
     u'ur': [u'your'],
     u'yea': [u'yeah']
 }
+
+nounCodes = ['NN', 'NNS', 'NNP', 'NNPS']
+verbCodes = ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']
+adjectiveCodes = ['JJ', 'JJR', 'JJS']
+adverbCodes = ['RB', 'RBR', 'RBS', 'RP']
