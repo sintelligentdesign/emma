@@ -16,7 +16,7 @@ def show_database_stats():
         associationModelItems = "{:,d}".format(len(cursor.fetchall()))
         cursor.execute("SELECT * FROM dictionary")
         dictionaryItems = "{:,d}".format(len(cursor.fetchall()))
-    print "Database contains %s associations for %s words." % (associationModelItems, dictionaryItems)
+    print "Database contains {0} associations for {1} words.".format(associationModelItems, dictionaryItems)
 
 # Weird variables and lists
 netspeak = {

@@ -34,21 +34,21 @@ def train_association(word, associationType, target):
 
         # Check to see if the association already exists
         with connection:
-            cursor.execute('SELECT * FROM associationmodel WHERE word = \"%s\" AND association_type = \"%s\" AND target = \"%s\";' % (word.encode('utf-8'), associationType, target.encode('utf-8')))
+            cursor.execute('SELECT * FROM associationmodel WHERE word = \"{0}\" AND association_type = \"{1}\" AND target = \"{2}\";'.format(word.encode('utf-8'), associationType, target.encode('utf-8')))
             SQLReturn = cursor.fetchall()
             if SQLReturn:
                 # Association already exists, so we strengthen it
                 weight = calculate_new_weight(SQLReturn[0][3])
                 with connection:
-                    cursor.execute('UPDATE associationmodel SET weight = \"%s\" WHERE word = \"%s\" AND association_type = \"%s\" AND target = \"%s\";' % (weight, word.encode('utf-8'), associationType, target.encode('utf-8')))
-                logging.info("Strengthened association \"%s %s %s\"" % (word, associationType, target))
+                    cursor.execute('UPDATE associationmodel SET weight = \"{0}\" WHERE word = \"{1}\" AND association_type = \"{2}\" AND target = \"{3}\";'.format(weight, word.encode('utf-8'), associationType, target.encode('utf-8')))
+                logging.info("Strengthened association \"{0} {1} {2}\"".format(word, associationType, target))
             else:
                 # Association does not exist, so add it
                 # This is the weight calculated for all new associations
                 weight = 0.0999999999997
                 with connection:
-                    cursor.execute('INSERT INTO associationmodel(word, association_type, target, weight) VALUES (\"%s\", \"%s\", \"%s\", \"%s\");' % (word.encode('utf-8'), associationType, target.encode('utf-8'), weight))
-                logging.info("Found new association \"%s %s %s\"" % (word, associationType, target))
+                    cursor.execute('INSERT INTO associationmodel(word, association_type, target, weight) VALUES (\"{0}\", \"{1}\", \"{2}\", \"{3}\");'.format(word.encode('utf-8'), associationType, target.encode('utf-8'), weight))
+                logging.info("Found new association \"{0} {1} {2}\"".format(word, associationType, target))
 
 def find_associations(message):
     """Use pattern recognition to learn from a Message object"""
