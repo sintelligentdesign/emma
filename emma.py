@@ -305,6 +305,19 @@ while True:
     ask = Message(ask)
     logging.debug("Message: {0}".format(ask))
 
+    # Skim the ask for bad words
+    with open('bannedwords.txt', 'r') as bannedWords:
+        bannedWords = bannedWords.read()
+        bannedWords = bannedWords.split('\n')
+        for sentence in ask.sentences:
+            for word in sentence.words:
+                # If we find bad words, toss out the ask
+                if word.lemma in bannedWords:
+                    client.delete_post(
+                        blogName,
+                        ask.askid
+                    )
+
     # Learn from and reply to the ask
     train(ask)
     reply = replybuilder.reply(ask)
@@ -319,10 +332,6 @@ while True:
         state = 'published',
         tags = ['dialogue', ask.asker, express_mood(calculate_mood())],
         type = 'answer'
-    )
-    client.delete_post(
-        blogName,
-        ask.askid
     )
 
     # Sleep for 15 minutes
