@@ -241,18 +241,22 @@ def reply(message):
 
     # Look up what we know about the keywords in the message
     logging.info("Finding associations for keywords...")
-    logging.debug("Keywords: {0}".format(', '.join(message.keywords)))
 
-    associations = []
-    for keyword in message.keywords:
-        logging.debug("Finding associations for \'%s\'..." % keyword)
-        with connection:
-            cursor.execute('SELECT * FROM associationmodel WHERE word = \"%s\" OR target = \"%s\";' % (keyword, keyword))
-            SQLReturn = cursor.fetchall()
-            for row in SQLReturn:
-                associations.append(Association(row[0], row[1], row[2], row[3]))
+    if len(message.keywords) > 0:
+        logging.debug("Keywords: {0}".format(', '.join(message.keywords)))
 
-    logging.info("Found {0} associations.".format(len(associations)))
+        associations = []
+        for keyword in message.keywords:
+            logging.debug("Finding associations for \'%s\'..." % keyword)
+            with connection:
+                cursor.execute('SELECT * FROM associationmodel WHERE word = \"%s\" OR target = \"%s\";' % (keyword, keyword))
+                SQLReturn = cursor.fetchall()
+                for row in SQLReturn:
+                    associations.append(Association(row[0], row[1], row[2], row[3]))
+
+        logging.info("Found {0} associations.".format(len(associations)))
+    else:
+        raise IndexError('reply(): No keywords in Message object. Sentence generation failed.')
 
     # Generate a reply
     reply = ""
@@ -291,4 +295,7 @@ else: inputText = raw_input("Message >> ")
 message = Message(filter_message(inputText))
 logging.debug("Message: %s" % message.message)
 train(message)
-print reply(message)
+try:
+    print reply(message)
+except ValueError as error:
+    logging.error(error)
