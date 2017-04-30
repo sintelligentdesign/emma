@@ -90,7 +90,22 @@ def find_part_of_speech(keyword):
 
 # TODO: Random choices should be influenced by mood or other
 def make_declarative(sentence):
-    pass
+    # Add subject
+    sentence = make_simple(sentence)
+
+    # Look for HAS, IS-A or HAS-ABILITY-TO associations 
+    associations = find_associations(sentence.topic)
+    hasAssociations = []
+    isaAssociations = []
+    hasabilitytoAssociations = []
+    for association in associations:
+        if association.associationType == "HAS" and association.word == sentence.topic:
+            hasAssociations.append((association.weight, association))
+        elif association.associationType == "IS-A" and association.word == sentence.topic:
+            isaAssociations.append((association.weight, association))
+
+    # See if we have HAS or IS-A associations handy
+    # TODO
 
 def make_imperative(sentence):
     pass
@@ -105,6 +120,7 @@ def make_interrogative(sentence):
 
     # Add on the subject
     sentence = make_simple(sentence)
+    logging.debug("Reply (in progress): {0}".format(str(sentence.contents)))
     return sentence
 
 def make_simple(sentence):
@@ -116,20 +132,40 @@ def make_simple(sentence):
         sentence.contents.append(SBBArticle())
 
     # See if we have any adjective associations handy
-    adjectiveAssociations = []
+    haspropertyAssociations = []
     for association in associations:
         if association.associationType == "HAS-PROPERTY" and association.word == sentence.topic:
-            adjectiveAssociations.append((association.weight, association))
+            haspropertyAssociations.append((association.weight, association))
 
     # If we do, put them all in a list and have a chance to add some to the sentence
-    # TODO: Handle duplicates
-    if len(adjectiveAssociations) > 0:
-            for i in range(random.randint(0, 2)):
-                sentence.contents.append(weighted_roll(adjectiveAssociations).target)
+    if len(haspropertyAssociations) > 0:
+            # Add adjective(s)
+            if len(haspropertyAssociations) > 1:
+                for i in range(random.randint(0, 2)):
+                    sentence.contents.append(weighted_roll(haspropertyAssociations).target)
+            else:
+                sentence.contents.append(weighted_roll(haspropertyAssociations).target)
+            # Add the word
+            sentence.contents.append(sentence.topic)
+            """
+            # Alternate template that might live in make_declarative() later
+            # Add the word
+            sentence.contents.append(sentence.topic)
+            # Add is/are
+            sentence.contents.append(SBBIsAre)
+            # Add an adjective
+            sentence.contents.append(weighted_roll(haspropertyAssociations).target)
+            # We can go one step further
+            if random.choice([True, False]) and len(haspropertyAssociations) > 1:
+                sentence.contents.append(u'and')
+                sentence.contents.append(weighted_roll(haspropertyAssociations).target)
+            """
+    else:
+        # If we have no adjectives, just add the word
+        sentence.contents.append(sentence.topic)
 
-    # Add the word
-    sentence.contents.append(sentence.topic)
 
+    logging.debug("Reply (in progress): {0}".format(str(sentence.contents)))
     return sentence
         
 def make_compound(sentence, altTopic):
@@ -153,6 +189,7 @@ def make_compound(sentence, altTopic):
     # Paste the second half of the sentence onto the first half
     sentence.contents.extend(shellSentence.contents)
 
+    logging.debug("Reply (in progress): {0}".format(str(sentence.contents)))
     return sentence
 
 def make_greeting():
@@ -184,11 +221,11 @@ def reply(message):
     logging.debug("Message has {0} keywords".format(len(message.keywords)))
     logging.debug("Keywords: {0}".format(str(message.keywords)))
     for i, sentence in enumerate(reply):
-        logging.debug("Choosing topic for sentence {0}...".format(i))
+        logging.debug("Choosing topic for sentence {0}...".format(i+1))
         sentence.topic = random.choice(message.keywords)
 
         # Look up associations for the keyword
-        logging.debug("Choosing domain for sentence {0}...".format(i))
+        logging.debug("Choosing domain for sentence {0}...".format(i+1))
         associations = find_associations(sentence.topic)
 
         # Choose a domain based on the associations
@@ -204,10 +241,10 @@ def reply(message):
                 validDomains['declarative'] = True
             if association.associationType == "HAS-ABILITY-TO":
                 validDomains['imperative'] = True
-        if find_part_of_speech(sentence.topic) in misc.nounCodes:
-            validDomains['simple'] = True
-            if len(associations) > 1:
-                validDomains['compound'] = True
+            if association.associationType == "HAS-PROPERTY":
+                validDomains['simple'] = True
+        if validDomains['simple'] and len(associations) > 1:
+            validDomains['compound'] = True
 
         # Interrogative is always valid, so the list starts with it prepopulated
         domains = ['interrogative']
@@ -220,23 +257,21 @@ def reply(message):
         if validDomains['compound']:
             domains.append('compound')
 
-        #sentence.domain = random.choice(domains)
-        sentence.domain = 'interrogative'
+        sentence.domain = random.choice(domains)
+        #sentence.domain = 'simple'
+        logging.debug("Valid domains: {0}".format(str(domains)))
         logging.debug("Chose {0}".format(sentence.domain))
 
         # Build sentence structures
-        logging.info("Building sentence structures...")
-        for i, sentence in enumerate(reply):
-            if sentence.domain == 'declarative':
-                sentence = make_declarative(sentence)
-            elif sentence.domain == 'imperative':
-                sentence = make_imperative(sentence)
-            elif sentence.domain == 'interrogative':
-                sentence = make_interrogative(sentence)
-            elif sentence.domain == 'simple':
-                sentence = make_simple(sentence)
-            elif sentence.domain == 'compound':
-                sentence = make_compound(sentence, random.choice(message.keywords))
-
-        print sentence.contents
+        logging.info("Building {0} structure for sentence {1} of {2}...".format(sentence.domain, i+1, len(reply)))
+        if sentence.domain == 'declarative':
+            sentence = make_declarative(sentence)
+        elif sentence.domain == 'imperative':
+            sentence = make_imperative(sentence)
+        elif sentence.domain == 'interrogative':
+            sentence = make_interrogative(sentence)
+        elif sentence.domain == 'simple':
+            sentence = make_simple(sentence)
+        elif sentence.domain == 'compound':
+            sentence = make_compound(sentence, random.choice(message.keywords))
     return reply
