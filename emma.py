@@ -3,16 +3,19 @@ import pickle
 import logging
 import os
 import re
+import cgi
 
 import pattern.en
 import pattern.vector
 import sqlite3 as sql
+import pytumblr
 
 import flags
 import pronouns
 import associationtrainer
 import replybuilder
 import misc
+import apikeys
 
 # Dumb chrome
 misc.show_emma_banner()
@@ -271,3 +274,58 @@ try:
     print replybuilder.reply(message)
 except ValueError as error:
     logging.error(error)
+
+"""
+class Ask:
+    def __init__(self, ask, asker, askid):
+        self.ask = ask
+        self.asker = asker
+        self.askid = askid
+
+# Authenticate with Tumblr API
+client = pytumblr.TumblrRestClient(
+    apikeys.tumblrConsumerKey,
+    apikeys.tumblrConsumerSecret,
+    apikeys.tumblrOauthToken,
+    apikeys.tumblrOauthSecret
+)
+blogName = 'emmacanlearn'
+
+while True:
+    logging.info("Checking Tumblr messages...")
+    response = client.submission(blogName)
+    asks = []
+    for ask in response['posts']:
+        asks.append(Ask(ask['question'], ask['asking_name'], ask['id']))
+
+    # Choose an ask to answer
+    ask = random.choice(asks)
+    ask = ask.decode('utf-8')
+    ask = filter_message(ask)
+    ask = Message(ask)
+    logging.debug("Message: {0}".format(ask))
+
+    # Learn from and reply to the ask
+    train(ask)
+    reply = replybuilder.reply(ask)
+    reply = cgi.escape(reply)
+    logging.info("Reply: {0}".format(reply))
+
+    # Post the reply to Tumblr
+    client.edit_post(
+        blogName,
+        id = ask.askid,
+        answer = reply.encode('utf-8'),
+        state = 'published',
+        tags = ['dialogue', ask.asker, express_mood(calculate_mood())],
+        type = 'answer'
+    )
+    client.delete_post(
+        blogName,
+        ask.askid
+    )
+
+    # Sleep for 15 minutes
+    logging.info("Sleeping for 15 minutes...")
+    time.sleep(900)
+"""
