@@ -11,6 +11,7 @@ import sqlite3 as sql
 import flags
 import pronouns
 import associationtrainer
+import replybuilder
 import misc
 
 # Dumb chrome
@@ -259,8 +260,8 @@ def reply(message):
     else:
         raise IndexError('reply(): No keywords in Message object. Sentence generation failed.')
 
-    # Generate a reply
-    reply = ""
+    # Actually build the reply
+    reply = replybuilder.build_reply(associations)
     return reply
 
 def filter_message(messageText):
