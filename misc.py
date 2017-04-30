@@ -1,7 +1,7 @@
 import sqlite3 as sql
 
 # Metadata
-versionNumber = "2.0.0-Alpha-3"
+versionNumber = "2.0.0-Alpha-4"
 
 # Chrome
 def show_emma_banner():
@@ -34,6 +34,7 @@ netspeak = {
     u'tbh': [u'to', u'be', u'honest'],
     u'u': [u'you'],
     u'ur': [u'your'],
+    u'yr': [u'your'],
     u'yea': [u'yeah']
 }
 
@@ -42,4 +43,4 @@ verbCodes = ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']
 adjectiveCodes = ['JJ', 'JJR', 'JJS']
 adverbCodes = ['RB', 'RBR', 'RBS', 'RP']
 
-trashPOS = ['LS', 'SYM', 'UH', '.', ',', ':', '(', ')', 'FW']
+trashPOS = ['LS', 'SYM', 'UH', '.', ',', ':', '"' '(', ')', 'FW']

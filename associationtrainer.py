@@ -38,7 +38,7 @@ def train_association(word, associationType, target):
             SQLReturn = cursor.fetchall()
             if SQLReturn:
                 # Association already exists, so we strengthen it
-                weight = calculate_new_weight(SQLReturn[3])
+                weight = calculate_new_weight(SQLReturn[0][3])
                 with connection:
                     cursor.execute('UPDATE associationmodel SET weight = \"%s\" WHERE word = \"%s\" AND association_type = \"%s\" AND target = \"%s\";' % (weight, word.encode('utf-8'), associationType, target.encode('utf-8')))
                 logging.info("Strengthened association \"%s %s %s\"" % (word, associationType, target))
@@ -82,7 +82,7 @@ def find_associations(message):
                                             break
                         if "NP" in word.chunk and word.partOfSpeech in misc.nounCodes:
                             # NP containing JJ + NN >> NN HAS-PROPERTY JJ (the big house >> house HAS-PROPERTY big)
-                            for adjectiveCandidate in reversed(sentence.words[0, word.index]):
+                            for adjectiveCandidate in reversed(sentence.words[0:word.index]):
                                 if adjectiveCandidate.partOfSpeech in misc.adjectiveCodes:
                                     train_association(word.lemma, "HAS-PROPERTY", adjectiveCandidate.lemma)
                                 else:
@@ -98,7 +98,7 @@ def find_associations(message):
                         if word.partOfSpeech in misc.verbCodes:
                             # VP containing RB + VB >> RB HAS-PROPERTY VB (It quickly moves >> quickly HAS-PROPERTY moves)
                             if word.index != 0 and sentence.words[word.index-1].partOfSpeech in misc.adverbCodes:
-                                for propertyCandidate in reversed(sentence.words[0, word.index]):
+                                for propertyCandidate in reversed(sentence.words[0:word.index]):
                                     if propertyCandidate.partOfSpeech in misc.adverbCodes:
                                         train_association(word.lemma, "HAS-PROPERTY", propertyCandidate.lemma)
                         

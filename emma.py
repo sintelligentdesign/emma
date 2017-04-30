@@ -194,6 +194,9 @@ def filter_message(messageText):
         if word.lower() in misc.netspeak.keys():
             logging.debug("Translating \'%s\' from net speak..." % word)
             filtered.append(misc.netspeak[word.lower()])
+        elif word.lower() in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
+            logging.debug("Replacing \"n\'t\" with \"not\"...")
+            filtered.append(u'not')
         elif word.lower() in pattern.en.wordlist.PROFANITY:
             pass
         else:
@@ -226,6 +229,7 @@ def train(messageText, sender="You"):
                     # If it's a word we don't have in the database, add it
                     if word.lemma not in [knownWord[0] for knownWord in knownWords if word.lemma == knownWord[0]]:
                         logging.info("Learned new word: \'%s\'!" % word.lemma)
+                        logging.debug("Prev. word POS: \'%s\'" % word.partOfSpeech)
                         knownWords.append((word.lemma, word.partOfSpeech))
                         with connection:
                             cursor.execute('INSERT INTO dictionary VALUES (\"%s\", \"%s\", 0);' % (re.escape(word.lemma), word.partOfSpeech))
