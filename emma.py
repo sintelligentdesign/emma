@@ -197,6 +197,8 @@ def filter_message(messageText):
         elif word.lower() in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
             logging.debug("Replacing \"n\'t\" with \"not\"...")
             filtered.append(u'not')
+        elif word == "\"":
+            pass
         elif word.lower() in pattern.en.wordlist.PROFANITY:
             pass
         else:
