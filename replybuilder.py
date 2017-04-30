@@ -54,10 +54,13 @@ def make_declarative(topic):
 def make_imperative(topic):
     pass
 
-def make_phrase(topic):
+def make_interrogative(topic):
     pass
 
-def make_interrogative(topic):
+def make_simple(topic):
+    pass
+
+def make_compound(topic1, topic2):
     pass
 
 def make_greeting():
@@ -117,11 +120,13 @@ def reply(message):
                 canBeImperative = True
 
         # Choose a domain from the set of valid domains
-        domains = ['phrase', 'interrogative']
+        domains = ['simple', 'interrogative', compound]
         if canBeDeclarative:
             domains.append('declarative')
         if canBeImperative:
             domains.append('imperative')
+        if len(associations) > 1:
+            domains.append('compound')
 
         sentence.domain = random.choice(domains)
         logging.debug("Chose {0}".format(sentence.domain))
@@ -135,7 +140,9 @@ def reply(message):
             pass
         elif sentence.domain == 'interrogative':
             pass
-        elif sentence.domain == 'phrase':
+        elif sentence.domain == 'simple':
+            pass
+        elif sentence.domain == 'compound':
             pass
 
     return reply
