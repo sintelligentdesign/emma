@@ -21,10 +21,9 @@ class SBBWord:
             
 class Sentence:
     def __init__(self):
-        self.domain = str
-        self.topic = str
-        # TODO: stuff with plurality
-        #self.plurality = False
+        self.domain = ''
+        self.topic = ''
+        self.plurality = False
         self.contents = []
 
 class SBBHaveHas:
@@ -91,29 +90,29 @@ def make_imperative(topic):
 def make_interrogative(topic):
     pass
 
-def make_simple(topic, sentence):
+def make_simple(sentence):
     # Look for adjectives to describe the object
-    associations = find_associations(topic)
+    associations = find_associations(sentence.topic)
 
     # Decide whether to add an article
     if random.choice([True, False]):
-            sentence.contents += SBBArticle()
+        sentence.contents.append(SBBArticle())
 
-    # Decide whether to add an adjective, and how many
-    for i in range(random.randint(1, 2)):
-        adjectiveAssociations = []
-        for association in associations:
-            if association.associationType == "HAS-PROPERTY" and association.word == topic:
-                adjectiveAssociations.append((association.weight, association))
-        if len(adjectiveAssociations) > 0:
-            if random.choice([True, False]):
-                sentence.contents.append(association.target)
+    # See if we have any adjective associations handy
+    adjectiveAssociations = []
+    for association in associations:
+        if association.associationType == "HAS-PROPERTY" and association.word == sentence.topic:
+            adjectiveAssociations.append((association.weight, association))
+
+    # If we do, put them all in a list and have a chance to add some to the sentence
+    if len(adjectiveAssociations) > 0:
+            for i in range(random.randint(0, 2)):
+                sentence.contents.append(weighted_roll(adjectiveAssociations).target)
 
     # Add the word
-    print sentence
-    sentence.contents += topic
+    sentence.contents.append(sentence.topic)
 
-    return sentence
+    return sentence.contents
         
 def make_compound(topic1, topic2):
     pass
@@ -197,7 +196,7 @@ def reply(message):
             elif sentence.domain == 'interrogative':
                 sentence.contents = make_interrogative(sentence.topic)
             elif sentence.domain == 'simple':
-                sentence.contents = make_simple(sentence.topic, sentence)
+                sentence.contents = make_simple(sentence)
             elif sentence.domain == 'compound':
                 sentence.contents = make_compound(sentence.topic)
 
