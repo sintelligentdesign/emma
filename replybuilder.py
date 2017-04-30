@@ -25,7 +25,7 @@ class Sentence:
         self.topic = str
         # TODO: stuff with plurality
         #self.plurality = False
-        self.contents = ['something']
+        self.contents = []
 
 class SBBHaveHas:
     def __init__(self):
@@ -50,6 +50,13 @@ def weighted_roll(choices):
         dieResult -= choice[0]
         if dieResult <= 0:
             return choice[1]
+
+class Association:
+    def __init__(self, word, associationType, target, weight):
+        self.word = word
+        self.target = target
+        self.associationType = associationType
+        self.weight = weight
 
 def find_associations(keyword):
     """Finds associations in our association model for given keywords"""
@@ -113,13 +120,6 @@ def make_compound(topic1, topic2):
 
 def make_greeting():
     pass
-
-class Association:
-    def __init__(self, word, associationType, target, weight):
-        self.word = word
-        self.target = target
-        self.associationType = associationType
-        self.weight = weight
         
 def reply(message):
     """Replies to a Message object using the associations we built using train()"""
@@ -140,6 +140,8 @@ def reply(message):
         reply.append(Sentence())
     logging.debug("Generating {0} sentences...".format(sentences))
 
+    # TODO: Decide greetings
+
     # Choose the sentences' topics and domains
     logging.info("Choosing sentence topics and domains...")
     logging.debug("Message has {0} keywords".format(len(message.keywords)))
@@ -154,23 +156,32 @@ def reply(message):
 
         # Choose a domain based on the associations
         # Decide what domains are valid to be chosen
-        # Interrogative is always valid, so the list starts with it prepopulated
-        domains = ['interrogative']
-        canBeDeclarative = False
-        canBeImperative = False
+        validDomains = {
+            'declarative': False,
+            'imperative': False,
+            'simple': False,
+            'compound': False
+        }
         for association in associations:
             if association.associationType == 'HAS' or association.associationType == "IS-A" or association.associationType == "HAS-ABILITY-TO":
-                canBeDeclarative = True
+                validDomains['declarative'] = True
             if association.associationType == "HAS-ABILITY-TO":
-                canBeImperative = True
-        if canBeDeclarative:
-            domains.append('declarative')
-        if canBeImperative:
-            domains.append('imperative')
+                validDomains['imperative'] = True
         if find_part_of_speech(sentence.topic) in misc.nounCodes:
-            domains.append('simple')
+            validDomains['simple'] = True
             if len(associations) > 1:
-                domains.append('compound')
+                validDomains['compound'] = True
+
+        # Interrogative is always valid, so the list starts with it prepopulated
+        domains = ['interrogative']
+        if validDomains['declarative']:
+            domains.append('declarative')
+        if validDomains['imperative']:
+            domains.append('imperative')
+        if validDomains['simple']:
+            domains.append('simple')
+        if validDomains['compound']:
+            domains.append('compound')
 
         #sentence.domain = random.choice(domains)
         sentence.domain = 'simple'
