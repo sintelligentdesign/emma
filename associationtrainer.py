@@ -4,6 +4,7 @@ import re
 import sqlite3 as sql
 
 import logging
+import misc
 
 def find_associations(message):
     """Use pattern recognition to learn from a Message object"""
@@ -11,7 +12,24 @@ def find_associations(message):
         for word in sentence.words:
             # Don't associate parts of speech we can't actually use
             if word.partOfSpeech not in ['LS', 'SYM', 'UH', '.', ',', ':', '(', ')', 'FW']:
-                pass
+                # Check for words behind the word we're on
+                if sentence.length - word.index > 0:
+                    # Check for words in front of the word we're on
+                    if sentence.length != word.index + 1:
+                        # Look for keywords
+                        if word.lemma == u'be':
+                            pass
+                        if "NP" in word.chunk and word.partOfSpeech in misc.nounCodes:
+                            pass
+                        if word.partOfSpeech in misc.verbCodes:
+                            pass
+                        
+                        # NP + 'has' + NP >> NN HAS NN (People have two hands >> People HAS hands)
+                        if word.lemma = u'have' and "NP" in sentence.words[word.index-1].chunk and "NP" in sentence.words[word.index+1].chunk:
+                            pass
+                        # VB + obj >> VB HAS-OBJECT NN (This button releases the hounds. >> release HAS-OBJECT hound)
+                        if "OBJ" in word.subjectObject and word.partOfSpeech in misc.nounCodes:
+                            pass
 
 E = np.exp(1)
 RANKING_CONSTANT = 3.19722457734
