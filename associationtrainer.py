@@ -87,7 +87,22 @@ def find_associations(message):
                         
                         # NP + 'has' + NP >> NN HAS NN (People have two hands >> People HAS hands)
                         if word.lemma == u'have' and "NP" in sentence.words[word.index-1].chunk and "NP" in sentence.words[word.index+1].chunk:
-                            pass
+                            # Attempt to find the subject
+                            subject = None
+                            for subjectCandidate in reversed(sentence.words[0:word.index]):
+                                if subjectCandidate.partOfSpeech in misc.nounCodes:
+                                    subject = subjectCandidate
+                                    break
+                            # Attempt to find the target
+                            target = None
+                            for targetCandidate in sentence.words[word.index+1:-1]:
+                                if targetCandidate.partOfSpeech in misc.nounCodes:
+                                    target = targetCandidate
+                                    break
+                            # If we have a subject and target, create the association
+                            if subject != None and target != None:
+                                train_association(subject.lemma, 'HAS', target.lemma)
+
                         # VB + obj >> VB HAS-OBJECT NN (This button releases the hounds. >> release HAS-OBJECT hound)
                         if "OBJ" in word.subjectObject and word.partOfSpeech in misc.nounCodes:
                             pass
