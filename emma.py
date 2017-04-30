@@ -101,7 +101,7 @@ class Word:
     partOfSpeech    str     Penn Treebank II part-of-speech tag
     chunk           str     Part of the Sentence (noun-phrase, verb-phrase, etc.)
     subjectObject   str     If the Word is a noun, this indicates whether it is the subject or object of the Sentence
-    index           int     The word's position in the sentence (1-indexed)
+    index           int     The word's position in the sentence (0-indexed)
     """
 
     def __init__(self, word, index):
@@ -141,7 +141,7 @@ class Sentence:
             lemmata = True, 
             encoding = 'utf-8'
         ).split()[0]):
-            self.words.append(Word(word, i+1))
+            self.words.append(Word(word, i))
         self.length = len(self.words)
 
     def __str__(self): return self.sentence
