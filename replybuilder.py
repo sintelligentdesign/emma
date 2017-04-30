@@ -30,6 +30,10 @@ class SBBHaveHas:
     def __init__(self):
         pass
 
+class SBBAAn:
+    def __init__(self):
+        pass
+
 class SBBIsAre:
     def __init__(self):
         pass
@@ -85,14 +89,23 @@ def find_part_of_speech(keyword):
             return "NN"
 
 # TODO: Random choices should be influenced by mood or other
-def make_declarative(topic):
+def make_declarative(sentence):
     pass
 
-def make_imperative(topic):
+def make_imperative(sentence):
     pass
 
-def make_interrogative(topic):
-    pass
+def make_interrogative(sentence):
+    # Start the setence with a template
+    starters = [
+        [u'what', u'is'],
+        [u'what\'s'],
+    ]
+    sentence.contents.extend(random.choice(starters))
+
+    # Add on the subject
+    sentence = make_simple(sentence)
+    return sentence
 
 def make_simple(sentence):
     # Look for adjectives to describe the object
@@ -109,6 +122,7 @@ def make_simple(sentence):
             adjectiveAssociations.append((association.weight, association))
 
     # If we do, put them all in a list and have a chance to add some to the sentence
+    # TODO: Handle duplicates
     if len(adjectiveAssociations) > 0:
             for i in range(random.randint(0, 2)):
                 sentence.contents.append(weighted_roll(adjectiveAssociations).target)
@@ -207,7 +221,7 @@ def reply(message):
             domains.append('compound')
 
         #sentence.domain = random.choice(domains)
-        sentence.domain = 'compound'
+        sentence.domain = 'interrogative'
         logging.debug("Chose {0}".format(sentence.domain))
 
         # Build sentence structures
