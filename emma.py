@@ -158,12 +158,14 @@ class Message:
     Defines a collection of Sentences and its attributes, auto-generates and fills itself with Sentence objects
 
     Class Variables
-    message       str     String representation of the Message
-    sentences     list    Ordered list of Sentence objects in the Message
-    avgMood       float   Average of the mood value of all the Sentences in the Message
+    message         str     String representation of the Message
+    sentences       list    Ordered list of Sentence objects in the Message
+    avgMood         float   Average of the mood value of all the Sentences in the Message
+    keywords        list    The message's main topics
+    sender          str     The name of the person who sent the message
     """
 
-    def __init__(self, message):
+    def __init__(self, message, asker=(u'Anonymous')):
         self.message = message
         self.sentences = []
         self.avgMood = int
@@ -245,19 +247,29 @@ def filter_message(messageText):
 
     # Translate internet slang and remove bad words
     filtered = []
-    for word in messageText.split(' '):
-        if word.lower() in misc.netspeak.keys():
-            logging.debug("Translating \'{0}\' from net speak...".format(word))
-            filtered.extend(misc.netspeak[word.lower()])
-        elif word.lower() in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
-            logging.debug("Replacing \"n\'t\" with \"not\"...")
-            filtered.append(u'not')
-        elif word == u'"':
-            pass
-        elif word.lower() in pattern.en.wordlist.PROFANITY:
-            pass
-        else:
-            filtered.append(word)
+    with open('bannedwords.txt', 'r') as bannedWords:
+        bannedWords = bannedWords.read()
+        bannedWords = bannedWords.split('\n')
+        for word in messageText.split(' '):
+            # Translate internet abbreviations
+            if word.lower() in misc.netspeak.keys():
+                logging.debug("Translating \'{0}\' from net speak...".format(word))
+                filtered.extend(misc.netspeak[word.lower()])
+            # Change "n't" to "not"
+            elif word.lower() in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
+                logging.debug("Replacing \"n\'t\" with \"not\"...")
+                filtered.append(u'not')
+            # Remove words from bannedwords.txt
+            elif word.lower() in bannedWords:
+                pass
+            # TODO: This is supposed to remove double-quote characters, but it doesn't. Fix.
+            elif word == u'"':
+                pass
+            # Remove general profanity
+            elif word.lower() in pattern.en.wordlist.PROFANITY:
+                pass
+            else:
+                filtered.append(word)
     print filtered
     filteredText = ' '.join(filtered)
 
@@ -268,7 +280,7 @@ def filter_message(messageText):
 if flags.useTestingStrings: inputText = random.choice(flags.testingStrings)
 else: inputText = raw_input("Message >> ")
 
-message = Message(filter_message(inputText.decode('utf-8')))
+message = Message(filter_message(inputText.decode('utf-8')), "You")
 logging.debug("Message: {0}".format(message.message))
 train(message)
 try:
@@ -276,12 +288,15 @@ try:
 except ValueError as error:
     logging.error(error)
 
-"""
+'''
 class Ask:
     def __init__(self, ask, asker, askid):
-        self.ask = ask
         self.asker = asker
         self.askid = askid
+        self.ask = ask
+        self.ask = self.ask.decode('utf-8')
+        self.ask = filter_message(self.ask)
+        self.ask = Message(ask, self.asker)
 
 # Authenticate with Tumblr API
 client = pytumblr.TumblrRestClient(
@@ -301,27 +316,11 @@ while True:
 
     # Choose an ask to answer
     ask = random.choice(asks)
-    ask = ask.decode('utf-8')
-    ask = filter_message(ask)
-    ask = Message(ask)
-    logging.debug("Message: {0}".format(ask))
-
-    # Skim the ask for bad words
-    with open('bannedwords.txt', 'r') as bannedWords:
-        bannedWords = bannedWords.read()
-        bannedWords = bannedWords.split('\n')
-        for sentence in ask.sentences:
-            for word in sentence.words:
-                # If we find bad words, toss out the ask
-                if word.lemma in bannedWords:
-                    client.delete_post(
-                        blogName,
-                        ask.askid
-                    )
+    logging.debug("@{0} says: {1}".format(ask.sender, ask.ask.message))
 
     # Learn from and reply to the ask
     train(ask)
-    reply = replybuilder.reply(ask)
+    reply = replybuilder.reply(ask.ask)
     reply = cgi.escape(reply)
     logging.info("Reply: {0}".format(reply))
 
