@@ -42,6 +42,10 @@ class SBBConjunction:
     def __init__(self):
         pass
 
+class SBBPunctuation:
+    def __init__(self):
+        pass
+
 def weighted_roll(choices):
     """Takes a list of (weight, option) tuples and makes a weighted die roll"""
     dieSeed = 0
@@ -160,7 +164,7 @@ def make_simple(sentence):
         # If we have no adjectives, just add the word
         sentence.contents.append(sentence.topic)
 
-
+    sentence.contents.append(SBBPunctuation())
     logging.debug("Reply (in progress): {0}".format(str(sentence.contents)))
     return sentence
         
@@ -185,6 +189,7 @@ def make_compound(sentence, altTopic):
     # Paste the second half of the sentence onto the first half
     sentence.contents.extend(shellSentence.contents)
 
+    sentence.contents.append(SBBPunctuation())
     logging.debug("Reply (in progress): {0}".format(str(sentence.contents)))
     return sentence
 
@@ -213,12 +218,7 @@ def make_greeting(message):
     # Add the message sender's username
     shellSentence.contents.append(message.sender)
 
-    # Coin flip to choose punctuation
-    if random.choice([True, False]):
-        shellSentence.contents.append(u'!')
-    else:
-        shellSentence.contents.append(u'.')
-
+    sentence.contents.append(SBBPunctuation())
     return shellSentence
         
 def reply(message):
@@ -317,6 +317,13 @@ def reply(message):
                 else:
                     validArticles.extend([u'some', u'many'])
                 word = random.choice(validArticles)
+            elif type(word) is SBBConjunction:
+                word = random.choice([u'and', u'but', u'while'])
+            elif type(word) is SBBPunctuation:
+                if random.choice([True, False]):
+                    shellSentence.contents.append(u'!')
+                else:
+                    shellSentence.contents.append(u'.')
 
     # Decide whether or not to add a greeting -- various factors contribute to a weighted coin flip
     greetingAdditionPotential = 0
