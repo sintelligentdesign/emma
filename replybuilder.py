@@ -98,14 +98,59 @@ def make_declarative(sentence):
     hasAssociations = []
     isaAssociations = []
     hasabilitytoAssociations = []
+    haspropertyAssociations = []
     for association in associations:
         if association.associationType == "HAS" and association.word == sentence.topic:
             hasAssociations.append((association.weight, association))
         elif association.associationType == "IS-A" and association.word == sentence.topic:
             isaAssociations.append((association.weight, association))
+        elif association.associationType == "HAS-ABILITY-TO" and assocation.word == sentence.topic:
+            hasabilitytoAssociations.append((association.weight, association))
+        elif association.associationType == "HAS-PROPERTY" and association.word == sentence.topic:
+            haspropertyAssociations.append((association.weight, association))
+            
+    # If we have associations other than HAS-PROPERTY ones, we can make more complex sentences
+    allowComplexDeclarative = False
+    if len(hasAssociations) > 0 or len(isaAssociations) or len(hasabilitytoAssociations) > 0:
+        allowComplexDeclarative = True
 
-    # See if we have HAS or IS-A associations handy
-    # TODO
+    # Decide what kind of sentence to make and make it
+    if random.choice([False, allowComplexDeclarative]):
+        # Complex
+        # Decide /what kinds/ of complex sentence we can make
+        validSentenceAspects = []
+        if len(hasAssociations) > 0:
+            validSentenceAspects.append('HAS')
+        if len(isaAssociations) > 0:
+            validSentenceAspects.append('IS-A')
+        if len(hasabilitytoAssociations) > 0:
+            validSentenceAspects.append('HAS-ABILITY-TO')
+        # Choose the kind of sentence to make
+        sentenceAspect = random.choice(validSentenceAspects)
+
+        sentence.contents.append(sentence.topic)
+
+        if sentenceAspect == 'HAS':
+            sentence.contents.append(SBBHaveHas())
+            sentence.contents.append(weighted_roll(hasAssociations).target)
+        elif sentenceAspect == 'IS-A':
+            sentence.contents.extend([u'is', SBBArticle])
+            sentence.contents.append(weighted_roll(isaAssociations).target)
+        elif sentenceAspect == 'HAS-ABILITY-TO':
+            sentence.contents.append(u'can')
+            sentence.contents.append(weighted_roll(hasabilitytoAssociations.target))
+    else:
+        # Simple
+        if random.choice([True, False]):
+            sentence = make_simple(sentence)
+        else:
+            sentence.contents.append(sentence.topic)
+        sentence.contents.append(u'is')
+        sentence.contents.append(weighted_roll(haspropertyAssociations))
+
+        sentence.contents.append(SBBPunctuation())
+        logging.debug("Reply (in progress): {0}".format(str(sentence.contents)))
+        return sentence
 
 def make_imperative(sentence):
     pass
@@ -120,6 +165,8 @@ def make_interrogative(sentence):
 
     # Add on the subject
     sentence = make_simple(sentence)
+
+    sentence.contents.append(u'?')
     logging.debug("Reply (in progress): {0}".format(str(sentence.contents)))
     return sentence
 
@@ -302,11 +349,13 @@ def reply(message):
     # Evaluate sentence building block objects
     for sentence in reply:
         for i, word in enumerate(sentence.contents):
+            # Is/Are
             if type(word) is SBBIsAre:
                 if sentence.isPlural = True:
                     word = u'are'
                 else:
                     word = u'is'
+            # Articles (a, the, etc.)
             elif type(word) is SBBArticle:
                 validArticles = [u'the']
                 if sentence.isPlural = False:
@@ -317,8 +366,11 @@ def reply(message):
                 else:
                     validArticles.extend([u'some', u'many'])
                 word = random.choice(validArticles)
+            # Conjunctions (but, and, etc.)
             elif type(word) is SBBConjunction:
                 word = random.choice([u'and', u'but', u'while'])
+            # Punctuation is a random choice between period and exclamation mark
+            # TODO: have mood/sentence mood affect usage of one type of punctuation over the other
             elif type(word) is SBBPunctuation:
                 if random.choice([True, False]):
                     shellSentence.contents.append(u'!')
