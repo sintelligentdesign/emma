@@ -83,15 +83,24 @@ def calculate_mood():
 def express_mood(moodValue):
     """Returns a string which can be attached to a post as a tag expressing Emma's mood"""
     logging.debug("Expressing mood...")
-    if -0.8 > moodValue: return u"feeling abysmal \ud83d\ude31"
-    elif -0.6 > moodValue >= -0.8: return u"feeling dreadful \ud83d\ude16"
-    elif -0.4 > moodValue >= -0.6: return u"feeling bad \ud83d\ude23"
-    elif -0.2 > moodValue >= -0.4: return u"feeling crummy \ud83d\ude41"
-    elif 0.0 > moodValue >= -0.2: return u"feeling blah \ud83d\ude15"
-    elif 0.2 > moodValue >= 0.0: return u"feeling alright \ud83d\ude10"
-    elif 0.4 > moodValue >= 0.2: return u"feeling good \ud83d\ude42"
-    elif 0.6 > moodValue >= 0.4: return u"feeling great \ud83d\ude09"
-    elif 0.8 > moodValue >= 0.6: return u"feeling fantastic \ud83d\ude00"
+    if -0.8 > moodValue: 
+        return u"feeling abysmal \ud83d\ude31"
+    elif -0.6 > moodValue >= -0.8: 
+        return u"feeling dreadful \ud83d\ude16"
+    elif -0.4 > moodValue >= -0.6: 
+        return u"feeling bad \ud83d\ude23"
+    elif -0.2 > moodValue >= -0.4: 
+        return u"feeling crummy \ud83d\ude41"
+    elif 0.0 > moodValue >= -0.2: 
+        return u"feeling blah \ud83d\ude15"
+    elif 0.2 > moodValue >= 0.0: 
+        return u"feeling alright \ud83d\ude10"
+    elif 0.4 > moodValue >= 0.2: 
+        return u"feeling good \ud83d\ude42"
+    elif 0.6 > moodValue >= 0.4: 
+        return u"feeling great \ud83d\ude09"
+    elif 0.8 > moodValue >= 0.6: 
+        return u"feeling fantastic \ud83d\ude00"
     elif moodValue >= 0.8: return u"feeling glorious \ud83d\ude1c"
 
 # Preparing our datatypes

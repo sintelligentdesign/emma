@@ -222,6 +222,8 @@ def make_greeting(message):
         shellSentence.contents.append(u'!')
     else:
         shellSentence.contents.append(u'.')
+
+    return shellSentence
         
 def reply(message):
     """Replies to a Message object using the associations we built using train()"""
@@ -241,8 +243,6 @@ def reply(message):
     for i in range(0, sentences):
         reply.append(Sentence())
     logging.debug("Generating {0} sentences...".format(sentences))
-
-    # TODO: Decide greetings
 
     # Choose the sentences' topics and domains
     logging.info("Choosing sentence topics and domains...")
@@ -302,4 +302,18 @@ def reply(message):
             sentence = make_simple(sentence)
         elif sentence.domain == 'compound':
             sentence = make_compound(sentence, random.choice(message.keywords))
+
+    # Decide whether or not to add a greeting -- various factors contribute to a weighted coin flip
+    greetingAdditionPotential = 0
+    for greeting in misc.greetingStrings:
+        if greeting in ' '.split(message.message)[0:3]:
+            greetingAdditionPotential += 1
+    if message.avgMood >= 0.2:
+        greetingAdditionPotential += 1
+    # TODO: Add more factors
+
+    # Do weighted coin flip to decide whether or not to add a greeting
+    if random.choice(([True] * greetingAdditionPotential) + [False]):
+        reply.insert(0, make_greeting(message))
+
     return reply
