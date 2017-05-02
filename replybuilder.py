@@ -153,7 +153,44 @@ def make_declarative(sentence):
         return sentence
 
 def make_imperative(sentence):
-    pass
+    # Coin Flip to decide whether to add always or never
+    if random.choice([True, False]):
+        sentence.contents.append(random.choice([u'always', u'never']))
+
+    # Look for things the object can do
+    associations = find_associations(sentence.topic)
+
+    # Get HAS-ABILITY-TO associations and also look for HAS associations
+    hasabilitytoAssociations = []
+    hasAssociations = []
+    for association in associations:
+        if association.associationType == "HAS-ABILITY-TO" and association.word == sentence.topic:
+            hasabilitytoAssociations.append((association.weight, association))
+        elif association.associationType == "HAS" and association.word == sentence.topic:
+            hasAssociations.append((association.weight, association))
+
+    # If we have HAS associations, we can make slightly more complex sentences
+    allowComplexImperative = False
+    if len(hasAssociations) > 0:
+        allowComplexImperative = True
+
+    # Choose what type of sentence to make
+    if random.choice([False, allowComplexImperative]):
+        # Complex
+        sentence.contents.append(sentence.topic)
+        sentence.contents.append(u'can')
+        sentence.contents.append(weighted_roll(hasabilitytoAssociations))
+        sentence.contents.append([u'with', u'a'])
+        sentence.contents.append(weighted_roll(hasAssociations))
+    else:
+        # Simple
+        sentence.contents.append(weighted_roll(hasabilitytoAssociations))
+        sentence.contents.append(SBBArticle())
+        sentence.contents.append(sentence.topic)
+
+    sentence.contents.append(SBBPunctuation())
+    logging.debug("Reply (in progress): {0}".format(str(sentence.contents)))
+    return sentence
 
 def make_interrogative(sentence):
     # Start the setence with a template
@@ -186,27 +223,27 @@ def make_simple(sentence):
 
     # If we do, put them all in a list and have a chance to add some to the sentence
     if len(haspropertyAssociations) > 0:
-            # Add adjective(s)
-            if len(haspropertyAssociations) > 1:
-                for i in range(random.randint(0, 2)):
-                    sentence.contents.append(weighted_roll(haspropertyAssociations).target)
-            else:
+        # Add adjective(s)
+        if len(haspropertyAssociations) > 1:
+            for i in range(random.randint(0, 2)):
                 sentence.contents.append(weighted_roll(haspropertyAssociations).target)
-            # Add the word
-            sentence.contents.append(sentence.topic)
-            """
-            # Alternate template that might live in make_declarative() later
-            # Add the word
-            sentence.contents.append(sentence.topic)
-            # Add is/are
-            sentence.contents.append(SBBIsAre)
-            # Add an adjective
+        else:
             sentence.contents.append(weighted_roll(haspropertyAssociations).target)
-            # We can go one step further
-            if random.choice([True, False]) and len(haspropertyAssociations) > 1:
-                sentence.contents.append(u'and')
-                sentence.contents.append(weighted_roll(haspropertyAssociations).target)
-            """
+        # Add the word
+        sentence.contents.append(sentence.topic)
+        """
+        # Alternate template that might live in make_declarative() later
+        # Add the word
+        sentence.contents.append(sentence.topic)
+        # Add is/are
+        sentence.contents.append(SBBIsAre)
+        # Add an adjective
+        sentence.contents.append(weighted_roll(haspropertyAssociations).target)
+        # We can go one step further
+        if random.choice([True, False]) and len(haspropertyAssociations) > 1:
+            sentence.contents.append(u'and')
+            sentence.contents.append(weighted_roll(haspropertyAssociations).target)
+        """
     else:
         # If we have no adjectives, just add the word
         sentence.contents.append(sentence.topic)
