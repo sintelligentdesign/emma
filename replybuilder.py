@@ -9,6 +9,13 @@ import misc
 connection = sql.connect('emma.db')
 cursor = connection.cursor()
 
+class Sentence:
+    def __init__(self):
+        self.domain = ''
+        self.topic = ''
+        self.isPlural = False
+        self.contents = []
+
 class SBBWord:
     def __init__(self, word, partOfSpeech):
         self.word = word
@@ -18,19 +25,8 @@ class SBBWord:
             cursor.execute('SELECT part_of_speech FROM dictionary WHERE word = \"{0}\";'.format(self.word))
             SQLReturn = cursor.fetchall()
             self.partOfSpeech = SQLReturn[0]
-            
-class Sentence:
-    def __init__(self):
-        self.domain = ''
-        self.topic = ''
-        self.plurality = False
-        self.contents = []
 
 class SBBHaveHas:
-    def __init__(self):
-        pass
-
-class SBBAAn:
     def __init__(self):
         pass
 
@@ -302,6 +298,25 @@ def reply(message):
             sentence = make_simple(sentence)
         elif sentence.domain == 'compound':
             sentence = make_compound(sentence, random.choice(message.keywords))
+
+    # Evaluate sentence building block objects
+    for sentence in reply:
+        for i, word in enumerate(sentence.contents):
+            if type(word) is SBBIsAre:
+                if sentence.isPlural = True:
+                    word = u'are'
+                else:
+                    word = u'is'
+            elif type(word) is SBBArticle:
+                validArticles = [u'the']
+                if sentence.isPlural = False:
+                    if sentence.contents[i+1][0] in misc.vowels:
+                        validArticles.append(u'an')
+                    else:
+                        validArticles.append(u'a')
+                else:
+                    validArticles.extend([u'some', u'many'])
+                word = random.choice(validArticles)
 
     # Decide whether or not to add a greeting -- various factors contribute to a weighted coin flip
     greetingAdditionPotential = 0

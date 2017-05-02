@@ -297,7 +297,7 @@ try:
 except ValueError as error:
     logging.error(error)
 
-'''
+"""
 class Ask:
     def __init__(self, ask, asker, askid):
         self.asker = asker
