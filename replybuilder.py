@@ -388,14 +388,14 @@ def reply(message):
         for i, word in enumerate(sentence.contents):
             # Is/Are
             if type(word) is SBBIsAre:
-                if sentence.isPlural = True:
+                if sentence.isPlural == True:
                     word = u'are'
                 else:
                     word = u'is'
             # Articles (a, the, etc.)
             elif type(word) is SBBArticle:
                 validArticles = [u'the']
-                if sentence.isPlural = False:
+                if sentence.isPlural == False:
                     if sentence.contents[i+1][0] in misc.vowels:
                         validArticles.append(u'an')
                     else:
@@ -427,4 +427,24 @@ def reply(message):
     if random.choice(([True] * greetingAdditionPotential) + [False]):
         reply.insert(0, make_greeting(message))
 
+    # One final run to finalize the message
+    for sentence in reply:
+        # Capitalize the first letter of the sentence
+        sentence.contents[0] = sentence.contents[0].capitalize()
+
+        for word in sentence.contents:
+            # Refer to Ellie as mom and Alex as dad
+            if word in [u'sharkthemepark', u'deersyrup']:
+                if random.choice([True, False]):
+                    word = u'mom'
+            elif word == u'nosiron':
+                if random.choice([True, False]):
+                    word = u'dad'
+
+        # Turn the whole thing into a string
+        # Add a space after every word except the last one and the punctuation mark
+        for word in range(0, len(sentence.contents) - 2):
+            word += u' '
+        sentence = ''.join(sentence.contents)
+    reply = ' '.join(reply)
     return reply
