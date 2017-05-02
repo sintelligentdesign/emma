@@ -27,7 +27,7 @@ def determine_pronoun_references(message):
                 
     return message
 
-def determine_posessive_references(message, sender):
+def determine_posessive_references(message):
     """Gets a Message object and the name of the person sending the message and replaces posessive references (you/me/your/my/etc.) with the thing that they reference"""
     # TODO: add "'s" for posessives (your -> emma's) when we're able to do something with posessives
     emmaReferences = [u'you', u'your', u'yours', u'yourself']
@@ -41,8 +41,8 @@ def determine_posessive_references(message, sender):
                 word.lemma = u'emma'
                 word.partOfSpeech = 'NNP'
             elif word.lemma in senderReferences:
-                logging.info("Replacing posessive reference \'{0}\' with \'{1}\'...".format(word.lemma, sender))
-                word.lemma = sender
+                logging.info("Replacing posessive reference \'{0}\' with \'{1}\'...".format(word.lemma, message.sender))
+                word.lemma = message.sender
                 word.partOfSpeech = 'NNP'
     
     return message

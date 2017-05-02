@@ -209,11 +209,11 @@ class Message:
     def __str__(self): 
         return self.message
 
-def train(message, sender="You"):
+def train(message):
     """Read a message as a string, learn from it, store what we learned in the database"""
     logging.info("Consuming message...")
     message = pronouns.determine_pronoun_references(message)
-    message = pronouns.determine_posessive_references(message, sender)
+    message = pronouns.determine_posessive_references(message)
 
     logging.info("Looking for new words...")
     # Gather words we already know from database
