@@ -192,8 +192,36 @@ def make_compound(sentence, altTopic):
     logging.debug("Reply (in progress): {0}".format(str(sentence.contents)))
     return sentence
 
-def make_greeting():
-    pass
+def make_greeting(message):
+    # This function is a little different from the others, but it works pretty similarly
+    # First we make a shell sentence, like in make_compound()
+    shellSentence = Sentence()
+    shellSentence.domain = 'greeting'
+
+    # Start our sentence with a greeting
+    starters = [
+        [u'hi'],
+        [u'hello'],
+        [u'hey']
+    ]
+    shellSentence.contents.extend(random.choice(starters))
+
+    # Coin flip for adding the word 'there'
+    if random.choice([True, False]):
+        shellSentence.contents.append(u'there')
+
+    # Coin flip for adding a comma
+    if random.choice([True, False]):
+        shellSentence.contents.append(u',')
+
+    # Add the message sender's username
+    shellSentence.contents.append(message.sender)
+
+    # Coin flip to choose punctuation
+    if random.choice([True, False]):
+        shellSentence.contents.append(u'!')
+    else:
+        shellSentence.contents.append(u'.')
         
 def reply(message):
     """Replies to a Message object using the associations we built using train()"""
