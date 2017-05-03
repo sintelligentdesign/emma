@@ -296,26 +296,6 @@ def filter_message(messageText):
 
     return filteredText
 
-# Input is stored as a Message object
-# TODO: This will all live in a main function eventually
-"""
-for ask in flags.testingStrings:
-    train(Message(filter_message(ask), 'You'))
-"""
-
-if flags.useTestingStrings: 
-    inputText = random.choice(flags.testingStrings)
-else: inputText = raw_input("Message >> ")
-
-message = Message(filter_message(inputText.encode('utf-8', 'ignore')), "You")
-logging.debug("Message: {0}".format(message.message))
-train(message)
-try:
-    print replybuilder.reply(message)
-except ValueError as error:
-    logging.error(error)
-
-"""
 class Ask:
     def __init__(self, ask, asker, askid):
         self.asker = asker
@@ -364,4 +344,18 @@ while True:
     # Sleep for 15 minutes
     logging.info("Sleeping for 15 minutes...")
     time.sleep(900)
+    
+# Debug stuff
+"""
+if flags.useTestingStrings: 
+    inputText = random.choice(flags.testingStrings)
+else: inputText = raw_input("Message >> ")
+
+message = Message(filter_message(inputText.encode('utf-8', 'ignore')), "You")
+logging.debug("Message: {0}".format(message.message))
+train(message)
+try:
+    print replybuilder.reply(message)
+except ValueError as error:
+    logging.error(error)
 """
