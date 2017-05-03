@@ -263,7 +263,7 @@ def make_compound(sentence, altTopic):
 
     # Have a chance to add a comma
     if random.choice([True, False]):
-        sentence.contents[-1] = sentence.contents[-1] + u', '
+        sentence.contents[-1] = sentence.contents[-1] + u','
 
     # Add a conjunction to the end of the first sentence
     sentence.contents.append(SBBConjunction())
@@ -294,11 +294,11 @@ def make_greeting(message):
 
     # Coin flip for adding a comma
     if random.choice([True, False]):
-        shellSentence.contents[-1] = shellSentence.contents[-1] + u', '
+        shellSentence.contents[-1] = shellSentence.contents[-1] + u','
 
     # Add the message sender's username
     shellSentence.contents.append(message.sender)
-    shellSentence.contents.append(SBBPunctuation)
+    shellSentence.contents.append(SBBPunctuation())
     return shellSentence
         
 def reply(message):
@@ -398,6 +398,19 @@ def reply(message):
             reorderedReply.append(sentence)
     reply = reorderedReply
 
+    # Decide whether or not to add a greeting -- various factors contribute to a weighted coin flip
+    greetingAdditionPotential = 0
+    for greeting in misc.greetingStrings:
+        if greeting in ' '.split(message.message)[0:3]:
+            greetingAdditionPotential += 1
+    if message.avgMood >= 0.2:
+        greetingAdditionPotential += 1
+    # TODO: Add more factors
+
+    # Do weighted coin flip to decide whether or not to add a greeting
+    if random.choice(([True] * greetingAdditionPotential) + [False]):
+        reply.insert(0, make_greeting(message))
+
     # Evaluate sentence building block objects
     for sentence in reply:
         for i, word in enumerate(sentence.contents):
@@ -435,19 +448,6 @@ def reply(message):
             else:
                 sentence.contents[i] = word
 
-    # Decide whether or not to add a greeting -- various factors contribute to a weighted coin flip
-    greetingAdditionPotential = 0
-    for greeting in misc.greetingStrings:
-        if greeting in ' '.split(message.message)[0:3]:
-            greetingAdditionPotential += 1
-    if message.avgMood >= 0.2:
-        greetingAdditionPotential += 1
-    # TODO: Add more factors
-
-    # Do weighted coin flip to decide whether or not to add a greeting
-    if random.choice(([True] * greetingAdditionPotential) + [False]):
-        reply.insert(0, make_greeting(message))
-
     # One final run to finalize the message
     finishedSentences = []
     for sentence in reply:
@@ -469,9 +469,9 @@ def reply(message):
 
             else:
                 sentence.contents[i] = word
-
         
         # Turn the reply into a string
+        print sentence.contents
         sentence.contents[-2] += sentence.contents[-1]
         sentence.contents.remove(sentence.contents[-1])
         finishedSentences.append(' '.join(sentence.contents))
