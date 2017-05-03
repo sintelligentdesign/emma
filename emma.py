@@ -326,7 +326,7 @@ while True:
 
         # Choose an ask to answer
         ask = random.choice(asks)
-        logging.debug("@{0} says: {1}".format(ask.sender, ask.message))
+        logging.debug("@{0} says: {1}".format(ask.sender, ask.message.message.encode('utf-8', 'ignore')))
 
         # Learn from and reply to the ask
         train(ask.message)
