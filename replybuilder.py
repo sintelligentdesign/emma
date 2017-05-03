@@ -91,9 +91,6 @@ def find_part_of_speech(keyword):
 
 # TODO: Random choices should be influenced by mood or other
 def make_declarative(sentence):
-    # Add subject
-    sentence = make_simple(sentence)
-
     # Look for HAS, IS-A or HAS-ABILITY-TO associations 
     associations = find_associations(sentence.topic)
     hasAssociations = []
@@ -132,12 +129,15 @@ def make_declarative(sentence):
         sentence.contents.append(sentence.topic)
 
         if sentenceAspect == 'HAS':
+            sentence = make_simple(sentence)
             sentence.contents.append(SBBHaveHas())
             sentence.contents.append(weighted_roll(hasAssociations).target)
         elif sentenceAspect == 'IS-A':
+            sentence = make_simple(sentence)
             sentence.contents.extend([u'is', SBBArticle])
             sentence.contents.append(weighted_roll(isaAssociations).target)
         elif sentenceAspect == 'HAS-ABILITY-TO':
+            sentence = make_simple(sentence)
             sentence.contents.append(u'can')
             sentence.contents.append(weighted_roll(hasabilitytoAssociations).target)
     else:
@@ -180,8 +180,8 @@ def make_imperative(sentence):
         sentence.contents.append(sentence.topic)
         sentence.contents.append(u'can')
         sentence.contents.append(weighted_roll(hasabilitytoAssociations).target)
-        sentence.contents.append([u'with', u'a'])
-        sentence.contents.append(weighted_roll(hasAssociations))
+        sentence.contents.extend([u'with', u'a'])
+        sentence.contents.append(weighted_roll(hasAssociations).target)
     else:
         # Simple
         sentence.contents.append(weighted_roll(hasabilitytoAssociations).target)
@@ -387,7 +387,16 @@ def reply(message):
             sentence = make_compound(sentence, random.choice(message.keywords))
             sentence.contents.append(SBBPunctuation())
 
-    # TODO: Reorder sentences based on their domain
+    # Reorder sentences based on their domain
+    # TODO: come up with a better way to do this
+    reorderedReply = []
+    for sentence in reply:
+        if sentence.domain != 'interrogative':
+            reorderedReply.append(sentence)
+    for sentence in reply:
+        if sentence.domain == 'interrogative':
+            reorderedReply.append(sentence)
+    reply = reorderedReply
 
     # Evaluate sentence building block objects
     for sentence in reply:
@@ -453,6 +462,11 @@ def reply(message):
             elif word == u'nosiron':
                 if random.choice([True, False]):
                     sentence.contents[i] = u'dad'
+
+            # Capitalize 'Emma'
+            elif word == u'emma':
+                sentence.contents[i] = u'Emma'
+
             else:
                 sentence.contents[i] = word
 
