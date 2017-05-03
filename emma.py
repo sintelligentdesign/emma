@@ -5,6 +5,7 @@ import logging
 import os
 import re
 import cgi
+import time
 
 import pattern.en
 import pattern.vector
@@ -70,7 +71,7 @@ def add_mood_value(text):
     logging.debug("New mood history is {0}".format(moodHistory))
 
     # And save!
-    logging.info("Saving mood history...")
+    logging.debug("Saving mood history...")
     with open('moodhistory.p', 'wb') as moodFile: 
         pickle.dump(moodHistory, moodFile)
 
@@ -110,7 +111,8 @@ def express_mood(moodValue):
         return u"feeling great \ud83d\ude09"
     elif 0.8 > moodValue >= 0.6: 
         return u"feeling fantastic \ud83d\ude00"
-    elif moodValue >= 0.8: return u"feeling glorious \ud83d\ude1c"
+    elif moodValue >= 0.8: 
+        return u"feeling glorious \ud83d\ude1c"
 
 # Preparing our datatypes
 # Let's start by defining some classes for NLU stuff:
@@ -270,6 +272,7 @@ def filter_message(messageText):
         bannedWords = bannedWords.read()
         bannedWords = bannedWords.split('\n')
         for word in messageText.split(' '):
+            word = word.decode('utf-8')
             # Translate internet abbreviations
             if word.lower() in misc.netspeak.keys():
                 logging.debug("Translating \'{0}\' from net speak...".format(word))
@@ -285,7 +288,7 @@ def filter_message(messageText):
             elif word.lower() in bannedWords:
                 pass
             # Remove double quote characters
-            elif u"\"" in word or u"“" in word or u"”" in word:
+            elif "\"" in word or u"“" in word or u"”" in word:
                 pass
             # Remove general profanity
             elif word.lower() in pattern.en.wordlist.PROFANITY:
@@ -297,13 +300,12 @@ def filter_message(messageText):
     return filteredText
 
 class Ask:
-    def __init__(self, ask, asker, askid):
-        self.asker = asker
+    def __init__(self, message, sender, askid):
+        self.sender = sender
         self.askid = askid
-        self.ask = ask
-        self.ask = self.ask.encode('utf-8', 'ignore')
-        self.ask = filter_message(self.ask)
-        self.ask = Message(ask, self.asker)
+        self.message = message.encode('utf-8', 'ignore')
+        self.message = filter_message(self.message)
+        self.message = Message(self.message, self.sender)
 
 # Authenticate with Tumblr API
 client = pytumblr.TumblrRestClient(
@@ -317,34 +319,39 @@ blogName = 'emmacanlearn'
 while True:
     logging.info("Checking Tumblr messages...")
     response = client.submission(blogName)
-    asks = []
-    for ask in response['posts']:
-        asks.append(Ask(ask['question'], ask['asking_name'], ask['id']))
+    if len(response['posts']) > 0:
+        asks = []
+        for ask in response['posts']:
+            asks.append(Ask(ask['question'], ask['asking_name'], ask['id']))
 
-    # Choose an ask to answer
-    ask = random.choice(asks)
-    logging.debug("@{0} says: {1}".format(ask.sender, ask.ask.message))
+        # Choose an ask to answer
+        ask = random.choice(asks)
+        logging.debug("@{0} says: {1}".format(ask.sender, ask.message))
 
-    # Learn from and reply to the ask
-    train(ask)
-    reply = replybuilder.reply(ask.ask)
-    reply = cgi.escape(reply)
-    logging.info("Reply: {0}".format(reply))
+        # Learn from and reply to the ask
+        train(ask.message)
+        reply = replybuilder.reply(ask.message)
+        reply = cgi.escape(reply)
+        logging.info("Reply: {0}".format(reply))
 
-    # Post the reply to Tumblr
-    client.edit_post(
-        blogName,
-        id = ask.askid,
-        answer = reply.encode('utf-8', 'ignore'),
-        state = 'published',
-        tags = ['dialogue', ask.asker, express_mood(calculate_mood())],
-        type = 'answer'
-    )
+        # Post the reply to Tumblr
+        reply = reply.encode('utf-8', 'ignore')
+        tags = ['dialogue', ask.sender.encode('utf-8', 'ignore'), express_mood(calculate_mood()).encode('utf-8', 'ignore')]
+        client.edit_post(
+            blogName,
+            id = ask.askid,
+            answer = reply,
+            state = 'published',
+            tags = tags,
+            type = 'answer'
+        )
+    else:
+        logging.info("No new Tumblr messages.")
 
     # Sleep for 15 minutes
     logging.info("Sleeping for 15 minutes...")
     time.sleep(900)
-    
+
 # Debug stuff
 """
 if flags.useTestingStrings: 
