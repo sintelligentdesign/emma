@@ -29,7 +29,7 @@ connection.text_factory = str
 cursor = connection.cursor()
 
 # Set up logging level (this should go in misc.py but eh)
-logging.root.setLevel(logging.INFO)
+logging.root.setLevel(logging.DEBUG)
 
 # Pre-flight engine checks
 # Check for emma.db or create it if it isn't there
@@ -291,9 +291,11 @@ def filter_message(messageText):
 
 # Input is stored as a Message object
 # TODO: This will all live in a main function eventually
+"""
 for ask in flags.testingStrings:
     train(Message(filter_message(ask), 'You'))
-'''
+"""
+
 if flags.useTestingStrings: 
     inputText = random.choice(flags.testingStrings)
 else: inputText = raw_input("Message >> ")
@@ -305,7 +307,7 @@ try:
     print replybuilder.reply(message)
 except ValueError as error:
     logging.error(error)
-'''
+
 """
 class Ask:
     def __init__(self, ask, asker, askid):

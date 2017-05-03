@@ -138,7 +138,7 @@ def make_declarative(sentence):
             sentence.contents.append(weighted_roll(isaAssociations).target)
         elif sentenceAspect == 'HAS-ABILITY-TO':
             sentence.contents.append(u'can')
-            sentence.contents.append(weighted_roll(hasabilitytoAssociations.target))
+            sentence.contents.append(weighted_roll(hasabilitytoAssociations).target)
     else:
         # Simple
         if random.choice([True, False]):
@@ -146,10 +146,10 @@ def make_declarative(sentence):
         else:
             sentence.contents.append(sentence.topic)
         sentence.contents.append(u'is')
-        sentence.contents.append(weighted_roll(haspropertyAssociations))
+        sentence.contents.append(weighted_roll(haspropertyAssociations).target)
         
-        logging.debug("Reply (in progress): {0}".format(str(sentence.contents)))
-        return sentence
+    logging.debug("Reply (in progress): {0}".format(str(sentence.contents)))
+    return sentence
 
 def make_imperative(sentence):
     # Coin Flip to decide whether to add always or never
@@ -178,12 +178,12 @@ def make_imperative(sentence):
         # Complex
         sentence.contents.append(sentence.topic)
         sentence.contents.append(u'can')
-        sentence.contents.append(weighted_roll(hasabilitytoAssociations))
+        sentence.contents.append(weighted_roll(hasabilitytoAssociations).target)
         sentence.contents.append([u'with', u'a'])
         sentence.contents.append(weighted_roll(hasAssociations))
     else:
         # Simple
-        sentence.contents.append(weighted_roll(hasabilitytoAssociations))
+        sentence.contents.append(weighted_roll(hasabilitytoAssociations).target)
         sentence.contents.append(SBBArticle())
         sentence.contents.append(sentence.topic)
         
@@ -340,12 +340,13 @@ def reply(message):
             'compound': False
         }
         for association in associations:
-            if association.associationType == 'HAS' or association.associationType == "IS-A" or association.associationType == "HAS-ABILITY-TO":
-                validDomains['declarative'] = True
-            if association.associationType == "HAS-ABILITY-TO":
-                validDomains['imperative'] = True
-            if association.associationType == "HAS-PROPERTY":
-                validDomains['simple'] = True
+            if association.word == sentence.topic:
+                if association.associationType == 'HAS-PROPERTY':
+                    validDomains['declarative'] = True
+                if association.associationType == "HAS-ABILITY-TO":
+                    validDomains['imperative'] = True
+                if association.associationType == "HAS-PROPERTY":
+                    validDomains['simple'] = True
         if validDomains['simple'] and len(associations) > 1:
             validDomains['compound'] = True
 
@@ -434,6 +435,7 @@ def reply(message):
         reply.insert(0, make_greeting(message))
 
     # One final run to finalize the message
+    finishedSentences = []
     for sentence in reply:
         # TODO: Capitalize the first letter of the sentence
         for i, word in enumerate(sentence.contents):
@@ -447,5 +449,11 @@ def reply(message):
             else:
                 sentence.contents[i] = word
 
-    # TODO: Turn list into a string
-    return reply
+        
+        # Turn the reply into a string
+        sentence.contents[-2] += sentence.contents[-1]
+        sentence.contents.remove(sentence.contents[-1])
+        finishedSentences.append(' '.join(sentence.contents))
+    
+    finishedReply = ' '.join(finishedSentences)
+    return finishedReply

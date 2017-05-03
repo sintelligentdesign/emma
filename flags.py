@@ -1,6 +1,6 @@
 # Testing Strings
 useTestingStrings = True
-testingStringType = 'fuzz'
+testingStringType = 'simple'
 
 testingStringsSimple = [
     u"The sky is blue.",
