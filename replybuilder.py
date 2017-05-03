@@ -1,6 +1,7 @@
 import logging
 import random
 import re
+import string
 
 import sqlite3 as sql
 
@@ -262,7 +263,7 @@ def make_compound(sentence, altTopic):
 
     # Have a chance to add a comma
     if random.choice([True, False]):
-        sentence.contents[-1].append(u',')
+        sentence.contents[-1] = sentence.contents[-1] + u','
 
     # Add a conjunction to the end of the first sentence
     sentence.contents.append(SBBConjunction())
@@ -293,7 +294,7 @@ def make_greeting(message):
 
     # Coin flip for adding a comma
     if random.choice([True, False]):
-        shellSentence.contents[-1].append(u',')
+        shellSentence.contents[-1] = shellSentence.contents[-1] + u','
 
     # Add the message sender's username
     shellSentence.contents.append(message.sender)
@@ -360,6 +361,9 @@ def reply(message):
             domains.append('simple')
         if validDomains['compound']:
             domains.append('compound')
+        # If we can generate non-interrogative sentences, we would profer to do that
+        if len(domains) > 3:
+            domains.remove('interrogative')
 
         sentence.domain = random.choice(domains)
         #sentence.domain = 'simple'
@@ -382,6 +386,8 @@ def reply(message):
         elif sentence.domain == 'compound':
             sentence = make_compound(sentence, random.choice(message.keywords))
             sentence.contents.append(SBBPunctuation())
+
+    # TODO: Reorder sentences based on their domain
 
     # Evaluate sentence building block objects
     for sentence in reply:
@@ -419,7 +425,6 @@ def reply(message):
                     sentence.contents[i] = u'.'
             else:
                 sentence.contents[i] = word
-    print reply
 
     # Decide whether or not to add a greeting -- various factors contribute to a weighted coin flip
     greetingAdditionPotential = 0
@@ -437,7 +442,9 @@ def reply(message):
     # One final run to finalize the message
     finishedSentences = []
     for sentence in reply:
-        # TODO: Capitalize the first letter of the sentence
+        # Capitalize the first letter of the sentence
+        sentence.contents[0] = string.capwords(sentence.contents[0])
+
         for i, word in enumerate(sentence.contents):
             # Refer to Ellie as mom and Alex as dad
             if word in [u'sharkthemepark', u'deersyrup']:
