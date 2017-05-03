@@ -104,7 +104,7 @@ def make_declarative(sentence):
             hasAssociations.append((association.weight, association))
         elif association.associationType == "IS-A" and association.word == sentence.topic:
             isaAssociations.append((association.weight, association))
-        elif association.associationType == "HAS-ABILITY-TO" and assocation.word == sentence.topic:
+        elif association.associationType == "HAS-ABILITY-TO" and association.word == sentence.topic:
             hasabilitytoAssociations.append((association.weight, association))
         elif association.associationType == "HAS-PROPERTY" and association.word == sentence.topic:
             haspropertyAssociations.append((association.weight, association))
@@ -147,8 +147,7 @@ def make_declarative(sentence):
             sentence.contents.append(sentence.topic)
         sentence.contents.append(u'is')
         sentence.contents.append(weighted_roll(haspropertyAssociations))
-
-        sentence.contents.append(SBBPunctuation())
+        
         logging.debug("Reply (in progress): {0}".format(str(sentence.contents)))
         return sentence
 
@@ -187,8 +186,7 @@ def make_imperative(sentence):
         sentence.contents.append(weighted_roll(hasabilitytoAssociations))
         sentence.contents.append(SBBArticle())
         sentence.contents.append(sentence.topic)
-
-    sentence.contents.append(SBBPunctuation())
+        
     logging.debug("Reply (in progress): {0}".format(str(sentence.contents)))
     return sentence
 
@@ -248,7 +246,6 @@ def make_simple(sentence):
         # If we have no adjectives, just add the word
         sentence.contents.append(sentence.topic)
 
-    sentence.contents.append(SBBPunctuation())
     logging.debug("Reply (in progress): {0}".format(str(sentence.contents)))
     return sentence
         
@@ -273,7 +270,6 @@ def make_compound(sentence, altTopic):
     # Paste the second half of the sentence onto the first half
     sentence.contents.extend(shellSentence.contents)
 
-    sentence.contents.append(SBBPunctuation())
     logging.debug("Reply (in progress): {0}".format(str(sentence.contents)))
     return sentence
 
@@ -302,7 +298,6 @@ def make_greeting(message):
     # Add the message sender's username
     shellSentence.contents.append(message.sender)
 
-    sentence.contents.append(SBBPunctuation())
     return shellSentence
         
 def reply(message):
@@ -374,26 +369,32 @@ def reply(message):
         logging.info("Building {0} structure for sentence {1} of {2}...".format(sentence.domain, i+1, len(reply)))
         if sentence.domain == 'declarative':
             sentence = make_declarative(sentence)
+            sentence.contents.append(SBBPunctuation())
         elif sentence.domain == 'imperative':
             sentence = make_imperative(sentence)
+            sentence.contents.append(SBBPunctuation())
         elif sentence.domain == 'interrogative':
             sentence = make_interrogative(sentence)
         elif sentence.domain == 'simple':
             sentence = make_simple(sentence)
+            sentence.contents.append(SBBPunctuation())
         elif sentence.domain == 'compound':
             sentence = make_compound(sentence, random.choice(message.keywords))
+            sentence.contents.append(SBBPunctuation())
 
     # Evaluate sentence building block objects
     for sentence in reply:
         for i, word in enumerate(sentence.contents):
             # Is/Are
-            if type(word) is SBBIsAre:
+            if isinstance(word, SBBIsAre):
+                logging.debug("Evaluating SBBIsAre object...")
                 if sentence.isPlural == True:
-                    word = u'are'
+                    sentence.contents[i] = u'are'
                 else:
-                    word = u'is'
+                    sentence.contents[i] = u'is'
             # Articles (a, the, etc.)
-            elif type(word) is SBBArticle:
+            elif isinstance(word, SBBArticle):
+                logging.debug("Evaluating SBBArticle object...")
                 validArticles = [u'the']
                 if sentence.isPlural == False:
                     if sentence.contents[i+1][0] in misc.vowels:
@@ -402,17 +403,22 @@ def reply(message):
                         validArticles.append(u'a')
                 else:
                     validArticles.extend([u'some', u'many'])
-                word = random.choice(validArticles)
+                sentence.contents[i] = random.choice(validArticles)
             # Conjunctions (but, and, etc.)
-            elif type(word) is SBBConjunction:
-                word = random.choice([u'and', u'but', u'while'])
+            elif isinstance(word, SBBConjunction):
+                logging.debug("Evaluating SBBConjunction object...")
+                sentence.contents[i] = random.choice([u'and', u'but', u'while'])
             # Punctuation is a random choice between period and exclamation mark
             # TODO: have mood/sentence mood affect usage of one type of punctuation over the other
-            elif type(word) is SBBPunctuation:
+            elif isinstance(word, SBBPunctuation):
+                logging.debug("Evaluating SBBPunctuation object...")
                 if random.choice([True, False]):
-                    shellSentence.contents.append(u'!')
+                    sentence.contents[i] = u'!'
                 else:
-                    shellSentence.contents.append(u'.')
+                    sentence.contents[i] = u'.'
+            else:
+                sentence.contents[i] = word
+    print reply
 
     # Decide whether or not to add a greeting -- various factors contribute to a weighted coin flip
     greetingAdditionPotential = 0
@@ -429,22 +435,17 @@ def reply(message):
 
     # One final run to finalize the message
     for sentence in reply:
-        # Capitalize the first letter of the sentence
-        sentence.contents[0] = sentence.contents[0].capitalize()
-
-        for word in sentence.contents:
+        # TODO: Capitalize the first letter of the sentence
+        for i, word in enumerate(sentence.contents):
             # Refer to Ellie as mom and Alex as dad
             if word in [u'sharkthemepark', u'deersyrup']:
                 if random.choice([True, False]):
-                    word = u'mom'
+                    sentence.contents[i] = u'mom'
             elif word == u'nosiron':
                 if random.choice([True, False]):
-                    word = u'dad'
+                    sentence.contents[i] = u'dad'
+            else:
+                sentence.contents[i] = word
 
-        # Turn the whole thing into a string
-        # Add a space after every word except the last one and the punctuation mark
-        for word in range(0, len(sentence.contents) - 2):
-            word += u' '
-        sentence = ''.join(sentence.contents)
-    reply = ' '.join(reply)
+    # TODO: Turn list into a string
     return reply

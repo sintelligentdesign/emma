@@ -1,7 +1,7 @@
 import sqlite3 as sql
 
 # Metadata
-versionNumber = "2.0.0-Alpha-5"
+versionNumber = "2.0.0"
 
 # Chrome
 def show_emma_banner():
@@ -48,3 +48,4 @@ trashPOS = ['LS', 'SYM', 'UH', '.', ',', ':', '"' '(', ')', 'FW']
 greetingStrings = [[u'what\'s', u'up'], [u'hi'], [u'yo'], [u'hiya'], [u'hello'], [u'what', u'up'], [u'wassup'], [u'what', u'is', u'up'], [u'what\'s', u'going', u'on'], [u'how', u'are', u'you'], [u'howdy'], [u'hey'], [u'good', u'morning'], [u'good', u'evening'], [u'good', u'afternoon']]
 
 vowels = ['a', 'e', 'i', 'o', 'u']
+punctuation = [u'.', u'!', u'?']

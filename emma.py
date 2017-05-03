@@ -174,11 +174,12 @@ class Message:
     sender          str     The name of the person who sent the message
     """
 
-    def __init__(self, message, asker=(u'Anonymous')):
+    def __init__(self, message, sender=(u'Anonymous')):
         self.message = message
         self.sentences = []
         self.avgMood = int
         self.keywords = []
+        self.sender = sender
 
         # Get a list of Sentence objects contained in the Message and put them in taggedSentences
         for sentence in pattern.en.parse(
