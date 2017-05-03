@@ -414,10 +414,16 @@ def reply(message):
     # Evaluate sentence building block objects
     for sentence in reply:
         for i, word in enumerate(sentence.contents):
+            # Have/has
+            if isinstance(word, SBBHaveHas):
+                if sentence.isPlural:
+                    sentence.contents[i] = u'have'
+                else:
+                    sentence.contents[i] = u'has'
             # Is/Are
-            if isinstance(word, SBBIsAre):
+            elif isinstance(word, SBBIsAre):
                 logging.debug("Evaluating SBBIsAre object...")
-                if sentence.isPlural == True:
+                if sentence.isPlural:
                     sentence.contents[i] = u'are'
                 else:
                     sentence.contents[i] = u'is'
