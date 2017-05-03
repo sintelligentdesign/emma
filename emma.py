@@ -23,22 +23,29 @@ misc.show_emma_banner()
 misc.show_database_stats()
 
 # Setup stuff
-# Set up SQL (this is used a LOT throughout the code)
-connection = sql.connect('emma.db')
-connection.text_factory = str
-cursor = connection.cursor()
-
 # Set up logging level (this should go in misc.py but eh)
 logging.root.setLevel(logging.DEBUG)
 
 # Pre-flight engine checks
 # Check for emma.db or create it if it isn't there
-logging.info("Checking for database...")
+logging.info("Checking for association model...")
 if os.path.isfile('emma.db'):
-     logging.debug("Database found!")
+     logging.debug("Association model found!")
 else:
-    logging.warn("Database not found! Eventually this will create a new database but for now you have to do it by hand...")
-    # TODO: Create a new database if one cannot be found
+    logging.warn("Association model not found! Creating...")
+    with sql.connect('emma.db') as connection:
+        connection.cursor().executescript("""
+        DROP TABLE IF EXISTS associationmodel;
+        DROP TABLE IF EXISTS dictionary;
+        CREATE TABLE associationmodel(word TEXT, association_type TEXT, target TEXT, weight DOUBLE);
+        CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, affinity DOUBLE)
+        """)
+    logging.debug("Associatoin model created.")
+
+# Set up SQL
+connection = sql.connect('emma.db')
+connection.text_factory = str
+cursor = connection.cursor()
 
 # Check for and load the file containing the history of mood values or create it if it isn't there
 logging.info("Loading mood history...")
@@ -51,7 +58,7 @@ else:
     with open('moodHistory.p','wb') as moodFile:
         moodHistory = [0] * 10
         pickle.dump(moodHistory, moodFile)
-    logging.debug("Mood history file creation done.")
+    logging.debug("Mood history file created.")
 
 # Mood-related things
 def add_mood_value(text):
