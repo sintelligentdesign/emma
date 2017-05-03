@@ -263,7 +263,7 @@ def make_compound(sentence, altTopic):
 
     # Have a chance to add a comma
     if random.choice([True, False]):
-        sentence.contents[-1] = sentence.contents[-1] + u','
+        sentence.contents[-1] = sentence.contents[-1] + u', '
 
     # Add a conjunction to the end of the first sentence
     sentence.contents.append(SBBConjunction())
@@ -294,7 +294,7 @@ def make_greeting(message):
 
     # Coin flip for adding a comma
     if random.choice([True, False]):
-        shellSentence.contents[-1] = shellSentence.contents[-1] + u','
+        shellSentence.contents[-1] = shellSentence.contents[-1] + u', '
 
     # Add the message sender's username
     shellSentence.contents.append(message.sender)
