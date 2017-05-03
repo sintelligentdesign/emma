@@ -2,6 +2,7 @@
 *.DS_Store
 
 apikeys.py
+legacy.zip
 
-legacy
 utils
+vis

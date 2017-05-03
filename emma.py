@@ -263,8 +263,8 @@ def train(message):
 def filter_message(messageText):
     """Make it easier for the computer to read messages (and also screen out banned words)"""
     # Add punctuation is it isn't already present
-    if messageText[-1] not in [u'!', u'?', u'.']:
-        messageText += u"."
+    if messageText[-1] not in ['!', '?', '.']:
+        messageText += "."
 
     # Translate internet slang and remove bad words
     filtered = []
