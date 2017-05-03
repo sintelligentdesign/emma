@@ -298,7 +298,7 @@ def make_greeting(message):
 
     # Add the message sender's username
     shellSentence.contents.append(message.sender)
-
+    shellSentence.contents.append(SBBPunctuation)
     return shellSentence
         
 def reply(message):
