@@ -1,5 +1,5 @@
 # Testing Strings
-useTestingStrings = True
+useTestingStrings = False
 testingStringType = 'simple'
 
 testingStringsSimple = [
