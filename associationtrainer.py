@@ -24,6 +24,7 @@ def calculate_new_weight(currentWeight):
     return newWeight
 
 connection = sql.connect('emma.db')
+connection.text_factory = str
 cursor = connection.cursor()
 def train_association(word, associationType, target):
     """Adds an association to the database"""
@@ -34,21 +35,21 @@ def train_association(word, associationType, target):
 
         # Check to see if the association already exists
         with connection:
-            cursor.execute('SELECT * FROM associationmodel WHERE word = \"{0}\" AND association_type = \"{1}\" AND target = \"{2}\";'.format(word.encode('utf-8'), associationType, target.encode('utf-8')))
+            cursor.execute('SELECT * FROM associationmodel WHERE word = \"{0}\" AND association_type = \"{1}\" AND target = \"{2}\";'.format(word.encode('utf-8', 'ignore'), associationType, target.encode('utf-8', 'ignore')))
             SQLReturn = cursor.fetchall()
             if SQLReturn:
                 # Association already exists, so we strengthen it
                 weight = calculate_new_weight(SQLReturn[0][3])
                 with connection:
-                    cursor.execute('UPDATE associationmodel SET weight = \"{0}\" WHERE word = \"{1}\" AND association_type = \"{2}\" AND target = \"{3}\";'.format(weight, word.encode('utf-8'), associationType, target.encode('utf-8')))
-                logging.info("Strengthened association \"{0} {1} {2}\"".format(word, associationType, target))
+                    cursor.execute('UPDATE associationmodel SET weight = \"{0}\" WHERE word = \"{1}\" AND association_type = \"{2}\" AND target = \"{3}\";'.format(weight, word.encode('utf-8', 'ignore'), associationType, target.encode('utf-8', 'ignore')))
+                logging.info("Strengthened association \"{0} {1} {2}\"".format(word.encode('utf-8', 'ignore'), associationType, target.encode('utf-8', 'ignore')))
             else:
                 # Association does not exist, so add it
                 # This is the weight calculated for all new associations
                 weight = 0.0999999999997
                 with connection:
-                    cursor.execute('INSERT INTO associationmodel(word, association_type, target, weight) VALUES (\"{0}\", \"{1}\", \"{2}\", \"{3}\");'.format(word.encode('utf-8'), associationType, target.encode('utf-8'), weight))
-                logging.info("Found new association \"{0} {1} {2}\"".format(word, associationType, target))
+                    cursor.execute('INSERT INTO associationmodel(word, association_type, target, weight) VALUES (\"{0}\", \"{1}\", \"{2}\", \"{3}\");'.format(word.encode('utf-8', 'ignore'), associationType, target.encode('utf-8', 'ignore'), weight))
+                logging.info("Found new association \"{0} {1} {2}\"".format(word.encode('utf-8', 'ignore'), associationType, target.encode('utf-8', 'ignore')))
 
 def find_associations(message):
     """Use pattern recognition to learn from a Message object"""

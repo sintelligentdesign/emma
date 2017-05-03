@@ -1,6 +1,6 @@
 # Testing Strings
 useTestingStrings = True
-testingStringType = 'simple'
+testingStringType = 'fuzz'
 
 testingStringsSimple = [
     u"The sky is blue.",
@@ -14,4 +14,4 @@ if testingStringType == 'simple':
     testingStrings = testingStringsSimple
 elif testingStringType == 'fuzz':
     with open('utils/questions.txt', 'r') as file:
-        testingStrings = file.read().split('\n')
+        testingStrings = [line.decode('utf-8', 'ignore').strip() for line in file.readlines()]

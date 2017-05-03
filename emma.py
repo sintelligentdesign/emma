@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import random
 import pickle
 import logging
@@ -24,10 +25,11 @@ misc.show_database_stats()
 # Setup stuff
 # Set up SQL (this is used a LOT throughout the code)
 connection = sql.connect('emma.db')
+connection.text_factory = str
 cursor = connection.cursor()
 
 # Set up logging level (this should go in misc.py but eh)
-logging.root.setLevel(logging.DEBUG)
+logging.root.setLevel(logging.INFO)
 
 # Pre-flight engine checks
 # Check for emma.db or create it if it isn't there
@@ -240,11 +242,11 @@ def train(message):
                 if word.partOfSpeech not in misc.trashPOS:
                     # If it's a word we don't have in the database, add it
                     if word.lemma not in [knownWord[0] for knownWord in knownWords if word.lemma == knownWord[0]]:
-                        logging.info("Learned new word: \'{0}\'!".format(word.lemma))
+                        logging.info("Learned new word: \'{0}\'!".format(word.lemma.encode('utf-8', 'ignore')))
                         logging.debug("Prev. word POS: \'{0}\'".format(word.partOfSpeech))
                         knownWords.append((word.lemma, word.partOfSpeech))
                         with connection:
-                            cursor.execute('INSERT INTO dictionary VALUES (\"{0}\", \"{1}\", 0);'.format(re.escape(word.lemma), word.partOfSpeech))
+                            cursor.execute('INSERT INTO dictionary VALUES (\"{0}\", \"{1}\", 0);'.format(re.escape(word.lemma.encode('utf-8', 'ignore')), word.partOfSpeech))
 
     logging.info("Finding associations...")
     associationtrainer.find_associations(message)
@@ -269,42 +271,48 @@ def filter_message(messageText):
             elif word.lower() in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
                 logging.debug("Replacing \"n\'t\" with \"not\"...")
                 filtered.append(u'not')
+            # Remove "'s"
+            elif word.lower() == u"\'s":
+                pass
             # Remove words from bannedwords.txt
             elif word.lower() in bannedWords:
                 pass
-            # TODO: This is supposed to remove double-quote characters, but it doesn't. Fix.
-            elif word == u'"':
+            # Remove double quote characters
+            elif u"\"" in word or u"“" in word or u"”" in word:
                 pass
             # Remove general profanity
             elif word.lower() in pattern.en.wordlist.PROFANITY:
                 pass
             else:
                 filtered.append(word)
-    print filtered
     filteredText = ' '.join(filtered)
 
     return filteredText
 
 # Input is stored as a Message object
 # TODO: This will all live in a main function eventually
-if flags.useTestingStrings: inputText = random.choice(flags.testingStrings)
+for ask in flags.testingStrings:
+    train(Message(filter_message(ask), 'You'))
+'''
+if flags.useTestingStrings: 
+    inputText = random.choice(flags.testingStrings)
 else: inputText = raw_input("Message >> ")
 
-message = Message(filter_message(inputText.decode('utf-8')), "You")
+message = Message(filter_message(inputText.encode('utf-8', 'ignore')), "You")
 logging.debug("Message: {0}".format(message.message))
 train(message)
 try:
     print replybuilder.reply(message)
 except ValueError as error:
     logging.error(error)
-
+'''
 """
 class Ask:
     def __init__(self, ask, asker, askid):
         self.asker = asker
         self.askid = askid
         self.ask = ask
-        self.ask = self.ask.decode('utf-8')
+        self.ask = self.ask.encode('utf-8', 'ignore')
         self.ask = filter_message(self.ask)
         self.ask = Message(ask, self.asker)
 
@@ -338,7 +346,7 @@ while True:
     client.edit_post(
         blogName,
         id = ask.askid,
-        answer = reply.encode('utf-8'),
+        answer = reply.encode('utf-8', 'ignore'),
         state = 'published',
         tags = ['dialogue', ask.asker, express_mood(calculate_mood())],
         type = 'answer'

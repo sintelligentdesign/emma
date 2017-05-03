@@ -1,7 +1,7 @@
 import sqlite3 as sql
 
 # Metadata
-versionNumber = "2.0.0"
+versionNumber = "2.0.1"
 
 # Chrome
 def show_emma_banner():
@@ -9,6 +9,7 @@ def show_emma_banner():
 
 def show_database_stats():
     connection = sql.connect('emma.db')
+    connection.text_factory = str
     cursor = connection.cursor()
 
     with connection:
@@ -43,7 +44,7 @@ verbCodes = ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']
 adjectiveCodes = ['JJ', 'JJR', 'JJS']
 adverbCodes = ['RB', 'RBR', 'RBS', 'RP']
 
-trashPOS = ['LS', 'SYM', 'UH', '.', ',', ':', '"' '(', ')', 'FW']
+trashPOS = ['LS', 'SYM', 'UH', '.', ',', ':', '\"' '(', ')', 'FW']
 
 greetingStrings = [[u'what\'s', u'up'], [u'hi'], [u'yo'], [u'hiya'], [u'hello'], [u'what', u'up'], [u'wassup'], [u'what', u'is', u'up'], [u'what\'s', u'going', u'on'], [u'how', u'are', u'you'], [u'howdy'], [u'hey'], [u'good', u'morning'], [u'good', u'evening'], [u'good', u'afternoon']]
 
