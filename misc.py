@@ -1,7 +1,7 @@
 import sqlite3 as sql
 
 # Metadata
-versionNumber = "2.0.3"
+versionNumber = "2.0.4"
 
 # Chrome
 def show_emma_banner():
