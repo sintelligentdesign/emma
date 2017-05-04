@@ -330,7 +330,7 @@ while True:
 
         # Learn from and reply to the ask
         train(ask.message)
-        reply = replybuilder.reply(ask.message)
+        reply = replybuilder.reply(ask.message, calculate_mood())
         reply = cgi.escape(reply)
         logging.info("Reply: {0}".format(reply))
 
@@ -362,7 +362,7 @@ message = Message(filter_message(inputText.encode('utf-8', 'ignore')), "You")
 logging.debug("Message: {0}".format(message.message))
 train(message)
 try:
-    print replybuilder.reply(message)
+    print replybuilder.reply(message, calculate_mood())
 except ValueError as error:
     logging.error(error)
 """
