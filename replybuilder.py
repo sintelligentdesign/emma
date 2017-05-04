@@ -410,7 +410,12 @@ def reply(message, moodValue):
             greetingAdditionPotential += 1
     if message.avgMood >= 0.2:
         greetingAdditionPotential += 1
-    # TODO: Add more factors
+    if moodValue >= 0.2:
+        greetingAdditionPotential += 1
+
+    # If emma's mood is low enough, destroy any chance of making a greeting
+    if moodValue < -0.4:
+        greetingAdditionPotential = 0
 
     # Do weighted coin flip to decide whether or not to add a greeting
     if random.choice(([True] * greetingAdditionPotential) + [False]):
