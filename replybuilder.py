@@ -301,7 +301,7 @@ def make_greeting(message):
     shellSentence.contents.append(SBBPunctuation())
     return shellSentence
         
-def reply(message):
+def reply(message, moodValue):
     """Replies to a Message object using the associations we built using train()"""
     logging.info("Building reply...")
     reply = []
@@ -337,6 +337,7 @@ def reply(message):
         validDomains = {
             'declarative': False,
             'imperative': False,
+            'interrogative': False,
             'simple': False,
             'compound': False
         }
@@ -350,6 +351,8 @@ def reply(message):
                     validDomains['simple'] = True
         if validDomains['simple'] and len(associations) > 1:
             validDomains['compound'] = True
+        if moodValue > -0.4:
+            validDomains['interrogative'] = True
 
         # Interrogative is always valid, so the list starts with it prepopulated
         domains = ['interrogative']
@@ -361,8 +364,10 @@ def reply(message):
             domains.append('simple')
         if validDomains['compound']:
             domains.append('compound')
+        if validDomains['interrogative']:
+            domains.append('interrogative')
         # If we can generate non-interrogative sentences, we would profer to do that
-        if len(domains) > 3:
+        if len(domains) > 2:
             domains.remove('interrogative')
 
         sentence.domain = random.choice(domains)
@@ -443,11 +448,14 @@ def reply(message):
             elif isinstance(word, SBBConjunction):
                 logging.debug("Evaluating SBBConjunction object...")
                 sentence.contents[i] = random.choice([u'and', u'but', u'while'])
-            # Punctuation is a random choice between period and exclamation mark
-            # TODO: have mood/sentence mood affect usage of one type of punctuation over the other
+            # Punctuation choice is a coin flip gated by mood
+            # TODO: Maybe have mood actually influence the coin flip instead of just gating it?
             elif isinstance(word, SBBPunctuation):
                 logging.debug("Evaluating SBBPunctuation object...")
-                if random.choice([True, False]):
+                canExclaim = False
+                if moodValue > -0.2:
+                    canExclaim = True
+                if random.choice([False, canExclaim]):
                     sentence.contents[i] = u'!'
                 else:
                     sentence.contents[i] = u'.'
