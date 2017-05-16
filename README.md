@@ -24,6 +24,7 @@ You can talk to Emma using Tumblr Asks at [emmacanlearn.tumblr.com](http://emmac
   - Emma uses a pattern matching strategy to find key phrase structures in the Ask that indicate a relationship between two objects, and records the objects and their relationship
     - This is what makes up Emma's Association Model
     - Current association types are IS-A, HAS-PROPERTY, HAS-ABILITY-TO, HAS, and HAS-OBJECT
+      - As a side note, HAS-OBJECT refers not to a noun that another noun has in its posession, but to an object of a sentence that is valid for a noun to use
     - Associations are also weighted
 2. Emma replies to the Ask and posts it
   - Emma looks for important words in the Ask to figure out what it's about
