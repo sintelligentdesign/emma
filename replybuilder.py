@@ -134,7 +134,7 @@ def make_declarative(sentence):
             sentence.contents.append(weighted_roll(hasAssociations).target)
         elif sentenceAspect == 'IS-A':
             sentence = make_simple(sentence)
-            sentence.contents.extend([u'is', SBBArticle])
+            sentence.contents.extend([u'is', SBBArticle()])
             sentence.contents.append(weighted_roll(isaAssociations).target)
         elif sentenceAspect == 'HAS-ABILITY-TO':
             sentence = make_simple(sentence)
@@ -398,9 +398,12 @@ def reply(message, moodValue):
     for sentence in reply:
         if sentence.domain != 'interrogative':
             reorderedReply.append(sentence)
+    # TODO: write a better way of limiting interrogatives. This limits it to one for now though
+    hasInterrogative = False
     for sentence in reply:
-        if sentence.domain == 'interrogative':
+        if sentence.domain == 'interrogative' and hasInterrogative == False:
             reorderedReply.append(sentence)
+            hasInterrogative = True
     reply = reorderedReply
 
     # Decide whether or not to add a greeting -- various factors contribute to a weighted coin flip
