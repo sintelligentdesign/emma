@@ -298,14 +298,6 @@ def filter_message(messageText):
 
     return filteredText
 
-class Ask:
-    def __init__(self, message, sender, askid):
-        self.sender = sender
-        self.askid = askid
-        self.message = message.encode('utf-8', 'ignore')
-        self.message = filter_message(self.message)
-        self.message = Message(self.message, self.sender)
-
 name = raw_input("What is your name? ")
 while True:
         message = Message(filter_message(raw_input("{0} >> ".format(name)).encode('utf-8', 'ignore')), name)
