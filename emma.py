@@ -305,4 +305,4 @@ while True:
         train(message)
         reply = replybuilder.reply(message, calculate_mood())
         reply = cgi.escape(reply)
-        print "{Emma} >> {0}".format(reply)
+        print "Emma >> {0}".format(reply)
