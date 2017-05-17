@@ -134,7 +134,7 @@ def make_declarative(sentence):
             sentence.contents.append(weighted_roll(hasAssociations).target)
         elif sentenceAspect == 'IS-A':
             sentence = make_simple(sentence)
-            sentence.contents.extend([u'is', SBBArticle])
+            sentence.contents.extend([u'is', SBBArticle()])
             sentence.contents.append(weighted_roll(isaAssociations).target)
         elif sentenceAspect == 'HAS-ABILITY-TO':
             sentence = make_simple(sentence)
