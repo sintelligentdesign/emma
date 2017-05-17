@@ -10,7 +10,7 @@ import time
 import pattern.en
 import pattern.vector
 import sqlite3 as sql
-import pytumblr
+from disco import Plugin
 
 import flags
 import pronouns
@@ -307,50 +307,13 @@ class Ask:
         self.message = filter_message(self.message)
         self.message = Message(self.message, self.sender)
 
-# Authenticate with Tumblr API
-client = pytumblr.TumblrRestClient(
-    apikeys.tumblrConsumerKey,
-    apikeys.tumblrConsumerSecret,
-    apikeys.tumblrOauthToken,
-    apikeys.tumblrOauthSecret
-)
-blogName = 'emmacanlearn'
-
-while True:
-    logging.info("Checking Tumblr messages...")
-    response = client.submission(blogName)
-    if len(response['posts']) > 0:
-        asks = []
-        for ask in response['posts']:
-            asks.append(Ask(ask['question'], ask['asking_name'], ask['id']))
-
-        # Choose an ask to answer
-        ask = random.choice(asks)
-        logging.debug("@{0} says: {1}".format(ask.sender, ask.message.message.encode('utf-8', 'ignore')))
-
+'''
         # Learn from and reply to the ask
         train(ask.message)
         reply = replybuilder.reply(ask.message, calculate_mood())
         reply = cgi.escape(reply)
         logging.info("Reply: {0}".format(reply))
-
-        # Post the reply to Tumblr
-        reply = reply.encode('utf-8', 'ignore')
-        tags = ['dialogue', ask.sender.encode('utf-8', 'ignore'), express_mood(calculate_mood()).encode('utf-8', 'ignore')]
-        client.edit_post(
-            blogName,
-            id = ask.askid,
-            answer = reply,
-            state = 'published',
-            tags = tags,
-            type = 'answer'
-        )
-    else:
-        logging.info("No new Tumblr messages.")
-
-    # Sleep for 15 minutes
-    logging.info("Sleeping for 15 minutes...")
-    time.sleep(900)
+'''
 
 # Debug stuff
 """
