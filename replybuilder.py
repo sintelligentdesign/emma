@@ -301,6 +301,8 @@ def make_greeting(message):
     shellSentence.contents.append(SBBPunctuation())
     return shellSentence
         
+# We only want to allow one question per reply, so this variable tracks whether or not we've used it up
+replyHasInterrogative = False
 def reply(message, moodValue):
     """Replies to a Message object using the associations we built using train()"""
     logging.info("Building reply...")
@@ -352,10 +354,10 @@ def reply(message, moodValue):
         if validDomains['simple'] and len(associations) > 1:
             validDomains['compound'] = True
         if moodValue > -0.4:
-            validDomains['interrogative'] = True
-
-        # Interrogative is always valid, so the list starts with it prepopulated
-        domains = ['interrogative']
+            # Only allow one interrogative per reply
+            if replyHasInterrogative == False:
+                validDomains['interrogative'] = True
+            
         if validDomains['declarative']:
             domains.append('declarative')
         if validDomains['imperative']:
@@ -384,6 +386,8 @@ def reply(message, moodValue):
             sentence = make_imperative(sentence)
             sentence.contents.append(SBBPunctuation())
         elif sentence.domain == 'interrogative':
+            # Only allow one interrogative per reply
+            replyHasInterrogative = True
             sentence = make_interrogative(sentence)
         elif sentence.domain == 'simple':
             sentence = make_simple(sentence)
@@ -398,12 +402,9 @@ def reply(message, moodValue):
     for sentence in reply:
         if sentence.domain != 'interrogative':
             reorderedReply.append(sentence)
-    # TODO: write a better way of limiting interrogatives. This limits it to one for now though
-    hasInterrogative = False
     for sentence in reply:
         if sentence.domain == 'interrogative' and hasInterrogative == False:
             reorderedReply.append(sentence)
-            hasInterrogative = True
     reply = reorderedReply
 
     # Decide whether or not to add a greeting -- various factors contribute to a weighted coin flip
