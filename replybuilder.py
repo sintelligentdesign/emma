@@ -281,10 +281,11 @@ def make_greeting(message):
     shellSentence.domain = 'greeting'
 
     # Start our sentence with a greeting
+    # Walk into the room, gonna make your bang go boom when I'm like
     starters = [
+        [u'hey'],
         [u'hi'],
-        [u'hello'],
-        [u'hey']
+        [u'hello']
     ]
     shellSentence.contents.extend(random.choice(starters))
 
@@ -301,8 +302,6 @@ def make_greeting(message):
     shellSentence.contents.append(SBBPunctuation())
     return shellSentence
         
-# We only want to allow one question per reply, so this variable tracks whether or not we've used it up
-replyHasInterrogative = False
 def reply(message, moodValue):
     """Replies to a Message object using the associations we built using train()"""
     logging.info("Building reply...")
@@ -326,6 +325,10 @@ def reply(message, moodValue):
     logging.info("Choosing sentence topics and domains...")
     logging.debug("Message has {0} keywords".format(len(message.keywords)))
     logging.debug("Keywords: {0}".format(str(message.keywords)))
+
+    # We only want to allow one question per reply, so this variable tracks whether or not we've used it up
+    replyHasInterrogative = False
+
     for i, sentence in enumerate(reply):
         logging.debug("Choosing topic for sentence {0}...".format(i+1))
         sentence.topic = random.choice(message.keywords)
@@ -358,6 +361,7 @@ def reply(message, moodValue):
             if replyHasInterrogative == False:
                 validDomains['interrogative'] = True
             
+        domains = []
         if validDomains['declarative']:
             domains.append('declarative')
         if validDomains['imperative']:
@@ -370,9 +374,13 @@ def reply(message, moodValue):
             domains.append('interrogative')
         # If we can generate non-interrogative sentences, we would profer to do that
         if len(domains) > 2:
-            domains.remove('interrogative')
+            if 'interrogative' in domains:
+                domains.remove('interrogative')
 
-        sentence.domain = random.choice(domains)
+        if len(domains) > 0:
+            sentence.domain = random.choice(domains)
+        else:
+            pass
         #sentence.domain = 'simple'
         logging.debug("Valid domains: {0}".format(str(domains)))
         logging.debug("Chose {0}".format(sentence.domain))
@@ -403,7 +411,7 @@ def reply(message, moodValue):
         if sentence.domain != 'interrogative':
             reorderedReply.append(sentence)
     for sentence in reply:
-        if sentence.domain == 'interrogative' and hasInterrogative == False:
+        if sentence.domain == 'interrogative':
             reorderedReply.append(sentence)
     reply = reorderedReply
 
