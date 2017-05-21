@@ -277,24 +277,24 @@ def filter_message(messageText):
 
     # Translate internet slang and fix weird parsing stuff
     filtered = []
-        for word in messageText.split(' '):
-            word = word.decode('utf-8')
-            # Translate internet abbreviations
-            if word.lower() in misc.netspeak.keys():
-                logging.debug("Translating \'{0}\' from net speak...".format(word))
-                filtered.extend(misc.netspeak[word.lower()])
-            # Change "n't" to "not"
-            elif word.lower() in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
-                logging.debug("Replacing \"n\'t\" with \"not\"...")
-                filtered.append(u'not')
-            # Remove "'s"
-            elif word.lower() == u"\'s":
-                pass
-            # Remove double quote characters
-            elif "\"" in word or u"“" in word or u"”" in word:
-                pass
-            else:
-                filtered.append(word)
+    for word in messageText.split(' '):
+        word = word.decode('utf-8')
+        # Translate internet abbreviations
+        if word.lower() in misc.netspeak.keys():
+            logging.debug("Translating \'{0}\' from net speak...".format(word))
+            filtered.extend(misc.netspeak[word.lower()])
+        # Change "n't" to "not"
+        elif word.lower() in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
+            logging.debug("Replacing \"n\'t\" with \"not\"...")
+            filtered.append(u'not')
+        # Remove "'s"
+        elif word.lower() == u"\'s":
+            pass
+        # Remove double quote characters
+        elif "\"" in word or u"“" in word or u"”" in word:
+            pass
+        else:
+            filtered.append(word)
     filteredText = ' '.join(filtered)
 
     return filteredText
