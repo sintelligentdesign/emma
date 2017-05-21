@@ -329,7 +329,7 @@ if flags.enableDebugMode == False:
             askRange = random.randint(2, 4)
             if len(asks) <= 4:
                 askRange = len(asks)
-            asks = asks[neg(len(asks) - askRange):]
+            asks = asks[len(asks) - askRange:]
 
             for ask in asks:
                 logging.debug("@{0} says: {1}".format(ask.sender, ask.message.message.encode('utf-8', 'ignore')))
@@ -342,11 +342,13 @@ if flags.enableDebugMode == False:
                     for word in ask.message.message.split(' '):
                         word = word.decode('utf-8')
 
+                        profanity = pattern.en.wordlist.PROFANITY
+                        profanity.remove('gay')
                         if word.lower() in bannedWords:
                             logging.info("Banned word found in message. Deleting...")
                             client.delete_post(blogName, ask.askid)
                             pass
-                        elif word.lower() in pattern.en.wordlist.PROFANITY - ['gay']:
+                        elif word.lower() in profanity:
                             logging.info("Profane word found in message. Deleting...")
                             client.delete_post(blogName, ask.askid)
                             pass
