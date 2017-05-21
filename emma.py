@@ -275,11 +275,8 @@ def filter_message(messageText):
     if messageText[-1] not in ['!', '?', '.']:
         messageText += "."
 
-    # Translate internet slang and remove bad words
+    # Translate internet slang and fix weird parsing stuff
     filtered = []
-    with open('bannedwords.txt', 'r') as bannedWords:
-        bannedWords = bannedWords.read()
-        bannedWords = bannedWords.split('\n')
         for word in messageText.split(' '):
             word = word.decode('utf-8')
             # Translate internet abbreviations
@@ -293,14 +290,8 @@ def filter_message(messageText):
             # Remove "'s"
             elif word.lower() == u"\'s":
                 pass
-            # Remove words from bannedwords.txt
-            elif word.lower() in bannedWords:
-                pass
             # Remove double quote characters
             elif "\"" in word or u"“" in word or u"”" in word:
-                pass
-            # Remove general profanity
-            elif word.lower() in pattern.en.wordlist.PROFANITY:
                 pass
             else:
                 filtered.append(word)
@@ -342,6 +333,23 @@ if flags.enableDebugMode == False:
 
             for ask in asks:
                 logging.debug("@{0} says: {1}".format(ask.sender, ask.message.message.encode('utf-8', 'ignore')))
+
+                # Look for profanity or banned words
+                with open('bannedwords.txt', 'r') as bannedWords:
+                    bannedWords = bannedWords.read()
+                    bannedWords = bannedWords.split('\n')
+                    
+                    for word in ask.message.message.split(' '):
+                        word = word.decode('utf-8')
+
+                        if word.lower() in bannedWords:
+                            logging.info("Banned word found in message. Deleting...")
+                            client.delete_post(blogName, ask.askid)
+                            pass
+                        elif word.lower() in pattern.en.wordlist.PROFANITY - ['gay']:
+                            logging.info("Profane word found in message. Deleting...")
+                            client.delete_post(blogName, ask.askid)
+                            pass
 
                 # Learn from and reply to the ask
                 train(ask.message)
