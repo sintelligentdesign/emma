@@ -334,37 +334,42 @@ if flags.enableDebugMode == False:
             for ask in response['posts']:
                 asks.append(Ask(ask['question'], ask['asking_name'], ask['id']))
 
-            # Choose an ask to answer
-            ask = random.choice(asks)
-            logging.debug("@{0} says: {1}".format(ask.sender, ask.message.message.encode('utf-8', 'ignore')))
+            # Choose a selection of asks to answer
+            askRange = random.randint(2, 4)
+            if len(asks) <= 4:
+                askRange = len(asks)
+            asks = asks[neg(len(asks) - askRange):]
 
-            # Learn from and reply to the ask
-            train(ask.message)
-            reply = replybuilder.reply(ask.message, calculate_mood())
-            if reply == 0:
-                # Sentence generation failed
-                pass
-            reply = cgi.escape(reply)
-            logging.info("Reply: {0}".format(reply))
+            for ask in asks:
+                logging.debug("@{0} says: {1}".format(ask.sender, ask.message.message.encode('utf-8', 'ignore')))
 
-            # Post the reply to Tumblr
-            reply = reply.encode('utf-8', 'ignore')
-            tags = ['dialogue', ask.sender.encode('utf-8', 'ignore'), express_mood(calculate_mood()).encode('utf-8', 'ignore')]
-            client.edit_post(
-                blogName,
-                id = ask.askid,
-                answer = reply,
-                state = 'published',
-                tags = tags,
-                type = 'answer'
-            )
+                # Learn from and reply to the ask
+                train(ask.message)
+                reply = replybuilder.reply(ask.message, calculate_mood())
+                if reply == 0:
+                    # Sentence generation failed
+                    pass
+                reply = cgi.escape(reply)
+                logging.info("Reply: {0}".format(reply))
+
+                # Post the reply to Tumblr
+                reply = reply.encode('utf-8', 'ignore')
+                tags = ['dialogue', ask.sender.encode('utf-8', 'ignore'), express_mood(calculate_mood()).encode('utf-8', 'ignore')]
+                client.edit_post(
+                    blogName,
+                    id = ask.askid,
+                    answer = reply,
+                    state = 'published',
+                    tags = tags,
+                    type = 'answer'
+                )
         else:
             logging.info("No new Tumblr messages.")
 
-        # Sleep for 15 minutes
+        # Sleep for 10 minutes
         logging.info("Sleeping for 10 minutes...")
         time.sleep(600)
-        
+
 else:
     # Debug stuff
     if flags.useTestingStrings: 
