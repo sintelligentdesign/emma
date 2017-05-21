@@ -331,6 +331,9 @@ while True:
         # Learn from and reply to the ask
         train(ask.message)
         reply = replybuilder.reply(ask.message, calculate_mood())
+        if reply = 0:
+            # Sentence generation failed
+            pass
         reply = cgi.escape(reply)
         logging.info("Reply: {0}".format(reply))
 
@@ -349,8 +352,8 @@ while True:
         logging.info("No new Tumblr messages.")
 
     # Sleep for 15 minutes
-    logging.info("Sleeping for 15 minutes...")
-    time.sleep(900)
+    logging.info("Sleeping for 10 minutes...")
+    time.sleep(600)
 
 # Debug stuff
 """
@@ -361,8 +364,9 @@ else: inputText = raw_input("Message >> ")
 message = Message(filter_message(inputText.encode('utf-8', 'ignore')), "You")
 logging.debug("Message: {0}".format(message.message))
 train(message)
-try:
-    print replybuilder.reply(message, calculate_mood())
-except ValueError as error:
-    logging.error(error)
+
+print replybuilder.reply(message, calculate_mood())
+if reply = 0:
+    # Sentence generation failed
+    pass
 """
