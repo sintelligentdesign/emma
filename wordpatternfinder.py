@@ -27,8 +27,8 @@ def package_interrogatives(sentence):
                 if word.partOfSpeech in misc.nounCodes:
                     subject = word
                     break
-            package = InterrogativePackage('WHAT-IS', attribute, subject)
-            return package
+            setence.interrogativePackage = InterrogativePackage('WHAT-IS', attribute, subject)
+            return sentence
 
 def find_patterns(message):
     for sentence in message.sentences:
@@ -44,8 +44,8 @@ def find_patterns(message):
             if sentence.words[1].lemma == u'be':
                 sentence.domain = 'DECLARATIVE'
 
+        # If the domain is interrogative, package the question to answer later
         if sentence.domain == 'INTERROGATIVE':
-            # TODO: Do package_interrogatives()
-            pass
+            sentence = package_interrogatives(sentence)
 
     return message
