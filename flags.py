@@ -14,7 +14,7 @@ testingStringsSimple = [
 ]
 '''
 testingStringsSimple = [
-    u"Bees are yellow and black."
+    u"What is the color of the sky?"
 ]
 
 if testingStringType == 'simple':

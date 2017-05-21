@@ -52,10 +52,10 @@ def find_patterns(sentence):
         if sentence.words[1].lemma == u'be':
             sentence.domain = 'DECLARATIVE'
 
+    logging.debug("Sentence domain: {0}".format(sentence.domain))
+
     # If the domain is interrogative, package the question to answer later
     if sentence.domain == 'INTERROGATIVE':
         sentence = package_interrogatives(sentence)
-
-    logging.debug("Sentence domain: {0}".format(sentence.domain))
 
     return sentence
