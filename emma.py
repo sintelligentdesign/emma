@@ -14,6 +14,7 @@ import pytumblr
 
 import flags
 import pronouns
+import wordpatternfinder
 import associationtrainer
 import replybuilder
 import misc
@@ -191,6 +192,7 @@ class Message:
         self.avgMood = int
         self.keywords = []
         self.sender = sender
+        self.domain = str
 
         # Get a list of Sentence objects contained in the Message and put them in taggedSentences
         for sentence in pattern.en.parse(
