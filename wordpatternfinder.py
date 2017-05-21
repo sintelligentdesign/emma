@@ -1,8 +1,19 @@
 import misc
 
 class InterrogativePackage:
-    def __init__(self):
-        pass
+    """
+    Packages the important bits of question nicely
+
+    Class variables:
+    questionType    str     Type of question ('what is', 'do X have Y', etc.)
+    attribute       Word    Half of the important question bits ('what is the color of the sky?' <- 'color')
+    subject         Word    The other half ('what is the color of the sky?' <- 'sky')
+    """
+    
+    def __init__(self, questionType, attribute, subject):
+        self.questionType = questionType
+        self.attribute = attribute
+        self.subject = subject
 
 def find_patterns(message):
     for sentence in message.sentences:
