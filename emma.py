@@ -146,10 +146,12 @@ class Sentence:
     Defines a sentence and its attributes, auto-generates and fills itself with Word objects
 
     Class variables:
-    sentence        str     String representation of the Sentence
-    words           list    Ordered list of Word objects in the Sentence
-    mood            float   Positive or negative sentiment in the Sentence
-    length          int     Length of the sentence
+    sentence        str             String representation of the Sentence
+    words           list            Ordered list of Word objects in the Sentence
+    mood            float           Positive or negative sentiment in the Sentence
+    length          int             Length of the sentence
+    domain          str             The sentence's domain as determined by the wordpatternfinder module
+    questionPackage QuestionPackage If the sentence domain is INTERROGATIVE, this represents the question that they're asking
     """
 
     def __init__(self, sentence):
@@ -157,6 +159,8 @@ class Sentence:
         self.words = []
         self.mood = add_mood_value(self.sentence)
         self.length = int
+        self.domain = str
+        self.questionPackage = None
 
         # Get a list of Word objects contained in the Sentence and put them in taggedWords
         for i, word in enumerate(pattern.en.parse(
@@ -192,7 +196,6 @@ class Message:
         self.avgMood = int
         self.keywords = []
         self.sender = sender
-        self.domain = str
 
         # Get a list of Sentence objects contained in the Message and put them in taggedSentences
         for sentence in pattern.en.parse(
