@@ -34,7 +34,8 @@ def package_interrogatives(sentence):
                     else:
                         subject = word
                         break
-            setence.interrogativePackage = InterrogativePackage('WHAT-IS', attribute, subject)
+            sentence.interrogativePackage = InterrogativePackage('WHAT-IS', attribute, subject)
+            logging.info("'WHAT-IS interrogative with attribute '{0}' and subject '{1}'".format(attribute, subject))
             return sentence
 
 def find_patterns(sentence):
@@ -55,6 +56,6 @@ def find_patterns(sentence):
     if sentence.domain == 'INTERROGATIVE':
         sentence = package_interrogatives(sentence)
 
-    logging.debug(sentence.domain)
+    logging.debug("Sentence domain: {0}".format(sentence.domain))
 
     return sentence
