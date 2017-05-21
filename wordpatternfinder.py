@@ -19,14 +19,18 @@ def package_interrogatives(sentence):
     # "What is...?"
     if sentence.words[0].lemma == u'what':
         if sentence.words[1].lemma == u'be':
+            # Find the attribute and object
             for word in sentence.words[2:]:
-                if word.partOfSpeech in misc.nounCodes:
+                if word.partOfSpeech in misc.nounCodes + misc.adjectiveCodes:
                     attribute = word
                     break
-            for word in sentence.words[attribute.index + 1:]:
+            for word in sentence.words[2:]:
                 if word.partOfSpeech in misc.nounCodes:
-                    subject = word
-                    break
+                    if word == attribute:
+                        pass
+                    else:
+                        subject = word
+                        break
             setence.interrogativePackage = InterrogativePackage('WHAT-IS', attribute, subject)
             return sentence
 
