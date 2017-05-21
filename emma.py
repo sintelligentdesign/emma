@@ -331,7 +331,7 @@ while True:
         # Learn from and reply to the ask
         train(ask.message)
         reply = replybuilder.reply(ask.message, calculate_mood())
-        if reply = 0:
+        if reply == 0:
             # Sentence generation failed
             pass
         reply = cgi.escape(reply)
@@ -356,7 +356,7 @@ while True:
     time.sleep(600)
 
 # Debug stuff
-"""
+'''
 if flags.useTestingStrings: 
     inputText = random.choice(flags.testingStrings)
 else: inputText = raw_input("Message >> ")
@@ -365,8 +365,10 @@ message = Message(filter_message(inputText.encode('utf-8', 'ignore')), "You")
 logging.debug("Message: {0}".format(message.message))
 train(message)
 
-print replybuilder.reply(message, calculate_mood())
-if reply = 0:
+reply = replybuilder.reply(message, calculate_mood())
+if reply == 0:
     # Sentence generation failed
     pass
-"""
+else:
+    print reply
+'''
