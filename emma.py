@@ -26,7 +26,7 @@ misc.show_database_stats()
 
 # Setup stuff
 # Set up logging level (this should go in misc.py but eh)
-logging.root.setLevel(logging.DEBUG)
+logging.root.setLevel(logging.INFO)
 
 # Pre-flight engine checks
 # Check for emma.db or create it if it isn't there
