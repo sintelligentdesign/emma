@@ -23,6 +23,8 @@ def package_interrogatives(sentence):
     if sentence.words[0].lemma == u'what':
         if sentence.words[1].lemma == u'be':
             # Find the attribute and object
+            attribute = None
+            subject = None
             for word in sentence.words[2:]:
                 if word.partOfSpeech in misc.nounCodes + misc.adjectiveCodes:
                     attribute = word
@@ -34,9 +36,10 @@ def package_interrogatives(sentence):
                     else:
                         subject = word
                         break
-            sentence.interrogativePackage = InterrogativePackage('WHAT-IS', attribute, subject)
-            logging.info("'WHAT-IS interrogative with attribute '{0}' and subject '{1}'".format(attribute, subject))
-            return sentence
+            if attribute != None and subject != None:
+                sentence.interrogativePackage = InterrogativePackage('WHAT-IS', attribute, subject)
+                logging.info("'WHAT-IS interrogative with attribute '{0}' and subject '{1}'".format(attribute, subject))
+                return sentence
 
 def find_patterns(sentence):
     """Finds Sentence objects' domains and InterrogativePackages, if applicable"""

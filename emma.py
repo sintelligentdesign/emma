@@ -361,21 +361,23 @@ if flags.enableDebugMode == False:
                 reply = replybuilder.reply(ask.message, calculate_mood())
                 if reply == 0:
                     # Sentence generation failed
+                    client.delete_post(blogName, ask.askid)
                     pass
-                reply = cgi.escape(reply)
-                logging.info("Reply: {0}".format(reply))
+                else:
+                    reply = cgi.escape(reply)
+                    logging.info("Reply: {0}".format(reply))
 
-                # Post the reply to Tumblr
-                reply = reply.encode('utf-8', 'ignore')
-                tags = ['dialogue', ask.sender.encode('utf-8', 'ignore'), express_mood(calculate_mood()).encode('utf-8', 'ignore')]
-                client.edit_post(
-                    blogName,
-                    id = ask.askid,
-                    answer = reply,
-                    state = 'published',
-                    tags = tags,
-                    type = 'answer'
-                )
+                    # Post the reply to Tumblr
+                    reply = reply.encode('utf-8', 'ignore')
+                    tags = ['dialogue', ask.sender.encode('utf-8', 'ignore'), express_mood(calculate_mood()).encode('utf-8', 'ignore')]
+                    client.edit_post(
+                        blogName,
+                        id = ask.askid,
+                        answer = reply,
+                        state = 'published',
+                        tags = tags,
+                        type = 'answer'
+                    )
         else:
             logging.info("No new Tumblr messages.")
 
