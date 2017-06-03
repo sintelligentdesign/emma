@@ -26,7 +26,7 @@ misc.show_database_stats()
 
 # Setup stuff
 # Set up logging level (this should go in misc.py but eh)
-logging.root.setLevel(logging.INFO)
+logging.root.setLevel(logging.DEBUG)
 
 # Pre-flight engine checks
 # Check for emma.db or create it if it isn't there
@@ -232,7 +232,19 @@ class Message:
                     if word.partOfSpeech in misc.nounCodes and word.lemma not in self.keywords:
                         self.keywords.append(word.lemma)
 
-        # If we still don't have any keywords, that's bad
+        # Check keywords against words that we have in the dictionary
+        with connection:
+            cursor.execute('SELECT * FROM dictionary;')
+            dictionary = []
+            for row in cursor.fetchall():
+                dictionary.append(row[0])
+
+        for keyword in self.keywords:
+            if keyword not in dictionary:
+                logging.debug("Removing unknown word {0} from keyword list".format(keyword))
+                self.keywords.remove(keyword)
+
+        # If we don't have any keywords, that's bad
         if self.keywords == []:
             logging.error("No keywords detected in message! This will cause a critical failure when we try to reply!")
 
@@ -259,6 +271,7 @@ def train(message):
             for word in sentence.words:
                 if word.partOfSpeech not in misc.trashPOS:
                     # If it's a word we don't have in the database, add it
+                    #TODO: check the types of word.lemma and knownWord because apparently they aren't the same
                     if word.lemma not in [knownWord[0] for knownWord in knownWords if word.lemma == knownWord[0]]:
                         logging.info("Learned new word: \'{0}\'!".format(word.lemma.encode('utf-8', 'ignore')))
                         logging.debug("Prev. word POS: \'{0}\'".format(word.partOfSpeech))
@@ -341,7 +354,6 @@ if flags.enableDebugMode == False:
                     bannedWords = bannedWords.split('\n')
                     
                     for word in ask.message.message.split(' '):
-                        word = word.decode('utf-8')
 
                         profanity = []
                         profanity.extend(pattern.en.wordlist.PROFANITY)
