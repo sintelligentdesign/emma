@@ -508,6 +508,11 @@ def reply(message, moodValue, allowInterrogative=True):
         sentence.contents[-2] += sentence.contents[-1]
         sentence.contents.remove(sentence.contents[-1])
         finishedSentences.append(' '.join(sentence.contents))
-    
+
     finishedReply = ' '.join(finishedSentences)
+
+    # Fix the shitty broken unicode \xa0 thing
+    finishedReply = finishedReply.replace(u'\xa0', u' ')
+    finishedReply = finishedReply.replace(u'\\', u'')
+
     return finishedReply
