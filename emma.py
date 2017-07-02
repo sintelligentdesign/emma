@@ -73,7 +73,7 @@ def add_mood_value(text):
 
     # And save!
     logging.debug("Saving mood history...")
-    with open('moodhistory.p', 'wb') as moodFile: 
+    with open('moodHistory.p', 'wb') as moodFile: 
         pickle.dump(moodHistory, moodFile)
 
     return moodValue
