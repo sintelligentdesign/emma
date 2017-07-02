@@ -58,7 +58,7 @@ if os.path.isfile('moodHistory.p'):
 else:   
     logging.warn("Mood history file not found! Creating...")
     with open('moodHistory.p','wb') as moodFile:
-        moodHistory = [0] * 10
+        moodHistory = [0.0] * 10
         pickle.dump(moodHistory, moodFile)
     logging.debug("Mood history file created.")
 
