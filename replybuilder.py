@@ -293,10 +293,6 @@ def make_greeting(message):
     if random.choice([True, False]):
         shellSentence.contents.append(u'there')
 
-    # Coin flip for adding a comma
-    if random.choice([True, False]):
-        shellSentence.contents[-1] = shellSentence.contents[-1] + u','
-
     # Add the message sender's username
     shellSentence.contents.append(message.sender)
     shellSentence.contents.append(SBBPunctuation())
