@@ -1,5 +1,5 @@
 # Metadata
-versionNumber = "2.0.5"
+versionNumber = "2.0.6"
 
 # Weird variables and lists
 netspeak = {
