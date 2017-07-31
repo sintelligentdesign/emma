@@ -8,7 +8,7 @@
 
           Written by Ellie Cochran & Alexander Howard
 
-Emma is a computer program that generates rough concepts of associations by reading input. She uses these associations, in conjunction with learned sentence structure patterns, to generate a reply (consequently, Emma is *not* a run-of-the-mill Markov bot. She's much more interesting than that~). She is a Summer project created by Digital Media student, programmer, & computer artist Ellie Cochran, and Computer Science & Mathematics student Alexander Howard.
+Emma is a computer program that generates rough concepts of associations by reading input. She uses these associations to generate a reply (consequently, Emma is *not* a run-of-the-mill Markov bot. She's much more interesting than that~). She was created by Digital Media student, programmer, & computer artist Ellie Cochran with help from Computer Science & Mathematics student Alexander Howard.
 
 # Talk to Emma
 You can talk to Emma using Tumblr Asks at [emmacanlearn.tumblr.com](http://emmacanlearn.tumblr.com/ask).

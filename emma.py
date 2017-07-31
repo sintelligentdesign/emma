@@ -14,14 +14,11 @@ from disco import Plugin
 
 import flags
 import pronouns
+import wordpatternfinder
 import associationtrainer
 import replybuilder
 import misc
 import apikeys
-
-# Dumb chrome
-misc.show_emma_banner()
-misc.show_database_stats()
 
 # Setup stuff
 # Set up logging level (this should go in misc.py but eh)
@@ -29,11 +26,11 @@ logging.root.setLevel(logging.DEBUG)
 
 # Pre-flight engine checks
 # Check for emma.db or create it if it isn't there
-logging.info("Checking for association model...")
+logging.info("Checking for association model")
 if os.path.isfile('emma.db'):
      logging.debug("Association model found!")
 else:
-    logging.warn("Association model not found! Creating...")
+    logging.warn("Association model not found! Creating")
     with sql.connect('emma.db') as connection:
         connection.cursor().executescript("""
         DROP TABLE IF EXISTS associationmodel;
@@ -41,12 +38,21 @@ else:
         CREATE TABLE associationmodel(word TEXT, association_type TEXT, target TEXT, weight DOUBLE);
         CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, affinity DOUBLE)
         """)
-    logging.debug("Associatoin model created.")
+    logging.debug("Association model created.")
 
 # Set up SQL
 connection = sql.connect('emma.db')
 connection.text_factory = str
 cursor = connection.cursor()
+
+# Dumb chrome
+print u"\n .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .oooo.\nd88' \u006088b \u0060888P\"Y88bP\"Y88b  \u0060888P\"Y88bP\"Y88b  \u0060P  )88b\n888ooo888  888   888   888   888   888   888   .oP\"888\n888    .,  888   888   888   888   888   888  d8(  888\n\u0060Y8bod8P' o888o o888o o888o o888o o888o o888o \u0060Y888\"\"8o\n\n        ELECTRONIC MODEL of MAPPED ASSOCIATIONS\n                     Version " + misc.versionNumber + "\n"
+with connection:
+    cursor.execute("SELECT * FROM associationmodel")
+    associationModelItems = "{:,d}".format(len(cursor.fetchall()))
+    cursor.execute("SELECT * FROM dictionary")
+    dictionaryItems = "{:,d}".format(len(cursor.fetchall()))
+print "Database contains {0} associations for {1} words.".format(associationModelItems, dictionaryItems)
 
 # Check for and load the file containing the history of mood values or create it if it isn't there
 logging.info("Loading mood history...")
@@ -57,7 +63,7 @@ if os.path.isfile('moodHistory.p'):
 else:   
     logging.warn("Mood history file not found! Creating...")
     with open('moodHistory.p','wb') as moodFile:
-        moodHistory = [0] * 10
+        moodHistory = [0.0] * 10
         pickle.dump(moodHistory, moodFile)
     logging.debug("Mood history file created.")
 
@@ -72,7 +78,7 @@ def add_mood_value(text):
 
     # And save!
     logging.debug("Saving mood history...")
-    with open('moodhistory.p', 'wb') as moodFile: 
+    with open('moodHistory.p', 'wb') as moodFile: 
         pickle.dump(moodHistory, moodFile)
 
     return moodValue
@@ -145,10 +151,12 @@ class Sentence:
     Defines a sentence and its attributes, auto-generates and fills itself with Word objects
 
     Class variables:
-    sentence        str     String representation of the Sentence
-    words           list    Ordered list of Word objects in the Sentence
-    mood            float   Positive or negative sentiment in the Sentence
-    length          int     Length of the sentence
+    sentence                str                     String representation of the Sentence
+    words                   list                    Ordered list of Word objects in the Sentence
+    mood                    float                   Positive or negative sentiment in the Sentence
+    length                  int                     Length of the sentence
+    domain                  str                     The sentence's domain as determined by the wordpatternfinder module
+    interrogativePackage    InterrogativePackage    If the sentence domain is INTERROGATIVE, this represents the question that they're asking
     """
 
     def __init__(self, sentence):
@@ -156,6 +164,8 @@ class Sentence:
         self.words = []
         self.mood = add_mood_value(self.sentence)
         self.length = int
+        self.domain = str
+        self.interrogativePackage = None
 
         # Get a list of Word objects contained in the Sentence and put them in taggedWords
         for i, word in enumerate(pattern.en.parse(
@@ -210,6 +220,10 @@ class Message:
             moods.append(sentence.mood)
         self.avgMood = sum(moods) / len(moods)
 
+        # Find sentences' domains and InterrogativePackages (if applicable)
+        for sentence in self.sentences:
+            sentence = wordpatternfinder.find_patterns(sentence)
+
         # Use pattern.vector to find keywords
         for keyword in pattern.vector.Document(self.message).keywords():
             keyword = pattern.en.lemma(keyword[1])
@@ -223,7 +237,19 @@ class Message:
                     if word.partOfSpeech in misc.nounCodes and word.lemma not in self.keywords:
                         self.keywords.append(word.lemma)
 
-        # If we still don't have any keywords, that's bad
+        # Check keywords against words that we have in the dictionary
+        with connection:
+            cursor.execute('SELECT * FROM dictionary;')
+            dictionary = []
+            for row in cursor.fetchall():
+                dictionary.append(row[0])
+
+        for keyword in self.keywords:
+            if keyword not in dictionary:
+                logging.debug("Removing unknown word {0} from keyword list".format(keyword))
+                self.keywords.remove(keyword)
+
+        # If we don't have any keywords, that's bad
         if self.keywords == []:
             logging.error("No keywords detected in message! This will cause a critical failure when we try to reply!")
 
@@ -250,6 +276,7 @@ def train(message):
             for word in sentence.words:
                 if word.partOfSpeech not in misc.trashPOS:
                     # If it's a word we don't have in the database, add it
+                    #TODO: check the types of word.lemma and knownWord because apparently they aren't the same
                     if word.lemma not in [knownWord[0] for knownWord in knownWords if word.lemma == knownWord[0]]:
                         logging.info("Learned new word: \'{0}\'!".format(word.lemma.encode('utf-8', 'ignore')))
                         logging.debug("Prev. word POS: \'{0}\'".format(word.partOfSpeech))
@@ -266,35 +293,26 @@ def filter_message(messageText):
     if messageText[-1] not in ['!', '?', '.']:
         messageText += "."
 
-    # Translate internet slang and remove bad words
+    # Translate internet slang and fix weird parsing stuff
     filtered = []
-    with open('bannedwords.txt', 'r') as bannedWords:
-        bannedWords = bannedWords.read()
-        bannedWords = bannedWords.split('\n')
-        for word in messageText.split(' '):
-            word = word.decode('utf-8')
-            # Translate internet abbreviations
-            if word.lower() in misc.netspeak.keys():
-                logging.debug("Translating \'{0}\' from net speak...".format(word))
-                filtered.extend(misc.netspeak[word.lower()])
-            # Change "n't" to "not"
-            elif word.lower() in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
-                logging.debug("Replacing \"n\'t\" with \"not\"...")
-                filtered.append(u'not')
-            # Remove "'s"
-            elif word.lower() == u"\'s":
-                pass
-            # Remove words from bannedwords.txt
-            elif word.lower() in bannedWords:
-                pass
-            # Remove double quote characters
-            elif "\"" in word or u"“" in word or u"”" in word:
-                pass
-            # Remove general profanity
-            elif word.lower() in pattern.en.wordlist.PROFANITY:
-                pass
-            else:
-                filtered.append(word)
+    for word in messageText.split(' '):
+        word = word.decode('utf-8')
+        # Translate internet abbreviations
+        if word.lower() in misc.netspeak.keys():
+            logging.debug("Translating \'{0}\' from net speak...".format(word))
+            filtered.extend(misc.netspeak[word.lower()])
+        # Change "n't" to "not"
+        elif word.lower() in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
+            logging.debug("Replacing \"n\'t\" with \"not\"...")
+            filtered.append(u'not')
+        # Remove "'s"
+        elif word.lower() == u"\'s":
+            pass
+        # Remove double quote characters
+        elif "\"" in word or u"“" in word or u"”" in word:
+            pass
+        else:
+            filtered.append(word)
     filteredText = ' '.join(filtered)
 
     return filteredText
@@ -307,25 +325,96 @@ class Ask:
         self.message = filter_message(self.message)
         self.message = Message(self.message, self.sender)
 
-'''
-        # Learn from and reply to the ask
-        train(ask.message)
-        reply = replybuilder.reply(ask.message, calculate_mood())
-        reply = cgi.escape(reply)
-        logging.info("Reply: {0}".format(reply))
-'''
+if flags.enableDebugMode == False:
+    # Authenticate with Tumblr API
+    client = pytumblr.TumblrRestClient(
+        apikeys.tumblrConsumerKey,
+        apikeys.tumblrConsumerSecret,
+        apikeys.tumblrOauthToken,
+        apikeys.tumblrOauthSecret
+    )
+    blogName = 'emmacanlearn'
 
-# Debug stuff
-"""
-if flags.useTestingStrings: 
-    inputText = random.choice(flags.testingStrings)
-else: inputText = raw_input("Message >> ")
+    while True:
+        logging.info("Checking Tumblr messages...")
+        response = client.submission(blogName)
+        if len(response['posts']) > 0:
+            asks = []
+            for ask in response['posts']:
+                asks.append(Ask(ask['question'], ask['asking_name'], ask['id']))
 
-message = Message(filter_message(inputText.encode('utf-8', 'ignore')), "You")
-logging.debug("Message: {0}".format(message.message))
-train(message)
-try:
-    print replybuilder.reply(message, calculate_mood())
-except ValueError as error:
-    logging.error(error)
-"""
+            # Choose a selection of asks to answer
+            askRange = random.randint(2, 4)
+            if len(asks) <= 4:
+                askRange = len(asks)
+            asks = asks[len(asks) - askRange:]
+            logging.info("Answering {0} asks...".format(askRange))
+
+            for ask in asks:
+                logging.debug("@{0} says: {1}".format(ask.sender, ask.message.message.encode('utf-8', 'ignore')))
+
+                # Look for profanity or banned words
+                with open('bannedwords.txt', 'r') as bannedWords:
+                    bannedWords = bannedWords.read()
+                    bannedWords = bannedWords.split('\n')
+                    
+                    for word in ask.message.message.split(' '):
+
+                        profanity = []
+                        profanity.extend(pattern.en.wordlist.PROFANITY)
+                        profanity.remove('gay')
+
+                        if word.lower() in bannedWords:
+                            logging.info("Banned word found in message. Deleting...")
+                            client.delete_post(blogName, ask.askid)
+                            pass
+                        elif word.lower() in profanity:
+                            logging.info("Profane word found in message. Deleting...")
+                            client.delete_post(blogName, ask.askid)
+                            pass
+
+                # Learn from and reply to the ask
+                train(ask.message)
+                reply = replybuilder.reply(ask.message, calculate_mood())
+                if reply == 0:
+                    # Sentence generation failed
+                    client.delete_post(blogName, ask.askid)
+                    pass
+                else:
+                    reply = cgi.escape(reply)
+                    logging.info("Reply: {0}".format(reply))
+
+                    # Post the reply to Tumblr
+                    reply = reply.encode('utf-8', 'ignore')
+                    tags = ['dialogue', ask.sender.encode('utf-8', 'ignore'), express_mood(calculate_mood()).encode('utf-8', 'ignore')]
+                    client.edit_post(
+                        blogName,
+                        id = ask.askid,
+                        answer = reply,
+                        state = 'published',
+                        tags = tags,
+                        type = 'answer'
+                    )
+        else:
+            logging.info("No new Tumblr messages.")
+
+        # Sleep for 10 minutes
+        logging.info("Sleeping for 10 minutes...")
+        time.sleep(600)
+
+else:
+    # Debug stuff
+    if flags.useTestingStrings: 
+        inputText = random.choice(flags.testingStrings)
+    else: inputText = raw_input("Message >> ")
+
+    message = Message(filter_message(inputText.encode('utf-8', 'ignore')), "You")
+    logging.debug("Message: {0}".format(message.message))
+    train(message)
+
+    reply = replybuilder.reply(message, calculate_mood())
+    if reply == 0:
+        # Sentence generation failed
+        pass
+    else:
+        print reply

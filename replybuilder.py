@@ -281,10 +281,11 @@ def make_greeting(message):
     shellSentence.domain = 'greeting'
 
     # Start our sentence with a greeting
+    # Walk into the room, gonna make your bang go boom when I'm like
     starters = [
+        [u'hey'],
         [u'hi'],
-        [u'hello'],
-        [u'hey']
+        [u'hello']
     ]
     shellSentence.contents.extend(random.choice(starters))
 
@@ -292,16 +293,12 @@ def make_greeting(message):
     if random.choice([True, False]):
         shellSentence.contents.append(u'there')
 
-    # Coin flip for adding a comma
-    if random.choice([True, False]):
-        shellSentence.contents[-1] = shellSentence.contents[-1] + u','
-
     # Add the message sender's username
     shellSentence.contents.append(message.sender)
     shellSentence.contents.append(SBBPunctuation())
     return shellSentence
         
-def reply(message, moodValue):
+def reply(message, moodValue, allowInterrogative=True):
     """Replies to a Message object using the associations we built using train()"""
     logging.info("Building reply...")
     reply = []
@@ -310,7 +307,8 @@ def reply(message, moodValue):
     if len(message.keywords) > 0:
         pass
     else:
-        raise IndexError('No keywords in Message object. Sentence generation failed.')
+        logging.warn('No keywords in Message object. Sentence generation failed.')
+        return 0
 
     # Decide how many sentences long our reply will be (excluding greetings, which don't count because a message could be just a greeting)
     minSentences = 1
@@ -324,6 +322,10 @@ def reply(message, moodValue):
     logging.info("Choosing sentence topics and domains...")
     logging.debug("Message has {0} keywords".format(len(message.keywords)))
     logging.debug("Keywords: {0}".format(str(message.keywords)))
+
+    # We only want to allow one question per reply, so this variable tracks whether or not we've used it up
+    replyHasInterrogative = False
+
     for i, sentence in enumerate(reply):
         logging.debug("Choosing topic for sentence {0}...".format(i+1))
         sentence.topic = random.choice(message.keywords)
@@ -352,10 +354,11 @@ def reply(message, moodValue):
         if validDomains['simple'] and len(associations) > 1:
             validDomains['compound'] = True
         if moodValue > -0.4:
-            validDomains['interrogative'] = True
-
-        # Interrogative is always valid, so the list starts with it prepopulated
-        domains = ['interrogative']
+            # Only allow one interrogative per reply
+            if replyHasInterrogative == False:
+                validDomains['interrogative'] = True
+            
+        domains = []
         if validDomains['declarative']:
             domains.append('declarative')
         if validDomains['imperative']:
@@ -368,10 +371,15 @@ def reply(message, moodValue):
             domains.append('interrogative')
         # If we can generate non-interrogative sentences, we would profer to do that
         if len(domains) > 2:
-            domains.remove('interrogative')
+            if 'interrogative' in domains:
+                domains.remove('interrogative')
 
-        sentence.domain = random.choice(domains)
-        #sentence.domain = 'simple'
+        if len(domains) > 0:
+            sentence.domain = random.choice(domains)
+        else: 
+            logging.warn('No domains available for sentence generation. Sentence generation failed.')
+            return 0
+        
         logging.debug("Valid domains: {0}".format(str(domains)))
         logging.debug("Chose {0}".format(sentence.domain))
 
@@ -384,6 +392,8 @@ def reply(message, moodValue):
             sentence = make_imperative(sentence)
             sentence.contents.append(SBBPunctuation())
         elif sentence.domain == 'interrogative':
+            # Only allow one interrogative per reply
+            replyHasInterrogative = True
             sentence = make_interrogative(sentence)
         elif sentence.domain == 'simple':
             sentence = make_simple(sentence)
@@ -398,12 +408,9 @@ def reply(message, moodValue):
     for sentence in reply:
         if sentence.domain != 'interrogative':
             reorderedReply.append(sentence)
-    # TODO: write a better way of limiting interrogatives. This limits it to one for now though
-    hasInterrogative = False
     for sentence in reply:
-        if sentence.domain == 'interrogative' and hasInterrogative == False:
+        if sentence.domain == 'interrogative':
             reorderedReply.append(sentence)
-            hasInterrogative = True
     reply = reorderedReply
 
     # Decide whether or not to add a greeting -- various factors contribute to a weighted coin flip
@@ -497,6 +504,11 @@ def reply(message, moodValue):
         sentence.contents[-2] += sentence.contents[-1]
         sentence.contents.remove(sentence.contents[-1])
         finishedSentences.append(' '.join(sentence.contents))
-    
+
     finishedReply = ' '.join(finishedSentences)
+
+    # Fix the shitty broken unicode \xa0 thing
+    finishedReply = finishedReply.replace(u'\xa0', u' ')
+    finishedReply = finishedReply.replace(u'\\', u'')
+
     return finishedReply
