@@ -196,7 +196,6 @@ def make_interrogative(sentence):
     starters = [
         [u'what', u'is'],
         [u'what\'s'],
-        [],
     ]
     sentence.contents.extend(random.choice(starters))
 
@@ -204,27 +203,6 @@ def make_interrogative(sentence):
     sentence = make_simple(sentence)
 
     sentence.contents.append(u'?')
-    logging.debug("Reply (in progress): {0}".format(str(sentence.contents)))
-    return sentence
-
-def make_introspective(sentence):
-    # Start the sentence with 'I'
-    starters = [
-        [u'I'],
-        [u'I', u'am'],
-        [u'I\'m']
-    ]
-    sentence.contents.extend(random.choice(starters))
-
-    # Add an adjective or noun
-    associations = find_associations('emma')
-    associations = []
-
-    for association in associations:
-        if association.associationType == "HAS-PROPERTY" or association.associationType == "IS-A":
-            associations.append((association.weight, association))
-
-    sentence.contents.append(weighted_roll(associations))
     logging.debug("Reply (in progress): {0}".format(str(sentence.contents)))
     return sentence
 
@@ -363,8 +341,7 @@ def reply(message, moodValue, allowInterrogative=True):
             'imperative': False,
             'interrogative': False,
             'simple': False,
-            'compound': False,
-            'introspective': True
+            'compound': False
         }
         for association in associations:
             if association.word == sentence.topic:
@@ -392,8 +369,6 @@ def reply(message, moodValue, allowInterrogative=True):
             domains.append('compound')
         if validDomains['interrogative']:
             domains.append('interrogative')
-        if validDomains['introspective']:
-            domains.append('introspective')
         # If we can generate non-interrogative sentences, we would profer to do that
         if len(domains) > 2:
             if 'interrogative' in domains:
@@ -425,9 +400,6 @@ def reply(message, moodValue, allowInterrogative=True):
             sentence.contents.append(SBBPunctuation())
         elif sentence.domain == 'compound':
             sentence = make_compound(sentence, random.choice(message.keywords))
-            sentence.contents.append(SBBPunctuation())
-        elif sentence.domain == 'introspective':
-            sentence = make_introspective(sentence)
             sentence.contents.append(SBBPunctuation())
 
     # Reorder sentences based on their domain
