@@ -32,7 +32,7 @@ You can talk to Emma using Tumblr Asks at [emmacanlearn.tumblr.com](http://emmac
     - This is based on the types of associations that exist for a given object. For example, if plenty of IS-A associations exist, a DECLARATIVE sentence could be generated. If no or few associations exist, an INTERROGATIVE sentence could be generated.
     - This is influenced by Emma's mood
   - Emma creates rough outlines of the sentence, which include placeholders for articles, conjunctions, punctuation, and words that can change based on noun plurality
-  - These rough sentences are refined and finalized
+  - The placeholders are conjugated based on their surrounding words, and capitalization and punctuation are added
   - The Tumblr Ask post is edited to add Emma's reply and some relevant tags, and is uploaded to Tumblr
 
 ## Contact the Developers
