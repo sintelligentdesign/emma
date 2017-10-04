@@ -62,9 +62,8 @@ else:
     logging.debug("Mood history file created.")
 
 # Mood-related things
-def add_mood_value(text):
+def add_mood_value(moodValue):
     """Adds the new mood value to the front of the history list and removes the last one"""
-    moodValue = pattern.en.sentiment(text)[0]
     logging.debug("Adding mood value {0} to mood history {1}...".format(moodValue, moodHistory))
     moodHistory.insert(0, moodValue)
     del moodHistory[-1]
@@ -146,29 +145,25 @@ class Sentence:
     Defines a sentence and its attributes, auto-generates and fills itself with Word objects
 
     Class variables:
-    sentence                str                     String representation of the Sentence
+    string                  str                     String representation of the Sentence
     words                   list                    Ordered list of Word objects in the Sentence
-    mood                    float                   Positive or negative sentiment in the Sentence
+    sentiment               int                     Positive or negative sentiment in the Sentence
     length                  int                     Length of the sentence
-    domain                  str                     The sentence's domain as determined by the wordpatternfinder module
-    interrogativePackage    InterrogativePackage    If the sentence domain is INTERROGATIVE, this represents the question that they're asking
     """
 
-    def __init__(self, sentence):
-        self.sentence = sentence
+    def __init__(self, string):
+        self.string = sentence
         self.words = []
-        self.mood = add_mood_value(self.sentence)
+        self.sentiment = pattern.en.sentiment(self.string)[0]
         self.length = int
-        self.domain = str
-        self.interrogativePackage = None
 
-        # Get a list of Word objects contained in the Sentence and put them in taggedWords
+        # Get a list of Word objects contained in the Sentence and store it as self.words
         for i, word in enumerate(pattern.en.parse(
-            self.sentence,
+            self.string,
             tokenize = False, 
             tags = True, 
             chunks = True, 
-            relations = True, 
+            relations = False, 
             lemmata = True, 
             encoding = 'utf-8'
         ).split()[0]):
@@ -176,7 +171,7 @@ class Sentence:
         self.length = len(self.words)
 
     def __str__(self): 
-        return self.sentence
+        return self.string
 
 class Message:
     """
@@ -214,11 +209,6 @@ class Message:
         for sentence in self.sentences:
             moods.append(sentence.mood)     # TODO: Change to sentence.sentiment
         self.sentiment = sum(moods) / len(moods)
-
-        # Find sentences' domains and InterrogativePackages (if applicable)
-        # TODO: scrutinize usefulness of this bit
-        for sentence in self.sentences:
-            sentence = wordpatternfinder.find_patterns(sentence)
 
         # TODO: test effectiveness of these methods (look at keywords for old messages)
         # Use pattern.vector to find keywords
