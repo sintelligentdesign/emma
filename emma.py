@@ -24,26 +24,20 @@ import apikeys
 # Set up logging level (this should go in misc.py but eh)
 logging.root.setLevel(logging.DEBUG)
 
-# Pre-flight engine checks
-# Check for emma.db or create it if it isn't there
-logging.info("Checking for association model")
-if os.path.isfile('emma.db'):
-     logging.debug("Association model found!")
-else:
-    logging.warn("Association model not found! Creating")
-    with sql.connect('emma.db') as connection:
-        connection.cursor().executescript("""
-        DROP TABLE IF EXISTS associationmodel;
-        DROP TABLE IF EXISTS dictionary;
-        CREATE TABLE associationmodel(word TEXT, association_type TEXT, target TEXT, weight DOUBLE);
-        CREATE TABLE dictionary(word TEXT, part_of_speech TEXT, affinity DOUBLE)
-        """)
-    logging.debug("Association model created.")
-
+# Pre-flight
 # Set up SQL
 connection = sql.connect('emma.db')
-connection.text_factory = str
+connection.text_factory = str   # Return bytestring instead of Unicode
 cursor = connection.cursor()
+
+# Create our database tables if they aren't there
+logging.warn("Association model not found!")
+with connection:
+    connection.cursor().executescript("""
+    CREATE TABLE IF NOT EXISTS associationmodel(word_id INTEGER NOT NULL, association_type TEXT NOT NULL, target_id INTEGER NOT NULL, weight DOUBLE NOT NULL);
+    CREATE TABLE IF NOT EXISTS dictionary(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, word TEXT NOT NULL, part_of_speech TEXT NOT NULL, sentiment DOUBLE NOT NULL);
+    CREATE TABLE IF NOT EXISTS verbsyntaxmodel(pre_word_id INTEGER, verb_id INTEGER NOT NULL, post_word_id INTEGER, is_transitive INTEGER NOT NULL)
+    """)
 
 # Dumb chrome
 print u"\n .ooooo.  ooo. .oo.  .oo.   ooo. .oo.  .oo.    .oooo.\nd88' \u006088b \u0060888P\"Y88bP\"Y88b  \u0060888P\"Y88bP\"Y88b  \u0060P  )88b\n888ooo888  888   888   888   888   888   888   .oP\"888\n888    .,  888   888   888   888   888   888  d8(  888\n\u0060Y8bod8P' o888o o888o o888o o888o o888o o888o \u0060Y888\"\"8o\n\n        ELECTRONIC MODEL of MAPPED ASSOCIATIONS\n                     Version " + misc.versionNumber + "\n"
