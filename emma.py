@@ -92,6 +92,7 @@ def calculate_mood():
 
 def express_mood(moodValue):
     """Returns a string which can be attached to a post as a tag expressing Emma's mood"""
+    # TODO: constrict ranges even more?
     logging.debug("Expressing mood...")
     if -0.8 > moodValue: 
         return u"feeling abysmal \ud83d\ude31"
@@ -182,23 +183,23 @@ class Message:
     Defines a collection of Sentences and its attributes, auto-generates and fills itself with Sentence objects
 
     Class Variables
-    message         str     String representation of the Message
+    string          str     String representation of the Message
     sentences       list    Ordered list of Sentence objects in the Message
-    avgMood         float   Average of the mood value of all the Sentences in the Message
+    sentiment       int     Average of the mood value of all the Sentences in the Message
     keywords        list    The message's main topics
     sender          str     The name of the person who sent the message
     """
 
-    def __init__(self, message, sender=(u'Anonymous')):
-        self.message = message
+    def __init__(self, string, sender=(u'Anonymous')):
+        self.string = string
         self.sentences = []
-        self.avgMood = int
+        self.sentiment = int
         self.keywords = []
         self.sender = sender
 
-        # Get a list of Sentence objects contained in the Message and put them in taggedSentences
+        # Create Sentence object from sentences in Message.string and add them to message.sentences
         for sentence in pattern.en.parse(
-            self.message, 
+            self.string, 
             tokenize = True, 
             tags = False, 
             chunks = False, 
@@ -208,18 +209,20 @@ class Message:
         ).split('\n'):
             self.sentences.append(Sentence(sentence))
 
-        # Average Sentence moods and record the value
+        # Average Sentence sentiments and record the value
         moods = []
-        for sentence in self.sentences: 
-            moods.append(sentence.mood)
-        self.avgMood = sum(moods) / len(moods)
+        for sentence in self.sentences:
+            moods.append(sentence.mood)     # TODO: Change to sentence.sentiment
+        self.sentiment = sum(moods) / len(moods)
 
         # Find sentences' domains and InterrogativePackages (if applicable)
+        # TODO: scrutinize usefulness of this bit
         for sentence in self.sentences:
             sentence = wordpatternfinder.find_patterns(sentence)
 
+        # TODO: test effectiveness of these methods (look at keywords for old messages)
         # Use pattern.vector to find keywords
-        for keyword in pattern.vector.Document(self.message).keywords():
+        for keyword in pattern.vector.Document(self.string).keywords():
             keyword = pattern.en.lemma(keyword[1])
             self.keywords.append(keyword)
 
@@ -233,7 +236,7 @@ class Message:
 
         # Check keywords against words that we have in the dictionary
         with connection:
-            cursor.execute('SELECT * FROM dictionary;')
+            cursor.execute('SELECT word FROM dictionary;')
             dictionary = []
             for row in cursor.fetchall():
                 dictionary.append(row[0])
@@ -246,6 +249,7 @@ class Message:
         # If we don't have any keywords, that's bad
         if self.keywords == []:
             logging.error("No keywords detected in message! This will cause a critical failure when we try to reply!")
+            # TODO: fail gracefully
 
     def __str__(self): 
         return self.message
