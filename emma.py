@@ -125,7 +125,6 @@ class Word:
     lemma           str     String representation of the root form of the Word
     partOfSpeech    str     Penn Treebank II part-of-speech tag
     chunk           str     Part of the Sentence (noun-phrase, verb-phrase, etc.)
-    subjectObject   str     If the Word is a noun, this indicates whether it is the subject or object of the Sentence
     index           int     The word's position in the sentence (0-indexed)
     """
 
@@ -134,7 +133,6 @@ class Word:
         self.lemma = word[5]
         self.partOfSpeech = word[1]
         self.chunk = word[2]
-        self.subjectObject = word[4]
         self.index = index
 
     def __str__(self): 
