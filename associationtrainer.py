@@ -22,3 +22,14 @@ def calculate_new_weight(currentWeight):
         # Re-calculate weight
         newWeight = 1/(1+E**(occurances-RANKING_CONSTANT))
         return newWeight
+
+connection = sql.connect('emma.db')
+connection.text_factory = str
+cursor = connection.cursor()
+def train_association(word, associationType, target):
+    """Add or modify an association in the Association Model"""
+    # We want to ignore associations with self, so
+    if word != target:
+        # Escape the strings so that we dont get anything fucky with the database
+        word = re.escape(word)
+        target = re.escape(target) 
