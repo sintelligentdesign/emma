@@ -52,3 +52,14 @@ def train_association(word, associationType, target):
                 # This is the weight that would be caluclated for any new association, so we'll just declare it
                 weight = 0.0999999999997
                 cursor.execute('INSERT INTO associationmodel VALUES ({0}, "{1}", {2}, {3});'.format(word, associationType, target, weight))
+
+def find_associations(message):
+    """Use pattern recognition to learn from a Message object"""
+    for sentence in message.sentences:
+        # Don't learn from questions
+        if sentence.words[-1] != u'?':
+            currentChunk = ""
+            chunkHistory = []
+
+            sentenceSubject = ""
+            sentenceObject = ""
