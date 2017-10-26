@@ -273,13 +273,31 @@ def filter_message(messageText):
         messageText += "."
 
     # Translate internet slang and fix weird parsing stuff
+    netspeak = {
+        u'aight': [u'alright'],
+        u'btw': [u'by', u'the', u'way'],
+        u'cn': [u'can'],
+        u'gonna': [u'going', u'to'],
+        u'im': [u'I\'m'],
+        u'imo': [u'in', u'my', u'opinion'],
+        u'lemme': [u'let', u'me'],
+        u'n': [u'and'],
+        u'obv': [u'obviously'],
+        u'omg': [u'oh', u'my', u'god'],
+        u'r': [u'are'],
+        u'tbh': [u'to', u'be', u'honest'],
+        u'u': [u'you'],
+        u'ur': [u'your'],
+        u'yr': [u'your'],
+        u'yea': [u'yeah']
+    }
     filtered = []
     for word in messageText.split(' '):
         word = word.decode('utf-8')
         # Translate internet abbreviations
-        if word.lower() in misc.netspeak.keys():
+        if word.lower() in netspeak.keys():
             logging.debug("Translating \'{0}\' from net speak...".format(word))
-            filtered.extend(misc.netspeak[word.lower()])
+            filtered.extend(netspeak[word.lower()])
         # Change "n't" to "not"
         elif word.lower() in [u"n\'t", u"n\u2019t", u"n\u2018t"]:
             logging.debug("Replacing \"n\'t\" with \"not\"...")
