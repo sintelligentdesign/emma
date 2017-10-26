@@ -253,15 +253,15 @@ def train(message):
         for word in sentence.words:
             with connection:
                 cursor.execute('SELECT * FROM dictionary WHERE word == "{0}";'.format(word.lemma.encode('utf-8', 'ignore')))
-                dictionarySearchResult = cursor.fetchone()
-                if dictionarySearchResult == None:
+                result = cursor.fetchone()
+                if result:
+                    # Update the affinity value
+                    logging.info("Updating affinity value for '{0}'".format(word.lemma.encode('utf-8', 'ignore')))
+                    cursor.execute('UPDATE dictionary SET sentiment = {0} WHERE id = {1}'.format((result[3]+sentence.sentiment)/2, result[0]))
+                else:
                     # Add the word to the dictionary
                     logging.info("Learned new word: '{0}'!".format(word.lemma.encode('utf-8', 'ignore')))
                     cursor.execute('INSERT INTO dictionary (word, part_of_speech, sentiment) VALUES ("{0}", "{1}", {2})'.format(word.lemma.encode('utf-8', 'ignore'), word.partOfSpeech, sentence.sentiment))
-                else:
-                    # Update the affinity value
-                    logging.info("Updating affinity value for '{0}'".format(word.lemma.encode('utf-8', 'ignore')))
-                    cursor.execute('UPDATE dictionary SET sentiment = {0} WHERE id = {1}'.format((dictionarySearchResult[3]+sentence.sentiment)/2, dictionarySearchResult[0]))
 
     logging.info("Finding associations...")
     associationtrainer.find_associations(message)

@@ -8,7 +8,7 @@ import misc
 
 E = np.exp(1)
 RANKING_CONSTANT = 3.19722457734
-def calculate_new_weight(currentWeight):
+def calculate_weight(currentWeight):
     """Take an association's weight and increase it"""
     # TODO: This function should be able to decrease weights too
     # If the weight is 1, we cannot increase it further and transforming it back into number of occurances would result in a division by 0
@@ -38,3 +38,19 @@ def train_association(word, associationType, target):
             targetID = cursor.fetchone()
 
         # Check to see if an association exists
+        with connection:
+            cursor.execute('SELECT * FROM associationmodel WHERE word_id = {0} AND target_id = {1};'.format(wordID, targetID))
+            result = cursor.fetchone()
+        if result:
+            # Update an existing association
+            logging.info("Strengthening association {0} {1} {2}".format(word, associationType, target))
+            weight = calculate_weight(result[3])
+            with connection:
+                cursor.execute('UPDATE associationmodel SET weight = {0} WHERE word_id = "{1}" AND target_id = "{2}";'.format(weight, wordID, targetID))
+        else:
+            # Add a new association
+            logging.info("Found new association {0} {1} {2}".format(word, associationType, target))
+            # This is the weight that would be caluclated for any new association, so we'll just declare it
+            weight = 0.0999999999997
+            with connection:
+                cursor.execute('INSERT INTO associationmodel VALUES ({0}, "{1}", {2}, {3});'.format(word, associationType, target, weight))
