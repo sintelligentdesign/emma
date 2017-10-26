@@ -285,11 +285,14 @@ def filter_message(messageText):
         u'obv': [u'obviously'],
         u'omg': [u'oh', u'my', u'god'],
         u'r': [u'are'],
+        u'k': [u'okay']
         u'tbh': [u'to', u'be', u'honest'],
+        u'tbqh': [u'to', u'be', u'quite', u'honest']
         u'u': [u'you'],
         u'ur': [u'your'],
         u'yr': [u'your'],
-        u'yea': [u'yeah']
+        u'yea': [u'yeah'],
+        u'ya': [u'yeah']
     }
     filtered = []
     for word in messageText.split(' '):
