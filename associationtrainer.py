@@ -41,16 +41,14 @@ def train_association(word, associationType, target):
         with connection:
             cursor.execute('SELECT * FROM associationmodel WHERE word_id = {0} AND target_id = {1};'.format(wordID, targetID))
             result = cursor.fetchone()
-        if result:
-            # Update an existing association
-            logging.info("Strengthening association {0} {1} {2}".format(word, associationType, target))
-            weight = calculate_weight(result[3])
-            with connection:
+            if result:
+                # Update an existing association
+                logging.info("Strengthening association {0} {1} {2}".format(word, associationType, target))
+                weight = calculate_weight(result[3])
                 cursor.execute('UPDATE associationmodel SET weight = {0} WHERE word_id = "{1}" AND target_id = "{2}";'.format(weight, wordID, targetID))
-        else:
-            # Add a new association
-            logging.info("Found new association {0} {1} {2}".format(word, associationType, target))
-            # This is the weight that would be caluclated for any new association, so we'll just declare it
-            weight = 0.0999999999997
-            with connection:
+            else:
+                # Add a new association
+                logging.info("Found new association {0} {1} {2}".format(word, associationType, target))
+                # This is the weight that would be caluclated for any new association, so we'll just declare it
+                weight = 0.0999999999997
                 cursor.execute('INSERT INTO associationmodel VALUES ({0}, "{1}", {2}, {3});'.format(word, associationType, target, weight))
