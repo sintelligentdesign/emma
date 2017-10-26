@@ -32,4 +32,4 @@ def train_association(word, associationType, target):
     if word != target:
         # Escape the strings so that we dont get anything fucky with the database
         word = re.escape(word)
-        target = re.escape(target) 
+        target = re.escape(target)

@@ -255,7 +255,7 @@ def train(message):
 
         knownWords = []
         for row in cursor.fetchall():
-            knownWords.append((row[0], row[1]))     # (lemma, POS)
+            knownWords.append((row[1], row[2]))     # (lemma, POS)
 
         # Compare them against each word from the message
         for sentence in message.sentences:
