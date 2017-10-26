@@ -138,6 +138,17 @@ class Word:
     def __str__(self): 
         return self.word
 
+class Chunk:
+    """
+    Defines a set of Word objects in a Sentence that belong together
+
+    Class variables:
+    """
+
+    def __init__(self, words, chunkType):
+        self.words = words
+        self.type = chunkType
+
 class Sentence:
     """
     Defines a sentence and its attributes, auto-generates and fills itself with Word objects
@@ -145,6 +156,7 @@ class Sentence:
     Class variables:
     string                  str                     String representation of the Sentence
     words                   list                    Ordered list of Word objects in the Sentence
+    chunks                  list                    Ordered list of Chunk objects in the Sentence
     sentiment               int                     Positive or negative sentiment in the Sentence
     length                  int                     Length of the sentence
     """
@@ -152,6 +164,7 @@ class Sentence:
     def __init__(self, string):
         self.string = string
         self.words = []
+        self.chunks = []
         self.sentiment = pattern.en.sentiment(self.string)[0]
         self.length = int
 
@@ -167,6 +180,19 @@ class Sentence:
         ).split()[0]):
             self.words.append(Word(word, i))
         self.length = len(self.words)
+
+        # Find and store chunks
+        workingChunk = []
+        for word in self.words:
+            if word.index+1 != self.length:
+                if word.chunk == self.words[word.index+1].chunk:
+                    workingChunk.extend(word)
+                else:
+                    self.chunks.append(Chunk(workingChunk, word.chunk))
+                    workingChunk = []
+            else:
+                # We've hit the end of the sentence
+                self.chunks.append(Chunk(workingChunk, word.chunk))
 
     def __str__(self): 
         return self.string
@@ -285,9 +311,9 @@ def filter_message(messageText):
         u'obv': [u'obviously'],
         u'omg': [u'oh', u'my', u'god'],
         u'r': [u'are'],
-        u'k': [u'okay']
+        u'k': [u'okay'],
         u'tbh': [u'to', u'be', u'honest'],
-        u'tbqh': [u'to', u'be', u'quite', u'honest']
+        u'tbqh': [u'to', u'be', u'quite', u'honest'],
         u'u': [u'you'],
         u'ur': [u'your'],
         u'yr': [u'your'],
