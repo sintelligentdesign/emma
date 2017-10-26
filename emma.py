@@ -130,7 +130,7 @@ class Word:
 
     def __init__(self, word, index):
         self.word = word[0]
-        self.lemma = word[4]
+        self.lemma = re.escape(word[4])
         self.partOfSpeech = word[1]
         self.chunk = word[2]
         self.index = index
@@ -252,12 +252,12 @@ def train(message):
     for sentence in message.sentences:
         for word in sentence.words:
             with connection:
-                cursor.execute('SELECT * FROM dictionary WHERE word == "{0}";'.format(re.escape(word.lemma.encode('utf-8', 'ignore'))))
+                cursor.execute('SELECT * FROM dictionary WHERE word == "{0}";'.format(word.lemma.encode('utf-8', 'ignore')))
                 dictionarySearchResult = cursor.fetchone()
                 if dictionarySearchResult == None:
                     # Add the word to the dictionary
                     logging.info("Learned new word: '{0}'!".format(word.lemma.encode('utf-8', 'ignore')))
-                    cursor.execute('INSERT INTO dictionary (word, part_of_speech, sentiment) VALUES ("{0}", "{1}", {2})'.format(re.escape(word.lemma.encode('utf-8', 'ignore')), word.partOfSpeech, sentence.sentiment))
+                    cursor.execute('INSERT INTO dictionary (word, part_of_speech, sentiment) VALUES ("{0}", "{1}", {2})'.format(word.lemma.encode('utf-8', 'ignore'), word.partOfSpeech, sentence.sentiment))
                 else:
                     # Update the affinity value
                     logging.info("Updating affinity value for '{0}'".format(word.lemma.encode('utf-8', 'ignore')))
