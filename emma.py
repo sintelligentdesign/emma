@@ -357,13 +357,12 @@ if flags.enableDebugMode == False:
                 with open('bannedwords.txt', 'r') as bannedWords:
                     bannedWords = bannedWords.read()
                     bannedWords = bannedWords.split('\n')
+
+                    profanity = []
+                    profanity.extend(pattern.en.wordlist.PROFANITY)
+                    profanity.remove('gay')
                     
                     for word in ask.message.message.split(' '):
-
-                        profanity = []
-                        profanity.extend(pattern.en.wordlist.PROFANITY)
-                        profanity.remove('gay')
-
                         if word.lower() in bannedWords:
                             logging.info("Banned word found in message. Deleting...")
                             client.delete_post(blogName, ask.askid)
