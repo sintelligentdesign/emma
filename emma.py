@@ -129,8 +129,9 @@ class Word:
     """
 
     def __init__(self, word, index):
+        print word
         self.word = word[0]
-        self.lemma = word[5]
+        self.lemma = word[4]
         self.partOfSpeech = word[1]
         self.chunk = word[2]
         self.index = index
@@ -150,7 +151,7 @@ class Sentence:
     """
 
     def __init__(self, string):
-        self.string = sentence
+        self.string = string
         self.words = []
         self.sentiment = pattern.en.sentiment(self.string)[0]
         self.length = int
@@ -205,7 +206,7 @@ class Message:
         # Average Sentence sentiments and record the value
         moods = []
         for sentence in self.sentences:
-            moods.append(sentence.mood)     # TODO: Change to sentence.sentiment
+            moods.append(sentence.sentiment)     # TODO: Change to sentence.sentiment
         self.sentiment = sum(moods) / len(moods)
 
         # TODO: test effectiveness of these methods (look at keywords for old messages)
@@ -219,7 +220,7 @@ class Message:
             logging.warning("No keywords detected by pattern.en. Using old method...")
             for sentence in self.sentences:
                 for word in sentence.words:
-                    if word.partOfSpeech in misc.nounCodes and word.lemma not in self.keywords:
+                    if word.partOfSpeech in misc.nounCodes:
                         self.keywords.append(word.lemma)
 
         # Check keywords against words that we have in the dictionary
@@ -252,16 +253,17 @@ def train(message):
     for sentence in message.sentences:
         for word in sentence.words:
             with connection:
-                cursor.execute('SELECT * FROM dictionary WHERE word == "{1}";'.format(word))
+                cursor.execute('SELECT * FROM dictionary WHERE word == "{0}";'.format(re.escape(word.lemma.encode('utf-8', 'ignore'))))
                 dictionarySearchResult = cursor.fetchone()
-                if dictionarySearchResult != []:
+                print dictionarySearchResult
+                if dictionarySearchResult == None:
                     # Add the word to the dictionary
                     logging.info("Learned new word: '{0}'!".format(word.lemma.encode('utf-8', 'ignore')))
-                    cursor.execute('INSERT INTO dictionary VALUES ("{0}", "{1}", {2}'.format(re.escape(word.lemma.encode('utf-8', 'ignore')), word.partOfSpeech, sentence.sentiment))
+                    cursor.execute('INSERT INTO dictionary (word, part_of_speech, sentiment) VALUES ("{0}", "{1}", {2})'.format(re.escape(word.lemma.encode('utf-8', 'ignore')), word.partOfSpeech, sentence.sentiment))
                 else:
                     # Update the affinity value
                     logging.info("Updating affinity value for '{0}'".format(word.lemma.encode('utf-8', 'ignore')))
-                    cursor.execute('UPDATE dictionary SET affinity = {0} WHERE id = {1}'.format((dictionarySearchResult[3]+sentence.sentiment)/2, dictionarySearchResult[0]))
+                    cursor.execute('UPDATE dictionary SET sentiment = {0} WHERE id = {1}'.format((dictionarySearchResult[3]+sentence.sentiment)/2, dictionarySearchResult[0]))
 
     logging.info("Finding associations...")
     associationtrainer.find_associations(message)
@@ -387,8 +389,8 @@ else:
         inputText = random.choice(flags.testingStrings)
     else: inputText = raw_input("Message >> ")
 
-    message = Message(filter_message(inputText.encode('utf-8', 'ignore')), "You")
-    logging.debug("Message: {0}".format(message.message))
+    message = Message(filter_message(inputText.encode('utf-8', 'ignore')), "you")
+    logging.debug("Message: {0}".format(message.string))
     train(message)
 
     reply = replybuilder.reply(message, calculate_mood())

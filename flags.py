@@ -1,10 +1,10 @@
 # Debug mode
-enableDebugMode = False
+enableDebugMode = True
 
 # Testing Strings
 useTestingStrings = True
 testingStringType = 'simple'
-'''
+
 testingStringsSimple = [
     u"The sky is blue.",
     u"Dogs are very fluffy!",
@@ -16,7 +16,7 @@ testingStringsSimple = [
 testingStringsSimple = [
     u"What is the color of the sky?"
 ]
-
+'''
 if testingStringType == 'simple':
     testingStrings = testingStringsSimple
 elif testingStringType == 'fuzz':
