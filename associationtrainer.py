@@ -30,6 +30,11 @@ def train_association(word, associationType, target):
     """Add or modify an association in the Association Model"""
     # We want to ignore associations with self, so
     if word != target:
-        # Escape the strings so that we dont get anything fucky with the database
-        word = re.escape(word)
-        target = re.escape(target)
+        # Get the IDs of the word and the target
+        with connection:
+            cursor.execute('SELECT id FROM dictionary WHERE word = "{0}" AND part_of_speech = "{1}";'.format(word.lemma, word.partOfSpeech))
+            wordID = cursor.fetchone()
+            cursor.execute('SELECT id FROM dictionary WHERE word = "{0}" AND part_of_speech = "{1}";'.format(word.lemma, word.partOfSpeech))
+            targetID = cursor.fetchone()
+
+        # Check to see if an association exists
