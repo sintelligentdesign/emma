@@ -129,7 +129,6 @@ class Word:
     """
 
     def __init__(self, word, index):
-        print word
         self.word = word[0]
         self.lemma = word[4]
         self.partOfSpeech = word[1]
@@ -255,7 +254,6 @@ def train(message):
             with connection:
                 cursor.execute('SELECT * FROM dictionary WHERE word == "{0}";'.format(re.escape(word.lemma.encode('utf-8', 'ignore'))))
                 dictionarySearchResult = cursor.fetchone()
-                print dictionarySearchResult
                 if dictionarySearchResult == None:
                     # Add the word to the dictionary
                     logging.info("Learned new word: '{0}'!".format(word.lemma.encode('utf-8', 'ignore')))
