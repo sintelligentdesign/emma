@@ -249,26 +249,19 @@ def train(message):
     message = pronouns.determine_posessive_references(message)
 
     logging.info("Looking for new words...")
-    # Gather words we already know from database
-    with connection:
-        cursor.execute('SELECT * FROM dictionary;')
-
-        knownWords = []
-        for row in cursor.fetchall():
-            knownWords.append((row[1], row[2]))     # (lemma, POS)
-
-        # Compare them against each word from the message
-        for sentence in message.sentences:
-            for word in sentence.words:
-                if word.partOfSpeech not in misc.trashPOS:
-                    # If it's a word we don't have in the database, add it
-                    #TODO: check the types of word.lemma and knownWord because apparently they aren't the same
-                    if word.lemma not in [knownWord[0] for knownWord in knownWords if word.lemma == knownWord[0]]:
-                        logging.info("Learned new word: \'{0}\'!".format(word.lemma.encode('utf-8', 'ignore')))
-                        logging.debug("Prev. word POS: \'{0}\'".format(word.partOfSpeech))
-                        knownWords.append((word.lemma, word.partOfSpeech))
-                        with connection:
-                            cursor.execute('INSERT INTO dictionary VALUES (\"{0}\", \"{1}\", 0);'.format(re.escape(word.lemma.encode('utf-8', 'ignore')), word.partOfSpeech))
+    for sentence in message.sentences:
+        for word in sentence.words:
+            with connection:
+                cursor.execute('SELECT * FROM dictionary WHERE word == "{1}";'.format(word))
+                dictionarySearchResult = cursor.fetchone()
+                if dictionarySearchResult != []:
+                    # Add the word to the dictionary
+                    logging.info("Learned new word: '{0}'!".format(word.lemma.encode('utf-8', 'ignore')))
+                    cursor.execute('INSERT INTO dictionary VALUES ("{0}", "{1}", {2}'.format(re.escape(word.lemma.encode('utf-8', 'ignore')), word.partOfSpeech, sentence.sentiment))
+                else:
+                    # Update the affinity value
+                    logging.info("Updating affinity value for '{0}'".format(word.lemma.encode('utf-8', 'ignore')))
+                    cursor.execute('UPDATE dictionary SET affinity = {0} WHERE id = {1}'.format((dictionarySearchResult[3]+sentence.sentiment)/2, dictionarySearchResult[0]))
 
     logging.info("Finding associations...")
     associationtrainer.find_associations(message)
