@@ -196,6 +196,7 @@ def make_interrogative(sentence):
     starters = [
         [u'what', u'is'],
         [u'what\'s'],
+        [],
     ]
     sentence.contents.extend(random.choice(starters))
 
@@ -491,6 +492,8 @@ def reply(message, moodValue, allowInterrogative=True):
             elif word == u'nosiron':
                 if random.choice([True, False]):
                     sentence.contents[i] = u'dad'
+            elif word == u"n't":
+                sentence.contents[i] = u'not'
 
             # Capitalize 'Emma'
             elif word == u'emma':
