@@ -63,3 +63,21 @@ def find_associations(message):
 
             sentenceSubject = ""
             sentenceObject = ""
+
+            currentChunk = sentence.chunks[0].chunkType
+            logging.debug("Current chunk: {0}".format(currentChunk))
+            chunkHistory.extend(sentence.chunks[0].chunkType)
+            
+            # Detect a change in the sequence
+            if currentChunk != chunkHistory[-1]:
+                # Match chunk patterns
+                """
+                We're interested in the following patterns to start:
+                VP NP
+                NP VP NP
+                NP VP ADJP
+                NP VP NP ADJP
+                """
+
+                if chunkHistory[-1:-2] == ["VP", "NP"]:
+                    print "VP NP"
