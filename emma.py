@@ -147,7 +147,7 @@ class Chunk:
 
     def __init__(self, words, chunkType):
         self.words = words
-        self.type = chunkType
+        self.chunkType = chunkType
 
 class Sentence:
     """
@@ -186,7 +186,8 @@ class Sentence:
         for word in self.words:
             if word.index+1 != self.length:
                 if word.chunk == self.words[word.index+1].chunk:
-                    workingChunk.extend(word)
+                    print word
+                    workingChunk.extend(word.chunk)
                 else:
                     self.chunks.append(Chunk(workingChunk, word.chunk))
                     workingChunk = []
@@ -247,18 +248,6 @@ class Message:
                 for word in sentence.words:
                     if word.partOfSpeech in misc.nounCodes:
                         self.keywords.append(word.lemma)
-
-        # Check keywords against words that we have in the dictionary
-        with connection:
-            cursor.execute('SELECT word FROM dictionary;')
-            dictionary = []
-            for row in cursor.fetchall():
-                dictionary.append(row[0])
-
-        for keyword in self.keywords:
-            if keyword not in dictionary:
-                logging.debug("Removing unknown word {0} from keyword list".format(keyword))
-                self.keywords.remove(keyword)
 
         # If we don't have any keywords, that's bad
         if self.keywords == []:
