@@ -282,7 +282,7 @@ def train(message):
                         logging.debug("Prev. word POS: \'{0}\'".format(word.partOfSpeech))
                         knownWords.append((word.lemma, word.partOfSpeech))
                         with connection:
-                            cursor.execute('INSERT INTO dictionary VALUES (\"{0}\", \"{1}\", 0);'.format(re.escape(word.lemma.encode('utf-8', 'ignore')), word.partOfSpeech))
+                            cursor.execute('INSERT INTO dictionary VALUES (?, ?, 0);', (re.escape(word.lemma.encode('utf-8', 'ignore')), word.partOfSpeech))
 
     logging.info("Finding associations...")
     associationtrainer.find_associations(message)
