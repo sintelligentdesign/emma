@@ -374,6 +374,7 @@ if flags.enableDebugMode == False:
                     profanity = []
                     profanity.extend(pattern.en.wordlist.PROFANITY)
                     profanity.remove('gay')
+                    profanity.remove('queer')
                     
                     for word in ask.message.message.split(' '):
                         if word.lower() in bannedWords:
