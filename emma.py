@@ -64,7 +64,7 @@ else:
 # Mood-related things
 def add_mood_value(moodValue):
     """Adds the new mood value to the front of the history list and removes the last one"""
-    logging.debug("Adding mood value {0} to mood history {1}...".format(moodValue, moodHistory))
+    logging.debug("Adding mood value {0} to mood history...".format(moodValue))
     moodHistory.insert(0, moodValue)
     del moodHistory[-1]
     logging.debug("New mood history is {0}".format(moodHistory))
@@ -113,46 +113,43 @@ def express_mood(moodValue):
         return u"feeling fantastic \ud83d\ude00"
     elif moodValue >= 0.8: 
         return u"feeling glorious \ud83d\ude1c"
-    
+
 class Ask:
     def __init__(self, message, sender, askid):
         self.sender = sender
         self.askid = askid
         self.message = message.encode('utf-8', 'ignore')
         self.message = filter_message(self.message)
-        self.message = Message(self.message, self.sender)
         self.sentiment = int
         self.keywords = []
 
-        # Average Sentence sentiments and record the value
-        moods = []
-        for sentence in self.sentences:
-            moods.append(sentence.sentiment)     # TODO: Change to sentence.sentiment
-        self.sentiment = sum(moods) / len(moods)
+        # Get sentiment and update mood value
+        self.sentiment = pattern.en.sentiment(message)[0]
+        add_mood_value(self.sentiment)
 
-        # TODO: test effectiveness of these methods (look at keywords for old messages)
-        # Use pattern.vector to find keywords
-        for keyword in pattern.vector.Document(self.string).keywords():
-            keyword = pattern.en.lemma(keyword[1])
-            self.keywords.append(keyword)
+        # # TODO: test effectiveness of these methods (look at keywords for old messages)
+        # # Use pattern.vector to find keywords
+        # for keyword in pattern.vector.Document(self.string).keywords():
+        #     keyword = pattern.en.lemma(keyword[1])
+        #     self.keywords.append(keyword)
 
-        # If pattern.vector couldn't find any keywords, use the old method
-        if self.keywords == []:
-            logging.warning("No keywords detected by pattern.en. Using old method...")
-            for sentence in self.sentences:
-                for word in sentence.words:
-                    if word.partOfSpeech in misc.nounCodes:
-                        self.keywords.append(word.lemma)
+        # # If pattern.vector couldn't find any keywords, use the old method
+        # if self.keywords == []:
+        #     logging.warning("No keywords detected by pattern.en. Using old method...")
+        #     for sentence in self.sentences:
+        #         for word in sentence.words:
+        #             if word.partOfSpeech in misc.nounCodes:
+        #                 self.keywords.append(word.lemma)
 
-        # If we don't have any keywords, that's bad
-        if self.keywords == []:
-            logging.error("No keywords detected in message! This will cause a critical failure when we try to reply!")
-            # TODO: fail gracefully
+        # # If we don't have any keywords, that's bad
+        # if self.keywords == []:
+        #     logging.error("No keywords detected in message! This will cause a critical failure when we try to reply!")
+        #     # TODO: fail gracefully
 
     def __str__(self): 
         return self.message
 
-def train(message):
+def train(message, ask):
     """Read a message as a string, learn from it, store what we learned in the database"""
     logging.info("Consuming message...")
 
@@ -166,11 +163,11 @@ def train(message):
                 if result:
                     # Update the affinity value
                     logging.info("Updating affinity value for '{0}'".format(lemma.encode('utf-8', 'ignore')))
-                    cursor.execute('UPDATE dictionary SET sentiment = {0} WHERE id = {1}'.format((result[3]+sentence.sentiment)/2, result[0]))
+                    cursor.execute('UPDATE dictionary SET sentiment = {0} WHERE id = {1}'.format((result[3]+ask.sentiment)/2, result[0]))
                 else:
                     # Add the word to the dictionary
                     logging.info("Learned new word: '{0}'!".format(lemma.encode('utf-8', 'ignore')))
-                    cursor.execute('INSERT INTO dictionary (word, part_of_speech, sentiment) VALUES ("{0}", "{1}", {2})'.format(lemma.encode('utf-8', 'ignore'), word.type, sentence.sentiment))
+                    cursor.execute('INSERT INTO dictionary (word, part_of_speech, sentiment) VALUES ("{0}", "{1}", {2})'.format(lemma.encode('utf-8', 'ignore'), word.type, ask.sentiment))
 
     logging.info("Finding associations...")
     associationtrainer.find_associations(message)
@@ -340,7 +337,7 @@ else:
     )
 
     logging.debug("Tokenized message: {0}".format(tokenizedText.string))
-    train(tokenizedText)
+    train(tokenizedText, ask)
 
     reply = replybuilder.reply(message, calculate_mood())
     if reply == 0:
