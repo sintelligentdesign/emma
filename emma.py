@@ -150,7 +150,7 @@ def train(message, ask):
                     cursor.execute('INSERT INTO dictionary (word, part_of_speech, sentiment) VALUES ("{0}", "{1}", {2})'.format(lemma.encode('utf-8', 'ignore'), word.type, ask.sentiment))
 
     logging.info("Finding associations...")
-    # associationtrainer.find_associations(message)
+    associationtrainer.find_associations(message)
 
 def filter_message(messageText):
     """Make it easier for the computer to read messages (and also screen out banned words)"""
@@ -300,11 +300,8 @@ else:
 
     ask = Ask(inputText, 'sender', 000)
 
-    # Filter message
-    inputText = filter_message(inputText)
-
     # Tokenize input unicode str
-    tokenizedText = tokenize(inputText
+    tokenizedText = tokenize(inputText)
 
     # Determine references
     inputText = references.determine_references(tokenizedText, ask)

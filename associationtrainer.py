@@ -64,11 +64,15 @@ def find_associations(message):
             sentenceSubject = ""
             sentenceObject = ""
 
-            currentChunk = sentence.chunks[0].chunkType
-            logging.debug("Current chunk: {0}".format(currentChunk))
-            chunkHistory.extend(sentence.chunks[0].chunkType)
+            # currentChunk = sentence.chunks[0].chunkType
+            # logging.debug("Current chunk: {0}".format(currentChunk))
+            # chunkHistory.extend(sentence.chunks[0].chunkType)
             
             # Detect a change in the sequence
+
+            for word in sentence.words:
+                print word.chunk
+
             if currentChunk != chunkHistory[-1]:
                 # Match chunk patterns
                 """
