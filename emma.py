@@ -8,7 +8,6 @@ import cgi
 import time
 
 import pattern.en
-import pattern.vector
 import sqlite3 as sql
 import pytumblr
 
@@ -322,25 +321,14 @@ else:
     train(tokenizedText, ask)
 
     # Get keywords from the message so we know what to use in our reply
-    # TODO: test effectiveness of these methods (look at keywords for old messages)
     # Use pattern.vector to find keywords
     logging.info("Finding keywords...")
 
     keywords = []
-
-    # TODO: This method works, but returns more than just nouns. Implement a fix
-    # for keyword in pattern.vector.Document(tokenizedText).keywords():
-    #     print keyword
-    #     print keyword[1].lemma
-    #     keywords.append(keyword[1].lemma)
-
-    # If pattern.vector couldn't find any keywords, use the old method
-    if keywords == []:
-        # logging.warning("No keywords detected by pattern.vector. Using old method...")
-        for sentence in tokenizedText:
-            for word in sentence.words:
-                if word.type in misc.nounCodes:
-                    keywords.append(word.lemma)
+    for sentence in tokenizedText:
+        for word in sentence.words:
+            if word.type in misc.nounCodes:
+                keywords.append(word.lemma)
 
     # If we don't have any keywords, that's bad
     # TODO: Think of a way to reply without keywords?
