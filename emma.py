@@ -113,121 +113,16 @@ def express_mood(moodValue):
         return u"feeling fantastic \ud83d\ude00"
     elif moodValue >= 0.8: 
         return u"feeling glorious \ud83d\ude1c"
-
-# Preparing our datatypes
-# Let's start by defining some classes for NLU stuff:
-class Word:
-    """
-    Defines a word and its attributes
-
-    Class variables:
-    word            str     String representation of the Word
-    lemma           str     String representation of the root form of the Word
-    partOfSpeech    str     Penn Treebank II part-of-speech tag
-    chunk           str     Part of the Sentence (noun-phrase, verb-phrase, etc.)
-    index           int     The word's position in the sentence (0-indexed)
-    """
-
-    def __init__(self, word, index):
-        self.word = word[0]
-        self.lemma = re.escape(word[4])
-        self.partOfSpeech = word[1]
-        self.chunk = word[2]
-        self.index = index
-
-    def __str__(self): 
-        return self.word
-
-class Chunk:
-    """
-    Defines a set of Word objects in a Sentence that belong together
-
-    Class variables:
-    """
-
-    def __init__(self, words, chunkType):
-        self.words = words
-        self.chunkType = chunkType
-
-class Sentence:
-    """
-    Defines a sentence and its attributes, auto-generates and fills itself with Word objects
-
-    Class variables:
-    string                  str                     String representation of the Sentence
-    words                   list                    Ordered list of Word objects in the Sentence
-    chunks                  list                    Ordered list of Chunk objects in the Sentence
-    sentiment               int                     Positive or negative sentiment in the Sentence
-    length                  int                     Length of the sentence
-    """
-
-    def __init__(self, string):
-        self.string = string
-        self.words = []
-        self.chunks = []
-        self.sentiment = pattern.en.sentiment(self.string)[0]
-        self.length = int
-
-        # Get a list of Word objects contained in the Sentence and store it as self.words
-        for i, word in enumerate(pattern.en.parse(
-            self.string,
-            tokenize = False, 
-            tags = True, 
-            chunks = True, 
-            relations = False, 
-            lemmata = True, 
-            encoding = 'utf-8'
-        ).split()[0]):
-            self.words.append(Word(word, i))
-        self.length = len(self.words)
-
-        # Find and store chunks
-        workingChunk = []
-        for word in self.words:
-            if word.index+1 != self.length:
-                if word.chunk == self.words[word.index+1].chunk:
-                    print word
-                    workingChunk.extend(word.chunk)
-                else:
-                    self.chunks.append(Chunk(workingChunk, word.chunk))
-                    workingChunk = []
-            else:
-                # We've hit the end of the sentence
-                self.chunks.append(Chunk(workingChunk, word.chunk))
-
-    def __str__(self): 
-        return self.string
-
-class Message:
-    """
-    Defines a collection of Sentences and its attributes, auto-generates and fills itself with Sentence objects
-
-    Class Variables
-    string          str     String representation of the Message
-    sentences       list    Ordered list of Sentence objects in the Message
-    sentiment       int     Average of the mood value of all the Sentences in the Message
-    keywords        list    The message's main topics
-    sender          str     The name of the person who sent the message
-    """
-
-    def __init__(self, string, sender=(u'Anonymous')):
-        self.string = string
-        self.sentences = []
+    
+class Ask:
+    def __init__(self, message, sender, askid):
+        self.sender = sender
+        self.askid = askid
+        self.message = message.encode('utf-8', 'ignore')
+        self.message = filter_message(self.message)
+        self.message = Message(self.message, self.sender)
         self.sentiment = int
         self.keywords = []
-        self.sender = sender
-
-        # Create Sentence object from sentences in Message.string and add them to message.sentences
-        for sentence in pattern.en.parse(
-            self.string, 
-            tokenize = True, 
-            tags = False, 
-            chunks = False, 
-            relations = False, 
-            lemmata = False, 
-            encoding = 'utf-8'
-        ).split('\n'):
-            self.sentences.append(Sentence(sentence))
 
         # Average Sentence sentiments and record the value
         moods = []
@@ -330,14 +225,6 @@ def filter_message(messageText):
     filteredText = ' '.join(filtered)
 
     return filteredText
-
-class Ask:
-    def __init__(self, message, sender, askid):
-        self.sender = sender
-        self.askid = askid
-        self.message = message.encode('utf-8', 'ignore')
-        self.message = filter_message(self.message)
-        self.message = Message(self.message, self.sender)
 
 if flags.enableDebugMode == False:
     # Authenticate with Tumblr API
