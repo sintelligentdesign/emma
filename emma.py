@@ -127,25 +127,6 @@ class Ask:
         self.sentiment = pattern.en.sentiment(message)[0]
         add_mood_value(self.sentiment)
 
-        # # TODO: test effectiveness of these methods (look at keywords for old messages)
-        # # Use pattern.vector to find keywords
-        # for keyword in pattern.vector.Document(self.string).keywords():
-        #     keyword = pattern.en.lemma(keyword[1])
-        #     self.keywords.append(keyword)
-
-        # # If pattern.vector couldn't find any keywords, use the old method
-        # if self.keywords == []:
-        #     logging.warning("No keywords detected by pattern.en. Using old method...")
-        #     for sentence in self.sentences:
-        #         for word in sentence.words:
-        #             if word.partOfSpeech in misc.nounCodes:
-        #                 self.keywords.append(word.lemma)
-
-        # # If we don't have any keywords, that's bad
-        # if self.keywords == []:
-        #     logging.error("No keywords detected in message! This will cause a critical failure when we try to reply!")
-        #     # TODO: fail gracefully
-
     def __str__(self): 
         return self.message
 
@@ -170,7 +151,7 @@ def train(message, ask):
                     cursor.execute('INSERT INTO dictionary (word, part_of_speech, sentiment) VALUES ("{0}", "{1}", {2})'.format(lemma.encode('utf-8', 'ignore'), word.type, ask.sentiment))
 
     logging.info("Finding associations...")
-    associationtrainer.find_associations(message)
+    # associationtrainer.find_associations(message)
 
 def filter_message(messageText):
     """Make it easier for the computer to read messages (and also screen out banned words)"""
@@ -326,6 +307,7 @@ else:
     inputText = references.determine_references(tokenizedText, ask)
 
     # Retokenize text since it has references now
+    # TODO: make this a function so we're not repeating code
     tokenizedText = pattern.en.parsetree(
         inputText,
         tokenize = True,
@@ -338,6 +320,34 @@ else:
 
     logging.debug("Tokenized message: {0}".format(tokenizedText.string))
     train(tokenizedText, ask)
+
+    # Get keywords from the message so we know what to use in our reply
+    # TODO: test effectiveness of these methods (look at keywords for old messages)
+    # Use pattern.vector to find keywords
+    logging.info("Finding keywords...")
+
+    keywords = []
+
+    # TODO: This method works, but returns more than just nouns. Implement a fix
+    # for keyword in pattern.vector.Document(tokenizedText).keywords():
+    #     print keyword
+    #     print keyword[1].lemma
+    #     keywords.append(keyword[1].lemma)
+
+    # If pattern.vector couldn't find any keywords, use the old method
+    if keywords == []:
+        # logging.warning("No keywords detected by pattern.vector. Using old method...")
+        for sentence in tokenizedText:
+            for word in sentence.words:
+                if word.type in misc.nounCodes:
+                    keywords.append(word.lemma)
+
+    # If we don't have any keywords, that's bad
+    # TODO: Think of a way to reply without keywords?
+    if keywords == []:
+        logging.error("No keywords detected in message! This will cause a critical failure when we try to reply!")
+
+    logging.info("Message keyword(s): {0}".format(', '.join(keywords)))
 
     reply = replybuilder.reply(message, calculate_mood())
     if reply == 0:
