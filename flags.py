@@ -6,6 +6,8 @@ useTestingStrings = True
 testingStringType = 'simple'
 
 testingStringsSimple = [
+    u"Jane is smart. Her eyes are blue.",
+    u"You look so good! I love your beans. They are great!",
     u"The sky is blue.",
     u"Dogs are very fluffy!",
     u"I want to be your friend.",

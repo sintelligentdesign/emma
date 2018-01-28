@@ -13,7 +13,7 @@ import sqlite3 as sql
 import pytumblr
 
 import flags
-import pronouns
+import references
 import wordpatternfinder
 import associationtrainer
 import replybuilder
@@ -260,8 +260,6 @@ class Message:
 def train(message):
     """Read a message as a string, learn from it, store what we learned in the database"""
     logging.info("Consuming message...")
-    message = pronouns.determine_pronoun_references(message)
-    message = pronouns.determine_posessive_references(message)
 
     logging.info("Looking for new words...")
     for sentence in message.sentences:
@@ -422,8 +420,13 @@ else:
         inputText = random.choice(flags.testingStrings)
     else: inputText = raw_input("Message >> ")
 
-    # message = Message(filter_message(inputText), "you")
-    message = pattern.en.parsetree(
+    ask = Ask(inputText, 'sender', 000)
+
+    # Filter message
+    inputText = filter_message(inputText)
+
+    # Tokenize input unicode str
+    tokenizedText = pattern.en.parsetree(
         inputText,
         tokenize = True,
         tags = True,
@@ -432,8 +435,23 @@ else:
         lemmata = True,
         encoding = 'utf-8'
     )
-    logging.debug("Tokenized message: {0}".format(message.string))
-    train(message)
+
+    # Determine references
+    inputText = references.determine_references(tokenizedText, ask)
+
+    # Retokenize text since it has references now
+    tokenizedText = pattern.en.parsetree(
+        inputText,
+        tokenize = True,
+        tags = True,
+        chunks = True,
+        relations = False,
+        lemmata = True,
+        encoding = 'utf-8'
+    )
+
+    logging.debug("Tokenized message: {0}".format(tokenizedText.string))
+    train(tokenizedText)
 
     reply = replybuilder.reply(message, calculate_mood())
     if reply == 0:
