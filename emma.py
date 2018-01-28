@@ -422,8 +422,17 @@ else:
         inputText = random.choice(flags.testingStrings)
     else: inputText = raw_input("Message >> ")
 
-    message = Message(filter_message(inputText.encode('utf-8', 'ignore')), "you")
-    logging.debug("Message: {0}".format(message.string))
+    # message = Message(filter_message(inputText), "you")
+    message = pattern.en.parsetree(
+        inputText,
+        tokenize = True,
+        tags = True,
+        chunks = True,
+        relations = False,
+        lemmata = True,
+        encoding = 'utf-8'
+    )
+    logging.debug("Tokenized message: {0}".format(message.string))
     train(message)
 
     reply = replybuilder.reply(message, calculate_mood())
