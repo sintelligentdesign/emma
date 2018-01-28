@@ -203,6 +203,18 @@ def filter_message(messageText):
 
     return filteredText
 
+def tokenize(inputText):
+    tokenizedText = pattern.en.parsetree(
+        inputText,
+        tokenize = True,
+        tags = True,
+        chunks = True,
+        relations = False,
+        lemmata = True,
+        encoding = 'utf-8'
+    )
+    return tokenizedText
+
 if flags.enableDebugMode == False:
     # Authenticate with Tumblr API
     client = pytumblr.TumblrRestClient(
@@ -292,30 +304,13 @@ else:
     inputText = filter_message(inputText)
 
     # Tokenize input unicode str
-    tokenizedText = pattern.en.parsetree(
-        inputText,
-        tokenize = True,
-        tags = True,
-        chunks = True,
-        relations = False,
-        lemmata = True,
-        encoding = 'utf-8'
-    )
+    tokenizedText = tokenize(inputText
 
     # Determine references
     inputText = references.determine_references(tokenizedText, ask)
 
     # Retokenize text since it has references now
-    # TODO: make this a function so we're not repeating code
-    tokenizedText = pattern.en.parsetree(
-        inputText,
-        tokenize = True,
-        tags = True,
-        chunks = True,
-        relations = False,
-        lemmata = True,
-        encoding = 'utf-8'
-    )
+    tokenizedText = tokenize(inputText)
 
     logging.debug("Tokenized message: {0}".format(tokenizedText.string))
     train(tokenizedText, ask)
