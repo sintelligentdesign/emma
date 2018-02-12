@@ -180,7 +180,7 @@ def make_imperative(sentence):
         sentence.contents.append(sentence.topic)
         sentence.contents.append(u'can')
         sentence.contents.append(weighted_roll(hasabilitytoAssociations).target)
-        sentence.contents.extend([u'with', u'a'])
+        sentence.contents.append(u'a')
         sentence.contents.append(weighted_roll(hasAssociations).target)
     else:
         # Simple
