@@ -3,6 +3,7 @@ import random
 import re
 import string
 
+import pattern.en
 import sqlite3 as sql
 
 import misc
@@ -134,19 +135,26 @@ def make_declarative(sentence):
             sentence.contents.append(weighted_roll(hasAssociations).target)
         elif sentenceAspect == 'IS-A':
             sentence = make_simple(sentence)
-            sentence.contents.extend([u'is', SBBArticle()])
+            sentence.contents.extend([SBBIsAre(), SBBArticle()])
             sentence.contents.append(weighted_roll(isaAssociations).target)
         elif sentenceAspect == 'HAS-ABILITY-TO':
-            sentence = make_simple(sentence)
-            sentence.contents.append(u'can')
-            sentence.contents.append(weighted_roll(hasabilitytoAssociations).target)
+            if random.choice([True, False]):
+                sentence = make_simple(sentence)
+                sentence.contents.append(u'can')
+                sentence.contents.append(weighted_roll(hasabilitytoAssociations).target)
+            else:
+                sentence = make_simple(sentence)
+                if sentence.isPlural:
+                    sentence.contents.append(pattern.en.conjugate(weighted_roll(hasabilitytoAssociations).target, number=PL))
+                else:
+                    sentence.contents.append(pattern.en.conjugate(weighted_roll(hasabilitytoAssociations).target, number=SG))
     else:
         # Simple
         if random.choice([True, False]):
             sentence = make_simple(sentence)
         else:
             sentence.contents.append(sentence.topic)
-        sentence.contents.append(u'is')
+        sentence.contents.append(SBBIsAre())
         sentence.contents.append(weighted_roll(haspropertyAssociations).target)
         
     logging.debug("Reply (in progress): {0}".format(str(sentence.contents)))
@@ -174,19 +182,21 @@ def make_imperative(sentence):
     if len(hasAssociations) > 0:
         allowComplexImperative = True
 
-    # Choose what type of sentence to make
+    # Make the sentence
+    sentence.contents.append(sentence.topic)
+    sentence.contents.append(u'can')
+    sentence.contents.append(weighted_roll(hasabilitytoAssociations).target)
     if random.choice([False, allowComplexImperative]):
-        # Complex
-        sentence.contents.append(sentence.topic)
-        sentence.contents.append(u'can')
-        sentence.contents.append(weighted_roll(hasabilitytoAssociations).target)
-        sentence.contents.append(u'a')
-        sentence.contents.append(weighted_roll(hasAssociations).target)
-    else:
-        # Simple
-        sentence.contents.append(weighted_roll(hasabilitytoAssociations).target)
-        sentence.contents.append(SBBArticle())
-        sentence.contents.append(sentence.topic)
+        if random.choice([True, False]):
+            sentence.contents.append(u'with')
+        if random.choice([True, False]):
+            sentence.contents.append(SBBArticle())
+            sentence.contents.append(weighted_roll(hasAssociations).target)
+        else:
+            if sentence.isPlural:
+                sentence.contents.append(pattern.en.pluralize(weighted_roll(hasAssociations).target))
+            else:
+                sentence.contents.append(weighted_roll(hasAssociations).target)
         
     logging.debug("Reply (in progress): {0}".format(str(sentence.contents)))
     return sentence
