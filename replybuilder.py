@@ -161,10 +161,6 @@ def make_declarative(sentence):
     return sentence
 
 def make_imperative(sentence):
-    # Coin Flip to decide whether to add always or never
-    if random.choice([True, False]):
-        sentence.contents.append(random.choice([u'always', u'never']))
-
     # Look for things the object can do
     associations = find_associations(sentence.topic)
 
@@ -185,6 +181,9 @@ def make_imperative(sentence):
     # Make the sentence
     sentence.contents.append(sentence.topic)
     sentence.contents.append(u'can')
+    # Coin Flip to decide whether to add always or never
+    if random.choice([True, False]):
+        sentence.contents.append(random.choice([u'always', u'never']))
     sentence.contents.append(weighted_roll(hasabilitytoAssociations).target)
     if random.choice([False, allowComplexImperative]):
         if random.choice([True, False]):
