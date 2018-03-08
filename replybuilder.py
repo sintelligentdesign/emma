@@ -127,8 +127,6 @@ def make_declarative(sentence):
         # Choose the kind of sentence to make
         sentenceAspect = random.choice(validSentenceAspects)
 
-        sentence.contents.append(sentence.topic)
-
         if sentenceAspect == 'HAS':
             sentence = make_simple(sentence)
             sentence.contents.append(SBBHaveHas())
@@ -144,10 +142,7 @@ def make_declarative(sentence):
                 sentence.contents.append(weighted_roll(hasabilitytoAssociations).target)
             else:
                 sentence = make_simple(sentence)
-                if sentence.isPlural:
-                    sentence.contents.append(pattern.en.conjugate(weighted_roll(hasabilitytoAssociations).target, number=PL))
-                else:
-                    sentence.contents.append(pattern.en.conjugate(weighted_roll(hasabilitytoAssociations).target, number=SG))
+                sentence.contents.append(pattern.en.conjugate(weighted_roll(hasabilitytoAssociations).target, number="PL"))
     else:
         # Simple
         if random.choice([True, False]):
@@ -180,10 +175,11 @@ def make_imperative(sentence):
 
     # Make the sentence
     sentence.contents.append(sentence.topic)
-    sentence.contents.append(u'can')
+    if random.choice([True, False]):
+        sentence.contents.append(u'can')
     # Coin Flip to decide whether to add always or never
     if random.choice([True, False]):
-        sentence.contents.append(random.choice([u'always', u'never']))
+        sentence.contents.append(random.choice([u'always', u'never', u'sometimes']))
     sentence.contents.append(weighted_roll(hasabilitytoAssociations).target)
     if random.choice([False, allowComplexImperative]):
         if random.choice([True, False]):
