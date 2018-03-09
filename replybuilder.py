@@ -130,7 +130,11 @@ def make_declarative(sentence):
         if sentenceAspect == 'HAS':
             sentence = make_simple(sentence)
             sentence.contents.append(SBBHaveHas())
-            sentence.contents.append(weighted_roll(hasAssociations).target)
+            if random.choice([True, False]):
+                sentence.contents.append(SBBArticle())
+                sentence.contents.append(weighted_roll(hasAssociations).target)
+            else:
+                sentence.contents.append(pattern.en.pluralize(weighted_roll(hasAssociations).target))
         elif sentenceAspect == 'IS-A':
             sentence = make_simple(sentence)
             sentence.contents.extend([SBBIsAre(), SBBArticle()])
