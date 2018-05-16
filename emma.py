@@ -137,17 +137,16 @@ def train(message, ask):
     for sentence in message.sentences:
         for word in sentence.words:
             with connection:
-                lemma = word.lemma
-                cursor.execute('SELECT * FROM dictionary WHERE word == "{0}";'.format(lemma.encode('utf-8', 'ignore')))
+                cursor.execute('SELECT * FROM dictionary WHERE word == ? AND part_of_speech == ?;', (word.lemma.encode('utf-8', 'ignore'), word.type))
                 result = cursor.fetchone()
                 if result:
                     # Update the affinity value
-                    logging.info("Updating affinity value for '{0}'".format(lemma.encode('utf-8', 'ignore')))
-                    cursor.execute('UPDATE dictionary SET sentiment = {0} WHERE id = {1}'.format((result[3]+ask.sentiment)/2, result[0]))
+                    logging.info("Updating affinity value for '{0}'".format(word.lemma.encode('utf-8', 'ignore')))
+                    cursor.execute('UPDATE dictionary SET sentiment = ? WHERE id = ?', ((result[3]+ask.sentiment)/2, result[0]))
                 else:
                     # Add the word to the dictionary
-                    logging.info("Learned new word: '{0}'!".format(lemma.encode('utf-8', 'ignore')))
-                    cursor.execute('INSERT INTO dictionary (word, part_of_speech, sentiment) VALUES ("{0}", "{1}", {2})'.format(lemma.encode('utf-8', 'ignore'), word.type, ask.sentiment))
+                    logging.info("Learned new word: '{0}'!".format(word.lemma.encode('utf-8', 'ignore')))
+                    cursor.execute('INSERT INTO dictionary (word, part_of_speech, sentiment) VALUES (?, ?, ?)', (word.lemma.encode('utf-8', 'ignore'), word.type, ask.sentiment))
 
     logging.info("Finding associations...")
     associationtrainer.find_associations(message)
