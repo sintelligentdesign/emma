@@ -55,33 +55,33 @@ def train_association(word, associationType, target):
 
 def find_associations(message):
     """Use pattern recognition to learn from a Message object"""
+
     for sentence in message.sentences:
         # Don't learn from questions
         if sentence.words[-1] != u'?':
-            currentChunk = ""
-            chunkHistory = []
-
             sentenceSubject = ""
             sentenceObject = ""
 
-            # currentChunk = sentence.chunks[0].chunkType
-            # logging.debug("Current chunk: {0}".format(currentChunk))
-            # chunkHistory.extend(sentence.chunks[0].chunkType)
-            
-            # Detect a change in the sequence
+            chunkHistory = []
 
             for word in sentence.words:
-                print word.chunk
+                currentChunk = word.chunk.type
+                logging.debug("Current chunk: {0}".format(currentChunk))
+                logging.debug("Chunk history: {0}".format(chunkHistory))
+                chunkHistory.append(currentChunk)
 
-            if currentChunk != chunkHistory[-1]:
-                # Match chunk patterns
-                """
-                We're interested in the following patterns to start:
-                VP NP
-                NP VP NP
-                NP VP ADJP
-                NP VP NP ADJP
-                """
+                # If chunkHistory is empty, do nothing. If not, detect a change in the sequence
+                if len(chunkHistory) > 1 and chunkHistory[-1] != chunkHistory[-2]:
+                    logging.debug("Chunk sequence change detected")
+                    # Match chunk patterns
+                    """
+                    We're interested in the following patterns to start:
+                    VP NP
+                    NP VP NP
+                    NP VP ADJP
+                    NP VP NP ADJP
+                    """
 
-                if chunkHistory[-1:-2] == ["VP", "NP"]:
-                    print "VP NP"
+                    print chunkHistory[-2:]
+                    if chunkHistory[-2:] == [u"NP", u"VP"]:
+                        print "NP VP"
