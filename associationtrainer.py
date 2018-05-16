@@ -55,33 +55,38 @@ def train_association(word, associationType, target):
 
 def find_associations(message):
     """Use pattern recognition to learn from a Message object"""
-
+    # """
+    # We're interested in the following patterns to start:
+    # VP NP
+    # NP VP NP
+    # NP VP ADJP
+    # NP VP NP ADJP
+    # """
     for sentence in message.sentences:
         # Don't learn from questions
         if sentence.words[-1] != u'?':
-            sentenceSubject = ""
-            sentenceObject = ""
+            logging.debug("Sentence chunks: {0}".format(sentence.chunks))
 
-            chunkHistory = []
+            # Scan through the sentence to find patterns of chunks that we're interested in
+            searchRange = 3
 
-            for word in sentence.words:
-                currentChunk = word.chunk.type
-                logging.debug("Current chunk: {0}".format(currentChunk))
-                logging.debug("Chunk history: {0}".format(chunkHistory))
-                chunkHistory.append(currentChunk)
+            for i in range(0, len(sentence.chunks)):
+                searchEndBound = i + searchRange
 
-                # If chunkHistory is empty, do nothing. If not, detect a change in the sequence
-                if len(chunkHistory) > 1 and chunkHistory[-1] != chunkHistory[-2]:
-                    logging.debug("Chunk sequence change detected")
-                    # Match chunk patterns
-                    """
-                    We're interested in the following patterns to start:
-                    VP NP
-                    NP VP NP
-                    NP VP ADJP
-                    NP VP NP ADJP
-                    """
+                # Take a slice of the sentence
+                logging.debug("Search bounds: [{0}:{1}]".format(i, searchEndBound))
+                searchSlice = sentence.chunks[i:searchEndBound]
+                logging.debug("Search slice: {0}".format(searchSlice))
 
-                    print chunkHistory[-2:]
-                    if chunkHistory[-2:] == [u"NP", u"VP"]:
-                        print "NP VP"
+                # Check the chunk types
+                chunkTypes = []
+                for chunk in searchSlice:
+                    chunkTypes.append(chunk.type)
+
+                # Look for patterns that suggest associations
+                if chunkTypes == [u"NP", u"VP", u"ADJP"]:
+                    # "Dogs are cute", "The dog is adorable", "Dogs are very fluffy"
+                    print "NP VP ADJP"
+
+        else:
+            logging.debug("Sentence is a question. Skipping learning...")
