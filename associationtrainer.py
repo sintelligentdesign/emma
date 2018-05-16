@@ -123,9 +123,9 @@ def find_associations(message):
                                 if subject != None and target != None:
                                     train_association(subject.lemma, 'HAS', target.lemma)
 
-                            # VB + obj >> VB HAS-OBJECT NN (This button releases the hounds. >> release HAS-OBJECT hound)
-                            if "OBJ" in word.subjectObject and word.partOfSpeech in misc.nounCodes:
-                                for objectCandidate in sentence.words:
-                                    # TODO: Add more criteria for choosing object associations
-                                    if objectCandidate.partOfSpeech in misc.nounCodes:
-                                        train_association(objectCandidate.lemma, "HAS-OBJECT", word.lemma)
+                            # # VB + obj >> VB HAS-OBJECT NN (This button releases the hounds. >> release HAS-OBJECT hound)
+                            # if "OBJ" in word.subjectObject and word.partOfSpeech in misc.nounCodes:
+                            #     for objectCandidate in sentence.words:
+                            #         # TODO: Add more criteria for choosing object associations
+                            #         if objectCandidate.partOfSpeech in misc.nounCodes:
+                            #             train_association(objectCandidate.lemma, "HAS-OBJECT", word.lemma)
