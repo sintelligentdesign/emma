@@ -54,7 +54,6 @@ def train_association(word, associationType, target):
                 weight = 0.0999999999997
                 cursor.execute('INSERT INTO associationmodel VALUES (?, ?, ?, ?);', (wordID, associationType, targetID, weight))
                 
-
 def find_associations(message):
     """Use pattern recognition to learn from a Message object"""
     # """
@@ -85,13 +84,21 @@ def find_associations(message):
                 for chunk in searchSlice:
                     chunkTypes.append(chunk.type)
 
-                # Look for patterns that suggest associations
+                """NP VP ADJP"""
                 if chunkTypes == [u"NP", u"VP", u"ADJP"]:
                     # "Dogs are cute", "The dog is adorable", "Dogs are very fluffy"
                     logging.debug("Found NP VP ADJP! {0}".format(searchSlice))
 
                     if searchSlice[1].head.lemma == u"be":
                         train_association(searchSlice[0].head, 'HAS-PROPERTY', searchSlice[2].head)
+
+                """NP VP NP"""
+                if chunkTypes == [u"NP", u"VP", u"NP"]:
+                    # "Dogs are animals", "A building is a structure"
+                    logging.debug("Found NP VP ADJP! {0}".format(searchSlice))
+
+                    if searchSlice[1].head.lemma == u"be":
+                        train_association(searchSlice[0].head, 'IS-A', searchSlice[2].head)
 
         else:
             logging.debug("Sentence is a question. Skipping learning...")
