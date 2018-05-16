@@ -26,32 +26,34 @@ def calculate_weight(currentWeight):
 connection = sql.connect('emma.db')
 connection.text_factory = str
 cursor = connection.cursor()
+
 def train_association(word, associationType, target):
     """Add or modify an association in the Association Model"""
     # We want to ignore associations with self, so
     if word != target:
         # Get the IDs of the word and the target
         with connection:
-            cursor.execute('SELECT id FROM dictionary WHERE word = "{0}" AND part_of_speech = "{1}";'.format(word.lemma, word.partOfSpeech))
-            wordID = cursor.fetchone()
-            cursor.execute('SELECT id FROM dictionary WHERE word = "{0}" AND part_of_speech = "{1}";'.format(word.lemma, word.partOfSpeech))
-            targetID = cursor.fetchone()
+            cursor.execute('SELECT id FROM dictionary WHERE word = ? AND part_of_speech = ?;', (word.lemma, word.type))
+            wordID = cursor.fetchone()[0]
+            cursor.execute('SELECT id FROM dictionary WHERE word = ? AND part_of_speech = ?;', (target.lemma, target.type))
+            targetID = cursor.fetchone()[0]
 
         # Check to see if an association exists
         with connection:
-            cursor.execute('SELECT * FROM associationmodel WHERE word_id = {0} AND target_id = {1};'.format(wordID, targetID))
+            cursor.execute('SELECT * FROM associationmodel WHERE word_id = ? AND target_id = ?;', (wordID, targetID))
             result = cursor.fetchone()
             if result:
                 # Update an existing association
-                logging.info("Strengthening association {0} {1} {2}".format(word, associationType, target))
+                logging.info("Strengthening association {0} {1} {2}".format(word.lemma, associationType, target.lemma))
                 weight = calculate_weight(result[3])
-                cursor.execute('UPDATE associationmodel SET weight = {0} WHERE word_id = "{1}" AND target_id = "{2}";'.format(weight, wordID, targetID))
+                cursor.execute('UPDATE associationmodel SET weight = ? WHERE word_id = ? AND target_id = ?;', (weight, wordID, targetID))
             else:
                 # Add a new association
-                logging.info("Found new association {0} {1} {2}".format(word, associationType, target))
+                logging.info("Found new association {0} {1} {2}".format(word.lemma, associationType, target.lemma))
                 # This is the weight that would be caluclated for any new association, so we'll just declare it
                 weight = 0.0999999999997
-                cursor.execute('INSERT INTO associationmodel VALUES ({0}, "{1}", {2}, {3});'.format(word, associationType, target, weight))
+                cursor.execute('INSERT INTO associationmodel VALUES (?, ?, ?, ?);', (wordID, associationType, targetID, weight))
+                
 
 def find_associations(message):
     """Use pattern recognition to learn from a Message object"""
@@ -86,7 +88,10 @@ def find_associations(message):
                 # Look for patterns that suggest associations
                 if chunkTypes == [u"NP", u"VP", u"ADJP"]:
                     # "Dogs are cute", "The dog is adorable", "Dogs are very fluffy"
-                    print "NP VP ADJP"
+                    logging.debug("Found NP VP ADJP! {0}".format(searchSlice))
+
+                    if searchSlice[1].head.lemma == u"be":
+                        train_association(searchSlice[0].head, 'HAS-PROPERTY', searchSlice[2].head)
 
         else:
             logging.debug("Sentence is a question. Skipping learning...")
