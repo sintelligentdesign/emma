@@ -186,8 +186,8 @@ def make_imperative(sentence):
         sentence.contents.append(random.choice([u'always', u'never', u'sometimes']))
     sentence.contents.append(weighted_roll(hasabilitytoAssociations).target)
     if random.choice([False, allowComplexImperative]):
-        if random.choice([True, False]):
-            sentence.contents.append(u'with')
+        # if random.choice([True, False]):
+        #     sentence.contents.append(u'with')
         if random.choice([True, False]):
             sentence.contents.append(SBBArticle())
             sentence.contents.append(weighted_roll(hasAssociations).target)
