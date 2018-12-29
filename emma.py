@@ -317,6 +317,18 @@ def filter_message(messageText):
 
     return filteredText
 
+
+# ooo        ooooo            o8o                   ooooo                                       
+# `88.       .888'            `"'                   `888'                                       
+#  888b     d'888   .oooo.   oooo  ooo. .oo.         888          .ooooo.   .ooooo.  oo.ooooo.  
+#  8 Y88. .P  888  `P  )88b  `888  `888P"Y88b        888         d88' `88b d88' `88b  888' `88b 
+#  8  `888'   888   .oP"888   888   888   888        888         888   888 888   888  888   888 
+#  8    Y     888  d8(  888   888   888   888        888       o 888   888 888   888  888   888 
+# o8o        o888o `Y888""8o o888o o888o o888o      o888ooooood8 `Y8bod8P' `Y8bod8P'  888bod8P' 
+#                                                                                     888       
+#                                                                                    o888o                                                                            
+
+# TODO: remove class
 class Ask:
     def __init__(self, message, sender, askid):
         self.sender = sender
@@ -325,43 +337,68 @@ class Ask:
         self.message = filter_message(self.message)
         self.message = Message(self.message, self.sender)
 
+# Create Mastodon API instance
+mastodon = Mastodon(
+    access_token = 'emma_usercred.secret',
+    api_base_url = 'https://botsin.space'
+)
+
+# Create listener
+class Listener(StreamListener):
+    """
+    Listens for Mastodon activity
+
+    Class Variables
+    message         str     String representation of the Message
+    sender          str     Username of person who sent the Message
+    tootID          int     ID of the Toot so that we can reply
+    """
+    def on_notification(self, status):
+        if status.type == 'mention':            
+            # Get status, remove HTML markup
+            self.message = status.status.content
+            self.message = re.sub('<[^<]+?>', '', self.message)
+            print self.message
+
+            # Get other uesful variables
+            self.sender = status.status.account.username
+            self.tootID = status.status.id
+
+            # TODO: Filter out bots
+            # TODO: Check if triggers for banned/blocked users
+
+            # BEGIN WIP
+
+            logging.info("@{0} says: {1}".format(self.sender, self.message))
+            self.message = self.message.encode('utf-8', 'ignore')
+            self.message = filter_message(self.message)
+            self.message = Message(self.message, self.sender)
+            logging.debug("Filtered message: {0}".format(self.message))
+
+            logging.debug("Searching for profanity & banned words...")
+            # END WIP
+
+            return True
+        else:
+            return False
+
 if flags.enableDebugMode == False:
-    # Log in to Mastodon
-    # mastodon = Mastodon(
-    #     client_id = 'emma_clientcred.secret',
-    #     api_base_url = 'https://botsin.space'
-    # )
-
-    # mastodon.log_in(
-    #     apikeys.mastodonEmail,
-    #     apikeys.mastodonPassword,
-    #     to_file = 'emma_usercred.secret'
-    # )
-
-    # Create Mastodon API instance
-    mastodon = Mastodon(
-        access_token = 'emma_usercred.secret',
-        api_base_url = 'https://botsin.space'
+    # Activate listener
+    logging.info("Activating listener...")
+    print mastodon.stream_user(
+        listener=Listener()
     )
 
+    # while True:
+    #     logging.info("Checking Tumblr messages...")
+    #     response = client.submission(blogName)
+    #     if len(response['posts']) > 0:
+    #         asks = []
+    #         for ask in response['posts']:
+    #             asks.append(Ask(ask['question'], ask['asking_name'], ask['id']))
 
-    while True:
-        logging.info("Checking Tumblr messages...")
-        response = client.submission(blogName)
-        if len(response['posts']) > 0:
-            asks = []
-            for ask in response['posts']:
-                asks.append(Ask(ask['question'], ask['asking_name'], ask['id']))
-
-            # Choose a selection of asks to answer
-            askRange = random.randint(2, 4)
-            if len(asks) <= 4:
-                askRange = len(asks)
-            asks = asks[len(asks) - askRange:]
-            logging.info("Answering {0} asks...".format(askRange))
-
-            for ask in asks:
-                logging.debug("@{0} says: {1}".format(ask.sender, ask.message.message.encode('utf-8', 'ignore')))
+    #         for ask in asks:
+    #             logging.debug("@{0} says: {1}".format(ask.sender, ask.message.message.encode('utf-8', 'ignore')))
 
                 # Look for profanity or banned words
                 with open('bannedwords.txt', 'r') as bannedWords:
