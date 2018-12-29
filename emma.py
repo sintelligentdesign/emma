@@ -352,6 +352,7 @@ class Listener(StreamListener):
     message         str     String representation of the Message
     sender          str     Username of person who sent the Message
     tootID          int     ID of the Toot so that we can reply
+    reply           str     Emma's reply to the Message
     """
     def on_notification(self, status):
         if status.type == 'mention':            
@@ -367,8 +368,6 @@ class Listener(StreamListener):
             # TODO: Filter out bots
             # TODO: Block nsfw CWs
             # TODO: Check if triggers for banned/blocked users
-
-            # BEGIN WIP
 
             logging.info("@{0} says: {1}".format(self.sender, self.message))
             # Format message for easier manipulation and more accurate understanding
@@ -391,7 +390,24 @@ class Listener(StreamListener):
                         logging.info("Banned word {0} found in message. Skipping...")
                         # TODO: Skip
 
-            # END WIP
+            # Learn from and reply to the message
+            train(self.message)
+            reply = replybuilder.reply(self.message, calculate_mood())
+
+            if reply == 0:
+                # TODO: Do better fail return (False)
+                # Sentence generation failed
+                # TODO: Skip
+            else:
+                # Submit reply
+                self.reply = cgi.escape(reply)
+                logging.info("Reply: {0}".format(self.reply))
+                self.reply = reply.encode('utf-8', 'ignore')
+
+                mastodon.status_reply(
+                    to_status = self.tootID
+                    status = self.reply
+                )
 
             return True
         else:
@@ -403,67 +419,6 @@ if flags.enableDebugMode == False:
     print mastodon.stream_user(
         listener=Listener()
     )
-
-    # while True:
-    #     logging.info("Checking Tumblr messages...")
-    #     response = client.submission(blogName)
-    #     if len(response['posts']) > 0:
-    #         asks = []
-    #         for ask in response['posts']:
-    #             asks.append(Ask(ask['question'], ask['asking_name'], ask['id']))
-
-    #         for ask in asks:
-    #             logging.debug("@{0} says: {1}".format(ask.sender, ask.message.message.encode('utf-8', 'ignore')))
-
-                # Look for profanity or banned words
-                with open('bannedwords.txt', 'r') as bannedWords:
-                    bannedWords = bannedWords.read()
-                    bannedWords = bannedWords.split('\n')
-                    
-                    for word in ask.message.message.split(' '):
-
-                        profanity = []
-                        profanity.extend(pattern.en.wordlist.PROFANITY)
-                        profanity.remove('gay')
-                        profanity.remove('queer')
-
-                        if word.lower() in bannedWords:
-                            logging.info("Banned word found in message. Deleting...")
-                            client.delete_post(blogName, ask.askid)
-                            pass
-                        elif word.lower() in profanity:
-                            logging.info("Profane word found in message. Deleting...")
-                            client.delete_post(blogName, ask.askid)
-                            pass
-
-                # Learn from and reply to the ask
-                train(ask.message)
-                reply = replybuilder.reply(ask.message, calculate_mood())
-                if reply == 0:
-                    # Sentence generation failed
-                    client.delete_post(blogName, ask.askid)
-                    pass
-                else:
-                    reply = cgi.escape(reply)
-                    logging.info("Reply: {0}".format(reply))
-
-                    # Post the reply to Tumblr
-                    reply = reply.encode('utf-8', 'ignore')
-                    tags = ['dialogue', ask.sender.encode('utf-8', 'ignore'), express_mood(calculate_mood()).encode('utf-8', 'ignore')]
-                    client.edit_post(
-                        blogName,
-                        id = ask.askid,
-                        answer = reply,
-                        state = 'published',
-                        tags = tags,
-                        type = 'answer'
-                    )
-        else:
-            logging.info("No new Tumblr messages.")
-
-        # Sleep for 10 minutes
-        logging.info("Sleeping for 10 minutes...")
-        time.sleep(600)
 
 else:
     # Debug stuff
