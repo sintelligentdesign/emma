@@ -10,7 +10,7 @@ import time
 import pattern.en
 import pattern.vector
 import sqlite3 as sql
-import pytumblr
+from mastodon import Mastodon, StreamListener
 
 import flags
 import pronouns
@@ -317,6 +317,18 @@ def filter_message(messageText):
 
     return filteredText
 
+
+# ooo        ooooo            o8o                   ooooo                                       
+# `88.       .888'            `"'                   `888'                                       
+#  888b     d'888   .oooo.   oooo  ooo. .oo.         888          .ooooo.   .ooooo.  oo.ooooo.  
+#  8 Y88. .P  888  `P  )88b  `888  `888P"Y88b        888         d88' `88b d88' `88b  888' `88b 
+#  8  `888'   888   .oP"888   888   888   888        888         888   888 888   888  888   888 
+#  8    Y     888  d8(  888   888   888   888        888       o 888   888 888   888  888   888 
+# o8o        o888o `Y888""8o o888o o888o o888o      o888ooooood8 `Y8bod8P' `Y8bod8P'  888bod8P' 
+#                                                                                     888       
+#                                                                                    o888o                                                                            
+
+# TODO: remove class
 class Ask:
     def __init__(self, message, sender, askid):
         self.sender = sender
@@ -325,83 +337,90 @@ class Ask:
         self.message = filter_message(self.message)
         self.message = Message(self.message, self.sender)
 
-if flags.enableDebugMode == False:
-    # Authenticate with Tumblr API
-    client = pytumblr.TumblrRestClient(
-        apikeys.tumblrConsumerKey,
-        apikeys.tumblrConsumerSecret,
-        apikeys.tumblrOauthToken,
-        apikeys.tumblrOauthSecret
-    )
-    blogName = 'emmacanlearn'
+# Create Mastodon API instance
+mastodon = Mastodon(
+    access_token = 'emma_usercred.secret',
+    api_base_url = 'https://botsin.space'
+)
 
-    while True:
-        logging.info("Checking Tumblr messages...")
-        response = client.submission(blogName)
-        if len(response['posts']) > 0:
-            asks = []
-            for ask in response['posts']:
-                asks.append(Ask(ask['question'], ask['asking_name'], ask['id']))
+# Create listener
+class Listener(StreamListener):
+    """
+    Listens for Mastodon activity
 
-            # Choose a selection of asks to answer
-            askRange = random.randint(2, 4)
-            if len(asks) <= 4:
-                askRange = len(asks)
-            asks = asks[len(asks) - askRange:]
-            logging.info("Answering {0} asks...".format(askRange))
+    Class Variables
+    message         str     String representation of the Message
+    sender          str     Username of person who sent the Message
+    tootID          int     ID of the Toot so that we can reply
+    reply           str     Emma's reply to the Message
+    """
+    def on_notification(self, status):
+        if status.type == 'mention':            
+            # Get status, remove HTML markup
+            self.message = status.status.content
+            self.message = re.sub('<[^<]+?>', '', self.message)
+            print self.message
 
-            for ask in asks:
-                logging.debug("@{0} says: {1}".format(ask.sender, ask.message.message.encode('utf-8', 'ignore')))
+            # Get other uesful variables
+            self.sender = status.status.account.username
+            self.tootID = status.status.id
 
-                # Look for profanity or banned words
-                with open('bannedwords.txt', 'r') as bannedWords:
-                    bannedWords = bannedWords.read()
-                    bannedWords = bannedWords.split('\n')
-                    
-                    for word in ask.message.message.split(' '):
+            # TODO: Filter out bots
+            # TODO: Block nsfw CWs
+            # TODO: Check if triggers for banned/blocked users
 
-                        profanity = []
-                        profanity.extend(pattern.en.wordlist.PROFANITY)
-                        profanity.remove('gay')
-                        profanity.remove('queer')
+            logging.info("@{0} says: {1}".format(self.sender, self.message))
+            # Format message for easier manipulation and more accurate understanding
+            self.message = self.message.encode('utf-8', 'ignore')
+            self.message = filter_message(self.message)
+            self.message = Message(self.message, self.sender)
+            logging.debug("Filtered message: {0}".format(self.message))
 
-                        if word.lower() in bannedWords:
-                            logging.info("Banned word found in message. Deleting...")
-                            client.delete_post(blogName, ask.askid)
-                            pass
-                        elif word.lower() in profanity:
-                            logging.info("Profane word found in message. Deleting...")
-                            client.delete_post(blogName, ask.askid)
-                            pass
+            # Remove profanity and banned words
+            logging.debug("Searching for profanity & banned words...")
+            with open('bannedwords.txt', 'r') as bannedWords:
+                bannedWords = bannedWords.read()
+                bannedWords = bannedWords.split('\n')
+                bannedWords.extend(pattern.en.wordlist.PROFANITY)
+                bannedWords.remove('gay')
+                bannedWords.remove('queer')
 
-                # Learn from and reply to the ask
-                train(ask.message)
-                reply = replybuilder.reply(ask.message, calculate_mood())
-                if reply == 0:
-                    # Sentence generation failed
-                    client.delete_post(blogName, ask.askid)
-                    pass
-                else:
-                    reply = cgi.escape(reply)
-                    logging.info("Reply: {0}".format(reply))
+                for word in self.message.message.split(' '):
+                    if word.lower() in bannedWords:
+                        logging.info("Banned word {0} found in message. Skipping...")
+                        # TODO: Skip
 
-                    # Post the reply to Tumblr
-                    reply = reply.encode('utf-8', 'ignore')
-                    tags = ['dialogue', ask.sender.encode('utf-8', 'ignore'), express_mood(calculate_mood()).encode('utf-8', 'ignore')]
-                    client.edit_post(
-                        blogName,
-                        id = ask.askid,
-                        answer = reply,
-                        state = 'published',
-                        tags = tags,
-                        type = 'answer'
-                    )
+            # Learn from and reply to the message
+            train(self.message)
+            reply = replybuilder.reply(self.message, calculate_mood())
+
+            if reply == 0:
+                # TODO: Do better fail return (False)
+                # Sentence generation failed
+                # TODO: Skip
+                pass
+            else:
+                # Submit reply
+                self.reply = cgi.escape(reply)
+                logging.info("Reply: {0}".format(self.reply))
+                self.reply = reply.encode('utf-8', 'ignore')
+
+                logging.debug("Posting status to Mastodon...")
+                mastodon.status_reply(
+                    to_status = status.status,
+                    status = self.reply
+                )
+
+            return True
         else:
-            logging.info("No new Tumblr messages.")
+            return False
 
-        # Sleep for 10 minutes
-        logging.info("Sleeping for 10 minutes...")
-        time.sleep(600)
+if flags.enableDebugMode == False:
+    # Activate listener
+    logging.info("Activating listener...")
+    print mastodon.stream_user(
+        listener = Listener()
+    )
 
 else:
     # Debug stuff
