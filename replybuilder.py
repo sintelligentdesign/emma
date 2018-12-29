@@ -319,7 +319,7 @@ def reply(message, moodValue, allowInterrogative=True):
         pass
     else:
         logging.warn('No keywords in Message object. Sentence generation failed.')
-        return 0
+        return False
 
     # Decide how many sentences long our reply will be (excluding greetings, which don't count because a message could be just a greeting)
     minSentences = 1
@@ -389,7 +389,7 @@ def reply(message, moodValue, allowInterrogative=True):
             sentence.domain = random.choice(domains)
         else: 
             logging.warn('No domains available for sentence generation. Sentence generation failed.')
-            return 0
+            return False
         
         logging.debug("Valid domains: {0}".format(str(domains)))
         logging.debug("Chose {0}".format(sentence.domain))

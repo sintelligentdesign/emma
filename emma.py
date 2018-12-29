@@ -355,7 +355,12 @@ class Listener(StreamListener):
     reply           str     Emma's reply to the Message
     """
     def on_notification(self, status):
-        if status.type == 'mention':            
+        if status.type == 'mention':       
+            # Don't reply to bot posts
+            if status.status.account.bot:
+                logging.info("Message is from a bot account. Skipping...")
+                return False     
+                
             # Get status, remove HTML markup
             self.message = status.status.content
             self.message = re.sub('<[^<]+?>', '', self.message)
@@ -365,9 +370,7 @@ class Listener(StreamListener):
             self.sender = status.status.account.username
             self.tootID = status.status.id
 
-            # TODO: Filter out bots
             # TODO: Block nsfw CWs
-            # TODO: Check if triggers for banned/blocked users
 
             logging.info("@{0} says: {1}".format(self.sender, self.message))
             # Format message for easier manipulation and more accurate understanding
@@ -388,17 +391,16 @@ class Listener(StreamListener):
                 for word in self.message.message.split(' '):
                     if word.lower() in bannedWords:
                         logging.info("Banned word {0} found in message. Skipping...")
-                        # TODO: Skip
+                        return False
 
             # Learn from and reply to the message
             train(self.message)
             reply = replybuilder.reply(self.message, calculate_mood())
 
-            if reply == 0:
-                # TODO: Do better fail return (False)
+            if reply == False:
                 # Sentence generation failed
-                # TODO: Skip
-                pass
+                logging.error("Sentence generation failed.")
+                return False
             else:
                 # Submit reply
                 self.reply = cgi.escape(reply)
