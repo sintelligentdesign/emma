@@ -13,8 +13,11 @@ class stdOutListener(StreamListener):
         return True
 
     def on_notification(self, status):
-        print notification
-        return True
+        if status.type == 'mention':
+            print status
+            return True
+        else:
+            return False
 
 # Stream events
 print mastodon.stream_user(
