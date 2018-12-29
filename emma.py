@@ -10,7 +10,7 @@ import time
 import pattern.en
 import pattern.vector
 import sqlite3 as sql
-from mastodon import Mastodon
+from mastodon import Mastodon, StreamListener
 
 import flags
 import pronouns
@@ -398,6 +398,7 @@ class Listener(StreamListener):
                 # TODO: Do better fail return (False)
                 # Sentence generation failed
                 # TODO: Skip
+                pass
             else:
                 # Submit reply
                 self.reply = cgi.escape(reply)
@@ -405,7 +406,7 @@ class Listener(StreamListener):
                 self.reply = reply.encode('utf-8', 'ignore')
 
                 mastodon.status_reply(
-                    to_status = self.tootID
+                    to_status = self.tootID,
                     status = self.reply
                 )
 
