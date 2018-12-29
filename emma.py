@@ -405,8 +405,9 @@ class Listener(StreamListener):
                 logging.info("Reply: {0}".format(self.reply))
                 self.reply = reply.encode('utf-8', 'ignore')
 
+                logging.debug("Posting status to Mastodon...")
                 mastodon.status_reply(
-                    to_status = self.tootID,
+                    to_status = status.status,
                     status = self.reply
                 )
 
@@ -418,7 +419,7 @@ if flags.enableDebugMode == False:
     # Activate listener
     logging.info("Activating listener...")
     print mastodon.stream_user(
-        listener=Listener()
+        listener = Listener()
     )
 
 else:
