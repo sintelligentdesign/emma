@@ -10,7 +10,7 @@ import time
 import pattern.en
 import pattern.vector
 import sqlite3 as sql
-import pytumblr
+from mastodon import Mastodon
 
 import flags
 import pronouns
@@ -326,14 +326,24 @@ class Ask:
         self.message = Message(self.message, self.sender)
 
 if flags.enableDebugMode == False:
-    # Authenticate with Tumblr API
-    client = pytumblr.TumblrRestClient(
-        apikeys.tumblrConsumerKey,
-        apikeys.tumblrConsumerSecret,
-        apikeys.tumblrOauthToken,
-        apikeys.tumblrOauthSecret
+    # Log in to Mastodon
+    # mastodon = Mastodon(
+    #     client_id = 'emma_clientcred.secret',
+    #     api_base_url = 'https://botsin.space'
+    # )
+
+    # mastodon.log_in(
+    #     apikeys.mastodonEmail,
+    #     apikeys.mastodonPassword,
+    #     to_file = 'emma_usercred.secret'
+    # )
+
+    # Create Mastodon API instance
+    mastodon = Mastodon(
+        access_token = 'emma_usercred.secret',
+        api_base_url = 'https://botsin.space'
     )
-    blogName = 'emmacanlearn'
+
 
     while True:
         logging.info("Checking Tumblr messages...")
