@@ -28,7 +28,7 @@ logging.root.setLevel(logging.INFO)
 # Check for emma.db or create it if it isn't there
 logging.info("Checking for association model")
 if os.path.isfile('emma.db'):
-     logging.debug("Association model found!")
+    logging.debug("Association model found!")
 else:
     logging.warn("Association model not found! Creating")
     with sql.connect('emma.db') as connection:
@@ -387,6 +387,7 @@ class Listener(StreamListener):
                 bannedWords.extend(pattern.en.wordlist.PROFANITY)
                 bannedWords.remove('gay')
                 bannedWords.remove('queer')
+                bannedWords.remove('hell')
 
                 for word in self.message.message.split(' '):
                     if word.lower() in bannedWords:
